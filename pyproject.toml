@@ -20,11 +20,11 @@ classifiers = [
   #   3 - Alpha
   #   4 - Beta
   #   5 - Production/Stable
-  "Development Status :: 1 - Pre-Alpha",
+  "Development Status :: 2 - Pre-Alpha",
 
   # Indicate who your project is intended for
   "Intended Audience :: Developers",
-  "Topic :: Software Development :: Machine Learning",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
 
   # Specify the Python versions you support here.
   "Programming Language :: Python :: 3",
