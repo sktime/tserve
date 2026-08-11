@@ -37,6 +37,7 @@ requires-python = ">=3.12"
 # where toml reads it as project.urls.dependencies - so nothing was declared.
 dependencies = [
 	"fastapi",
+	"uvicorn",
 	"narwhals",
 	"sktime",
 	"skpro",
