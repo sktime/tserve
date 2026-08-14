@@ -20,11 +20,11 @@ classifiers = [
   #   3 - Alpha
   #   4 - Beta
   #   5 - Production/Stable
-  "Development Status :: 1 - Pre-Alpha",
+  "Development Status :: 2 - Pre-Alpha",
 
   # Indicate who your project is intended for
   "Intended Audience :: Developers",
-  "Topic :: Software Development :: Machine Learning",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
 
   # Specify the Python versions you support here.
   "Programming Language :: Python :: 3",
@@ -37,10 +37,28 @@ requires-python = ">=3.12"
 # where toml reads it as project.urls.dependencies - so nothing was declared.
 dependencies = [
 	"fastapi",
-	"torch",
+	"uvicorn",
 	"narwhals",
 	"sktime",
-	"pydantic"
+	"skpro",
+	"pydantic",
+	# estimators-general-deps
+	"torch",
+	"transformers",
+	"accelerate",
+	"huggingface_hub",
+	"hf-xet",
+	"safetensors",
+	"einops",
+	"tqdm",
+	"requests",
+	"pytest",
+	# estimators-specific-deps
+	"chronos-forecasting>=2.0.0",  # Chronos2Forecaster
+	"aurora-model==0.2.0", "torchvision",  # AuroraForecaster
+	"gluonts>=0.14.0", "lightning>=2.0", "hydra-core",  # MOIRAI/Moirai2/LagLlama
+	"granite-tsfm>=0.3.5",  # FlowState/PatchTSMixer/TSPulse
+	"tirex-ts",  # TiRexForecaster
 ]
 
 [project.optional-dependencies]
@@ -58,3 +76,9 @@ polars = ["polars"]
 # (`uv pip install -e .`) `from fomo.scheduling.scheduler import Scheduler`
 # works from anywhere
 packages = ["src/fomo"]
+
+[tool.basedpyright]
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+extraPaths = ["src"]
