@@ -6,7 +6,8 @@ from sktime.forecasting.base import ForecastingHorizon
 from sktime.registry import craft
 
 from fomo.runtime.adapt import validate_job
-from fomo.runtime.registry import get_model
+from fomo.runtime.executors.plugins import register
+from fomo.runtime.registry import ModelSpec
 from fomo.runtime.types import ForecastJob, ForecastResult
 
 _WARMUP_Y = pd.DataFrame({"y": [0.0, 1.0, 2.0]})
@@ -72,27 +73,27 @@ def _apply_model_config(forecaster: Any, job: ForecastJob) -> None:
         forecaster.freq = freq
 
 
-class Executor:
+@register("sktime")
+class SktimeExecutor:
     def __init__(self) -> None:
-        self._forecasters: dict[str, Any] = {}
+        self._spec: ModelSpec | None = None
+        self._forecaster: Any = None
 
-    def load(self, model_ref: str) -> None:
-        if model_ref in self._forecasters:
-            return
-        spec = get_model(model_ref)
-        forecaster = craft(spec.spec)
-        _warmup_forecaster(forecaster)
-        self._forecasters[model_ref] = forecaster
+    def load(self, spec: ModelSpec) -> None:
+        self._spec = spec
+        self._forecaster = craft(spec.spec)
+        _warmup_forecaster(self._forecaster)
 
     def predict(self, job: ForecastJob) -> ForecastResult:
         validate_job(job)
-        forecaster = self._forecasters.get(job.model)
-        if forecaster is None:
+        if self._spec is None or self._forecaster is None:
+            raise RuntimeError("sktime executor has no model loaded")
+        if job.model != self._spec.alias:
             raise RuntimeError(
-                f"model {job.model!r} is not loaded; add it to FOMO_PRELOAD_MODELS or call load()"
+                f"executor for {self._spec.alias!r} cannot run {job.model!r}"
             )
 
-        _apply_model_config(forecaster, job)
+        _apply_model_config(self._forecaster, job)
 
         fh = ForecastingHorizon(list(range(1, job.horizon + 1)), is_relative=True)
         y = _to_pandas(
@@ -115,7 +116,7 @@ class Executor:
         fit_kwargs: dict[str, Any] = {"y": y, "fh": fh}
         if x_past is not None:
             fit_kwargs["X"] = x_past
-        forecaster.fit(**fit_kwargs)
+        self._forecaster.fit(**fit_kwargs)
 
         predict_kwargs: dict[str, Any] = {"fh": fh}
         if job.X_future is not None:
@@ -130,11 +131,11 @@ class Executor:
             )
 
         if job.quantiles:
-            q_pred = forecaster.predict_quantiles(
+            q_pred = self._forecaster.predict_quantiles(
                 alpha=list(job.quantiles),
                 **predict_kwargs,
             )
-            y_pred = forecaster.predict(**predict_kwargs)
+            y_pred = self._forecaster.predict(**predict_kwargs)
             return ForecastResult(
                 y_pred=nw.from_native(
                     _prediction_frame(
@@ -146,7 +147,7 @@ class Executor:
                 model=job.model,
             )
 
-        y_pred = forecaster.predict(**predict_kwargs)
+        y_pred = self._forecaster.predict(**predict_kwargs)
         return ForecastResult(
             y_pred=nw.from_native(
                 _prediction_frame(
@@ -156,9 +157,3 @@ class Executor:
             ),
             model=job.model,
         )
-
-    def health(self) -> dict:
-        return {
-            "status": "ok",
-            "loaded_models": sorted(self._forecasters.keys()),
-        }

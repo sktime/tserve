@@ -1,10 +1,7 @@
+from datetime import date, datetime
 from typing import Any
 
-import pandas as pd
-from pandas.tseries.frequencies import to_offset
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
-from fomo.runtime.registry import get_model
 
 FORECAST_REQUEST_EXAMPLE = {
     "time": "timestamp",
@@ -99,23 +96,6 @@ class ForecastRequest(BaseModel):
             data = dict(data)
             data["horizon"] = data.pop("fh")
         return data
-
-    @field_validator("model")
-    @classmethod
-    def known_model(cls, value: str) -> str:
-        get_model(value)
-        return value
-
-    @field_validator("freq")
-    @classmethod
-    def valid_freq(cls, value: str | None) -> str | None:
-        if value is None:
-            return value
-        try:
-            to_offset(value)
-        except (ValueError, TypeError) as exc:
-            raise ValueError(f"invalid freq {value!r}") from exc
-        return value
 
     @field_validator("quantiles")
     @classmethod
@@ -247,9 +227,20 @@ def _column_by_key(table: Table, keys: list[str], column: str) -> dict[tuple[Any
     return grouped
 
 
+def _as_datetime(value: Any) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, date):
+        return datetime.combine(value, datetime.min.time())
+    text = str(value).strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    return datetime.fromisoformat(text)
+
+
 def _time_after(later: Any, earlier: Any) -> bool:
     try:
-        return pd.to_datetime(later) > pd.to_datetime(earlier)
+        return _as_datetime(later) > _as_datetime(earlier)
     except (ValueError, TypeError):
         return later > earlier
 
@@ -280,6 +271,7 @@ class ForecastResponse(BaseModel):
 class ModelInfo(BaseModel):
     alias: str
     estimator: str
+    executor: str
     multivariate: bool
     exogenous: bool
     quantiles: bool
