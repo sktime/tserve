@@ -1,4 +1,7 @@
+from typing import Any
+
 import narwhals as nw
+import pandas as pd
 
 from fomo.api.schemas import ForecastRequest, ForecastResponse, Table
 from fomo.runtime.registry import get_model
@@ -6,128 +9,70 @@ from fomo.runtime.types import ForecastJob, ForecastResult
 
 
 def table_to_frame(table: Table) -> nw.DataFrame:
-    if not table.columns:
-        raise ValueError("data.columns must not be empty")
-    if not table.data:
-        raise ValueError("data.data must not be empty")
     cols = {name: [row[i] for row in table.data] for i, name in enumerate(table.columns)}
     return nw.from_dict(cols, backend="pandas")
 
 
+def _json_cell(value: Any) -> Any:
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    if hasattr(value, "item"):
+        return value.item()
+    return value
+
+
 def frame_to_table(frame: nw.DataFrame) -> Table:
-    return Table(columns=list(frame.columns), data=[list(row) for row in frame.iter_rows()])
+    return Table(
+        columns=list(frame.columns),
+        data=[[_json_cell(cell) for cell in row] for row in frame.iter_rows()],
+    )
 
 
-def _index_columns(time_column: str | None, id_columns: list[str] | None) -> list[str]:
-    cols: list[str] = []
-    if id_columns:
-        cols.extend(id_columns)
-    if time_column:
-        cols.append(time_column)
-    return cols
+def _index_columns(request: ForecastRequest) -> list[str]:
+    return list(request.series_id or []) + [request.time]
 
 
-def _apply_context(frame: nw.DataFrame, context: int | None, time_column: str | None) -> nw.DataFrame:
-    if context is None:
-        return frame
-    if time_column and time_column in frame.columns:
-        return frame.sort(time_column).tail(context)
-    return frame.tail(context)
+def _parse_time(frame: nw.DataFrame, time: str) -> nw.DataFrame:
+    pdf = frame.to_pandas()
+    pdf[time] = pd.to_datetime(pdf[time])
+    return nw.from_native(pdf, eager_only=True)
 
 
-def _resolve_target_columns(
-    frame: nw.DataFrame,
-    *,
-    target_columns: list[str] | None,
-    time_column: str | None,
-    id_columns: list[str] | None,
-) -> tuple[str, ...]:
-    if target_columns:
-        return tuple(target_columns)
-
-    skip = set(_index_columns(time_column, id_columns))
-    numeric = [
-        col
-        for col in frame.columns
-        if col not in skip and frame.schema[col].is_numeric()
-    ]
-    if not numeric:
-        raise ValueError("could not infer target columns from data")
-    return tuple(numeric)
-
-
-def _resolve_exog_columns(
-    frame: nw.DataFrame,
-    *,
-    exog_columns: list[str] | None,
-    target_columns: tuple[str, ...],
-    time_column: str | None,
-    id_columns: list[str] | None,
-) -> tuple[str, ...]:
-    if exog_columns is not None:
-        return tuple(exog_columns)
-    skip = set(target_columns) | set(_index_columns(time_column, id_columns))
-    return tuple(col for col in frame.columns if col not in skip)
-
-
-def _with_index_columns(
-    frame: nw.DataFrame,
-    value_columns: tuple[str, ...],
-    *,
-    time_column: str | None,
-    id_columns: list[str] | None,
-) -> nw.DataFrame:
-    keep = list(value_columns) + _index_columns(time_column, id_columns)
-    keep = [col for col in keep if col in frame.columns]
+def _select(frame: nw.DataFrame, columns: list[str]) -> nw.DataFrame:
+    keep = [col for col in columns if col in frame.columns]
     return frame.select(keep)
 
 
-def _last_time(y_frame: nw.DataFrame, time_column: str) -> object:
-    if time_column not in y_frame.columns:
-        raise ValueError(f"time_column {time_column!r} not found in data")
-    return y_frame.sort(time_column).tail(1)[time_column][0]
+def _join_static(
+    frame: nw.DataFrame,
+    static: nw.DataFrame,
+    series_id: list[str],
+) -> nw.DataFrame:
+    return frame.join(static, on=series_id, how="left")
 
 
-def _split_exog_timeline(
-    y_frame: nw.DataFrame,
-    exog_frame: nw.DataFrame,
-    *,
-    time_column: str,
-    exog_columns: tuple[str, ...],
-    id_columns: list[str] | None,
-    horizon: int,
-) -> tuple[nw.DataFrame, nw.DataFrame | None]:
-    if time_column not in exog_frame.columns:
-        raise ValueError(f"time_column {time_column!r} not found in exog_data")
-
-    missing = [col for col in exog_columns if col not in exog_frame.columns]
-    if missing:
-        raise ValueError(f"exog columns not found in exog_data: {missing}")
-
-    cutoff = _last_time(y_frame, time_column)
-    exog = exog_frame.sort(time_column)
-    past = exog.filter(nw.col(time_column) <= cutoff)
-    future = exog.filter(nw.col(time_column) > cutoff).head(horizon)
-
-    x_past = _with_index_columns(
-        past, exog_columns, time_column=time_column, id_columns=id_columns
-    )
-    if future.shape[0] == 0:
-        return x_past, None
-    if future.shape[0] < horizon:
-        raise ValueError(
-            f"exog_data has {future.shape[0]} future rows but horizon={horizon}; "
-            "provide known covariates for the full horizon"
-        )
-    x_future = _with_index_columns(
-        future, exog_columns, time_column=time_column, id_columns=id_columns
-    )
-    return x_past, x_future
+def _future_index_from_freq(request: ForecastRequest, hist: pd.DataFrame) -> pd.DataFrame:
+    if request.freq is None:
+        raise ValueError("freq is required when static is set without future")
+    keys = list(request.series_id or [])
+    rows: list[list[Any]] = []
+    if keys:
+        for key, group in hist.groupby(keys, sort=False):
+            key_t = key if isinstance(key, tuple) else (key,)
+            last = group[request.time].max()
+            times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
+            for ts in times:
+                rows.append([*key_t, ts])
+    else:
+        last = hist[request.time].max()
+        times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
+        rows.extend([ts] for ts in times)
+    return pd.DataFrame(rows, columns=keys + [request.time])
 
 
 def validate_job(job: ForecastJob) -> None:
     spec = get_model(job.model)
-    if len(job.target_columns) > 1 and not spec.multivariate:
+    if len(job.target) > 1 and not spec.multivariate:
         raise ValueError(f"model {job.model!r} does not support multivariate targets")
     has_exog = job.X is not None or job.X_future is not None
     if has_exog and not spec.exogenous:
@@ -137,71 +82,44 @@ def validate_job(job: ForecastJob) -> None:
 
 
 def job_from_request(request: ForecastRequest) -> ForecastJob:
-    frame = table_to_frame(request.data)
-    frame = _apply_context(frame, request.context, request.time_column)
+    index_cols = _index_columns(request)
+    hist = _parse_time(table_to_frame(request.history), request.time)
+    y = _select(hist, index_cols + list(request.target))
 
-    target_columns = _resolve_target_columns(
-        frame,
-        target_columns=request.target_columns,
-        time_column=request.time_column,
-        id_columns=request.id_columns,
-    )
-    exog_columns = _resolve_exog_columns(
-        frame,
-        exog_columns=request.exog_columns,
-        target_columns=target_columns,
-        time_column=request.time_column,
-        id_columns=request.id_columns,
-    )
-
-    y = _with_index_columns(
-        frame,
-        target_columns,
-        time_column=request.time_column,
-        id_columns=request.id_columns,
-    )
-
+    known = list(request.known_future or [])
     x: nw.DataFrame | None = None
     x_future: nw.DataFrame | None = None
 
-    if request.exog_data is not None:
-        if not request.time_column:
-            raise ValueError("time_column is required when exog_data is provided")
-        if not exog_columns:
-            raise ValueError("exog_columns is required when exog_data is provided")
-        exog_frame = table_to_frame(request.exog_data)
-        x, x_future = _split_exog_timeline(
-            y,
-            exog_frame,
-            time_column=request.time_column,
-            exog_columns=exog_columns,
-            id_columns=request.id_columns,
-            horizon=request.horizon,
-        )
-    elif exog_columns:
-        x = _with_index_columns(
-            frame,
-            exog_columns,
-            time_column=request.time_column,
-            id_columns=request.id_columns,
-        )
+    if known or request.static is not None:
+        x = _select(hist, index_cols + known)
+        if request.future is not None:
+            fut = _parse_time(table_to_frame(request.future), request.time)
+            x_future = _select(fut, index_cols + known)
+        else:
+            x_future = nw.from_native(
+                _future_index_from_freq(request, hist.to_pandas()),
+                eager_only=True,
+            )
 
-    quantiles = tuple(request.quantiles) if request.quantiles else None
-    model_config = dict(request.model_config_overrides or {})
+        if request.static is not None:
+            assert request.series_id is not None
+            static = table_to_frame(request.static)
+            x = _join_static(x, static, request.series_id)
+            x_future = _join_static(x_future, static, request.series_id)
 
     job = ForecastJob(
         model=request.model,
         y=y,
         horizon=request.horizon,
-        target_columns=target_columns,
+        target=tuple(request.target),
+        time=request.time,
+        series_id=tuple(request.series_id or ()),
         X=x,
         X_future=x_future,
-        time_column=request.time_column,
-        id_columns=tuple(request.id_columns or ()),
+        past_only=tuple(request.past_only or ()),
         freq=request.freq,
-        context=request.context,
-        quantiles=quantiles,
-        model_config=model_config,
+        quantiles=tuple(request.quantiles) if request.quantiles else None,
+        model_config=dict(request.model_config_overrides or {}),
     )
     validate_job(job)
     return job

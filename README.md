@@ -25,7 +25,9 @@ Five daily sales observations, forecast three steps ahead with the `dummy` model
 curl -s http://127.0.0.1:8000/forecast \
   -H 'Content-Type: application/json' \
   -d '{
-    "data": {
+    "time": "timestamp",
+    "target": ["sales"],
+    "history": {
       "columns": ["timestamp", "sales"],
       "data": [
         ["2024-01-01", 120],
@@ -35,8 +37,6 @@ curl -s http://127.0.0.1:8000/forecast \
         ["2024-01-05", 138]
       ]
     },
-    "target_columns": ["sales"],
-    "time_column": "timestamp",
     "horizon": 3,
     "freq": "D",
     "model": "dummy"
@@ -48,8 +48,12 @@ Example response:
 ```json
 {
   "predictions": {
-    "columns": ["sales"],
-    "data": [[138.0], [138.0], [138.0]]
+    "columns": ["timestamp", "sales"],
+    "data": [
+      ["2024-01-06T00:00:00", 138.0],
+      ["2024-01-07T00:00:00", 138.0],
+      ["2024-01-08T00:00:00", 138.0]
+    ]
   },
   "quantiles": null,
   "model": "dummy",
@@ -59,16 +63,24 @@ Example response:
 
 ## Request fields
 
+Long tables plus explicit roles. Unlisted columns are ignored. Omit empty role lists.
 
-| Field          | Role                                                             |
-| -------------- | ---------------------------------------------------------------- |
-| `data`         | Target history (and optional inline past exog)                   |
-| `exog_data`    | Full exog timeline when future covariates are known              |
-| `horizon`      | Steps to forecast (alias: `fh`)                                  |
-| `freq`         | Series frequency (`D`, `H`, `5min`, ...) for models that need it |
-| `context`      | Max history rows to use (most recent)                            |
-| `quantiles`    | Probabilistic output, e.g. `[0.1, 0.5, 0.9]`                     |
-| `model_config` | Model-specific overrides, e.g. `{"freq": "D"}`                   |
+| Field | Required | Role |
+| --- | --- | --- |
+| `history` | yes | Long table: one row per series x observed timestamp |
+| `future` | if `known_future` is set | Horizon covariates only. No targets. Exactly `horizon` timestamps per series |
+| `static` | if static features exist | One row per series |
+| `series_id` | no | Key columns, MultiIndex order. Omit for a single series |
+| `time` | yes | Timestamp column |
+| `target` | yes | Target names. Always a list |
+| `known_future` | no | Dynamic covariates in both `history` and `future` |
+| `past_only` | no | Dynamic covariates on `history` only (kept for later backends; not sktime `X`) |
+| `horizon` | yes | Steps to forecast (alias: `fh`) |
+| `freq` | no | Pandas offset (`D`, `MS`, `H`, ...). Not inferred |
+| `quantiles` | no | Probabilistic output, e.g. `[0.1, 0.5, 0.9]` |
+| `model_config` | no | Model-specific overrides |
+| `model` | yes | Loaded estimator alias |
 
+`{columns, data}` is the table encoding. The same roles apply later to pandas frames or numpy arrays sent as raw bytes.
 
 See `GET /models` for model capabilities and `GET /health` for loaded models.

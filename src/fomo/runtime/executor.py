@@ -22,16 +22,38 @@ def _to_pandas(
     frame: nw.DataFrame,
     *,
     value_columns: tuple[str, ...],
-    time_column: str | None,
-    id_columns: tuple[str, ...],
+    time: str,
+    series_id: tuple[str, ...],
 ) -> pd.DataFrame:
     pdf = frame.to_pandas()
-    index_cols = [col for col in (*id_columns, time_column) if col and col in pdf.columns]
-    if time_column and time_column in pdf.columns:
-        pdf[time_column] = pd.to_datetime(pdf[time_column])
+    index_cols = [col for col in (*series_id, time) if col in pdf.columns]
+    if time in pdf.columns:
+        pdf[time] = pd.to_datetime(pdf[time])
     if index_cols:
         pdf = pdf.set_index(index_cols)
     return pdf[list(value_columns)]
+
+
+def _prediction_frame(
+    y_pred: pd.Series | pd.DataFrame,
+    *,
+    target: tuple[str, ...],
+    time: str,
+    series_id: tuple[str, ...],
+) -> pd.DataFrame:
+    if isinstance(y_pred, pd.Series):
+        y_pred = y_pred.to_frame(name=target[0])
+    y_pred = y_pred.copy()
+    expected = list(series_id) + [time]
+    if isinstance(y_pred.index, pd.MultiIndex):
+        names = [
+            current if current is not None else expected[i]
+            for i, current in enumerate(y_pred.index.names)
+        ]
+        y_pred.index = y_pred.index.set_names(names)
+    elif y_pred.index.name is None:
+        y_pred.index.name = time
+    return y_pred.reset_index()
 
 
 def _flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
@@ -75,19 +97,19 @@ class Executor:
         fh = ForecastingHorizon(list(range(1, job.horizon + 1)), is_relative=True)
         y = _to_pandas(
             job.y,
-            value_columns=job.target_columns,
-            time_column=job.time_column,
-            id_columns=job.id_columns,
+            value_columns=job.target,
+            time=job.time,
+            series_id=job.series_id,
         )
 
         x_past = None
         if job.X is not None:
-            exog_cols = tuple(c for c in job.X.columns if c not in job.id_columns and c != job.time_column)
+            exog_cols = tuple(c for c in job.X.columns if c not in job.series_id and c != job.time)
             x_past = _to_pandas(
                 job.X,
                 value_columns=exog_cols,
-                time_column=job.time_column,
-                id_columns=job.id_columns,
+                time=job.time,
+                series_id=job.series_id,
             )
 
         fit_kwargs: dict[str, Any] = {"y": y, "fh": fh}
@@ -98,13 +120,13 @@ class Executor:
         predict_kwargs: dict[str, Any] = {"fh": fh}
         if job.X_future is not None:
             exog_cols = tuple(
-                c for c in job.X_future.columns if c not in job.id_columns and c != job.time_column
+                c for c in job.X_future.columns if c not in job.series_id and c != job.time
             )
             predict_kwargs["X"] = _to_pandas(
                 job.X_future,
                 value_columns=exog_cols,
-                time_column=job.time_column,
-                id_columns=job.id_columns,
+                time=job.time,
+                series_id=job.series_id,
             )
 
         if job.quantiles:
@@ -114,13 +136,26 @@ class Executor:
             )
             y_pred = forecaster.predict(**predict_kwargs)
             return ForecastResult(
-                y_pred=nw.from_native(y_pred),
-                quantiles=nw.from_native(_flatten_quantiles(q_pred)),
+                y_pred=nw.from_native(
+                    _prediction_frame(
+                        y_pred, target=job.target, time=job.time, series_id=job.series_id
+                    ),
+                    eager_only=True,
+                ),
+                quantiles=nw.from_native(_flatten_quantiles(q_pred), eager_only=True),
                 model=job.model,
             )
 
         y_pred = forecaster.predict(**predict_kwargs)
-        return ForecastResult(y_pred=nw.from_native(y_pred), model=job.model)
+        return ForecastResult(
+            y_pred=nw.from_native(
+                _prediction_frame(
+                    y_pred, target=job.target, time=job.time, series_id=job.series_id
+                ),
+                eager_only=True,
+            ),
+            model=job.model,
+        )
 
     def health(self) -> dict:
         return {
