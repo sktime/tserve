@@ -2,15 +2,15 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Request
 
-from fomo.api.schemas import (
+from fomo.runtime.adapt import job_from_request, result_to_response
+from fomo.runtime.registry import MODELS
+from fomo.server.schemas import (
     ErrorResponse,
     ForecastRequest,
     ForecastResponse,
     ModelInfo,
     ModelsResponse,
 )
-from fomo.runtime.adapt import job_from_request, result_to_response
-from fomo.runtime.registry import MODELS
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ def error_response(*, status_code: int, code: str, message: str, request_id: str
 
 @router.get("/health")
 def health(request: Request) -> dict:
-    return request.app.state.runtime.executor.health()
+    return request.app.state.runtime.health()
 
 
 @router.get("/models", response_model=ModelsResponse)
@@ -39,6 +39,7 @@ def models() -> ModelsResponse:
             ModelInfo(
                 alias=spec.alias,
                 estimator=spec.estimator,
+                executor=spec.executor,
                 multivariate=spec.multivariate,
                 exogenous=spec.exogenous,
                 quantiles=spec.quantiles,
