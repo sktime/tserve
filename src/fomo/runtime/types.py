@@ -9,13 +9,13 @@ class ForecastJob:
     model: str
     y: nw.DataFrame
     horizon: int
-    target_columns: tuple[str, ...]
+    target: tuple[str, ...]
+    time: str
+    series_id: tuple[str, ...] = field(default_factory=tuple)
     X: nw.DataFrame | None = None
     X_future: nw.DataFrame | None = None
-    time_column: str | None = None
-    id_columns: tuple[str, ...] = field(default_factory=tuple)
+    past_only: tuple[str, ...] = field(default_factory=tuple)
     freq: str | None = None
-    context: int | None = None
     quantiles: tuple[float, ...] | None = None
     model_config: dict[str, Any] = field(default_factory=dict)
 
