@@ -3,7 +3,7 @@ from typing import Any
 import narwhals as nw
 import pandas as pd
 
-from fomo.api.schemas import ForecastRequest, ForecastResponse, Table
+from fomo.contract.wire import ForecastRequest, ForecastResponse, Table
 from fomo.runtime.registry import get_model
 from fomo.runtime.types import ForecastJob, ForecastResult
 
