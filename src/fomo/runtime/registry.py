@@ -6,6 +6,7 @@ class ModelSpec:
     alias: str
     estimator: str
     spec: str
+    executor: str = "sktime"
     multivariate: bool = False
     exogenous: bool = False
     quantiles: bool = False
