@@ -15,7 +15,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["time series", "forecasting", "foundation models", "inference"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Programming Language :: Python :: 3",
@@ -27,12 +27,13 @@ requires-python = ">=3.12"
 # note: this has to stay inside [project]. It used to sit below [project.urls],
 # where toml reads it as project.urls.dependencies - so nothing was declared.
 dependencies = [
+	"httpx",
+	"pydantic",
 	"fastapi",
 	"uvicorn",
 	"narwhals",
 	"sktime",
 	"skpro",
-	"pydantic",
 	# estimators-general-deps
 	"torch",
 	"transformers",
@@ -42,8 +43,6 @@ dependencies = [
 	"safetensors",
 	"einops",
 	"tqdm",
-	"requests",
-	"pytest",
 	# estimators-specific-deps
 	"chronos-forecasting>=2.0.0",  # Chronos2Forecaster
 	"aurora-model==0.2.0", "torchvision",  # AuroraForecaster
@@ -52,15 +51,15 @@ dependencies = [
 	"tirex-ts",  # TiRexForecaster
 ]
 
-[project.optional-dependencies]
-# todo: can we set one as default and if the other is chosen get rid of the other?
-# maybe just using "standard" for one and requiring users to install fomo[standard]?
-pandas = ["pandas"]
-polars = ["polars"]
+[project.scripts]
+fomo = "fomo.cli.main:main"
 
 [project.urls]
 # todo: add homepage once it is ready
 # HomePage = ""
+
+[dependency-groups]
+dev = ["pytest"]
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
