@@ -1,24 +1,10 @@
-from typing import Any, Literal
+from typing import Any
 
+import pandas as pd
+from pandas.tseries.frequencies import to_offset
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from fomo.runtime.registry import get_model
-
-# Common pandas / sktime offset aliases (see Retrocast freq enum).
-Freq = Literal[
-    "10S",
-    "min",
-    "5min",
-    "10min",
-    "15min",
-    "30min",
-    "H",
-    "D",
-    "W",
-    "M",
-    "Q",
-    "Y",
-]
 
 FORECAST_REQUEST_EXAMPLE = {
     "data": {
@@ -49,11 +35,32 @@ FORECAST_RESPONSE_EXAMPLE = {
 }
 
 
+def _empty_list_to_none(value: list[str] | None) -> list[str] | None:
+    if value is not None and len(value) == 0:
+        return None
+    return value
+
+
 class Table(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    columns: list[str]
-    data: list[list[Any]]
+    columns: list[str] = Field(min_length=1)
+    data: list[list[Any]] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def rows_match_columns(self) -> "Table":
+        if len(set(self.columns)) != len(self.columns):
+            raise ValueError("duplicate column names")
+        width = len(self.columns)
+        for i, row in enumerate(self.data):
+            if len(row) != width:
+                raise ValueError(f"row {i} has {len(row)} values, expected {width}")
+        return self
+
+    def require(self, names: list[str], *, label: str) -> None:
+        missing = [name for name in names if name not in self.columns]
+        if missing:
+            raise ValueError(f"{label} missing columns: {missing}")
 
 
 class ForecastRequest(BaseModel):
@@ -62,18 +69,24 @@ class ForecastRequest(BaseModel):
         json_schema_extra={"examples": [FORECAST_REQUEST_EXAMPLE]},
     )
 
-    data: Table
-    exog_data: Table | None = None
-    target_columns: list[str] | None = None
-    exog_columns: list[str] | None = None
-    time_column: str | None = None
-    id_columns: list[str] | None = None
+    history: Table
+    future: Table | None = None
+    static: Table | None = None
+    series_id: list[str] | None = None
+    time: str
+    target: list[str] = Field(min_length=1)
+    known_future: list[str] | None = None
+    past_only: list[str] | None = None
     horizon: int = Field(gt=0, le=10_000)
-    freq: Freq | None = None
-    context: int | None = Field(default=None, gt=0)
+    freq: str | None = None
     quantiles: list[float] | None = None
     model_config_overrides: dict[str, Any] | None = Field(default=None, alias="model_config")
     model: str = "dummy"
+
+    @field_validator("series_id", "known_future", "past_only", mode="before")
+    @classmethod
+    def omit_empty_role_lists(cls, value: list[str] | None) -> list[str] | None:
+        return _empty_list_to_none(value)
 
     @model_validator(mode="before")
     @classmethod
@@ -87,6 +100,17 @@ class ForecastRequest(BaseModel):
     @classmethod
     def known_model(cls, value: str) -> str:
         get_model(value)
+        return value
+
+    @field_validator("freq")
+    @classmethod
+    def valid_freq(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        try:
+            to_offset(value)
+        except (ValueError, TypeError) as exc:
+            raise ValueError(f"invalid freq {value!r}") from exc
         return value
 
     @field_validator("quantiles")
