@@ -7,7 +7,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from fomo.runtime.registry import get_model
 
 FORECAST_REQUEST_EXAMPLE = {
-    "data": {
+    "time": "timestamp",
+    "target": ["sales"],
+    "history": {
         "columns": ["timestamp", "sales"],
         "data": [
             ["2024-01-01", 120],
@@ -17,8 +19,6 @@ FORECAST_REQUEST_EXAMPLE = {
             ["2024-01-05", 138],
         ],
     },
-    "target_columns": ["sales"],
-    "time_column": "timestamp",
     "horizon": 3,
     "freq": "D",
     "model": "dummy",
@@ -26,8 +26,12 @@ FORECAST_REQUEST_EXAMPLE = {
 
 FORECAST_RESPONSE_EXAMPLE = {
     "predictions": {
-        "columns": ["sales"],
-        "data": [[138.0], [138.0], [138.0]],
+        "columns": ["timestamp", "sales"],
+        "data": [
+            ["2024-01-06T00:00:00", 138.0],
+            ["2024-01-07T00:00:00", 138.0],
+            ["2024-01-08T00:00:00", 138.0],
+        ],
     },
     "quantiles": None,
     "model": "dummy",
