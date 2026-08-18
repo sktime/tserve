@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Request
 
-from fomo.runtime.adapt import job_from_request, result_to_response
+from fomo.types.converters import job_from_request, result_to_response
 from fomo.runtime.registry import MODELS
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 

@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types.models import ForecastJob, ForecastResult
 from fomo.types import ModelInfo
 
 

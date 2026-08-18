@@ -5,10 +5,10 @@ import pandas as pd
 from sktime.forecasting.base import ForecastingHorizon
 from sktime.registry import craft
 
-from fomo.runtime.adapt import validate_job
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.types import ForecastJob, ForecastResult
 from fomo.types import ModelInfo
+from fomo.types.converters import validate_job
+from fomo.types.models import ForecastJob, ForecastResult
 
 _WARMUP_Y = pd.DataFrame({"y": [0.0, 1.0, 2.0]})
 _WARMUP_FH = ForecastingHorizon([1], is_relative=True)

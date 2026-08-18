@@ -1,1 +1,1 @@
-"""Runtime: adapt JSON to narwhals frames and run forecasters."""
+"""Runtime: load models and run forecasters."""

@@ -1,5 +1,5 @@
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types.models import ForecastJob, ForecastResult
 from fomo.types import ModelInfo
 
 

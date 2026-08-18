@@ -4,8 +4,7 @@ import narwhals as nw
 import pandas as pd
 
 from fomo.runtime.registry import get_model
-from fomo.runtime.types import ForecastJob, ForecastResult
-from fomo.types import ForecastRequest, ForecastResponse
+from fomo.types.models import ForecastJob, ForecastRequest, ForecastResponse, ForecastResult
 
 
 def _as_table_dict(table: Any) -> dict[str, Any]:
