@@ -7,7 +7,7 @@ from sktime.registry import craft
 
 from fomo.runtime.adapt import validate_job
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.runtime.types import ForecastJob, ForecastResponse
 from fomo.types import ModelInfo
 
 _WARMUP_Y = pd.DataFrame({"y": [0.0, 1.0, 2.0]})
@@ -84,7 +84,7 @@ class SktimeExecutor:
         self._forecaster = craft(spec.spec)
         _warmup_forecaster(self._forecaster)
 
-    def predict(self, job: ForecastJob) -> ForecastResult:
+    def predict(self, job: ForecastJob) -> ForecastResponse:
         validate_job(job)
         if self._spec is None or self._forecaster is None:
             raise RuntimeError("sktime executor has no model loaded")
@@ -136,7 +136,7 @@ class SktimeExecutor:
                 **predict_kwargs,
             )
             y_pred = self._forecaster.predict(**predict_kwargs)
-            return ForecastResult(
+            return ForecastResponse(
                 y_pred=nw.from_native(
                     _prediction_frame(
                         y_pred, target=job.target, time=job.time, series_id=job.series_id
@@ -148,7 +148,7 @@ class SktimeExecutor:
             )
 
         y_pred = self._forecaster.predict(**predict_kwargs)
-        return ForecastResult(
+        return ForecastResponse(
             y_pred=nw.from_native(
                 _prediction_frame(
                     y_pred, target=job.target, time=job.time, series_id=job.series_id

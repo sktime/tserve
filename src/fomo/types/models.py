@@ -21,7 +21,7 @@ class ForecastRequest(BaseModel):
     params: dict[str, Any] | None = None
 
 
-class ForecastResult(BaseModel):
+class ForecastResponse(BaseModel):
     predictions: Any
     model: str
     request_id: str

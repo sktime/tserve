@@ -1,6 +1,6 @@
 from fomo.types.models import (
     ForecastRequest,
-    ForecastResult,
+    ForecastResponse,
     HealthError,
     HealthResult,
     ModelInfo,
@@ -9,7 +9,7 @@ from fomo.types.models import (
 
 __all__ = [
     "ForecastRequest",
-    "ForecastResult",
+    "ForecastResponse",
     "HealthError",
     "HealthResult",
     "ModelInfo",

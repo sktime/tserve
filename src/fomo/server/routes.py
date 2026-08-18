@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from fomo.runtime.adapt import job_from_request, result_to_response
 from fomo.runtime.registry import MODELS
-from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
+from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 
 router = APIRouter()
 
@@ -19,8 +19,8 @@ def models() -> ModelsResult:
     return MODELS
 
 
-@router.post("/forecast", response_model=ForecastResult)
-def forecast(request_body: ForecastRequest, request: Request) -> ForecastResult:
+@router.post("/forecast", response_model=ForecastResponse)
+def forecast(request_body: ForecastRequest, request: Request) -> ForecastResponse:
     request_id = str(uuid.uuid4())
     try:
         job = job_from_request(request_body)

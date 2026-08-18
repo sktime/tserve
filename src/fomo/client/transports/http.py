@@ -5,20 +5,20 @@ from typing import Any
 import httpx
 
 from fomo.client.errors import FoMoError
-from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
+from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 
 
 class HttpTransport:
     def __init__(self, base_url: str, *, timeout: float = 60.0) -> None:
         self._client = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout)
 
-    def forecast(self, request: ForecastRequest) -> ForecastResult:
+    def forecast(self, request: ForecastRequest) -> ForecastResponse:
         body = self._request(
             "POST",
             "/forecast",
             json=request.model_dump(mode="json", exclude_none=True),
         )
-        return ForecastResult.model_validate(body)
+        return ForecastResponse.model_validate(body)
 
     def health(self) -> HealthResult:
         return HealthResult.model_validate(self._request("GET", "/health"))
