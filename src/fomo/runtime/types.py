@@ -21,7 +21,7 @@ class ForecastJob:
 
 
 @dataclass(frozen=True)
-class ForecastResponse:
+class ForecastResult:
     y_pred: nw.DataFrame
     model: str
     quantiles: nw.DataFrame | None = None
