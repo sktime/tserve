@@ -45,6 +45,7 @@ class ModelInfo(BaseModel):
     multivariate: bool
     exogenous: bool
     quantiles: bool
+    spec: str
 
 
 class ModelsResult(BaseModel):

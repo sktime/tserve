@@ -49,6 +49,7 @@ MODEL_INFO = {
     "multivariate": False,
     "exogenous": False,
     "quantiles": True,
+    "spec": "NaiveForecaster()",
 }
 
 MODELS_RESULT = {"models": [MODEL_INFO]}
