@@ -9,7 +9,6 @@ from fomo.types import (
     ForecastRequest,
     ForecastResult,
     HealthResult,
-    ModelInfo,
     ModelsResult,
 )
 
@@ -35,19 +34,7 @@ def health() -> HealthResult:
 
 @router.get("/models", response_model=ModelsResult)
 def models() -> ModelsResult:
-    return ModelsResult(
-        models=[
-            ModelInfo(
-                alias=spec.alias,
-                estimator=spec.estimator,
-                executor=spec.executor,
-                multivariate=spec.multivariate,
-                exogenous=spec.exogenous,
-                quantiles=spec.quantiles,
-            )
-            for spec in MODELS.values()
-        ]
-    )
+    return MODELS
 
 
 @router.post("/forecast", response_model=ForecastResult)

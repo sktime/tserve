@@ -7,8 +7,8 @@ from sktime.registry import craft
 
 from fomo.runtime.adapt import validate_job
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.registry import ModelSpec
 from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types import ModelInfo
 
 _WARMUP_Y = pd.DataFrame({"y": [0.0, 1.0, 2.0]})
 _WARMUP_FH = ForecastingHorizon([1], is_relative=True)
@@ -76,10 +76,10 @@ def _apply_model_config(forecaster: Any, job: ForecastJob) -> None:
 @register("sktime")
 class SktimeExecutor:
     def __init__(self) -> None:
-        self._spec: ModelSpec | None = None
+        self._spec: ModelInfo | None = None
         self._forecaster: Any = None
 
-    def load(self, spec: ModelSpec) -> None:
+    def load(self, spec: ModelInfo) -> None:
         self._spec = spec
         self._forecaster = craft(spec.spec)
         _warmup_forecaster(self._forecaster)
