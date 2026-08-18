@@ -3,13 +3,21 @@ from typing import Any
 import narwhals as nw
 import pandas as pd
 
-from fomo.contract.wire import ForecastRequest, ForecastResponse, Table
 from fomo.runtime.registry import get_model
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.runtime.types import ForecastJob
+from fomo.runtime.types import ForecastResult as RuntimeForecastResult
+from fomo.types import ForecastRequest, ForecastResult
 
 
-def table_to_frame(table: Table) -> nw.DataFrame:
-    cols = {name: [row[i] for row in table.data] for i, name in enumerate(table.columns)}
+def _as_table_dict(table: Any) -> dict[str, Any]:
+    if hasattr(table, "model_dump"):
+        table = table.model_dump()
+    return table
+
+
+def table_to_frame(table: Any) -> nw.DataFrame:
+    data = _as_table_dict(table)
+    cols = {name: [row[i] for row in data["data"]] for i, name in enumerate(data["columns"])}
     return nw.from_dict(cols, backend="pandas")
 
 
@@ -21,11 +29,11 @@ def _json_cell(value: Any) -> Any:
     return value
 
 
-def frame_to_table(frame: nw.DataFrame) -> Table:
-    return Table(
-        columns=list(frame.columns),
-        data=[[_json_cell(cell) for cell in row] for row in frame.iter_rows()],
-    )
+def frame_to_table(frame: nw.DataFrame) -> dict[str, Any]:
+    return {
+        "columns": list(frame.columns),
+        "data": [[_json_cell(cell) for cell in row] for row in frame.iter_rows()],
+    }
 
 
 def _index_columns(request: ForecastRequest) -> list[str]:
@@ -119,14 +127,14 @@ def job_from_request(request: ForecastRequest) -> ForecastJob:
         past_only=tuple(request.past_only or ()),
         freq=request.freq,
         quantiles=tuple(request.quantiles) if request.quantiles else None,
-        model_config=dict(request.model_config_overrides or {}),
+        model_config=dict(request.model_params or {}),
     )
     validate_job(job)
     return job
 
 
-def result_to_response(result: ForecastResult) -> ForecastResponse:
-    return ForecastResponse(
+def result_to_response(result: RuntimeForecastResult) -> ForecastResult:
+    return ForecastResult(
         predictions=frame_to_table(result.y_pred),
         quantiles=frame_to_table(result.quantiles) if result.quantiles is not None else None,
         model=result.model,
