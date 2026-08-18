@@ -4,9 +4,8 @@ import narwhals as nw
 import pandas as pd
 
 from fomo.runtime.registry import get_model
-from fomo.runtime.types import ForecastJob
-from fomo.runtime.types import ForecastResult as RuntimeForecastResult
-from fomo.types import ForecastRequest, ForecastResult
+from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types import ForecastRequest, ForecastResponse
 
 
 def _as_table_dict(table: Any) -> dict[str, Any]:
@@ -133,8 +132,8 @@ def job_from_request(request: ForecastRequest) -> ForecastJob:
     return job
 
 
-def result_to_response(result: RuntimeForecastResult) -> ForecastResult:
-    return ForecastResult(
+def result_to_response(result: ForecastResult) -> ForecastResponse:
+    return ForecastResponse(
         predictions=frame_to_table(result.y_pred),
         quantiles=frame_to_table(result.quantiles) if result.quantiles is not None else None,
         model=result.model,
