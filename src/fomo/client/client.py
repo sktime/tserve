@@ -25,7 +25,7 @@ class Client:
         past_only: list[str] | None = None,
         freq: str | None = None,
         quantiles: list[float] | None = None,
-        model_config: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
     ) -> ForecastResult:
         request = ForecastRequest(
             history=history,
@@ -40,7 +40,7 @@ class Client:
             past_only=past_only,
             freq=freq,
             quantiles=quantiles,
-            model_config=model_config,
+            params=params,
         )
         return self._transport.forecast(request)
 

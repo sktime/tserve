@@ -30,7 +30,7 @@ class HttpTransport:
         body = self._request(
             "POST",
             "/forecast",
-            json=request.model_dump(mode="json", by_alias=True, exclude_none=True),
+            json=request.model_dump(mode="json", exclude_none=True),
         )
         try:
             return ForecastResult.model_validate(body)

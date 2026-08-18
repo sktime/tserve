@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel
 
 
 class ForecastRequest(BaseModel):
-    model_config = ConfigDict(extra="ignore", populate_by_name=True)
-
     history: Any
     time: str
     target: list[str]
@@ -20,12 +18,10 @@ class ForecastRequest(BaseModel):
     past_only: list[str] | None = None
     freq: str | None = None
     quantiles: list[float] | None = None
-    model_params: dict[str, Any] | None = Field(default=None, alias="model_config")
+    params: dict[str, Any] | None = None
 
 
 class ForecastResult(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     predictions: Any
     model: str
     request_id: str
@@ -33,22 +29,16 @@ class ForecastResult(BaseModel):
 
 
 class HealthError(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     code: str
     message: str
 
 
 class HealthResult(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     status: str
     error: HealthError | None = None
 
 
 class ModelInfo(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     alias: str
     estimator: str
     executor: str
@@ -58,14 +48,10 @@ class ModelInfo(BaseModel):
 
 
 class ModelsResult(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     models: list[ModelInfo]
 
 
 class ErrorResponse(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
     error: str
     code: str
     request_id: str
