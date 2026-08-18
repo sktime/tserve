@@ -90,7 +90,7 @@ Long tables plus explicit roles. Unlisted columns are ignored. Omit empty role l
 | `horizon`      | yes                      | Steps to forecast (alias: `fh`)                                                |
 | `freq`         | no                       | Pandas offset (`D`, `MS`, `H`, ...). Not inferred                              |
 | `quantiles`    | no                       | Probabilistic output, e.g. `[0.1, 0.5, 0.9]`                                   |
-| `model_config` | no                       | Model-specific overrides                                                       |
+| `params`       | no                       | Model-specific overrides                                                       |
 | `model`        | yes                      | Loaded estimator alias                                                         |
 
 
