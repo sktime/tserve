@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from fomo.client.transports.http import HttpTransport
-from fomo.client.types import ForecastResult, HealthResult, ModelsResult, Payload
+from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
 
 
 class Client:
@@ -27,7 +27,7 @@ class Client:
         quantiles: list[float] | None = None,
         model_config: dict[str, Any] | None = None,
     ) -> ForecastResult:
-        payload = Payload(
+        request = ForecastRequest(
             history=history,
             time=time,
             target=target,
@@ -42,7 +42,7 @@ class Client:
             quantiles=quantiles,
             model_config=model_config,
         )
-        return self._transport.forecast(payload)
+        return self._transport.forecast(request)
 
     def health(self) -> HealthResult:
         return self._transport.health()

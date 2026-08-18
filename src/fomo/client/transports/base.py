@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from fomo.client.types import ForecastResult, HealthResult, ModelsResult, Payload
+from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
 
 
 class BaseTransport(Protocol):
-    def forecast(self, payload: Payload) -> ForecastResult: ...
+    def forecast(self, request: ForecastRequest) -> ForecastResult: ...
 
     def health(self) -> HealthResult: ...
 

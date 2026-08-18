@@ -1,21 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Any
 
 import httpx
 from pydantic import ValidationError
 
 from fomo.client.errors import FoMoError
-from fomo.client.types import (
-    ForecastResult,
-    HealthError,
-    HealthResult,
-    ModelInfo,
-    ModelsResult,
-    Payload,
-)
-from fomo.contract.wire import ForecastRequest
+from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
 
 
 def _error_message(body: Any) -> tuple[str, str | None]:
@@ -35,57 +26,42 @@ class HttpTransport:
     def __init__(self, base_url: str, *, timeout: float = 60.0) -> None:
         self._client = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout)
 
-    def forecast(self, payload: Payload) -> ForecastResult:
-        try:
-            request = ForecastRequest.model_validate(
-                {key: value for key, value in asdict(payload).items() if value is not None}
-            )
-        except ValidationError as exc:
-            raise FoMoError(
-                "invalid forecast request",
-                code="validation_error",
-                details=exc.errors(),
-            ) from exc
-
+    def forecast(self, request: ForecastRequest) -> ForecastResult:
         body = self._request(
             "POST",
             "/forecast",
             json=request.model_dump(mode="json", by_alias=True, exclude_none=True),
         )
-        return ForecastResult(
-            predictions=body["predictions"],
-            model=body["model"],
-            request_id=body["request_id"],
-            quantiles=body.get("quantiles"),
-        )
+        try:
+            return ForecastResult.model_validate(body)
+        except ValidationError as exc:
+            raise FoMoError(
+                "invalid forecast response",
+                code="validation_error",
+                details=exc.errors(),
+            ) from exc
 
     def health(self) -> HealthResult:
         body = self._request("GET", "/health")
-        err = body.get("error")
-        return HealthResult(
-            status=body["status"],
-            error=(
-                HealthError(code=err["code"], message=err["message"])
-                if err is not None
-                else None
-            ),
-        )
+        try:
+            return HealthResult.model_validate(body)
+        except ValidationError as exc:
+            raise FoMoError(
+                "invalid health response",
+                code="validation_error",
+                details=exc.errors(),
+            ) from exc
 
     def models(self) -> ModelsResult:
         body = self._request("GET", "/models")
-        return ModelsResult(
-            models=[
-                ModelInfo(
-                    alias=item["alias"],
-                    estimator=item["estimator"],
-                    executor=item["executor"],
-                    multivariate=item["multivariate"],
-                    exogenous=item["exogenous"],
-                    quantiles=item["quantiles"],
-                )
-                for item in body["models"]
-            ]
-        )
+        try:
+            return ModelsResult.model_validate(body)
+        except ValidationError as exc:
+            raise FoMoError(
+                "invalid models response",
+                code="validation_error",
+                details=exc.errors(),
+            ) from exc
 
     def close(self) -> None:
         self._client.close()
