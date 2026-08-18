@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import Any
 
-import narwhals as nw
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ForecastRequest(BaseModel):
@@ -30,27 +28,25 @@ class ForecastResponse(BaseModel):
     quantiles: Any = None
 
 
-@dataclass(frozen=True)
-class ForecastJob:
+class ForecastJob(BaseModel):
     model: str
-    y: nw.DataFrame
+    y: Any
     horizon: int
     target: tuple[str, ...]
     time: str
-    series_id: tuple[str, ...] = field(default_factory=tuple)
-    X: nw.DataFrame | None = None
-    X_future: nw.DataFrame | None = None
-    past_only: tuple[str, ...] = field(default_factory=tuple)
+    series_id: tuple[str, ...] = ()
+    X: Any = None
+    X_future: Any = None
+    past_only: tuple[str, ...] = ()
     freq: str | None = None
     quantiles: tuple[float, ...] | None = None
-    model_config: dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = Field(default_factory=dict)
 
 
-@dataclass(frozen=True)
-class ForecastResult:
-    y_pred: nw.DataFrame
+class ForecastResult(BaseModel):
+    y_pred: Any
     model: str
-    quantiles: nw.DataFrame | None = None
+    quantiles: Any = None
 
 
 class HealthError(BaseModel):

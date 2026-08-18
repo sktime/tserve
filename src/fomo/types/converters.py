@@ -125,7 +125,7 @@ def job_from_request(request: ForecastRequest) -> ForecastJob:
         past_only=tuple(request.past_only or ()),
         freq=request.freq,
         quantiles=tuple(request.quantiles) if request.quantiles else None,
-        model_config=dict(request.params or {}),
+        params=dict(request.params or {}),
     )
     validate_job(job)
     return job

@@ -68,7 +68,7 @@ def _flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
 
 
 def _apply_model_config(forecaster: Any, job: ForecastJob) -> None:
-    freq = job.freq or job.model_config.get("freq")
+    freq = job.freq or job.params.get("freq")
     if freq is not None and hasattr(forecaster, "freq"):
         forecaster.freq = freq
 
