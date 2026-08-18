@@ -2,7 +2,6 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Request
 
-from fomo.errors import error_payload
 from fomo.runtime.adapt import job_from_request, result_to_response
 from fomo.runtime.registry import MODELS
 from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
@@ -28,7 +27,15 @@ def forecast(request_body: ForecastRequest, request: Request) -> ForecastResult:
         result = request.app.state.runtime.scheduler.run(job)
         response = result_to_response(result)
     except Exception as exc:
-        status_code, detail = error_payload(exc, request_id)
-        raise HTTPException(status_code=status_code, detail=detail) from exc
+        if isinstance(exc, ValueError):
+            status_code, code = 400, "bad_request"
+        elif isinstance(exc, RuntimeError):
+            status_code, code = 503, "model_unavailable"
+        else:
+            status_code, code = 500, "internal_error"
+        raise HTTPException(
+            status_code=status_code,
+            detail={"error": str(exc), "code": code, "request_id": request_id},
+        ) from exc
     response.request_id = request_id
     return response

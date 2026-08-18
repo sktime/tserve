@@ -4,7 +4,7 @@ from typing import Any
 
 import httpx
 
-from fomo.errors import error_from_response
+from fomo.client.errors import FoMoError
 from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
 
 
@@ -44,5 +44,14 @@ class HttpTransport:
             body = response.text
 
         if response.status_code >= 400:
-            raise error_from_response(body, response.status_code)
+            detail = body.get("detail", body) if isinstance(body, dict) else body
+            if isinstance(detail, dict):
+                raise FoMoError(
+                    str(detail.get("error", detail)),
+                    code=str(detail.get("code", "http_error")),
+                    request_id=str(detail.get("request_id", "")),
+                    details=detail.get("details"),
+                    status_code=response.status_code,
+                )
+            raise FoMoError(str(detail), status_code=response.status_code)
         return body
