@@ -94,36 +94,29 @@ Long tables plus explicit roles. Unlisted columns are ignored. Omit empty role l
 | `model`        | yes                      | Loaded estimator alias                                                         |
 
 
-`{columns, data}` is the table encoding. The same roles apply later to pandas frames or numpy arrays sent as raw bytes.
+`{columns, data}` is the table encoding used for plain JSON-over-HTTP.
 
-See `GET /models` for model capabilities and `GET /health` for loaded models.
+See `GET /models` for model capabilities and `GET /health` for readiness.
 
-Python client against a running `fomo serve`, or against a `Server` in the same process:
+Python client against a running `fomo serve`:
 
 ```python
 from fomo.client import Client
-from fomo.server import Server
-
-payload = dict(
-    history={"columns": ["timestamp", "sales"], "data": [
-        ["2024-01-01", 120],
-        ["2024-01-02", 135],
-        ["2024-01-03", 128],
-        ["2024-01-04", 142],
-        ["2024-01-05", 138],
-    ]},
-    time="timestamp",
-    target=["sales"],
-    horizon=3,
-    freq="D",
-    model="dummy",
-)
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(**payload)
-
-server = Server(models=["dummy"])
-with Client(server=server) as client:
-    result = client.forecast(**payload)
+    result = client.forecast(
+        history={"columns": ["timestamp", "sales"], "data": [
+            ["2024-01-01", 120],
+            ["2024-01-02", 135],
+            ["2024-01-03", 128],
+            ["2024-01-04", 142],
+            ["2024-01-05", 138],
+        ]},
+        time="timestamp",
+        target=["sales"],
+        horizon=3,
+        freq="D",
+        model="dummy",
+    )
 ```
 
