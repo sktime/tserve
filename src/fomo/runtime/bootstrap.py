@@ -14,17 +14,6 @@ class Runtime:
     executors: dict[str, Executor]
     scheduler: Scheduler
 
-    def health(self) -> dict:
-        if not self.executors:
-            return {
-                "status": "unhealthy",
-                "error": {
-                    "code": "MODEL_NOT_LOADED",
-                    "message": "The forecasting model has not been loaded.",
-                },
-            }
-        return {"status": "ok"}
-
 
 def bootstrap(models: list[str] | None = None) -> Runtime:
     executors: dict[str, Executor] = {}

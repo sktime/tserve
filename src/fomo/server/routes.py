@@ -29,8 +29,8 @@ def error_response(*, status_code: int, code: str, message: str, request_id: str
 
 
 @router.get("/health", response_model=HealthResult, response_model_exclude_none=True)
-def health(request: Request) -> HealthResult:
-    return HealthResult.model_validate(request.app.state.runtime.health())
+def health() -> HealthResult:
+    return HealthResult(status="ok")
 
 
 @router.get("/models", response_model=ModelsResult)
