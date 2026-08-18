@@ -4,12 +4,13 @@ from fastapi import APIRouter, HTTPException, Request
 
 from fomo.runtime.adapt import job_from_request, result_to_response
 from fomo.runtime.registry import MODELS
-from fomo.server.schemas import (
+from fomo.types import (
     ErrorResponse,
     ForecastRequest,
-    ForecastResponse,
+    ForecastResult,
+    HealthResult,
     ModelInfo,
-    ModelsResponse,
+    ModelsResult,
 )
 
 router = APIRouter()
@@ -27,14 +28,14 @@ def error_response(*, status_code: int, code: str, message: str, request_id: str
     )
 
 
-@router.get("/health")
-def health(request: Request) -> dict:
-    return request.app.state.runtime.health()
+@router.get("/health", response_model=HealthResult, response_model_exclude_none=True)
+def health(request: Request) -> HealthResult:
+    return HealthResult.model_validate(request.app.state.runtime.health())
 
 
-@router.get("/models", response_model=ModelsResponse)
-def models() -> ModelsResponse:
-    return ModelsResponse(
+@router.get("/models", response_model=ModelsResult)
+def models() -> ModelsResult:
+    return ModelsResult(
         models=[
             ModelInfo(
                 alias=spec.alias,
@@ -49,8 +50,8 @@ def models() -> ModelsResponse:
     )
 
 
-@router.post("/forecast", response_model=ForecastResponse)
-def forecast(request_body: ForecastRequest, request: Request) -> ForecastResponse:
+@router.post("/forecast", response_model=ForecastResult)
+def forecast(request_body: ForecastRequest, request: Request) -> ForecastResult:
     request_id = str(uuid.uuid4())
     try:
         job = job_from_request(request_body)
