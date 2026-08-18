@@ -50,10 +50,3 @@ class ModelInfo(BaseModel):
 
 class ModelsResult(BaseModel):
     models: list[ModelInfo]
-
-
-class ErrorResponse(BaseModel):
-    error: str
-    code: str
-    request_id: str
-    details: dict[str, Any] | None = None

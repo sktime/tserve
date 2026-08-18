@@ -3,23 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 import httpx
-from pydantic import ValidationError
 
-from fomo.client.errors import FoMoError
+from fomo.errors import error_from_response
 from fomo.types import ForecastRequest, ForecastResult, HealthResult, ModelsResult
-
-
-def _error_message(body: Any) -> tuple[str, str | None]:
-    if isinstance(body, dict):
-        detail = body.get("detail", body)
-        if isinstance(detail, dict):
-            message = detail.get("error") or detail.get("msg") or str(detail)
-            code = detail.get("code")
-            return str(message), code if isinstance(code, str) else None
-        if isinstance(detail, list) and detail:
-            return str(detail[0]), "validation_error"
-        return str(detail), None
-    return str(body), None
 
 
 class HttpTransport:
@@ -32,36 +18,13 @@ class HttpTransport:
             "/forecast",
             json=request.model_dump(mode="json", exclude_none=True),
         )
-        try:
-            return ForecastResult.model_validate(body)
-        except ValidationError as exc:
-            raise FoMoError(
-                "invalid forecast response",
-                code="validation_error",
-                details=exc.errors(),
-            ) from exc
+        return ForecastResult.model_validate(body)
 
     def health(self) -> HealthResult:
-        body = self._request("GET", "/health")
-        try:
-            return HealthResult.model_validate(body)
-        except ValidationError as exc:
-            raise FoMoError(
-                "invalid health response",
-                code="validation_error",
-                details=exc.errors(),
-            ) from exc
+        return HealthResult.model_validate(self._request("GET", "/health"))
 
     def models(self) -> ModelsResult:
-        body = self._request("GET", "/models")
-        try:
-            return ModelsResult.model_validate(body)
-        except ValidationError as exc:
-            raise FoMoError(
-                "invalid models response",
-                code="validation_error",
-                details=exc.errors(),
-            ) from exc
+        return ModelsResult.model_validate(self._request("GET", "/models"))
 
     def close(self) -> None:
         self._client.close()
@@ -81,10 +44,5 @@ class HttpTransport:
             body = response.text
 
         if response.status_code >= 400:
-            message, code = _error_message(body)
-            raise FoMoError(
-                message,
-                code=code,
-                details=body,
-            )
+            raise error_from_response(body, response.status_code)
         return body
