@@ -6,14 +6,23 @@ Time series foundation model inference server (early prototype).
 
 ```bash
 uv sync
-uv run uvicorn fomo.app:app --reload --host 0.0.0.0 --port 8000
+uv run fomo serve --host 0.0.0.0 --port 8000
+```
+
+Same thing from Python:
+
+```python
+from fomo.server import Server
+
+Server(models=["dummy"], host="0.0.0.0", port=8000).run()
 ```
 
 API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-By default only `dummy` is preloaded. Override with `FOMO_PRELOAD_MODELS`, e.g.
+By default the server loads `dummy`, `chronos2`, `timesfm2.5`, `moirai2`, and `kronos`. Override with `--models` or `FOMO_MODELS`:
+
 ```bash
-FOMO_PRELOAD_MODELS=dummy,chronos2 uv run uvicorn fomo.app:app --reload
+uv run fomo serve --models dummy,chronos2
 ```
 
 ## End-to-end example
@@ -61,26 +70,60 @@ Example response:
 }
 ```
 
+
+
 ## Request fields
 
 Long tables plus explicit roles. Unlisted columns are ignored. Omit empty role lists.
 
-| Field | Required | Role |
-| --- | --- | --- |
-| `history` | yes | Long table: one row per series x observed timestamp |
-| `future` | if `known_future` is set | Horizon covariates only. No targets. Exactly `horizon` timestamps per series |
-| `static` | if static features exist | One row per series |
-| `series_id` | no | Key columns, MultiIndex order. Omit for a single series |
-| `time` | yes | Timestamp column |
-| `target` | yes | Target names. Always a list |
-| `known_future` | no | Dynamic covariates in both `history` and `future` |
-| `past_only` | no | Dynamic covariates on `history` only (kept for later backends; not sktime `X`) |
-| `horizon` | yes | Steps to forecast (alias: `fh`) |
-| `freq` | no | Pandas offset (`D`, `MS`, `H`, ...). Not inferred |
-| `quantiles` | no | Probabilistic output, e.g. `[0.1, 0.5, 0.9]` |
-| `model_config` | no | Model-specific overrides |
-| `model` | yes | Loaded estimator alias |
+
+| Field          | Required                 | Role                                                                           |
+| -------------- | ------------------------ | ------------------------------------------------------------------------------ |
+| `history`      | yes                      | Long table: one row per series x observed timestamp                            |
+| `future`       | if `known_future` is set | Horizon covariates only. No targets. Exactly `horizon` timestamps per series   |
+| `static`       | if static features exist | One row per series                                                             |
+| `series_id`    | no                       | Key columns, MultiIndex order. Omit for a single series                        |
+| `time`         | yes                      | Timestamp column                                                               |
+| `target`       | yes                      | Target names. Always a list                                                    |
+| `known_future` | no                       | Dynamic covariates in both `history` and `future`                              |
+| `past_only`    | no                       | Dynamic covariates on `history` only (kept for later backends; not sktime `X`) |
+| `horizon`      | yes                      | Steps to forecast (alias: `fh`)                                                |
+| `freq`         | no                       | Pandas offset (`D`, `MS`, `H`, ...). Not inferred                              |
+| `quantiles`    | no                       | Probabilistic output, e.g. `[0.1, 0.5, 0.9]`                                   |
+| `model_config` | no                       | Model-specific overrides                                                       |
+| `model`        | yes                      | Loaded estimator alias                                                         |
+
 
 `{columns, data}` is the table encoding. The same roles apply later to pandas frames or numpy arrays sent as raw bytes.
 
 See `GET /models` for model capabilities and `GET /health` for loaded models.
+
+Python client against a running `fomo serve`, or against a `Server` in the same process:
+
+```python
+from fomo.client import Client
+from fomo.server import Server
+
+payload = dict(
+    history={"columns": ["timestamp", "sales"], "data": [
+        ["2024-01-01", 120],
+        ["2024-01-02", 135],
+        ["2024-01-03", 128],
+        ["2024-01-04", 142],
+        ["2024-01-05", 138],
+    ]},
+    time="timestamp",
+    target=["sales"],
+    horizon=3,
+    freq="D",
+    model="dummy",
+)
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(**payload)
+
+server = Server(models=["dummy"])
+with Client(server=server) as client:
+    result = client.forecast(**payload)
+```
+
