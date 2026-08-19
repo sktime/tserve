@@ -107,7 +107,25 @@ from fomo.server import Server
 Server(load_models=["dummy"], host="0.0.0.0", port=8000).run()
 ```
 
-Omitting `load_models` starts a server with no models, same as omitting `--load-models`. The FastAPI app is `server.app` if you want to mount it yourself:
+Omitting `load_models` starts a server with no models, same as omitting `--load-models`. Pass a `ModelInfo` to load a spec that is not in the registry (SDK only; the CLI still takes aliases):
+
+```python
+from fomo.server import ModelInfo, Server
+
+test_model = ModelInfo(
+    alias="test_model",
+    estimator="NaiveForecaster",
+    executor="sktime",
+    multivariate=False,
+    exogenous=False,
+    quantiles=True,
+    spec="NaiveForecaster()",
+)
+
+Server(load_models=["dummy", test_model], host="0.0.0.0", port=8000).run()
+```
+
+Forecast with `"model": "test_model"`. The FastAPI app is `server.app` if you want to mount it yourself:
 
 ```python
 from fomo.server import Server

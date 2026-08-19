@@ -7,12 +7,13 @@ from fastapi import FastAPI
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
+from fomo.types import ModelInfo
 
 
 class Server:
     def __init__(
         self,
-        load_models: list[str] | None = None,
+        load_models: list[str | ModelInfo] | None = None,
         *,
         host: str = "127.0.0.1",
         port: int = 8000,

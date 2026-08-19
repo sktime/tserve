@@ -269,6 +269,13 @@ def get_model(alias: str) -> ModelInfo:
     return model
 
 
-def loaded_models(aliases: list[str] | tuple[str, ...] | dict[str, object]) -> ModelsResult:
-    keys = list(aliases)
-    return ModelsResult(models=[get_model(alias) for alias in keys])
+def resolve_spec(item: str | ModelInfo) -> ModelInfo:
+    if isinstance(item, ModelInfo):
+        return item
+    if isinstance(item, str):
+        return get_model(item)
+    raise TypeError(f"expected alias str or ModelInfo, got {type(item).__name__}")
+
+
+def loaded_models(models: dict[str, ModelInfo]) -> ModelsResult:
+    return ModelsResult(models=list(models.values()))

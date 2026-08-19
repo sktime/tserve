@@ -22,7 +22,7 @@ def health() -> HealthResult:
 
 @router.get("/models", response_model=ModelsResult)
 def models(request: Request) -> ModelsResult:
-    return loaded_models(request.app.state.runtime.executors)
+    return loaded_models(request.app.state.runtime.models)
 
 
 def _content_type(request: Request) -> str:
