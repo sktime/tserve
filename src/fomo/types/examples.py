@@ -44,12 +44,8 @@ HEALTH_UNHEALTHY = {
 
 MODEL_INFO = {
     "alias": "dummy",
-    "estimator": "NaiveForecaster",
     "executor": "sktime",
-    "multivariate": False,
-    "exogenous": False,
-    "quantiles": True,
-    "spec": "NaiveForecaster()",
+    "source": "registry",
 }
 
 MODELS_RESULT = {"models": [MODEL_INFO]}

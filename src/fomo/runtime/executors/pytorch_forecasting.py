@@ -4,9 +4,9 @@ from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
 
 @register("pytorch-forecasting")
 class PytorchForecastingExecutor:
-    def load(self, spec: ModelInfo) -> None:
+    def load(self, info: ModelInfo) -> None:
         raise NotImplementedError(
-            f"pytorch-forecasting executor is not implemented yet (model {spec.alias!r})"
+            f"pytorch-forecasting executor is not implemented yet (model {info.alias!r})"
         )
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:

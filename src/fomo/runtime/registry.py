@@ -3,263 +3,63 @@ from fomo.types import ModelInfo, ModelsResult
 # Catalog of aliases the server can load. Nothing here is loaded until
 # --load-models / load_models selects it.
 # Checkout https://github.com/sktime/fomo/issues/1
-_PRE_REGISTERED = [
-    ModelInfo(
-        alias="dummy",
-        estimator="NaiveForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec="NaiveForecaster()",
+# Craft strings stay private to the registry; ModelInfo is listing-only.
+_REGISTRY: list[tuple[str, str]] = [
+    ("dummy", "NaiveForecaster()"),
+    ("chronos2", 'Chronos2Forecaster(model_path="amazon/chronos-2")'),
+    ("chronos", 'ChronosForecaster(model_path="amazon/chronos-bolt-tiny")'),
+    ("kronos", 'KronosForecaster(model_path="NeoQuasar/Kronos-small")'),
+    ("moirai2", 'Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")'),
+    ("ttm", 'TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r2")'),
+    (
+        "momentfm",
+        'MomentFMAnomalyDetector(pretrained_model_name_or_path="AutonLab/MOMENT-1-small")',
     ),
-    ModelInfo(
-        alias="chronos2",
-        estimator="Chronos2Forecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=True,
-        quantiles=False,
-        spec='Chronos2Forecaster(model_path="amazon/chronos-2")',
+    ("timemoe", 'TimeMoEForecaster(model_path="Maple728/TimeMoE-50M")'),
+    ("tirex", 'TiRexForecaster(model="NX-AI/TiRex")'),
+    ("moirai", 'MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small")'),
+    ("toto", 'TotoForecaster(model_path="Datadog/Toto-Open-Base-1.0")'),
+    ("flowstate", 'FlowStateForecaster(model_path="ibm-research/flowstate")'),
+    (
+        "tspulse",
+        'TSPulseAnomalyDetector(model_path="ibm-granite/granite-timeseries-tspulse-r1")',
     ),
-    ModelInfo(
-        alias="chronos",
-        estimator="ChronosForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='ChronosForecaster(model_path="amazon/chronos-bolt-tiny")',
+    (
+        "timesfm2.5",
+        'TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers")',
     ),
-    ModelInfo(
-        alias="kronos",
-        estimator="KronosForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='KronosForecaster(model_path="NeoQuasar/Kronos-small")',
+    ("toto2", 'Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")'),
+    ("sundial", 'SundialForecaster(model_path="thuml/sundial-base-128m")'),
+    ("timer", 'TimerForecaster(model_name="thuml/timer-base-84m")'),
+    (
+        "patchtsmixer",
+        'PatchTSMixerForecaster(model_path="ibm-granite/granite-timeseries-patchtsmixer")',
     ),
-    ModelInfo(
-        alias="moirai2",
-        estimator="Moirai2Forecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=True,
-        quantiles=False,
-        spec='Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")',
+    ("falcontst", 'FalconTSTForecaster(model_path="ant-intl/Falcon-TST_Large")'),
+    ("timers1", 'TimerS1Forecaster(model_path="bytedance-research/Timer-S1")'),
+    ("windfm", 'WindFMForecaster(model_path="NeoQuasar/WindFM")'),
+    ("mira", 'MIRAForecaster(model_path="MIRA-Mode/MIRA")'),
+    ("patchtst", 'PatchTSTForecaster(model_path="namctin/patchtst_etth1_forecast")'),
+    (
+        "cisctsm",
+        'CiscoTSMForecaster(model_path="cisco-ai/cisco-time-series-model-1.0-preview")',
     ),
-    ModelInfo(
-        alias="ttm",
-        estimator="TinyTimeMixerForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=True,
-        quantiles=False,
-        spec='TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r2")',
+    ("timesfm", 'TimesFMForecaster(repo_id="google/timesfm-1.0-200m")'),
+    ("aurora", 'AuroraForecaster(repo_id="DecisionIntelligence/Aurora")'),
+    (
+        "lagllama",
+        'LagLlamaForecaster(ckpt_path="time-series-foundation-models/Lag-Llama")',
     ),
-    ModelInfo(
-        alias="momentfm",
-        estimator="MomentFMAnomalyDetector",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='MomentFMAnomalyDetector(pretrained_model_name_or_path="AutonLab/MOMENT-1-small")',
-    ),
-    ModelInfo(
-        alias="timemoe",
-        estimator="TimeMoEForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='TimeMoEForecaster(model_path="Maple728/TimeMoE-50M")',
-    ),
-    ModelInfo(
-        alias="tirex",
-        estimator="TiRexForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='TiRexForecaster(model="NX-AI/TiRex")',
-    ),
-    ModelInfo(
-        alias="moirai",
-        estimator="MOIRAIForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=True,
-        quantiles=False,
-        spec='MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small")',
-    ),
-    ModelInfo(
-        alias="toto",
-        estimator="TotoForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=True,
-        quantiles=True,
-        spec='TotoForecaster(model_path="Datadog/Toto-Open-Base-1.0")',
-    ),
-    ModelInfo(
-        alias="flowstate",
-        estimator="FlowStateForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec='FlowStateForecaster(model_path="ibm-research/flowstate")',
-    ),
-    ModelInfo(
-        alias="tspulse",
-        estimator="TSPulseAnomalyDetector",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='TSPulseAnomalyDetector(model_path="ibm-granite/granite-timeseries-tspulse-r1")',
-    ),
-    ModelInfo(
-        alias="timesfm2.5",
-        estimator="TimesFM2Forecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec='TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers")',
-    ),
-    ModelInfo(
-        alias="toto2",
-        estimator="Toto2Forecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=True,
-        spec='Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")',
-    ),
-    ModelInfo(
-        alias="sundial",
-        estimator="SundialForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=True,
-        spec='SundialForecaster(model_path="thuml/sundial-base-128m")',
-    ),
-    ModelInfo(
-        alias="timer",
-        estimator="TimerForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='TimerForecaster(model_name="thuml/timer-base-84m")',
-    ),
-    ModelInfo(
-        alias="patchtsmixer",
-        estimator="PatchTSMixerForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='PatchTSMixerForecaster(model_path="ibm-granite/granite-timeseries-patchtsmixer")',
-    ),
-    ModelInfo(
-        alias="falcontst",
-        estimator="FalconTSTForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='FalconTSTForecaster(model_path="ant-intl/Falcon-TST_Large")',
-    ),
-    ModelInfo(
-        alias="timers1",
-        estimator="TimerS1Forecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec='TimerS1Forecaster(model_path="bytedance-research/Timer-S1")',
-    ),
-    ModelInfo(
-        alias="windfm",
-        estimator="WindFMForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=True,
-        quantiles=True,
-        spec='WindFMForecaster(model_path="NeoQuasar/WindFM")',
-    ),
-    ModelInfo(
-        alias="mira",
-        estimator="MIRAForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='MIRAForecaster(model_path="MIRA-Mode/MIRA")',
-    ),
-    ModelInfo(
-        alias="patchtst",
-        estimator="PatchTSTForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=False,
-        spec='PatchTSTForecaster(model_path="namctin/patchtst_etth1_forecast")',
-    ),
-    ModelInfo(
-        alias="cisctsm",
-        estimator="CiscoTSMForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec='CiscoTSMForecaster(model_path="cisco-ai/cisco-time-series-model-1.0-preview")',
-    ),
-    ModelInfo(
-        alias="timesfm",
-        estimator="TimesFMForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=False,
-        spec='TimesFMForecaster(repo_id="google/timesfm-1.0-200m")',
-    ),
-    ModelInfo(
-        alias="aurora",
-        estimator="AuroraForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=True,
-        spec='AuroraForecaster(repo_id="DecisionIntelligence/Aurora")',
-    ),
-    ModelInfo(
-        alias="lagllama",
-        estimator="LagLlamaForecaster",
-        executor="sktime",
-        multivariate=False,
-        exogenous=False,
-        quantiles=True,
-        spec='LagLlamaForecaster(ckpt_path="time-series-foundation-models/Lag-Llama")',
-    ),
-    ModelInfo(
-        alias="falconx",
-        estimator="FalconXForecaster",
-        executor="sktime",
-        multivariate=True,
-        exogenous=False,
-        quantiles=True,
-        spec="FalconXForecaster()",
-    ),
+    ("falconx", "FalconXForecaster()"),
 ]
 
-PRE_REGISTERED_MODELS = ModelsResult(models=_PRE_REGISTERED)
+_PRE_REGISTERED = [
+    ModelInfo(alias=alias, executor="sktime", source="registry") for alias, _ in _REGISTRY
+]
+_CRAFT = dict(_REGISTRY)
 _PRE_REGISTERED_BY_ALIAS = {model.alias: model for model in _PRE_REGISTERED}
+
+PRE_REGISTERED_MODELS = ModelsResult(models=_PRE_REGISTERED)
 
 
 def get_pre_registered(alias: str) -> ModelInfo:
@@ -270,9 +70,18 @@ def get_pre_registered(alias: str) -> ModelInfo:
     return model
 
 
-def resolve_spec(item: str | ModelInfo) -> ModelInfo:
-    if isinstance(item, ModelInfo):
-        return item
+def get_registry_craft(alias: str) -> str:
+    get_pre_registered(alias)
+    return _CRAFT[alias]
+
+
+def resolve_model(item: str | ModelInfo) -> ModelInfo:
     if isinstance(item, str):
         return get_pre_registered(item)
+    if isinstance(item, ModelInfo):
+        if item.source == "registry":
+            return get_pre_registered(item.alias)
+        raise NotImplementedError(
+            f"loading source {item.source!r} is not implemented yet (model {item.alias!r})"
+        )
     raise TypeError(f"expected alias str or ModelInfo, got {type(item).__name__}")

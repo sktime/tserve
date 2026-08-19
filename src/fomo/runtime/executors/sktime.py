@@ -6,6 +6,7 @@ from sktime.forecasting.base import ForecastingHorizon
 from sktime.registry import craft
 
 from fomo.runtime.executors.plugins import register
+from fomo.runtime.registry import get_registry_craft
 from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
 from fomo.types.converters import as_frame
 
@@ -160,20 +161,24 @@ def _as_prediction_frame(
 @register("sktime")
 class SktimeExecutor:
     def __init__(self) -> None:
-        self._spec: ModelInfo | None = None
+        self._info: ModelInfo | None = None
         self._forecaster: Any = None
 
-    def load(self, spec: ModelInfo) -> None:
-        self._spec = spec
-        self._forecaster = craft(spec.spec)
+    def load(self, info: ModelInfo) -> None:
+        if info.source != "registry":
+            raise NotImplementedError(
+                f"sktime executor cannot load source {info.source!r} yet (model {info.alias!r})"
+            )
+        self._info = info
+        self._forecaster = craft(get_registry_craft(info.alias))
         _warmup_forecaster(self._forecaster)
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:
-        if self._spec is None or self._forecaster is None:
+        if self._info is None or self._forecaster is None:
             raise RuntimeError("sktime executor has no model loaded")
-        if request.model != self._spec.alias:
+        if request.model != self._info.alias:
             raise RuntimeError(
-                f"executor for {self._spec.alias!r} cannot run {request.model!r}"
+                f"executor for {self._info.alias!r} cannot run {request.model!r}"
             )
 
         _apply_model_config(self._forecaster, request)
