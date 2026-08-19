@@ -191,30 +191,121 @@ curl -s http://127.0.0.1:8000/forecast \
 }
 ```
 
-Quantiles (`dummy` only among the default aliases):
+### Quantiles on a real model
+
+Add `quantiles` to get a probabilistic forecast. It works on aliases whose `GET /models` entry
+reports `"quantiles": true` (`timesfm2.5`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
+`toto2`, `sundial`, `timers1`, `cisctsm`, `falconx`, and `dummy`). Asking any other alias for
+quantiles fails with `503 model_unavailable` and the estimator's own message, e.g.
+`ChronosForecaster does not have the capability to return quantile predictions.`
+
+Start a server with a real foundation model. First start downloads weights from the Hub:
+
+```bash
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm2.5
+```
+
+Twelve monthly observations, three months ahead, 10th/50th/90th percentiles:
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
   -H 'Content-Type: application/json' \
   -d '{
-    "time": "timestamp",
+    "time": "month",
     "target": ["sales"],
     "history": {
-      "columns": ["timestamp", "sales"],
+      "columns": ["month", "sales"],
       "data": [
-        ["2024-01-01", 120],
-        ["2024-01-02", 135],
-        ["2024-01-03", 128],
-        ["2024-01-04", 142],
-        ["2024-01-05", 138]
+        ["2023-01-01", 120],
+        ["2023-02-01", 135],
+        ["2023-03-01", 128],
+        ["2023-04-01", 142],
+        ["2023-05-01", 150],
+        ["2023-06-01", 161],
+        ["2023-07-01", 155],
+        ["2023-08-01", 168],
+        ["2023-09-01", 173],
+        ["2023-10-01", 181],
+        ["2023-11-01", 195],
+        ["2023-12-01", 210]
       ]
     },
     "horizon": 3,
-    "freq": "D",
+    "freq": "MS",
     "quantiles": [0.1, 0.5, 0.9],
-    "model": "dummy"
+    "model": "timesfm2.5"
   }'
 ```
+
+Real response from that request:
+
+```json
+{
+  "predictions": {
+    "columns": ["month", "sales"],
+    "data": [
+      ["2024-01-01T00:00:00", 217.24871826171875],
+      ["2024-02-01T00:00:00", 233.55999755859375],
+      ["2024-03-01T00:00:00", 243.87789916992188]
+    ]
+  },
+  "quantiles": {
+    "columns": ["index", "0_0.1", "0_0.5", "0_0.9"],
+    "data": [
+      ["2024-01-01T00:00:00", 217.5303192138672, 216.601318359375, 226.1812744140625],
+      ["2024-02-01T00:00:00", 233.885498046875, 232.79592895507812, 240.87062072753906],
+      ["2024-03-01T00:00:00", 245.2987060546875, 243.27342224121094, 251.66632080078125]
+    ]
+  },
+  "model": "timesfm2.5",
+  "request_id": "..."
+}
+```
+
+`predictions` holds the point forecast. `quantiles` is a flattened sktime `predict_quantiles`
+frame: first column is the timestamp, then one `<variable>_<quantile>` column per requested
+level (the variable is positional, hence `0`). Quantiles are model output and are not sorted
+or clipped, so they are not guaranteed monotonic across levels.
+
+Same request through the Python client, which keeps your dataframe type:
+
+```python
+import pandas as pd
+from fomo.client import Client
+
+history = pd.DataFrame(
+    {
+        "month": pd.date_range("2023-01-01", periods=12, freq="MS"),
+        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
+    }
+)
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        history=history,
+        time="month",
+        target=["sales"],
+        horizon=3,
+        freq="MS",
+        quantiles=[0.1, 0.5, 0.9],
+        model="timesfm2.5",
+    )
+
+print(result.predictions)
+#        month       sales
+# 0 2024-01-01  217.248718
+# 1 2024-02-01  233.559998
+# 2 2024-03-01  243.877899
+
+print(result.quantiles)
+#        index       0_0.1       0_0.5       0_0.9
+# 0 2024-01-01  217.530319  216.601318  226.181274
+# 1 2024-02-01  233.885498  232.795929  240.870621
+# 2 2024-03-01  245.298706  243.273422  251.666321
+```
+
+`flowstate` is a lighter alternative if you want a faster download: swap
+`--load-models flowstate` and `"model": "flowstate"`.
 
 Panel (`store` × `sku`) plus known-future covariates. `future` has exactly `horizon` timestamps per series, no targets:
 
