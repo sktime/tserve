@@ -9,4 +9,4 @@ COPY . .
 RUN uv sync --frozen
 
 EXPOSE 8000
-CMD ["uv", "run", "--frozen", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000", "--load-model", "dummy", "chronos2", "timesfm2.5", "moirai2", "kronos"]
+CMD ["uv", "run", "--frozen", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]

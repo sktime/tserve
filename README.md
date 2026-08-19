@@ -2,15 +2,24 @@
 
 Time series foundation model inference server. Load models once, forecast over HTTP or the Python client.
 
-Load aliases with `--load-model` / `load_model`. `dummy` is a `NaiveForecaster` (no download). The others pull Hugging Face weights on first load. If you omit the flag, the server loads `dummy`, `chronos2`, `timesfm2.5`, `moirai2`, and `kronos`.
+Nothing is loaded by default: a bare `fomo serve` starts with an empty model list. Name registry aliases with `--load-model` / `load_model` to load them. `dummy` is a `NaiveForecaster` (no download); the rest pull Hugging Face weights at load time. `GET /models` lists only what this process loaded.
 
-| alias | estimator | multivariate | exogenous | quantiles |
-| --- | --- | --- | --- | --- |
-| `dummy` | `NaiveForecaster` | | | yes |
-| `chronos2` | `Chronos2Forecaster` | yes | yes | |
-| `timesfm2.5` | `TimesFM2Forecaster` | | | |
-| `moirai2` | `Moirai2Forecaster` | yes | | |
-| `kronos` | `KronosForecaster` | | | |
+| alias | estimator | alias | estimator |
+| --- | --- | --- | --- |
+| `dummy` | `NaiveForecaster` | `chronos2` | `Chronos2Forecaster` |
+| `chronos` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
+| `moirai2` | `Moirai2Forecaster` | `moirai` | `MOIRAIForecaster` |
+| `ttm` | `TinyTimeMixerForecaster` | `tirex` | `TiRexForecaster` |
+| `timesfm2.5` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
+| `toto` | `TotoForecaster` | `toto2` | `Toto2Forecaster` |
+| `flowstate` | `FlowStateForecaster` | `patchtsmixer` | `PatchTSMixerForecaster` |
+| `patchtst` | `PatchTSTForecaster` | `windfm` | `WindFMForecaster` |
+| `aurora` | `AuroraForecaster` | `lagllama` | `LagLlamaForecaster` |
+| `falconx` | `FalconXForecaster` | `falcontst` | `FalconTSTForecaster` |
+| `timemoe` | `TimeMoEForecaster` | `sundial` | `SundialForecaster` |
+| `timer` | `TimerForecaster` | `timers1` | `TimerS1Forecaster` |
+| `mira` | `MIRAForecaster` | `cisctsm` | `CiscoTSMForecaster` |
+| `momentfm` | `MomentFMAnomalyDetector` | `tspulse` | `TSPulseAnomalyDetector` |
 
 API docs once a server is up: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
@@ -85,7 +94,7 @@ fomo serve \
 
 | flag | default | |
 | --- | --- | --- |
-| `--load-model` | `dummy chronos2 timesfm2.5 moirai2 kronos` | space-separated aliases |
+| `--load-model` | none | registry aliases to load |
 | `--host` | `127.0.0.1` | use `0.0.0.0` in Docker |
 | `--port` | `8000` | |
 | `--log-level` | `info` | |
@@ -98,7 +107,7 @@ from fomo.server import Server
 Server(load_model=["dummy"], host="0.0.0.0", port=8000).run()
 ```
 
-`None` for `load_model` loads the same built-in aliases as omitting `--load-model`. The FastAPI app is `server.app` if you want to mount it yourself:
+Omitting `load_model` starts a server with no models, same as omitting `--load-model`. The FastAPI app is `server.app` if you want to mount it yourself:
 
 ```python
 from fomo.server import Server

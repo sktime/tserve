@@ -12,8 +12,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "--load-model",
         nargs="+",
         dest="load_model",
-        default=None,
-        help="model aliases to load (default: dummy chronos2 timesfm2.5 moirai2 kronos)",
+        default=[],
+        help="registry aliases to load (default: none)",
     )
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)

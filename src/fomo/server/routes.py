@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import ValidationError
 
-from fomo.runtime.registry import MODELS
+from fomo.runtime.registry import loaded_models
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 from fomo.types.codec import (
     ARROW_CONTENT_TYPE,
@@ -21,8 +21,8 @@ def health() -> HealthResult:
 
 
 @router.get("/models", response_model=ModelsResult)
-def models() -> ModelsResult:
-    return MODELS
+def models(request: Request) -> ModelsResult:
+    return loaded_models(request.app.state.runtime.executors)
 
 
 def _content_type(request: Request) -> str:
