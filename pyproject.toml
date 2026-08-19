@@ -49,6 +49,7 @@ dependencies = [
 	"gluonts>=0.14.0", "lightning>=2.0", "hydra-core",  # MOIRAI/Moirai2/LagLlama
 	"granite-tsfm>=0.3.5",  # FlowState/PatchTSMixer/TSPulse
 	"tirex-ts",  # TiRexForecaster
+	"pyarrow>=25.0.1",
 ]
 
 [project.scripts]
