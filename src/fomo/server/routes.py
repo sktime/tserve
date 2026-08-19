@@ -10,7 +10,7 @@ from fomo.types.codec import (
     decode_forecast_arrow,
     encode_forecast_response_arrow,
 )
-from fomo.types.converters import job_from_request, result_to_frame_response, result_to_response
+from fomo.types.converters import request_to_frames, response_to_tables
 
 router = APIRouter()
 
@@ -37,9 +37,10 @@ def _run_forecast(
 ) -> ForecastResponse:
     request_id = str(uuid.uuid4())
     try:
-        job = job_from_request(request_body)
-        result = request.app.state.runtime.scheduler.run(job)
-        response = result_to_frame_response(result) if frames else result_to_response(result)
+        request_body = request_to_frames(request_body)
+        response = request.app.state.runtime.scheduler.run(request_body)
+        if not frames:
+            response = response_to_tables(response)
     except Exception as exc:
         if isinstance(exc, ValueError):
             status_code, code = 400, "bad_request"
