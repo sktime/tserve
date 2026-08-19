@@ -1,8 +1,9 @@
 from fomo.types import ModelInfo, ModelsResult
 
-# Predefined aliases. --load-models / load_models selects which of these are loaded.
-# Checkpoints follow fomo/notes/models-matrix.md (highest-download Hub repo per estimator).
-_MODELS = [
+# Catalog of aliases the server can load. Nothing here is loaded until
+# --load-models / load_models selects it.
+# Checkout https://github.com/sktime/fomo/issues/1
+_PRE_REGISTERED = [
     ModelInfo(
         alias="dummy",
         estimator="NaiveForecaster",
@@ -257,15 +258,15 @@ _MODELS = [
     ),
 ]
 
-MODELS = ModelsResult(models=_MODELS)
-_BY_ALIAS = {model.alias: model for model in _MODELS}
+PRE_REGISTERED_MODELS = ModelsResult(models=_PRE_REGISTERED)
+_PRE_REGISTERED_BY_ALIAS = {model.alias: model for model in _PRE_REGISTERED}
 
 
-def get_model(alias: str) -> ModelInfo:
-    model = _BY_ALIAS.get(alias)
+def get_pre_registered(alias: str) -> ModelInfo:
+    model = _PRE_REGISTERED_BY_ALIAS.get(alias)
     if model is None:
-        known = ", ".join(_BY_ALIAS)
-        raise ValueError(f"unknown model {alias!r}, choose one of: {known}")
+        known = ", ".join(_PRE_REGISTERED_BY_ALIAS)
+        raise ValueError(f"unknown pre-registered model {alias!r}, choose one of: {known}")
     return model
 
 
@@ -273,9 +274,5 @@ def resolve_spec(item: str | ModelInfo) -> ModelInfo:
     if isinstance(item, ModelInfo):
         return item
     if isinstance(item, str):
-        return get_model(item)
+        return get_pre_registered(item)
     raise TypeError(f"expected alias str or ModelInfo, got {type(item).__name__}")
-
-
-def loaded_models(models: dict[str, ModelInfo]) -> ModelsResult:
-    return ModelsResult(models=list(models.values()))

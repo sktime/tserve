@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_spec
 from fomo.scheduling.scheduler import Scheduler
-from fomo.types import ModelInfo
+from fomo.types import ModelInfo, ModelsResult
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,9 @@ class Runtime:
     executors: dict[str, Executor]
     scheduler: Scheduler
     models: dict[str, ModelInfo] = field(default_factory=dict)
+
+    def loaded_models(self) -> ModelsResult:
+        return ModelsResult(models=list(self.models.values()))
 
 
 def bootstrap(load_models: list[str | ModelInfo] | None = None) -> Runtime:
