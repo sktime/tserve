@@ -1,5 +1,5 @@
 from fomo.runtime.executors import Executor
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types.models import ForecastJob, ForecastResult
 
 
 class Scheduler:

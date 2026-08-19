@@ -1,3 +1,3 @@
-from fomo.client.client import Client, FoMoError
+from fomo.client.client import Client
 
-__all__ = ["Client", "FoMoError"]
+__all__ = ["Client"]

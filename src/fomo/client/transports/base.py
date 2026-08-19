@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Protocol
+
+from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 
 
-@dataclass
-class TransportResponse:
-    status_code: int
-    body: Any
+class BaseTransport(Protocol):
+    def forecast(self, request: ForecastRequest) -> ForecastResponse: ...
 
+    def health(self) -> HealthResult: ...
 
-class Transport(Protocol):
-    def call(
-        self,
-        method: str,
-        path: str,
-        payload: dict[str, Any] | None = None,
-    ) -> TransportResponse: ...
+    def models(self) -> ModelsResult: ...
+
+    def close(self) -> None: ...

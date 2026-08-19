@@ -1,10 +1,10 @@
 from typing import Protocol
 
-from fomo.runtime.registry import ModelSpec
-from fomo.runtime.types import ForecastJob, ForecastResult
+from fomo.types.models import ForecastJob, ForecastResult
+from fomo.types import ModelInfo
 
 
 class Executor(Protocol):
-    def load(self, spec: ModelSpec) -> None: ...
+    def load(self, spec: ModelInfo) -> None: ...
 
     def predict(self, job: ForecastJob) -> ForecastResult: ...

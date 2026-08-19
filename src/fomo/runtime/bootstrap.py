@@ -14,15 +14,6 @@ class Runtime:
     executors: dict[str, Executor]
     scheduler: Scheduler
 
-    def health(self) -> dict:
-        return {
-            "status": "ok",
-            "loaded_models": sorted(self.executors),
-            "executors": {
-                alias: get_model(alias).executor for alias in self.executors
-            },
-        }
-
 
 def bootstrap(models: list[str] | None = None) -> Runtime:
     executors: dict[str, Executor] = {}
