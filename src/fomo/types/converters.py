@@ -13,10 +13,31 @@ def _as_table_dict(table: Any) -> dict[str, Any]:
     return table
 
 
+def is_json_table(table: Any) -> bool:
+    """Return whether a table can travel directly through the JSON transport."""
+    if not isinstance(table, dict):
+        return False
+    if "columns" in table and "data" in table:
+        return isinstance(table["columns"], list) and isinstance(table["data"], list)
+    return bool(table) and all(isinstance(value, list) for value in table.values())
+
+
+def as_frame(table: Any) -> nw.DataFrame:
+    """Convert any Narwhals-supported dataframe (or pass through an existing frame)."""
+    if isinstance(table, nw.DataFrame):
+        return table
+    return nw.from_native(table, eager_only=True)
+
+
 def table_to_frame(table: Any) -> nw.DataFrame:
-    data = _as_table_dict(table)
-    cols = {name: [row[i] for row in data["data"]] for i, name in enumerate(data["columns"])}
-    return nw.from_dict(cols, backend="pandas")
+    """Accept JSON table dicts or any Narwhals-supported dataframe."""
+    data = _as_table_dict(table) if hasattr(table, "model_dump") else table
+    if is_json_table(data):
+        if "columns" not in data or "data" not in data:
+            return nw.from_dict(data, backend="pandas")
+        cols = {name: [row[i] for row in data["data"]] for i, name in enumerate(data["columns"])}
+        return nw.from_dict(cols, backend="pandas")
+    return as_frame(table)
 
 
 def _json_cell(value: Any) -> Any:
@@ -135,6 +156,16 @@ def result_to_response(result: ForecastResult) -> ForecastResponse:
     return ForecastResponse(
         predictions=frame_to_table(result.y_pred),
         quantiles=frame_to_table(result.quantiles) if result.quantiles is not None else None,
+        model=result.model,
+        request_id="",
+    )
+
+
+def result_to_frame_response(result: ForecastResult) -> ForecastResponse:
+    """Return a response whose table values stay as Narwhals DataFrames."""
+    return ForecastResponse(
+        predictions=as_frame(result.y_pred),
+        quantiles=as_frame(result.quantiles) if result.quantiles is not None else None,
         model=result.model,
         request_id="",
     )
