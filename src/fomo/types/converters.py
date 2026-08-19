@@ -3,8 +3,7 @@ from typing import Any
 import narwhals as nw
 import pandas as pd
 
-from fomo.runtime.registry import get_model
-from fomo.types.models import ForecastJob, ForecastRequest, ForecastResponse, ForecastResult
+from fomo.types.models import ForecastRequest, ForecastResponse
 
 
 _JSON_ROWS = "json_rows"
@@ -93,117 +92,26 @@ def frame_to_format(frame: nw.DataFrame, fmt: TableFormat) -> Any:
     raise ValueError(f"unknown table format {fmt!r}")
 
 
-def _index_columns(request: ForecastRequest) -> list[str]:
-    return list(request.series_id or []) + [request.time]
-
-
-def _parse_time(frame: nw.DataFrame, time: str) -> nw.DataFrame:
-    pdf = frame.to_pandas()
-    pdf[time] = pd.to_datetime(pdf[time])
-    return nw.from_native(pdf, eager_only=True)
-
-
-def _select(frame: nw.DataFrame, columns: list[str]) -> nw.DataFrame:
-    keep = [col for col in columns if col in frame.columns]
-    return frame.select(keep)
-
-
-def _join_static(
-    frame: nw.DataFrame,
-    static: nw.DataFrame,
-    series_id: list[str],
-) -> nw.DataFrame:
-    return frame.join(static, on=series_id, how="left")
-
-
-def _future_index_from_freq(request: ForecastRequest, hist: pd.DataFrame) -> pd.DataFrame:
-    if request.freq is None:
-        raise ValueError("freq is required when static is set without future")
-    keys = list(request.series_id or [])
-    rows: list[list[Any]] = []
-    if keys:
-        for key, group in hist.groupby(keys, sort=False):
-            key_t = key if isinstance(key, tuple) else (key,)
-            last = group[request.time].max()
-            times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
-            for ts in times:
-                rows.append([*key_t, ts])
-    else:
-        last = hist[request.time].max()
-        times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
-        rows.extend([ts] for ts in times)
-    return pd.DataFrame(rows, columns=keys + [request.time])
-
-
-def validate_job(job: ForecastJob) -> None:
-    spec = get_model(job.model)
-    if len(job.target) > 1 and not spec.multivariate:
-        raise ValueError(f"model {job.model!r} does not support multivariate targets")
-    has_exog = job.X is not None or job.X_future is not None
-    if has_exog and not spec.exogenous:
-        raise ValueError(f"model {job.model!r} does not support exogenous data")
-    if job.quantiles and not spec.quantiles:
-        raise ValueError(f"model {job.model!r} does not support quantile forecasts")
-
-
-def job_from_request(request: ForecastRequest) -> ForecastJob:
-    index_cols = _index_columns(request)
-    hist = _parse_time(table_to_frame(request.history), request.time)
-    y = _select(hist, index_cols + list(request.target))
-
-    known = list(request.known_future or [])
-    x: nw.DataFrame | None = None
-    x_future: nw.DataFrame | None = None
-
-    if known or request.static is not None:
-        x = _select(hist, index_cols + known)
-        if request.future is not None:
-            fut = _parse_time(table_to_frame(request.future), request.time)
-            x_future = _select(fut, index_cols + known)
-        else:
-            x_future = nw.from_native(
-                _future_index_from_freq(request, hist.to_pandas()),
-                eager_only=True,
-            )
-
-        if request.static is not None:
-            assert request.series_id is not None
-            static = table_to_frame(request.static)
-            x = _join_static(x, static, request.series_id)
-            x_future = _join_static(x_future, static, request.series_id)
-
-    job = ForecastJob(
-        model=request.model,
-        y=y,
-        horizon=request.horizon,
-        target=tuple(request.target),
-        time=request.time,
-        series_id=tuple(request.series_id or ()),
-        X=x,
-        X_future=x_future,
-        past_only=tuple(request.past_only or ()),
-        freq=request.freq,
-        quantiles=tuple(request.quantiles) if request.quantiles else None,
-        params=dict(request.params or {}),
-    )
-    validate_job(job)
-    return job
-
-
-def result_to_response(result: ForecastResult) -> ForecastResponse:
-    return ForecastResponse(
-        predictions=frame_to_table(result.y_pred),
-        quantiles=frame_to_table(result.quantiles) if result.quantiles is not None else None,
-        model=result.model,
-        request_id="",
+def request_to_frames(request: ForecastRequest) -> ForecastRequest:
+    """Normalize JSON or native tables on a request into Narwhals DataFrames."""
+    return request.model_copy(
+        update={
+            "history": table_to_frame(request.history),
+            "future": table_to_frame(request.future) if request.future is not None else None,
+            "static": table_to_frame(request.static) if request.static is not None else None,
+        }
     )
 
 
-def result_to_frame_response(result: ForecastResult) -> ForecastResponse:
-    """Return a response whose table values stay as Narwhals DataFrames."""
-    return ForecastResponse(
-        predictions=as_frame(result.y_pred),
-        quantiles=as_frame(result.quantiles) if result.quantiles is not None else None,
-        model=result.model,
-        request_id="",
+def response_to_tables(response: ForecastResponse) -> ForecastResponse:
+    """Render response frames as JSON `{columns, data}` tables."""
+    return response.model_copy(
+        update={
+            "predictions": frame_to_table(as_frame(response.predictions)),
+            "quantiles": (
+                frame_to_table(as_frame(response.quantiles))
+                if response.quantiles is not None
+                else None
+            ),
+        }
     )

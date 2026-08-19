@@ -1,6 +1,5 @@
 from fomo.runtime.executors.plugins import register
-from fomo.types.models import ForecastJob, ForecastResult
-from fomo.types import ModelInfo
+from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
 
 
 @register("pytorch-forecasting")
@@ -10,7 +9,7 @@ class PytorchForecastingExecutor:
             f"pytorch-forecasting executor is not implemented yet (model {spec.alias!r})"
         )
 
-    def predict(self, job: ForecastJob) -> ForecastResult:
+    def predict(self, request: ForecastRequest) -> ForecastResponse:
         raise NotImplementedError(
-            f"pytorch-forecasting executor is not implemented yet (model {job.model!r})"
+            f"pytorch-forecasting executor is not implemented yet (model {request.model!r})"
         )
