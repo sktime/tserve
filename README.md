@@ -120,3 +120,8 @@ with Client("http://127.0.0.1:8000") as client:
     )
 ```
 
+`history` accepts `{columns, data}`, a column-oriented `dict[str, list]`, or any
+Narwhals-supported dataframe (pandas, polars, pyarrow, ...). `result.predictions` and
+`result.quantiles` come back in the same format, so a pandas `history` gives pandas
+predictions and a `{columns, data}` history gives `{columns, data}` predictions.
+

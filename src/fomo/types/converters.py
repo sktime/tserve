@@ -7,6 +7,14 @@ from fomo.runtime.registry import get_model
 from fomo.types.models import ForecastJob, ForecastRequest, ForecastResponse, ForecastResult
 
 
+_JSON_ROWS = "json_rows"
+_JSON_COLUMNS = "json_columns"
+_NARWHALS = "narwhals"
+
+TableFormat = str | nw.Implementation
+"""How a caller encoded a table: a JSON layout, Narwhals, or a native backend."""
+
+
 def _as_table_dict(table: Any) -> dict[str, Any]:
     if hasattr(table, "model_dump"):
         table = table.model_dump()
@@ -29,14 +37,25 @@ def as_frame(table: Any) -> nw.DataFrame:
     return nw.from_native(table, eager_only=True)
 
 
+def table_format(table: Any) -> TableFormat:
+    """Describe how a table is encoded, so results can be returned in the same shape."""
+    data = _as_table_dict(table) if hasattr(table, "model_dump") else table
+    if is_json_table(data):
+        return _JSON_ROWS if "columns" in data and "data" in data else _JSON_COLUMNS
+    if isinstance(table, nw.DataFrame):
+        return _NARWHALS
+    return as_frame(table).implementation
+
+
 def table_to_frame(table: Any) -> nw.DataFrame:
     """Accept JSON table dicts or any Narwhals-supported dataframe."""
     data = _as_table_dict(table) if hasattr(table, "model_dump") else table
-    if is_json_table(data):
-        if "columns" not in data or "data" not in data:
-            return nw.from_dict(data, backend="pandas")
+    fmt = table_format(data)
+    if fmt == _JSON_ROWS:
         cols = {name: [row[i] for row in data["data"]] for i, name in enumerate(data["columns"])}
         return nw.from_dict(cols, backend="pandas")
+    if fmt == _JSON_COLUMNS:
+        return nw.from_dict(data, backend="pandas")
     return as_frame(table)
 
 
@@ -53,6 +72,25 @@ def frame_to_table(frame: nw.DataFrame) -> dict[str, Any]:
         "columns": list(frame.columns),
         "data": [[_json_cell(cell) for cell in row] for row in frame.iter_rows()],
     }
+
+
+def frame_to_columns(frame: nw.DataFrame) -> dict[str, list[Any]]:
+    return {name: [_json_cell(cell) for cell in frame[name].to_list()] for name in frame.columns}
+
+
+def frame_to_format(frame: nw.DataFrame, fmt: TableFormat) -> Any:
+    """Render a frame in a format reported by `table_format`, inverting `table_to_frame`."""
+    if isinstance(fmt, nw.Implementation):
+        if fmt is frame.implementation:
+            return frame.to_native()
+        return nw.from_arrow(frame.to_arrow(), backend=fmt.to_native_namespace()).to_native()
+    if fmt == _NARWHALS:
+        return frame
+    if fmt == _JSON_ROWS:
+        return frame_to_table(frame)
+    if fmt == _JSON_COLUMNS:
+        return frame_to_columns(frame)
+    raise ValueError(f"unknown table format {fmt!r}")
 
 
 def _index_columns(request: ForecastRequest) -> list[str]:
