@@ -12,17 +12,17 @@ from fomo.server.routes import router
 class Server:
     def __init__(
         self,
-        load_model: list[str] | None = None,
+        load_models: list[str] | None = None,
         *,
         host: str = "127.0.0.1",
         port: int = 8000,
         log_level: str = "info",
     ) -> None:
-        self.load_model = list(load_model or [])
+        self.load_models = list(load_models or [])
         self.host = host
         self.port = port
         self.log_level = log_level
-        self.runtime: Runtime = bootstrap(self.load_model)
+        self.runtime: Runtime = bootstrap(self.load_models)
         self.app = FastAPI(title="FoMo")
         self.app.state.runtime = self.runtime
         self.app.include_router(router)

@@ -9,9 +9,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     serve = sub.add_parser("serve", help="run the inference server")
     serve.add_argument(
-        "--load-model",
+        "--load-models",
         nargs="+",
-        dest="load_model",
+        dest="load_models",
         default=[],
         help="registry aliases to load (default: none)",
     )
@@ -30,7 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     from fomo.server import Server
 
     server = Server(
-        load_model=args.load_model,
+        load_models=args.load_models,
         host=args.host,
         port=args.port,
         log_level=args.log_level,

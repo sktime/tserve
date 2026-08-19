@@ -14,9 +14,9 @@ class Runtime:
     scheduler: Scheduler
 
 
-def bootstrap(load_model: list[str] | None = None) -> Runtime:
+def bootstrap(load_models: list[str] | None = None) -> Runtime:
     executors: dict[str, Executor] = {}
-    for alias in load_model or []:
+    for alias in load_models or []:
         spec = get_model(alias)
         logger.info("loading model %s via %s", alias, spec.executor)
         executor = create_executor(spec.executor)

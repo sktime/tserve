@@ -1,6 +1,6 @@
 from fomo.types import ModelInfo, ModelsResult
 
-# Predefined aliases. --load-model / load_model selects which of these are loaded.
+# Predefined aliases. --load-models / load_models selects which of these are loaded.
 # Checkpoints follow fomo/notes/models-matrix.md (highest-download Hub repo per estimator).
 _MODELS = [
     ModelInfo(
