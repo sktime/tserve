@@ -4,6 +4,7 @@ from typing import Any
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
+from fomo.types.converters import table_to_frame
 
 
 class Client:
@@ -27,6 +28,10 @@ class Client:
         quantiles: list[float] | None = None,
         params: dict[str, Any] | None = None,
     ) -> ForecastResponse:
+        history = table_to_frame(history)
+        future = table_to_frame(future) if future is not None else None
+        static = table_to_frame(static) if static is not None else None
+
         request = ForecastRequest(
             history=history,
             time=time,
