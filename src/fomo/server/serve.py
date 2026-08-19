@@ -6,24 +6,24 @@ import uvicorn
 from fastapi import FastAPI
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
-from fomo.runtime.config import configured_models
+from fomo.runtime.config import DEFAULT_MODELS
 from fomo.server.routes import router
 
 
 class Server:
     def __init__(
         self,
-        models: list[str] | None = None,
+        load_model: list[str] | None = None,
         *,
         host: str = "127.0.0.1",
         port: int = 8000,
         log_level: str = "info",
     ) -> None:
-        self.models = list(models) if models is not None else configured_models()
+        self.load_model = list(load_model) if load_model is not None else list(DEFAULT_MODELS)
         self.host = host
         self.port = port
         self.log_level = log_level
-        self.runtime: Runtime = bootstrap(self.models)
+        self.runtime: Runtime = bootstrap(self.load_model)
         self.app = FastAPI(title="FoMo")
         self.app.state.runtime = self.runtime
         self.app.include_router(router)

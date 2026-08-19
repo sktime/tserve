@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 
-from fomo.runtime.config import configured_models
+from fomo.runtime.config import DEFAULT_MODELS
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import get_model
 from fomo.scheduling.scheduler import Scheduler
@@ -15,9 +15,9 @@ class Runtime:
     scheduler: Scheduler
 
 
-def bootstrap(models: list[str] | None = None) -> Runtime:
+def bootstrap(load_model: list[str] | None = None) -> Runtime:
     executors: dict[str, Executor] = {}
-    for alias in models if models is not None else configured_models():
+    for alias in load_model if load_model is not None else DEFAULT_MODELS:
         spec = get_model(alias)
         logger.info("loading model %s via %s", alias, spec.executor)
         executor = create_executor(spec.executor)

@@ -2,7 +2,7 @@
 
 Time series foundation model inference server. Load models once, forecast over HTTP or the Python client.
 
-Loaded by default: `dummy`, `chronos2`, `timesfm2.5`, `moirai2`, `kronos`. `dummy` is a `NaiveForecaster` (no download). The others pull Hugging Face weights on first load.
+Load aliases with `--load-model` / `load_model`. `dummy` is a `NaiveForecaster` (no download). The others pull Hugging Face weights on first load. If you omit the flag, the server loads `dummy`, `chronos2`, `timesfm2.5`, `moirai2`, and `kronos`.
 
 | alias | estimator | multivariate | exogenous | quantiles |
 | --- | --- | --- | --- | --- |
@@ -24,16 +24,8 @@ Pick one way to run it. All of them expose the same API on `--host` / `--port`.
 
 ```bash
 docker run --rm -p 8000:8000 \
-  -e FOMO_MODELS=dummy,chronos2 \
-  docker.io/sktime/fomo:dl-py3.13
-```
-
-Override the command if you want explicit flags instead of `FOMO_MODELS`:
-
-```bash
-docker run --rm -p 8000:8000 \
   docker.io/sktime/fomo:dl-py3.13 \
-  fomo serve --host 0.0.0.0 --port 8000 --models dummy,chronos2
+  fomo serve --host 0.0.0.0 --port 8000 --load-model dummy chronos2
 ```
 
 ### Docker: custom image
@@ -49,8 +41,8 @@ RUN pip install my-package another-package
 ```bash
 docker build -t my-fomo:custom .
 docker run --rm -p 8000:8000 \
-  -e FOMO_MODELS=dummy,chronos2 \
-  my-fomo:custom
+  my-fomo:custom \
+  fomo serve --host 0.0.0.0 --port 8000 --load-model dummy chronos2
 ```
 
 Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync --frozen`):
@@ -59,7 +51,8 @@ Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync --frozen`
 git clone git@github.com:sktime/fomo.git
 cd fomo
 docker build -t fomo:local .
-docker run --rm -p 8000:8000 -e FOMO_MODELS=dummy fomo:local
+docker run --rm -p 8000:8000 fomo:local \
+  uv run --frozen fomo serve --host 0.0.0.0 --port 8000 --load-model dummy
 ```
 
 ### From source
@@ -70,14 +63,14 @@ Python >= 3.12. Uses [uv](https://docs.astral.sh/uv/).
 git clone git@github.com:sktime/fomo.git
 cd fomo
 uv sync
-uv run fomo serve --host 0.0.0.0 --port 8000 --models dummy
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-model dummy
 ```
 
 Same thing after a normal install:
 
 ```bash
 uv pip install -e .
-fomo serve --host 0.0.0.0 --port 8000 --models dummy,chronos2
+fomo serve --host 0.0.0.0 --port 8000 --load-model dummy chronos2
 ```
 
 ### CLI
@@ -86,32 +79,31 @@ fomo serve --host 0.0.0.0 --port 8000 --models dummy,chronos2
 fomo serve \
   --host 0.0.0.0 \
   --port 8000 \
-  --models dummy,chronos2 \
+  --load-model dummy chronos2 \
   --log-level info
 ```
 
-| flag / env | default | |
+| flag | default | |
 | --- | --- | --- |
-| `--models` | `FOMO_MODELS`, else `dummy,chronos2,timesfm2.5,moirai2,kronos` | comma-separated aliases |
+| `--load-model` | `dummy chronos2 timesfm2.5 moirai2 kronos` | space-separated aliases |
 | `--host` | `127.0.0.1` | use `0.0.0.0` in Docker |
 | `--port` | `8000` | |
 | `--log-level` | `info` | |
-| `FOMO_MODELS` | built-in list | same as `--models` if the flag is omitted |
 
 ### Server SDK
 
 ```python
 from fomo.server import Server
 
-Server(models=["dummy"], host="0.0.0.0", port=8000).run()
+Server(load_model=["dummy"], host="0.0.0.0", port=8000).run()
 ```
 
-`None` for `models` follows `FOMO_MODELS` / the built-in list. The FastAPI app is `server.app` if you want to mount it yourself:
+`None` for `load_model` loads the same built-in aliases as omitting `--load-model`. The FastAPI app is `server.app` if you want to mount it yourself:
 
 ```python
 from fomo.server import Server
 
-server = Server(models=["dummy", "chronos2"], host="127.0.0.1", port=8000)
+server = Server(load_model=["dummy", "chronos2"], host="127.0.0.1", port=8000)
 print(server.url)  # http://127.0.0.1:8000
 # uvicorn.run(server.app, host=server.host, port=server.port)
 server.run()
