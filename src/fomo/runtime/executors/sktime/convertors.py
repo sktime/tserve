@@ -2,139 +2,126 @@ from typing import Any
 
 import narwhals as nw
 import pandas as pd
+from sktime.forecasting.base import ForecastingHorizon
 
-from fomo.types import ForecastRequest
-from fomo.types.converters import as_frame
-
-
-def _index_columns(request: ForecastRequest) -> list[str]:
-    return list(request.series_id or []) + [request.time]
+from fomo.types import ForecastRequest, ForecastResponse
+from fomo.types.converters import table_to_frame
 
 
-def _select(frame: nw.DataFrame, columns: list[str]) -> nw.DataFrame:
-    keep = [col for col in columns if col in frame.columns]
-    return frame.select(keep)
+def from_request(request: ForecastRequest) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame | None,
+    pd.DataFrame | None,
+    ForecastingHorizon,
+    list[float] | None,
+]:
+    """Map a request onto the ``y``, ``X``, future ``X``, ``fh`` and quantiles sktime expects."""
+    if request.series_id:
+        raise ValueError("panel data (series_id) is not supported yet")
 
-
-def _join_static(
-    frame: nw.DataFrame,
-    static: nw.DataFrame,
-    series_id: list[str],
-) -> nw.DataFrame:
-    return frame.join(static, on=series_id, how="left")
-
-
-def _future_index_from_freq(request: ForecastRequest, hist: pd.DataFrame) -> pd.DataFrame:
-    if request.freq is None:
-        raise ValueError("freq is required when static is set without future")
-    keys = list(request.series_id or [])
-    rows: list[list[Any]] = []
-    if keys:
-        for key, group in hist.groupby(keys, sort=False):
-            key_t = key if isinstance(key, tuple) else (key,)
-            last = group[request.time].max()
-            times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
-            for ts in times:
-                rows.append([*key_t, ts])
-    else:
-        last = hist[request.time].max()
-        times = pd.date_range(last, periods=request.horizon + 1, freq=request.freq)[1:]
-        rows.extend([ts] for ts in times)
-    return pd.DataFrame(rows, columns=keys + [request.time])
-
-
-def request_frames(
-    request: ForecastRequest,
-) -> tuple[nw.DataFrame, nw.DataFrame | None, nw.DataFrame | None]:
-    hist = as_frame(request.history)
-    index_cols = _index_columns(request)
-    y = _select(hist, index_cols + list(request.target))
+    history = _indexed(request.history, request)
+    y = history[_columns(history, request.target, "history")]
+    fh = ForecastingHorizon(range(1, request.horizon + 1), is_relative=True)
+    quantiles = list(request.quantiles) if request.quantiles else None
 
     known = list(request.known_future or [])
-    if not known and request.static is None:
-        return y, None, None
+    static = _static_values(request)
+    if not known and not static:
+        return y, None, None, fh, quantiles
 
-    x = _select(hist, index_cols + known)
-    if request.future is not None:
-        x_future = _select(as_frame(request.future), index_cols + known)
-    else:
-        x_future = nw.from_native(
-            _future_index_from_freq(request, hist.to_pandas()),
-            eager_only=True,
-        )
-
-    if request.static is not None:
-        static = as_frame(request.static)
-        series_id = list(request.series_id or [])
-        x = _join_static(x, static, series_id)
-        x_future = _join_static(x_future, static, series_id)
-
-    return y, x, x_future
+    x = history[_columns(history, known, "history")].copy()
+    x_future = _future_exog(request, known, history.index)
+    for name, value in static.items():
+        x[name] = value
+        x_future[name] = value
+    return y, x, x_future, fh, quantiles
 
 
-def to_pandas(
-    frame: nw.DataFrame,
-    *,
-    value_columns: tuple[str, ...],
-    time: str,
-    series_id: tuple[str, ...],
-) -> pd.DataFrame:
-    pdf = frame.to_pandas()
-    index_cols = [col for col in (*series_id, time) if col in pdf.columns]
-    if time in pdf.columns:
-        pdf[time] = pd.to_datetime(pdf[time])
-    if index_cols:
-        pdf = pdf.set_index(index_cols)
-    return pdf[list(value_columns)]
-
-
-def _prediction_frame(
-    y_pred: pd.Series | pd.DataFrame,
-    *,
-    target: tuple[str, ...],
-    time: str,
-    series_id: tuple[str, ...],
-) -> pd.DataFrame:
-    if isinstance(y_pred, pd.Series):
-        y_pred = y_pred.to_frame(name=target[0])
-    y_pred = y_pred.copy()
-    expected = list(series_id) + [time]
-    if isinstance(y_pred.index, pd.MultiIndex):
-        names = [
-            current if current is not None else expected[i]
-            for i, current in enumerate(y_pred.index.names)
-        ]
-        y_pred.index = y_pred.index.set_names(names)
-    elif y_pred.index.name is None:
-        y_pred.index.name = time
-    return y_pred.reset_index()
-
-
-def flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
-    if isinstance(qdf.columns, pd.MultiIndex):
-        qdf = qdf.copy()
-        qdf.columns = [
-            f"{var}_{quantile}" if quantile != "" else str(var)
-            for var, quantile in qdf.columns.to_list()
-        ]
-    return qdf.reset_index()
-
-
-def exog_columns(frame: nw.DataFrame, request: ForecastRequest) -> tuple[str, ...]:
-    skip = set(request.series_id or ()) | {request.time}
-    return tuple(col for col in frame.columns if col not in skip)
-
-
-def as_prediction_frame(
-    y_pred: pd.Series | pd.DataFrame,
+def to_response(
+    preds: pd.DataFrame,
     request: ForecastRequest,
-) -> nw.DataFrame:
-    return nw.from_native(
-        _prediction_frame(
-            y_pred,
-            target=tuple(request.target),
-            time=request.time,
-            series_id=tuple(request.series_id or ()),
-        ),
-        eager_only=True,
+    quantiles: pd.DataFrame | None = None,
+) -> ForecastResponse:
+    """Turn sktime predictions back into the tables the transport layer serializes."""
+    return ForecastResponse(
+        predictions=_as_table(preds, request),
+        quantiles=None if quantiles is None else _as_table(_flatten(quantiles), request),
+        model=request.model,
+        request_id="",
     )
+
+
+def _as_table(frame: pd.DataFrame, request: ForecastRequest) -> nw.DataFrame:
+    frame = frame.copy()
+    frame.index = frame.index.rename(request.time)
+    return nw.from_native(frame.reset_index(), eager_only=True)
+
+
+def _flatten(quantiles: pd.DataFrame) -> pd.DataFrame:
+    """Collapse sktime's ``(variable, alpha)`` column index into flat ``var_alpha`` names."""
+    if not isinstance(quantiles.columns, pd.MultiIndex):
+        return quantiles
+    quantiles = quantiles.copy()
+    quantiles.columns = [
+        f"{var}_{alpha}" if alpha != "" else str(var) for var, alpha in quantiles.columns
+    ]
+    return quantiles
+
+
+def _indexed(table: Any, request: ForecastRequest) -> pd.DataFrame:
+    frame = table_to_frame(table).to_pandas()
+    if request.time not in frame.columns:
+        raise ValueError(f"time column {request.time!r} is missing from the request tables")
+    frame = frame.sort_values(request.time)
+    index = pd.DatetimeIndex(pd.to_datetime(frame[request.time]), name=request.time)
+    if request.freq is not None:
+        index = _with_freq(index, request.freq)
+    return frame.drop(columns=[request.time]).set_index(index)
+
+
+def _with_freq(index: pd.DatetimeIndex, freq: str) -> pd.DatetimeIndex:
+    try:
+        return pd.DatetimeIndex(index, freq=freq, name=index.name)
+    except ValueError as exc:
+        raise ValueError(f"timestamps do not match freq {freq!r}") from exc
+
+
+def _columns(frame: pd.DataFrame, columns: list[str], origin: str) -> list[str]:
+    missing = [col for col in columns if col not in frame.columns]
+    if missing:
+        raise ValueError(f"columns {missing} are missing from {origin}")
+    return columns
+
+
+def _static_values(request: ForecastRequest) -> dict[str, Any]:
+    if request.static is None:
+        return {}
+    static = table_to_frame(request.static).to_pandas()
+    if len(static) != 1:
+        raise ValueError("static must hold exactly one row when series_id is not set")
+    return static.iloc[0].to_dict()
+
+
+def _future_exog(
+    request: ForecastRequest,
+    known: list[str],
+    history_index: pd.DatetimeIndex,
+) -> pd.DataFrame:
+    if request.future is None:
+        if known:
+            raise ValueError("future is required when known_future is set")
+        return pd.DataFrame(index=_future_index(request, history_index))
+    future = _indexed(request.future, request)
+    return future[_columns(future, known, "future")].copy()
+
+
+def _future_index(request: ForecastRequest, history_index: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    freq = request.freq or history_index.freq or pd.infer_freq(history_index)
+    if freq is None:
+        raise ValueError("freq is required when it cannot be inferred from history")
+    return pd.date_range(
+        history_index[-1],
+        periods=request.horizon + 1,
+        freq=freq,
+        name=history_index.name,
+    )[1:]
