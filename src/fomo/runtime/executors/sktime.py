@@ -6,7 +6,7 @@ from sktime.forecasting.base import ForecastingHorizon
 from sktime.registry import craft
 
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.registry import get_registry_craft
+from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
 from fomo.types.converters import as_frame
 
@@ -164,13 +164,13 @@ class SktimeExecutor:
         self._info: ModelInfo | None = None
         self._forecaster: Any = None
 
-    def load(self, info: ModelInfo) -> None:
+    def load(self, info: ModelInfo, model: Any) -> None:
         if info.source != "registry":
             raise NotImplementedError(
                 f"sktime executor cannot load source {info.source!r} yet (model {info.alias!r})"
             )
         self._info = info
-        self._forecaster = craft(get_registry_craft(info.alias))
+        self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
         _warmup_forecaster(self._forecaster)
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:
