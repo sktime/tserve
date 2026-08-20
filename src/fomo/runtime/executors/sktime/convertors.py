@@ -2,21 +2,9 @@ from typing import Any
 
 import narwhals as nw
 import pandas as pd
-from sktime.forecasting.base import ForecastingHorizon
-from sktime.registry import craft
 
-from fomo.runtime.executors.plugins import register
-from fomo.runtime.registry import get_registry_craft
-from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
+from fomo.types import ForecastRequest
 from fomo.types.converters import as_frame
-
-_WARMUP_Y = pd.DataFrame({"y": [0.0, 1.0, 2.0]})
-_WARMUP_FH = ForecastingHorizon([1], is_relative=True)
-
-
-def _warmup_forecaster(forecaster: Any) -> None:
-    forecaster.fit(_WARMUP_Y, fh=_WARMUP_FH)
-    forecaster.predict()
 
 
 def _index_columns(request: ForecastRequest) -> list[str]:
@@ -55,7 +43,7 @@ def _future_index_from_freq(request: ForecastRequest, hist: pd.DataFrame) -> pd.
     return pd.DataFrame(rows, columns=keys + [request.time])
 
 
-def _request_frames(
+def request_frames(
     request: ForecastRequest,
 ) -> tuple[nw.DataFrame, nw.DataFrame | None, nw.DataFrame | None]:
     hist = as_frame(request.history)
@@ -84,7 +72,7 @@ def _request_frames(
     return y, x, x_future
 
 
-def _to_pandas(
+def to_pandas(
     frame: nw.DataFrame,
     *,
     value_columns: tuple[str, ...],
@@ -122,7 +110,7 @@ def _prediction_frame(
     return y_pred.reset_index()
 
 
-def _flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
+def flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
     if isinstance(qdf.columns, pd.MultiIndex):
         qdf = qdf.copy()
         qdf.columns = [
@@ -132,18 +120,12 @@ def _flatten_quantiles(qdf: pd.DataFrame) -> pd.DataFrame:
     return qdf.reset_index()
 
 
-def _apply_model_config(forecaster: Any, request: ForecastRequest) -> None:
-    freq = request.freq or (request.params or {}).get("freq")
-    if freq is not None and hasattr(forecaster, "freq"):
-        forecaster.freq = freq
-
-
-def _exog_columns(frame: nw.DataFrame, request: ForecastRequest) -> tuple[str, ...]:
+def exog_columns(frame: nw.DataFrame, request: ForecastRequest) -> tuple[str, ...]:
     skip = set(request.series_id or ()) | {request.time}
     return tuple(col for col in frame.columns if col not in skip)
 
 
-def _as_prediction_frame(
+def as_prediction_frame(
     y_pred: pd.Series | pd.DataFrame,
     request: ForecastRequest,
 ) -> nw.DataFrame:
@@ -156,76 +138,3 @@ def _as_prediction_frame(
         ),
         eager_only=True,
     )
-
-
-@register("sktime")
-class SktimeExecutor:
-    def __init__(self) -> None:
-        self._info: ModelInfo | None = None
-        self._forecaster: Any = None
-
-    def load(self, info: ModelInfo) -> None:
-        if info.source != "registry":
-            raise NotImplementedError(
-                f"sktime executor cannot load source {info.source!r} yet (model {info.alias!r})"
-            )
-        self._info = info
-        self._forecaster = craft(get_registry_craft(info.alias))
-        _warmup_forecaster(self._forecaster)
-
-    def predict(self, request: ForecastRequest) -> ForecastResponse:
-        if self._info is None or self._forecaster is None:
-            raise RuntimeError("sktime executor has no model loaded")
-        if request.model != self._info.alias:
-            raise RuntimeError(
-                f"executor for {self._info.alias!r} cannot run {request.model!r}"
-            )
-
-        _apply_model_config(self._forecaster, request)
-        y_frame, x_frame, x_future_frame = _request_frames(request)
-        series_id = tuple(request.series_id or ())
-        target = tuple(request.target)
-
-        fh = ForecastingHorizon(list(range(1, request.horizon + 1)), is_relative=True)
-        y = _to_pandas(
-            y_frame,
-            value_columns=target,
-            time=request.time,
-            series_id=series_id,
-        )
-
-        fit_kwargs: dict[str, Any] = {"y": y, "fh": fh}
-        if x_frame is not None:
-            fit_kwargs["X"] = _to_pandas(
-                x_frame,
-                value_columns=_exog_columns(x_frame, request),
-                time=request.time,
-                series_id=series_id,
-            )
-        self._forecaster.fit(**fit_kwargs)
-
-        predict_kwargs: dict[str, Any] = {"fh": fh}
-        if x_future_frame is not None:
-            predict_kwargs["X"] = _to_pandas(
-                x_future_frame,
-                value_columns=_exog_columns(x_future_frame, request),
-                time=request.time,
-                series_id=series_id,
-            )
-
-        y_pred = self._forecaster.predict(**predict_kwargs)
-        predictions = _as_prediction_frame(y_pred, request)
-        quantiles = None
-        if request.quantiles:
-            q_pred = self._forecaster.predict_quantiles(
-                alpha=list(request.quantiles),
-                **predict_kwargs,
-            )
-            quantiles = nw.from_native(_flatten_quantiles(q_pred), eager_only=True)
-
-        return ForecastResponse(
-            predictions=predictions,
-            quantiles=quantiles,
-            model=request.model,
-            request_id="",
-        )
