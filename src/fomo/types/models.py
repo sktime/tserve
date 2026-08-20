@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -40,12 +40,8 @@ class HealthResult(BaseModel):
 
 class ModelInfo(BaseModel):
     alias: str
-    estimator: str
-    executor: str
-    multivariate: bool
-    exogenous: bool
-    quantiles: bool
-    spec: str
+    executor: Literal["sktime", "pytorch-forecasting", "custom"]
+    source: Literal["object", "registry", "directory"]
 
 
 class ModelsResult(BaseModel):

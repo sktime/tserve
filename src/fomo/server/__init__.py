@@ -1,3 +1,5 @@
 from fomo.server.serve import Server
+from fomo.types import ModelInfo
 
-__all__ = ["Server"]
+__all__ = ["ModelInfo", "Server"]
+

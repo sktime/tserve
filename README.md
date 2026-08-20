@@ -1,34 +1,150 @@
 # FoMo
 
-Time series foundation model inference server (early prototype).
+Time series foundation model inference server. Load models once, forecast over HTTP or the Python client.
 
-## Setup
+Nothing is loaded by default: a bare `fomo serve` starts with an empty model list. Name registry aliases with `--load-models` / `load_models` to load them. `dummy` is a `NaiveForecaster` (no download); the rest pull Hugging Face weights at load time. `GET /models` lists only what this process loaded.
+
+| alias | estimator | alias | estimator |
+| --- | --- | --- | --- |
+| `dummy` | `NaiveForecaster` | `chronos2` | `Chronos2Forecaster` |
+| `chronos` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
+| `moirai2` | `Moirai2Forecaster` | `moirai` | `MOIRAIForecaster` |
+| `ttm` | `TinyTimeMixerForecaster` | `tirex` | `TiRexForecaster` |
+| `timesfm2.5` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
+| `toto` | `TotoForecaster` | `toto2` | `Toto2Forecaster` |
+| `flowstate` | `FlowStateForecaster` | `patchtsmixer` | `PatchTSMixerForecaster` |
+| `patchtst` | `PatchTSTForecaster` | `windfm` | `WindFMForecaster` |
+| `aurora` | `AuroraForecaster` | `lagllama` | `LagLlamaForecaster` |
+| `falconx` | `FalconXForecaster` | `falcontst` | `FalconTSTForecaster` |
+| `timemoe` | `TimeMoEForecaster` | `sundial` | `SundialForecaster` |
+| `timer` | `TimerForecaster` | `timers1` | `TimerS1Forecaster` |
+| `mira` | `MIRAForecaster` | `cisctsm` | `CiscoTSMForecaster` |
+| `momentfm` | `MomentFMAnomalyDetector` | `tspulse` | `TSPulseAnomalyDetector` |
+
+API docs once a server is up: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+## Server
+
+Pick one way to run it. All of them expose the same API on `--host` / `--port`.
+
+### Docker: pre-built image
 
 ```bash
-uv sync
-uv run fomo serve --host 0.0.0.0 --port 8000
+docker run --rm -p 8000:8000 \
+  docker.io/sktime/fomo:dl-py3.13 \
+  fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
 ```
 
-Same thing from Python:
+### Docker: custom image
+
+Add extra Python deps on top of the published image:
+
+```dockerfile
+FROM docker.io/sktime/fomo:dl-py3.13
+
+RUN pip install my-package another-package
+```
+
+```bash
+docker build -t my-fomo:custom .
+docker run --rm -p 8000:8000 \
+  my-fomo:custom \
+  fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
+```
+
+Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync --frozen`):
+
+```bash
+git clone git@github.com:sktime/fomo.git
+cd fomo
+docker build -t fomo:local .
+docker run --rm -p 8000:8000 fomo:local \
+  uv run --frozen fomo serve --host 0.0.0.0 --port 8000 --load-models dummy
+```
+
+### From source
+
+Python >= 3.12. Uses [uv](https://docs.astral.sh/uv/).
+
+```bash
+git clone git@github.com:sktime/fomo.git
+cd fomo
+uv sync
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models dummy
+```
+
+Same thing after a normal install:
+
+```bash
+uv pip install -e .
+fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
+```
+
+### CLI
+
+```bash
+fomo serve \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --load-models dummy chronos2 \
+  --log-level info
+```
+
+| flag | default | |
+| --- | --- | --- |
+| `--load-models` | none | registry aliases to load |
+| `--host` | `127.0.0.1` | use `0.0.0.0` in Docker |
+| `--port` | `8000` | |
+| `--log-level` | `info` | |
+
+### Server SDK
 
 ```python
 from fomo.server import Server
 
-Server(models=["dummy"], host="0.0.0.0", port=8000).run()
+Server(load_models=["dummy"], host="0.0.0.0", port=8000).run()
 ```
 
-API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+Omitting `load_models` starts a server with no models, same as omitting `--load-models`. Aliases resolve from the registry (`source="registry"`). You can pass the same alias as a `ModelInfo` (SDK only; the CLI still takes names):
 
-By default the server loads `dummy`, `chronos2`, `timesfm2.5`, `moirai2`, and `kronos`. Override with `--models` or `FOMO_MODELS`:
+```python
+from fomo.server import ModelInfo, Server
+
+dummy = ModelInfo(alias="dummy", executor="sktime", source="registry")
+Server(load_models=["chronos2", dummy], host="0.0.0.0", port=8000).run()
+```
+
+`GET /models` returns `{alias, executor, source}` for each loaded model. `source` is `registry`, `directory`, or `object`; only `registry` is loadable today.
+
+The FastAPI app is `server.app` if you want to mount it yourself:
+
+```python
+from fomo.server import Server
+
+server = Server(load_models=["dummy", "chronos2"], host="127.0.0.1", port=8000)
+print(server.url)  # http://127.0.0.1:8000
+# uvicorn.run(server.app, host=server.host, port=server.port)
+server.run()
+```
+
+---
+
+## Client
+
+Wire: **JSON** (`Content-Type: application/json`) for curl and any HTTP client, **Arrow IPC** (`application/vnd.fomo.forecast+arrow`) for `fomo.client.Client`. Same `/forecast` body either way.
+
+### HTTP
 
 ```bash
-uv run fomo serve --models dummy,chronos2
+curl -s http://127.0.0.1:8000/health
+# {"status":"ok"}
+
+curl -s http://127.0.0.1:8000/models
 ```
 
-## End-to-end example
-
-Five daily sales observations, forecast three steps ahead with the `dummy` model
-(NaiveForecaster, no download required):
+Univariate, `dummy`, three daily steps:
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
@@ -52,8 +168,6 @@ curl -s http://127.0.0.1:8000/forecast \
   }'
 ```
 
-Example response:
-
 ```json
 {
   "predictions": {
@@ -70,58 +184,285 @@ Example response:
 }
 ```
 
+### Quantiles on a real model
 
+Add `quantiles` to get a probabilistic forecast. It works on aliases whose `GET /models` entry
+reports `"quantiles": true` (`timesfm2.5`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
+`toto2`, `sundial`, `timers1`, `cisctsm`, `falconx`, and `dummy`). Asking any other alias for
+quantiles fails with `503 model_unavailable` and the estimator's own message, e.g.
+`ChronosForecaster does not have the capability to return quantile predictions.`
 
-## Request fields
+Start a server with a real foundation model. First start downloads weights from the Hub:
 
-Long tables plus explicit roles. Unlisted columns are ignored. Omit empty role lists.
+```bash
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm2.5
+```
 
+Twelve monthly observations, three months ahead, 10th/50th/90th percentiles:
 
-| Field          | Required                 | Role                                                                           |
-| -------------- | ------------------------ | ------------------------------------------------------------------------------ |
-| `history`      | yes                      | Long table: one row per series x observed timestamp                            |
-| `future`       | if `known_future` is set | Horizon covariates only. No targets. Exactly `horizon` timestamps per series   |
-| `static`       | if static features exist | One row per series                                                             |
-| `series_id`    | no                       | Key columns, MultiIndex order. Omit for a single series                        |
-| `time`         | yes                      | Timestamp column                                                               |
-| `target`       | yes                      | Target names. Always a list                                                    |
-| `known_future` | no                       | Dynamic covariates in both `history` and `future`                              |
-| `past_only`    | no                       | Dynamic covariates on `history` only (kept for later backends; not sktime `X`) |
-| `horizon`      | yes                      | Steps to forecast (alias: `fh`)                                                |
-| `freq`         | no                       | Pandas offset (`D`, `MS`, `H`, ...). Not inferred                              |
-| `quantiles`    | no                       | Probabilistic output, e.g. `[0.1, 0.5, 0.9]`                                   |
-| `params`       | no                       | Model-specific overrides                                                       |
-| `model`        | yes                      | Loaded estimator alias                                                         |
+```bash
+curl -s http://127.0.0.1:8000/forecast \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "time": "month",
+    "target": ["sales"],
+    "history": {
+      "columns": ["month", "sales"],
+      "data": [
+        ["2023-01-01", 120],
+        ["2023-02-01", 135],
+        ["2023-03-01", 128],
+        ["2023-04-01", 142],
+        ["2023-05-01", 150],
+        ["2023-06-01", 161],
+        ["2023-07-01", 155],
+        ["2023-08-01", 168],
+        ["2023-09-01", 173],
+        ["2023-10-01", 181],
+        ["2023-11-01", 195],
+        ["2023-12-01", 210]
+      ]
+    },
+    "horizon": 3,
+    "freq": "MS",
+    "quantiles": [0.1, 0.5, 0.9],
+    "model": "timesfm2.5"
+  }'
+```
 
+Real response from that request:
 
-`{columns, data}` is the table encoding used for plain JSON-over-HTTP.
+```json
+{
+  "predictions": {
+    "columns": ["month", "sales"],
+    "data": [
+      ["2024-01-01T00:00:00", 217.24871826171875],
+      ["2024-02-01T00:00:00", 233.55999755859375],
+      ["2024-03-01T00:00:00", 243.87789916992188]
+    ]
+  },
+  "quantiles": {
+    "columns": ["index", "0_0.1", "0_0.5", "0_0.9"],
+    "data": [
+      ["2024-01-01T00:00:00", 217.5303192138672, 216.601318359375, 226.1812744140625],
+      ["2024-02-01T00:00:00", 233.885498046875, 232.79592895507812, 240.87062072753906],
+      ["2024-03-01T00:00:00", 245.2987060546875, 243.27342224121094, 251.66632080078125]
+    ]
+  },
+  "model": "timesfm2.5",
+  "request_id": "..."
+}
+```
 
-See `GET /models` for model capabilities and `GET /health` for readiness.
+`predictions` holds the point forecast. `quantiles` is a flattened sktime `predict_quantiles`
+frame: first column is the timestamp, then one `<variable>_<quantile>` column per requested
+level (the variable is positional, hence `0`). Quantiles are model output and are not sorted
+or clipped, so they are not guaranteed monotonic across levels.
 
-Python client against a running `fomo serve`:
+Same request through the Python client, which keeps your dataframe type:
+
+```python
+import pandas as pd
+from fomo.client import Client
+
+history = pd.DataFrame(
+    {
+        "month": pd.date_range("2023-01-01", periods=12, freq="MS"),
+        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
+    }
+)
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        history=history,
+        time="month",
+        target=["sales"],
+        horizon=3,
+        freq="MS",
+        quantiles=[0.1, 0.5, 0.9],
+        model="timesfm2.5",
+    )
+
+print(result.predictions)
+#        month       sales
+# 0 2024-01-01  217.248718
+# 1 2024-02-01  233.559998
+# 2 2024-03-01  243.877899
+
+print(result.quantiles)
+#        index       0_0.1       0_0.5       0_0.9
+# 0 2024-01-01  217.530319  216.601318  226.181274
+# 1 2024-02-01  233.885498  232.795929  240.870621
+# 2 2024-03-01  245.298706  243.273422  251.666321
+```
+
+`flowstate` is a lighter alternative if you want a faster download: swap
+`--load-models flowstate` and `"model": "flowstate"`.
+
+Panel (`store` × `sku`) plus known-future covariates. `future` has exactly `horizon` timestamps per series, no targets:
+
+```bash
+curl -s http://127.0.0.1:8000/forecast \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "series_id": ["store", "sku"],
+    "time": "date",
+    "target": ["sales"],
+    "known_future": ["price", "promo"],
+    "history": {
+      "columns": ["store", "sku", "date", "sales", "price", "promo"],
+      "data": [
+        ["A", 1, "2023-01-01", 100, 9.99, 0],
+        ["A", 1, "2023-02-01", 110, 9.49, 1],
+        ["A", 1, "2023-03-01", 105, 9.99, 0],
+        ["A", 1, "2023-04-01", 120, 8.99, 1],
+        ["B", 2, "2023-01-01", 80, 12.5, 0],
+        ["B", 2, "2023-02-01", 90, 12.0, 1],
+        ["B", 2, "2023-03-01", 85, 12.5, 0],
+        ["B", 2, "2023-04-01", 95, 11.5, 1]
+      ]
+    },
+    "future": {
+      "columns": ["store", "sku", "date", "price", "promo"],
+      "data": [
+        ["A", 1, "2023-05-01", 8.99, 1],
+        ["A", 1, "2023-06-01", 9.99, 0],
+        ["B", 2, "2023-05-01", 11.0, 1],
+        ["B", 2, "2023-06-01", 12.5, 0]
+      ]
+    },
+    "static": {
+      "columns": ["store", "sku", "store_type"],
+      "data": [["A", 1, "urban"], ["B", 2, "rural"]]
+    },
+    "horizon": 2,
+    "freq": "MS",
+    "model": "dummy"
+  }'
+```
+
+Swap `"model": "chronos2"` on a server that loaded that alias. Unlisted columns are ignored. Omit empty role lists.
+
+| field | required | |
+| --- | --- | --- |
+| `history` | yes | long table: one row per series × observed timestamp |
+| `future` | if `known_future` is set | horizon covariates only, no targets, `horizon` timestamps per series |
+| `static` | if static features exist | one row per series |
+| `series_id` | no | key columns (MultiIndex order). omit for a single series |
+| `time` | yes | timestamp column |
+| `target` | yes | always a list |
+| `known_future` | no | dynamic covariates in both `history` and `future` |
+| `past_only` | no | history-only covariates (kept for later backends; not sktime `X`) |
+| `horizon` | yes | steps to forecast |
+| `freq` | no | pandas offset (`D`, `MS`, `H`, …). not inferred |
+| `quantiles` | no | e.g. `[0.1, 0.5, 0.9]` |
+| `params` | no | model-specific overrides |
+| `model` | yes | loaded estimator alias |
+
+Tables on JSON are `{ "columns": [...], "data": [[...], ...] }`.
+
+### Python SDK
+
+Install the same `fomo` package the server uses. Point it at a running `fomo serve`.
+
+```python
+from fomo.client import Client
+
+with Client("http://127.0.0.1:8000") as client:
+    print(client.health())   # status='ok'
+    print(client.models())   # aliases, executors, capabilities
+```
+
+JSON `{columns, data}` in, same shape out:
 
 ```python
 from fomo.client import Client
 
 with Client("http://127.0.0.1:8000") as client:
     result = client.forecast(
-        history={"columns": ["timestamp", "sales"], "data": [
-            ["2024-01-01", 120],
-            ["2024-01-02", 135],
-            ["2024-01-03", 128],
-            ["2024-01-04", 142],
-            ["2024-01-05", 138],
-        ]},
+        history={
+            "columns": ["timestamp", "sales"],
+            "data": [
+                ["2024-01-01", 120],
+                ["2024-01-02", 135],
+                ["2024-01-03", 128],
+                ["2024-01-04", 142],
+                ["2024-01-05", 138],
+            ],
+        },
         time="timestamp",
         target=["sales"],
         horizon=3,
         freq="D",
         model="dummy",
     )
+
+print(result.model, result.request_id)
+print(result.predictions)
+# {'columns': ['timestamp', 'sales'], 'data': [['2024-01-06T00:00:00', 138.0], ...]}
 ```
 
-`history` accepts `{columns, data}`, a column-oriented `dict[str, list]`, or any
-Narwhals-supported dataframe (pandas, polars, pyarrow, ...). `result.predictions` and
-`result.quantiles` come back in the same format, so a pandas `history` gives pandas
-predictions and a `{columns, data}` history gives `{columns, data}` predictions.
+Column-oriented dict in, same layout out:
 
+```python
+result = client.forecast(
+    history={
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03"],
+        "sales": [120, 135, 128],
+    },
+    time="timestamp",
+    target=["sales"],
+    horizon=2,
+    freq="D",
+    model="dummy",
+)
+# result.predictions == {"timestamp": ["2024-01-04T00:00:00", ...], "sales": [128.0, 128.0]}
+```
+
+pandas / polars / pyarrow / Narwhals in, same native type out (Arrow on the wire):
+
+```python
+import pandas as pd
+from fomo.client import Client
+
+history = pd.DataFrame(
+    {
+        "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
+        "sales": [120, 135, 128, 142, 138],
+    }
+)
+
+with Client("http://127.0.0.1:8000", timeout=60.0) as client:
+    result = client.forecast(
+        history=history,
+        time="timestamp",
+        target=["sales"],
+        horizon=3,
+        freq="D",
+        model="dummy",  # or "chronos2" if that alias is loaded
+    )
+
+print(type(result.predictions))  # pandas.DataFrame
+print(result.predictions)
+```
+
+Panel + covariates + quantiles, same kwargs as the JSON body:
+
+```python
+result = client.forecast(
+    history=history_df,       # pandas / polars / {columns, data}
+    future=future_df,         # required when known_future is set
+    static=static_df,         # one row per series
+    series_id=["store", "sku"],
+    time="date",
+    target=["sales"],
+    known_future=["price", "promo"],
+    past_only=["inventory"],
+    horizon=2,
+    freq="MS",
+    quantiles=[0.1, 0.9],
+    params={},
+    model="dummy",
+)
+```

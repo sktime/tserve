@@ -8,6 +8,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
 COPY . .
 RUN uv sync --frozen
 
-ENV FOMO_MODELS=dummy,chronos2,timesfm2.5,moirai2,kronos
 EXPOSE 8000
 CMD ["uv", "run", "--frozen", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
