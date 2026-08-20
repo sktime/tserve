@@ -14,12 +14,6 @@ TableFormat = str | nw.Implementation
 """How a caller encoded a table: a JSON layout, Narwhals, or a native backend."""
 
 
-def _as_table_dict(table: Any) -> dict[str, Any]:
-    if hasattr(table, "model_dump"):
-        table = table.model_dump()
-    return table
-
-
 def is_json_table(table: Any) -> bool:
     """Return whether a table can travel directly through the JSON transport."""
     if not isinstance(table, dict):
@@ -29,7 +23,7 @@ def is_json_table(table: Any) -> bool:
     return bool(table) and all(isinstance(value, list) for value in table.values())
 
 
-def as_frame(table: Any) -> nw.DataFrame:
+def as_frame(table: Any) -> nw.DataFrame[Any]:
     """Convert any Narwhals-supported dataframe (or pass through an existing frame)."""
     if isinstance(table, nw.DataFrame):
         return table
@@ -38,46 +32,37 @@ def as_frame(table: Any) -> nw.DataFrame:
 
 def table_format(table: Any) -> TableFormat:
     """Describe how a table is encoded, so results can be returned in the same shape."""
-    data = _as_table_dict(table) if hasattr(table, "model_dump") else table
-    if is_json_table(data):
-        return _JSON_ROWS if "columns" in data and "data" in data else _JSON_COLUMNS
+    if hasattr(table, "model_dump"):
+        table = table.model_dump()
+    if is_json_table(table):
+        return _JSON_ROWS if "columns" in table and "data" in table else _JSON_COLUMNS
     if isinstance(table, nw.DataFrame):
         return _NARWHALS
     return as_frame(table).implementation
 
 
-def table_to_frame(table: Any) -> nw.DataFrame:
-    """Accept JSON table dicts or any Narwhals-supported dataframe."""
-    data = _as_table_dict(table) if hasattr(table, "model_dump") else table
-    fmt = table_format(data)
-    if fmt == _JSON_ROWS:
-        cols = {name: [row[i] for row in data["data"]] for i, name in enumerate(data["columns"])}
-        return nw.from_dict(cols, backend="pandas")
-    if fmt == _JSON_COLUMNS:
-        return nw.from_dict(data, backend="pandas")
-    return as_frame(table)
+def table_to_frame(table: Any) -> nw.DataFrame[Any]:
+    """Accept JSON table dicts, in either layout, or any Narwhals-supported dataframe."""
+    if hasattr(table, "model_dump"):
+        table = table.model_dump()
+    if not is_json_table(table):
+        return as_frame(table)
+    if "columns" in table and "data" in table:
+        table = {
+            name: [row[i] for row in table["data"]] for i, name in enumerate(table["columns"])
+        }
+    return nw.from_dict(table, backend="pandas")
 
 
-def _json_cell(value: Any) -> Any:
-    if isinstance(value, pd.Timestamp):
-        return value.isoformat()
-    if hasattr(value, "item"):
-        return value.item()
-    return value
-
-
-def frame_to_table(frame: nw.DataFrame) -> dict[str, Any]:
+def frame_to_table(frame: nw.DataFrame[Any]) -> dict[str, Any]:
+    """Render a frame as a JSON `{columns, data}` table."""
     return {
         "columns": list(frame.columns),
         "data": [[_json_cell(cell) for cell in row] for row in frame.iter_rows()],
     }
 
 
-def frame_to_columns(frame: nw.DataFrame) -> dict[str, list[Any]]:
-    return {name: [_json_cell(cell) for cell in frame[name].to_list()] for name in frame.columns}
-
-
-def frame_to_format(frame: nw.DataFrame, fmt: TableFormat) -> Any:
+def frame_to_format(frame: nw.DataFrame[Any], fmt: TableFormat) -> Any:
     """Render a frame in a format reported by `table_format`, inverting `table_to_frame`."""
     if isinstance(fmt, nw.Implementation):
         if fmt is frame.implementation:
@@ -88,7 +73,9 @@ def frame_to_format(frame: nw.DataFrame, fmt: TableFormat) -> Any:
     if fmt == _JSON_ROWS:
         return frame_to_table(frame)
     if fmt == _JSON_COLUMNS:
-        return frame_to_columns(frame)
+        return {
+            name: [_json_cell(cell) for cell in frame[name].to_list()] for name in frame.columns
+        }
     raise ValueError(f"unknown table format {fmt!r}")
 
 
@@ -115,3 +102,11 @@ def response_to_tables(response: ForecastResponse) -> ForecastResponse:
             ),
         }
     )
+
+
+def _json_cell(value: Any) -> Any:
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    if hasattr(value, "item"):
+        return value.item()
+    return value

@@ -1,0 +1,46 @@
+from typing import Any
+
+from fomo.runtime.executors.plugins import register
+from fomo.runtime.executors.sktime.convertors import from_request, to_response
+from fomo.runtime.registry import SKTIME_REGISTRY
+from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
+
+import pandas as pd
+
+
+@register("sktime")
+class SktimeExecutor:
+    def __init__(self) -> None:
+        self._info: ModelInfo | None = None
+        self._forecaster: Any = None
+
+    def load(self, info: ModelInfo, model: Any) -> None:
+        self._info = info
+
+        if info.source == "registry":
+            from sktime.registry import craft
+
+            self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+        if info.source == "object":
+            self._forecaster = model
+        if info.source == "path":
+            raise NotImplementedError(
+                f"loading model from path is not implemented yet (model {info.alias})"
+            )
+
+        self._forecaster.fit(pd.DataFrame({"y": [0.0, 1.0, 2.0]}))
+        self._forecaster.predict(fh=[1])
+
+    def predict(self, request: ForecastRequest) -> ForecastResponse:
+        y, X, X_future, fh, quantiles = from_request(request)
+
+        self._forecaster.fit(y=y, X=X, fh=fh)
+        pred = self._forecaster.predict(X=X_future, fh=fh)
+        pred_quantiles = None
+        if quantiles:
+            pred_quantiles = self._forecaster.predict_quantiles(
+                alpha=quantiles, X=X_future, fh=fh
+            )
+
+        response: ForecastResponse = to_response(pred, request, quantiles=pred_quantiles)
+        return response
