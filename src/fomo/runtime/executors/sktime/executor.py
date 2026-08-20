@@ -32,13 +32,6 @@ class SktimeExecutor:
         warmup_forecaster(self._forecaster)
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:
-        if self._info is None or self._forecaster is None:
-            raise RuntimeError("sktime executor has no model loaded")
-        if request.model != self._info.alias:
-            raise RuntimeError(
-                f"executor for {self._info.alias!r} cannot run {request.model!r}"
-            )
-
         apply_model_config(self._forecaster, request)
         y_frame, x_frame, x_future_frame = request_frames(request)
         series_id = tuple(request.series_id or ())
