@@ -1,22 +1,34 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from fomo.runtime.config import preload_models
-from fomo.runtime.executor import Executor
+from fomo.runtime.executors import Executor, create_executor
+from fomo.runtime.registry import resolve_model
 from fomo.scheduling.scheduler import Scheduler
+from fomo.types import ModelInfo, ModelsResult
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class Runtime:
-    executor: Executor
+    executors: dict[str, Executor]
     scheduler: Scheduler
+    models: dict[str, ModelInfo] = field(default_factory=dict)
+
+    def loaded_models(self) -> ModelsResult:
+        return ModelsResult(models=list(self.models.values()))
 
 
-def bootstrap(preload: list[str] | None = None) -> Runtime:
-    executor = Executor()
-    for alias in preload if preload is not None else preload_models():
-        logger.info("loading model %s", alias)
-        executor.load(alias)
-    return Runtime(executor=executor, scheduler=Scheduler(executor))
+def bootstrap(load_models: list[str | ModelInfo] | None = None) -> Runtime:
+    executors: dict[str, Executor] = {}
+    models: dict[str, ModelInfo] = {}
+    for item in load_models or []:
+        info = resolve_model(item)
+        if info.alias in models:
+            raise ValueError(f"duplicate model alias {info.alias!r}")
+        logger.info("loading model %s via %s", info.alias, info.executor)
+        executor = create_executor(info.executor)
+        executor.load(info)
+        models[info.alias] = info
+        executors[info.alias] = executor
+    return Runtime(executors=executors, scheduler=Scheduler(executors), models=models)
