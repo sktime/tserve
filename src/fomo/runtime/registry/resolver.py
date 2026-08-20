@@ -12,7 +12,7 @@ def _resolve_from_registry(item: str) -> ModelInfo:
 
 def _resolve_from_object(item: Any) -> ModelInfo:
     if type(item).__module__.startswith("sktime."):
-        return ModelInfo(alias=item, executor="sktime", source="object")
+        return ModelInfo(alias=str(item), executor="sktime", source="object")
 
     raise TypeError(f"expected sktime object, got {type(item).__name__}")
 
