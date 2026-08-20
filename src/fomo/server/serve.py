@@ -27,6 +27,15 @@ class Server:
         self.host = host
         self.port = port
         self.log_level = log_level
+
+        # load model paths from `models_dir`
+        # for only the selected ones in load_models
+        if self.models_dir is not None:
+            for model_path in self.models_dir.iterdir():
+                name = model_path.stem
+                if name in self.load_models:
+                    self.load_models[self.load_models.index(name)] = model_path
+
         self.runtime: Runtime = bootstrap(self.load_models)
         self.app = FastAPI(title="FoMo")
         self.app.state.runtime = self.runtime
