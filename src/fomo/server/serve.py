@@ -14,7 +14,7 @@ from fomo.types import ModelInfo
 class Server:
     def __init__(
         self,
-        load_models: list[Any] = [],
+        load_models: list[str | tuple[str, Any]] = [],
         *,
         host: str = "127.0.0.1",
         port: int = 8000,

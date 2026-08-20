@@ -11,13 +11,18 @@ def _resolve_from_registry(item: str) -> ModelInfo:
 
 
 def _resolve_from_object(item: Any) -> ModelInfo:
-    if type(item).__module__.startswith("sktime."):
-        return ModelInfo(alias=str(item), executor="sktime", source="object")
+    if not (isinstance(item, tuple) and len(item) == 2):
+        raise TypeError(f"expected tuple of (alias, object), got {type(item).__name__}")
 
-    raise TypeError(f"expected sktime object, got {type(item).__name__}")
+    alias, obj = item
+
+    if type(obj).__module__.startswith("sktime."):
+        return ModelInfo(alias=alias, executor="sktime", source="object")
+
+    raise TypeError(f"expected sktime object, got {type(obj).__name__}")
 
 
-def resolve_model(item: Any) -> ModelInfo:
+def resolve_model(item: str | tuple[str, Any]) -> ModelInfo:
     if isinstance(item, str):
         return _resolve_from_registry(item)
 
