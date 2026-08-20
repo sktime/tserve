@@ -165,13 +165,18 @@ class SktimeExecutor:
         self._forecaster: Any = None
 
     def load(self, info: ModelInfo, model: Any) -> None:
-        if info.source != "registry":
-            raise NotImplementedError(
-                f"sktime executor cannot load source {info.source!r} yet (model {info.alias!r})"
-            )
         self._info = info
-        self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+
+        if info.source == "registry":
+            self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+        elif info.source == "object":
+            self._forecaster = model
+
         _warmup_forecaster(self._forecaster)
+
+        raise NotImplementedError(
+            f"sktime executor cannot load source {info.source!r} yet (model {info.alias!r})"
+        )
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:
         if self._info is None or self._forecaster is None:
