@@ -1,4 +1,5 @@
 from fomo.types import ModelInfo, ModelsResult
+from typing import Any
 
 # Catalog of aliases the server can load. Nothing here is loaded until
 # --load-models / load_models selects it.
@@ -75,13 +76,14 @@ def get_registry_craft(alias: str) -> str:
     return _CRAFT[alias]
 
 
-def resolve_model(item: str | ModelInfo) -> ModelInfo:
-    if isinstance(item, str):
-        return get_pre_registered(item)
+def resolve_model(item: Any) -> ModelInfo:
     if isinstance(item, ModelInfo):
-        if item.source == "registry":
-            return get_pre_registered(item.alias)
-        raise NotImplementedError(
-            f"loading source {item.source!r} is not implemented yet (model {item.alias!r})"
-        )
-    raise TypeError(f"expected alias str or ModelInfo, got {type(item).__name__}")
+        return item
+
+    if isinstance(item, str) and item in _CRAFT:
+        return ModelInfo(alias=item, executor="sktime", source="registry")
+
+    raise TypeError(
+        f"expected alias str, got {type(item).__name__}; "
+        f"choose one of: {', '.join(_CRAFT.keys())}"
+    )

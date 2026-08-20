@@ -4,6 +4,7 @@ import logging
 
 import uvicorn
 from fastapi import FastAPI
+from typing import Any
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
@@ -13,13 +14,13 @@ from fomo.types import ModelInfo
 class Server:
     def __init__(
         self,
-        load_models: list[str | ModelInfo] | None = None,
+        load_models: list[Any] = [],
         *,
         host: str = "127.0.0.1",
         port: int = 8000,
         log_level: str = "info",
     ) -> None:
-        self.load_models = list(load_models or [])
+        self.load_models = load_models
         self.host = host
         self.port = port
         self.log_level = log_level

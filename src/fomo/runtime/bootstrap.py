@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass, field
+from typing import Any
 
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_model
@@ -19,10 +20,10 @@ class Runtime:
         return ModelsResult(models=list(self.models.values()))
 
 
-def bootstrap(load_models: list[str | ModelInfo] | None = None) -> Runtime:
+def bootstrap(load_models: list[Any]) -> Runtime:
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
-    for item in load_models or []:
+    for item in load_models:
         info = resolve_model(item)
         if info.alias in models:
             raise ValueError(f"duplicate model alias {info.alias!r}")
