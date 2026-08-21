@@ -1,10 +1,28 @@
 import json
+import struct
 import uuid
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
 from fomo.types.converters import coerce_request, decode_request, encode_response
+
+_ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
+
+
+def _pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
+    parts = [("response", json.dumps(metadata).encode()), *files.items()]
+    body = bytearray(b"FOMO")
+    body.append(1)
+    body.extend(struct.pack("<I", len(parts)))
+    for name, payload in parts:
+        name_b = name.encode()
+        body.extend(struct.pack("<I", len(name_b)))
+        body.extend(name_b)
+        body.extend(struct.pack("<I", len(payload)))
+        body.extend(payload)
+    return bytes(body)
+
 
 router = APIRouter()
 
@@ -87,20 +105,7 @@ async def forecast_bytes(
     response.request_id = request_id
 
     metadata, files = encode_response(response)
-    boundary = uuid.uuid4().hex
-    body = bytearray()
-
-    def add(name: str, content: bytes) -> None:
-        body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"\r\n\r\n".encode())
-        body.extend(content)
-        body.extend(b"\r\n")
-
-    add("response", json.dumps(metadata).encode())
-    for name, blob in files.items():
-        add(name, blob)
-    body.extend(f"--{boundary}--\r\n".encode())
-
     return Response(
-        content=bytes(body),
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        content=_pack_envelope(metadata, files),
+        media_type=_ENVELOPE_CONTENT_TYPE,
     )

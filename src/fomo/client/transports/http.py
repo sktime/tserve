@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import json
-from email.parser import BytesParser
-from email.policy import HTTP
+import struct
 from typing import Any
 
 import httpx
 
 from fomo.client.errors import FoMoError
 from fomo.types import HealthResult, ModelsResult
+
+_ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
 
 class HttpTransport:
@@ -22,9 +23,12 @@ class HttpTransport:
             "POST",
             "/forecast/bytes",
             data={"metadata": json.dumps(metadata)},
-            files=bytes_encoded,
+            files={
+                name: (name, blob, _ARROW_STREAM)
+                for name, blob in bytes_encoded.items()
+            },
         )
-        return _read_form(response)
+        return _unpack_envelope(response.content)
 
     def health(self) -> HealthResult:
         return HealthResult.model_validate(self._request("GET", "/health").json())
@@ -56,18 +60,26 @@ class HttpTransport:
         raise FoMoError(str(detail), status_code=response.status_code)
 
 
-def _read_form(response: httpx.Response) -> tuple[dict, dict[str, bytes]]:
-    content_type = response.headers.get("content-type", "")
-    msg = BytesParser(policy=HTTP).parsebytes(
-        b"Content-Type: " + content_type.encode() + b"\r\n\r\n" + response.content
-    )
+def _unpack_envelope(body: bytes) -> tuple[dict, dict[str, bytes]]:
+    if len(body) < 9 or body[:4] != b"FOMO" or body[4] != 1:
+        raise ValueError("invalid forecast envelope")
+    n_parts = struct.unpack_from("<I", body, 5)[0]
+    offset = 9
     metadata: dict = {}
     files: dict[str, bytes] = {}
-    for part in msg.iter_parts():
-        name = part.get_param("name", header="content-disposition")
-        payload = part.get_payload(decode=True) or b""
+    for _ in range(n_parts):
+        if offset + 4 > len(body):
+            raise ValueError("invalid forecast envelope")
+        name_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        name = body[offset : offset + name_len].decode()
+        offset += name_len
+        payload_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        payload = bytes(body[offset : offset + payload_len])
+        offset += payload_len
         if name == "response":
-            metadata = json.loads(payload.decode())
-        elif name:
+            metadata = json.loads(payload)
+        else:
             files[name] = payload
     return metadata, files
