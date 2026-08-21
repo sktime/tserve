@@ -7,7 +7,7 @@ name = "fomo"  # maybe fomo-ts (or fomots)?
 version = "0.1.0"
 authors = [
   {name = "Tobias Pitters", email = "tobias.pitters@sktime.net"},
-# add your names here
+  {name = "Armaghan Shakir", email = "armaghan.shakir@sktime.net"},
 ]
 description = "A Time Series Foundation Model Inference Server"
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -27,12 +27,22 @@ requires-python = ">=3.12"
 # note: this has to stay inside [project]. It used to sit below [project.urls],
 # where toml reads it as project.urls.dependencies - so nothing was declared.
 dependencies = [
-	"httpx",
 	"pydantic",
-	"fastapi",
-	"python-multipart",
-	"uvicorn",
 	"narwhals",
+	"pyarrow>=25.0.1",
+]
+
+[project.optional-dependencies]
+client = ["fomo[http]"]
+server = ["fastapi", "python-multipart", "uvicorn"]
+# transports specific dependencies
+http = ["httpx", "python-multipart"]
+grpc = ["grpcio"]
+# dataframe backend specific dependencies
+pandas = ["pandas"]
+polars = ["polars"]
+# executors specific dependencies
+sktime = [
 	"sktime",
 	"skpro",
 	# estimators-general-deps
@@ -45,13 +55,21 @@ dependencies = [
 	"einops",
 	"tqdm",
 	# estimators-specific-deps
-	"chronos-forecasting>=2.0.0",  # Chronos2Forecaster
-	"aurora-model==0.2.0", "torchvision",  # AuroraForecaster
-	"gluonts>=0.14.0", "lightning>=2.0", "hydra-core",  # MOIRAI/Moirai2/LagLlama
-	"granite-tsfm>=0.3.5",  # FlowState/PatchTSMixer/TSPulse
-	"tirex-ts",  # TiRexForecaster
-	"pyarrow>=25.0.1",
+	# Chronos2Forecaster
+	"chronos-forecasting>=2.0.0",
+	# AuroraForecaster
+	"aurora-model==0.2.0",
+	"torchvision",
+	# MOIRAI/Moirai2/LagLlama
+	"gluonts>=0.14.0",
+	"lightning>=2.0",
+	"hydra-core",
+	# FlowState/PatchTSMixer/TSPulse
+	"granite-tsfm>=0.3.5",
+	# TiRexForecaster
+	"tirex-ts",
 ]
+pytorch-forecasting = ["pytorch-forecasting"]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"
@@ -65,7 +83,7 @@ dev = ["pytest"]
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
-# (`uv pip install -e .`) `from fomo.scheduling.scheduler import Scheduler`
+# (`uv pip install -e ".[server,sktime]"`) `from fomo.scheduling.scheduler import Scheduler`
 # works from anywhere
 packages = ["src/fomo"]
 

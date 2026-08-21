@@ -9,10 +9,10 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": "NaiveForecaster()",
     },
     "chronos2": {
-        "spec": 'Chronos2Forecaster(model_path="amazon/chronos-2")',
+        "spec": 'Chronos2Forecaster(model_path="amazon/chronos-2", config={"device_map": "auto"})',
     },
     "chronos": {
-        "spec": 'ChronosForecaster(model_path="amazon/chronos-bolt-tiny")',
+        "spec": 'ChronosForecaster(model_path="amazon/chronos-bolt-tiny", config={"device_map": "auto"})',
     },
     "kronos": {
         "spec": 'KronosForecaster(model_path="NeoQuasar/Kronos-small")',
@@ -24,16 +24,16 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": 'TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r2")',
     },
     "momentfm": {
-        "spec": 'MomentFMAnomalyDetector(pretrained_model_name_or_path="AutonLab/MOMENT-1-small")',
+        "spec": 'MomentFMAnomalyDetector(pretrained_model_name_or_path="AutonLab/MOMENT-1-small", device="auto")',
     },
     "timemoe": {
-        "spec": 'TimeMoEForecaster(model_path="Maple728/TimeMoE-50M")',
+        "spec": 'TimeMoEForecaster(model_path="Maple728/TimeMoE-50M", config={"device_map": "auto"})',
     },
     "tirex": {
         "spec": 'TiRexForecaster(model="NX-AI/TiRex")',
     },
     "moirai": {
-        "spec": 'MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small")',
+        "spec": 'MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small", map_location="auto")',
     },
     "toto": {
         "spec": 'TotoForecaster(model_path="Datadog/Toto-Open-Base-1.0")',
@@ -45,7 +45,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": 'TSPulseAnomalyDetector(model_path="ibm-granite/granite-timeseries-tspulse-r1")',
     },
     "timesfm2.5": {
-        "spec": 'TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers")',
+        "spec": 'TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers", device_map="auto")',
     },
     "toto2": {
         "spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")',
@@ -60,10 +60,10 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": 'PatchTSMixerForecaster(model_path="ibm-granite/granite-timeseries-patchtsmixer")',
     },
     "falcontst": {
-        "spec": 'FalconTSTForecaster(model_path="ant-intl/Falcon-TST_Large")',
+        "spec": 'FalconTSTForecaster(model_path="ant-intl/Falcon-TST_Large", device_map="auto")',
     },
     "timers1": {
-        "spec": 'TimerS1Forecaster(model_path="bytedance-research/Timer-S1")',
+        "spec": 'TimerS1Forecaster(model_path="bytedance-research/Timer-S1", device_map="auto")',
     },
     "windfm": {
         "spec": 'WindFMForecaster(model_path="NeoQuasar/WindFM")',
@@ -75,7 +75,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": 'PatchTSTForecaster(model_path="namctin/patchtst_etth1_forecast")',
     },
     "cisctsm": {
-        "spec": 'CiscoTSMForecaster(model_path="cisco-ai/cisco-time-series-model-1.0-preview")',
+        "spec": 'CiscoTSMForecaster(model_path="cisco-ai/cisco-time-series-model-1.0-preview", backend="gpu")',
     },
     "timesfm": {
         "spec": 'TimesFMForecaster(repo_id="google/timesfm-1.0-200m")',

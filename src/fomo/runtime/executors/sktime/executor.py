@@ -21,12 +21,14 @@ class SktimeExecutor:
             from sktime.registry import craft
 
             self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+
         if info.source == "object":
             self._forecaster = model
-        if info.source == "path":
-            raise NotImplementedError(
-                f"loading model from path is not implemented yet (model {info.alias})"
-            )
+
+        if info.source == "directory":
+            from sktime.base import load
+
+            self._forecaster = load(model)
 
         self._forecaster.fit(pd.DataFrame({"y": [0.0, 1.0, 2.0]}))
         self._forecaster.predict(fh=[1])
