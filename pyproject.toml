@@ -7,7 +7,7 @@ name = "fomo"  # maybe fomo-ts (or fomots)?
 version = "0.1.0"
 authors = [
   {name = "Tobias Pitters", email = "tobias.pitters@sktime.net"},
-# add your names here
+  {name = "Armaghan Shakir", email = "armaghan.shakir@sktime.net"},
 ]
 description = "A Time Series Foundation Model Inference Server"
 readme = {file = "README.md", content-type = "text/markdown"}
