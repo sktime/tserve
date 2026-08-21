@@ -33,8 +33,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-client = ["httpx"]
+client = ["fomo[http]"]
 server = ["fastapi", "uvicorn"]
+# transports specific dependencies
+http = ["httpx"]
+grpc = ["grpcio"]
 # dataframe backend specific dependencies
 pandas = ["pandas"]
 polars = ["polars"]
