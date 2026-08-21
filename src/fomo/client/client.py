@@ -4,7 +4,7 @@ from typing import Any
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
-from fomo.types.converters import encode_request, decode_response
+from fomo.types.converters import coerce_request, encode_request, decode_response
 
 
 class Client:
@@ -43,6 +43,7 @@ class Client:
             quantiles=quantiles,
             params=params,
         )
+        request = coerce_request(request)
 
         # 1. encode request to json + bytes
         req_metadata, req_bytes_encoded = encode_request(request)
@@ -51,10 +52,15 @@ class Client:
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 
-        # better to convert response to original format as request had?
-        response.predictions = response.predictions.to_dict()
-        if response.quantiles is not None:
-            response.quantiles = response.quantiles.to_dict()
+        if type(history) == dict:
+            response.predictions = response.predictions.to_dict(as_series=False)
+            if response.quantiles is not None:
+                response.quantiles = response.quantiles.to_dict(as_series=False)
+        else:
+            imp = request.history.implementation.value
+            response.predictions = getattr(response.predictions, f"to_{imp}")()
+            if response.quantiles is not None:
+                response.quantiles = getattr(response.quantiles, f"to_{imp}")()
 
         return response
 
