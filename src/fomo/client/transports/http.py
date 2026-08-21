@@ -1,33 +1,34 @@
 from __future__ import annotations
 
+import json
+import struct
 from typing import Any
 
 import httpx
 
 from fomo.client.errors import FoMoError
-from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
-from fomo.types.codec import (
-    ARROW_CONTENT_TYPE,
-    decode_forecast_response_arrow,
-    encode_forecast_arrow,
-)
+from fomo.types import HealthResult, ModelsResult
+
+_ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
 
 class HttpTransport:
     def __init__(self, base_url: str, *, timeout: float = 60.0) -> None:
         self._client = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout)
 
-    def forecast(self, request: ForecastRequest) -> ForecastResponse:
+    def forecast(
+        self, metadata: dict, bytes_encoded: dict[str, bytes]
+    ) -> tuple[dict, dict[str, bytes]]:
         response = self._request(
             "POST",
-            "/forecast",
-            content=encode_forecast_arrow(request),
-            headers={"Content-Type": ARROW_CONTENT_TYPE},
+            "/forecast/bytes",
+            data={"metadata": json.dumps(metadata)},
+            files={
+                name: (name, blob, _ARROW_STREAM)
+                for name, blob in bytes_encoded.items()
+            },
         )
-        content_type = response.headers.get("content-type", "").split(";", 1)[0]
-        if content_type != ARROW_CONTENT_TYPE:
-            raise ValueError(f"expected {ARROW_CONTENT_TYPE!r}, received {content_type!r}")
-        return decode_forecast_response_arrow(response.content)
+        return _unpack_envelope(response.content)
 
     def health(self) -> HealthResult:
         return HealthResult.model_validate(self._request("GET", "/health").json())
@@ -57,3 +58,28 @@ class HttpTransport:
                 status_code=response.status_code,
             )
         raise FoMoError(str(detail), status_code=response.status_code)
+
+
+def _unpack_envelope(body: bytes) -> tuple[dict, dict[str, bytes]]:
+    if len(body) < 9 or body[:4] != b"FOMO" or body[4] != 1:
+        raise ValueError("invalid forecast envelope")
+    n_parts = struct.unpack_from("<I", body, 5)[0]
+    offset = 9
+    metadata: dict = {}
+    files: dict[str, bytes] = {}
+    for _ in range(n_parts):
+        if offset + 4 > len(body):
+            raise ValueError("invalid forecast envelope")
+        name_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        name = body[offset : offset + name_len].decode()
+        offset += name_len
+        payload_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        payload = bytes(body[offset : offset + payload_len])
+        offset += payload_len
+        if name == "response":
+            metadata = json.loads(payload)
+        else:
+            files[name] = payload
+    return metadata, files

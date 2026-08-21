@@ -1,15 +1,28 @@
+import json
+import struct
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request, Response
-from pydantic import ValidationError
+from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
-from fomo.types.codec import (
-    ARROW_CONTENT_TYPE,
-    decode_forecast_arrow,
-    encode_forecast_response_arrow,
-)
-from fomo.types.converters import request_to_frames, response_to_tables
+from fomo.types.converters import coerce_request, decode_request, encode_response
+
+_ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
+
+
+def _pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
+    parts = [("response", json.dumps(metadata).encode()), *files.items()]
+    body = bytearray(b"FOMO")
+    body.append(1)
+    body.extend(struct.pack("<I", len(parts)))
+    for name, payload in parts:
+        name_b = name.encode()
+        body.extend(struct.pack("<I", len(name_b)))
+        body.extend(name_b)
+        body.extend(struct.pack("<I", len(payload)))
+        body.extend(payload)
+    return bytes(body)
+
 
 router = APIRouter()
 
@@ -24,22 +37,14 @@ def models(request: Request) -> ModelsResult:
     return request.app.state.runtime.loaded_models()
 
 
-def _content_type(request: Request) -> str:
-    return (request.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
-
-
-def _run_forecast(
-    request_body: ForecastRequest,
-    request: Request,
-    *,
-    frames: bool,
-) -> ForecastResponse:
+@router.post("/forecast", response_model=ForecastResponse)
+def forecast(request: ForecastRequest, http_request: Request) -> ForecastResponse:
     request_id = str(uuid.uuid4())
+
     try:
-        request_body = request_to_frames(request_body)
-        response = request.app.state.runtime.scheduler.run(request_body)
-        if not frames:
-            response = response_to_tables(response)
+        request = coerce_request(request)
+        response = http_request.app.state.runtime.scheduler.run(request)
+
     except Exception as exc:
         if isinstance(exc, ValueError):
             status_code, code = 400, "bad_request"
@@ -51,25 +56,56 @@ def _run_forecast(
             status_code=status_code,
             detail={"error": str(exc), "code": code, "request_id": request_id},
         ) from exc
+
     response.request_id = request_id
+    response.predictions = response.predictions.to_dict(as_series=False)
+    if response.quantiles is not None:
+        response.quantiles = response.quantiles.to_dict(as_series=False)
+
     return response
 
 
-@router.post("/forecast", response_model=None)
-async def forecast(request: Request) -> ForecastResponse | Response:
-    if _content_type(request) == ARROW_CONTENT_TYPE:
-        try:
-            request_body = decode_forecast_arrow(await request.body())
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-        response = _run_forecast(request_body, request, frames=True)
-        return Response(
-            content=encode_forecast_response_arrow(response),
-            media_type=ARROW_CONTENT_TYPE,
-        )
+@router.post("/forecast/bytes")
+async def forecast_bytes(
+    http_request: Request,
+    metadata: str = Form(),
+    history: UploadFile = File(),
+    future: UploadFile | None = File(None),
+    static: UploadFile | None = File(None),
+) -> Response:
+    files = {"history": await history.read()}
+    if future is not None:
+        blob = await future.read()
+        if blob:
+            files["future"] = blob
+    if static is not None:
+        blob = await static.read()
+        if blob:
+            files["static"] = blob
+
+    request_id = str(uuid.uuid4())
 
     try:
-        request_body = ForecastRequest.model_validate(await request.json())
-    except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=exc.errors()) from exc
-    return _run_forecast(request_body, request, frames=False)
+        metadata = json.loads(metadata)
+        request: ForecastRequest = decode_request(metadata, files)
+        response = http_request.app.state.runtime.scheduler.run(request)
+
+    except Exception as exc:
+        if isinstance(exc, ValueError):
+            status_code, code = 400, "bad_request"
+        elif isinstance(exc, RuntimeError):
+            status_code, code = 503, "model_unavailable"
+        else:
+            status_code, code = 500, "internal_error"
+        raise HTTPException(
+            status_code=status_code,
+            detail={"error": str(exc), "code": code, "request_id": request_id},
+        ) from exc
+
+    response.request_id = request_id
+
+    metadata, files = encode_response(response)
+    return Response(
+        content=_pack_envelope(metadata, files),
+        media_type=_ENVELOPE_CONTENT_TYPE,
+    )

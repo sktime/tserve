@@ -4,7 +4,7 @@ from typing import Any
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
-from fomo.types.converters import frame_to_format, table_format, table_to_frame
+from fomo.types.converters import coerce_request, encode_request, decode_response
 
 
 class Client:
@@ -28,11 +28,6 @@ class Client:
         quantiles: list[float] | None = None,
         params: dict[str, Any] | None = None,
     ) -> ForecastResponse:
-        fmt = table_format(history)
-        history = table_to_frame(history)
-        future = table_to_frame(future) if future is not None else None
-        static = table_to_frame(static) if static is not None else None
-
         request = ForecastRequest(
             history=history,
             time=time,
@@ -48,10 +43,25 @@ class Client:
             quantiles=quantiles,
             params=params,
         )
-        response = self._transport.forecast(request)
-        response.predictions = frame_to_format(response.predictions, fmt)
-        if response.quantiles is not None:
-            response.quantiles = frame_to_format(response.quantiles, fmt)
+        request = coerce_request(request)
+
+        # 1. encode request to json + bytes
+        req_metadata, req_bytes_encoded = encode_request(request)
+        # 2. send request to transport
+        res_metadata, res_bytes_encoded = self._transport.forecast(req_metadata, req_bytes_encoded)
+        # 3. decode response to json + bytes
+        response = decode_response(res_metadata, res_bytes_encoded)
+
+        if type(history) == dict:
+            response.predictions = response.predictions.to_dict(as_series=False)
+            if response.quantiles is not None:
+                response.quantiles = response.quantiles.to_dict(as_series=False)
+        else:
+            imp = request.history.implementation.value
+            response.predictions = getattr(response.predictions, f"to_{imp}")()
+            if response.quantiles is not None:
+                response.quantiles = getattr(response.quantiles, f"to_{imp}")()
+
         return response
 
     def health(self) -> HealthResult:
