@@ -15,6 +15,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=[],
         help="registry aliases to load (default: none)",
     )
+    serve.add_argument(
+        "--models-dir",
+        dest="models_dir",
+        default=None,
+        help="directory of models to load (default: none)",
+    )
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
     serve.add_argument("--log-level", default="info", dest="log_level")
@@ -31,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
 
     server = Server(
         load_models=args.load_models,
+        models_dir=args.models_dir,
         host=args.host,
         port=args.port,
         log_level=args.log_level,
