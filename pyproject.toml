@@ -55,11 +55,19 @@ sktime = [
 	"einops",
 	"tqdm",
 	# estimators-specific-deps
-	"chronos-forecasting>=2.0.0",  # Chronos2Forecaster
-	"aurora-model==0.2.0", "torchvision",  # AuroraForecaster
-	"gluonts>=0.14.0", "lightning>=2.0", "hydra-core",  # MOIRAI/Moirai2/LagLlama
-	"granite-tsfm>=0.3.5",  # FlowState/PatchTSMixer/TSPulse
-	"tirex-ts",  # TiRexForecaster
+	# Chronos2Forecaster
+	"chronos-forecasting>=2.0.0",
+	# AuroraForecaster
+	"aurora-model==0.2.0",
+	"torchvision",
+	# MOIRAI/Moirai2/LagLlama
+	"gluonts>=0.14.0",
+	"lightning>=2.0",
+	"hydra-core",
+	# FlowState/PatchTSMixer/TSPulse
+	"granite-tsfm>=0.3.5",
+	# TiRexForecaster
+	"tirex-ts",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
 
