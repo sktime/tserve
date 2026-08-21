@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 import narwhals as nw
@@ -13,7 +15,7 @@ def _to_narwhals(df: nw.IntoFrame | dict[str, list]) -> nw.DataFrame:
     if type(df) == nw.DataFrame:
         return df
     if type(df) == dict:
-        return nw.from_dict(df)
+        return nw.from_dict(df, backend="pyarrow")
     return nw.from_native(df, eager_only=True)
 
 
@@ -43,8 +45,9 @@ def encode_request(request: ForecastRequest) -> tuple[dict, dict[str, bytes]]:
 
     bytes_encoded = {}
     for frame in ['history', 'future', 'static']:
-        if request[frame] is not None:
-            bytes_encoded[frame] = _to_bytes(request[frame])
+        value = getattr(request, frame)
+        if value is not None:
+            bytes_encoded[frame] = _to_bytes(value)
 
     metadata = request.model_dump(exclude=set(bytes_encoded.keys()))
 
@@ -56,7 +59,7 @@ def decode_request(metadata: dict, bytes_encoded: dict[str, bytes]) -> ForecastR
 
     for frame in ['history', 'future', 'static']:
         if frame in bytes_encoded:
-            request[frame] = nw.from_arrow(pa.ipc.read_table(io.BytesIO(bytes_encoded[frame])))
+            setattr(request, frame, nw.from_arrow(pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(), backend="pyarrow"))
 
     return request
 
@@ -72,8 +75,9 @@ def encode_response(response: ForecastResponse) -> tuple[dict, dict[str, bytes]]
 
     bytes_encoded = {}
     for frame in ['predictions', 'quantiles']:
-        if response[frame] is not None:
-            bytes_encoded[frame] = _to_bytes(response[frame])
+        value = getattr(response, frame)
+        if value is not None:
+            bytes_encoded[frame] = _to_bytes(value)
 
     metadata = response.model_dump(exclude=set(bytes_encoded.keys()))
 
@@ -84,5 +88,5 @@ def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> Forecast
     response = ForecastResponse.model_validate(metadata)
     for frame in ['predictions', 'quantiles']:
         if frame in bytes_encoded:
-            response[frame] = nw.from_arrow(pa.ipc.read_table(io.BytesIO(bytes_encoded[frame])))
+            setattr(response, frame, nw.from_arrow(pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(), backend="pyarrow"))
     return response
