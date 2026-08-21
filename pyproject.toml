@@ -30,6 +30,7 @@ dependencies = [
 	"httpx",
 	"pydantic",
 	"fastapi",
+	"python-multipart",
 	"uvicorn",
 	"narwhals",
 	"sktime",
