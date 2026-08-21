@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class ForecastRequest(BaseModel):
-    history: Any
+    history: Any = None
     time: str
     target: list[str]
     horizon: int
@@ -22,7 +22,7 @@ class ForecastRequest(BaseModel):
 
 
 class ForecastResponse(BaseModel):
-    predictions: Any
+    predictions: Any = None
     model: str
     request_id: str
     quantiles: Any = None
