@@ -36,7 +36,7 @@ dependencies = [
 client = ["fomo[http]"]
 server = ["fastapi", "uvicorn"]
 # transports specific dependencies
-http = ["httpx"]
+http = ["httpx", "python-multipart"]
 grpc = ["grpcio"]
 # dataframe backend specific dependencies
 pandas = ["pandas"]
