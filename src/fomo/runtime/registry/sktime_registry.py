@@ -1,6 +1,6 @@
 from fomo.runtime.registry import BASE_REGISTRY_TYPE
 
-# Catalog of aliases the server can load. Nothing here is loaded until
+# Catalog of ids the server can load. Nothing here is loaded until
 # --load-models / load_models selects it.
 # Checkout https://github.com/sktime/fomo/issues/1
 # Craft strings stay private to the registry; ModelInfo is listing-only.

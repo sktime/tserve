@@ -7,7 +7,7 @@ from typing import Any
 class PytorchForecastingExecutor:
     def load(self, info: ModelInfo, model: Any) -> None:
         raise NotImplementedError(
-            f"pytorch-forecasting executor is not implemented yet (model {info.alias!r})"
+            f"pytorch-forecasting executor is not implemented yet (model {info.id!r})"
         )
 
     def predict(self, request: ForecastRequest) -> ForecastResponse:

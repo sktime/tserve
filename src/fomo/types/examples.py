@@ -49,7 +49,7 @@ HEALTH_UNHEALTHY = {
 }
 
 MODEL_INFO = {
-    "alias": "naive",
+    "id": "naive",
     "executor": "sktime",
     "source": "registry",
 }

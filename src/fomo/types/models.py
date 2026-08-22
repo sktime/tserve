@@ -51,7 +51,7 @@ class HealthResult(BaseModel):
 
 
 class ModelInfo(BaseModel):
-    alias: str
+    id: str
     executor: Literal["sktime", "pytorch-forecasting", "custom"]
     source: Literal["object", "registry", "directory"]
 

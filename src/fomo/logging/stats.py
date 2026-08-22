@@ -117,21 +117,21 @@ class Stats:
 
     def register(
         self,
-        alias: str,
+        id: str,
         executor: str,
         load_s: float | None,
         warmup_s: float | None,
     ) -> None:
         try:
             with self._lock:
-                self.models[alias] = ModelStat(executor, load_s, warmup_s)
+                self.models[id] = ModelStat(executor, load_s, warmup_s)
         except Exception:
             pass
 
-    def record(self, alias: str, seconds: float, ok: bool) -> None:
+    def record(self, id: str, seconds: float, ok: bool) -> None:
         try:
             with self._lock:
-                row = self.models.get(alias)
+                row = self.models.get(id)
                 if row is None:
                     return
                 row.requests_total += 1
@@ -149,7 +149,7 @@ class Stats:
             "gpu_mb": _probe(_gpu_mb),
         }
         with self._lock:
-            models = {alias: row.as_dict() for alias, row in self.models.items()}
+            models = {model_id: row.as_dict() for model_id, row in self.models.items()}
         return {
             "uptime_s": time.perf_counter() - self.started,
             "memory": memory,
