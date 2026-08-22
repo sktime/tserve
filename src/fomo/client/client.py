@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from fomo.client.transports.http import HttpTransport
-from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
+from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
 from fomo.types.converters import coerce_request, encode_request, decode_response
 
 
@@ -69,6 +69,9 @@ class Client:
 
     def models(self) -> ModelsResult:
         return self._transport.models()
+
+    def stats(self) -> StatsResult:
+        return self._transport.stats()
 
     def close(self) -> None:
         self._transport.close()

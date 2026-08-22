@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from fomo.types import HealthResult, ModelsResult
+from fomo.types import HealthResult, ModelsResult, StatsResult
 
 
 class BaseTransport(Protocol):
@@ -13,5 +13,7 @@ class BaseTransport(Protocol):
     def health(self) -> HealthResult: ...
 
     def models(self) -> ModelsResult: ...
+
+    def stats(self) -> StatsResult: ...
 
     def close(self) -> None: ...
