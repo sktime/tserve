@@ -16,7 +16,7 @@ FORECAST_REQUEST = {
     "horizon": 3,
     "freq": "D",
     "quantiles": [0.1, 0.5, 0.9],
-    "model": "dummy",
+    "model": "naive",
 }
 
 FORECAST_RESULT = {
@@ -36,7 +36,7 @@ FORECAST_RESULT = {
             ["2024-01-08T00:00:00", 130.0, 138.0, 145.0],
         ],
     },
-    "model": "dummy",
+    "model": "naive",
     "request_id": "00000000-0000-0000-0000-000000000000",
 }
 
@@ -51,7 +51,7 @@ HEALTH_UNHEALTHY = {
 }
 
 MODEL_INFO = {
-    "alias": "dummy",
+    "alias": "naive",
     "executor": "sktime",
     "source": "registry",
 }
@@ -62,7 +62,7 @@ STATS_RESULT = {
     "uptime_s": 3600.5,
     "memory": {"cpu_rss_mb": 512.25, "gpu_mb": 1024.0},
     "models": {
-        "dummy": {
+        "naive": {
             "executor": "sktime",
             "load_s": 1.24,
             "warmup_s": 0.31,

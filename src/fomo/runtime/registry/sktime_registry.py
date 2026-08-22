@@ -5,7 +5,7 @@ from fomo.runtime.registry import BASE_REGISTRY_TYPE
 # Checkout https://github.com/sktime/fomo/issues/1
 # Craft strings stay private to the registry; ModelInfo is listing-only.
 SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
-    "dummy": {
+    "naive": {
         "spec": "NaiveForecaster()",
     },
     "chronos-2": {

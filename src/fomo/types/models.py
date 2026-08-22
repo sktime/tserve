@@ -20,7 +20,7 @@ class ForecastRequest(BaseModel):
     time: str
     target: list[str]
     horizon: int
-    model: str = "dummy"
+    model: str = "naive"
     future: Any = None
     static: Any = None
     series_id: list[str] | None = None
