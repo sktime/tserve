@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class ForecastRequest(BaseModel):
-    history: Any
+    history: Any = None
     time: str
     target: list[str]
     horizon: int
@@ -22,7 +22,7 @@ class ForecastRequest(BaseModel):
 
 
 class ForecastResponse(BaseModel):
-    predictions: Any
+    predictions: Any = None
     model: str
     request_id: str
     quantiles: Any = None
@@ -46,3 +46,36 @@ class ModelInfo(BaseModel):
 
 class ModelsResult(BaseModel):
     models: list[ModelInfo]
+
+
+class MemoryStats(BaseModel):
+    cpu_rss_mb: float | None = None
+    gpu_mb: float | None = None
+
+
+class LatencySummary(BaseModel):
+    count: int
+    total: float
+    mean: float | None = None
+    fastest: float | None = None
+    slowest: float | None = None
+
+
+class RequestCounts(BaseModel):
+    total: int
+    ok: int
+    failed: int
+
+
+class ModelStats(BaseModel):
+    executor: str | None = None
+    load_s: float | None = None
+    warmup_s: float | None = None
+    requests: RequestCounts
+    latency_s: LatencySummary
+
+
+class StatsResult(BaseModel):
+    uptime_s: float
+    memory: MemoryStats
+    models: dict[str, ModelStats]
