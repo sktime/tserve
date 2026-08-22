@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 
 
@@ -13,7 +11,7 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs="+",
         dest="load_models",
         default=[],
-        help="registry aliases to load (default: none)",
+        help="registry ids to load (default: none)",
     )
     serve.add_argument(
         "--models-dir",

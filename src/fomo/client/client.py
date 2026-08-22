@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from typing import Any
+from typing import Any, Self
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
@@ -18,7 +16,8 @@ class Client:
         time: str,
         target: list[str],
         horizon: int,
-        model: str = "dummy",
+        context: int,
+        model: str = "naive",
         future: Any = None,
         static: Any = None,
         series_id: list[str] | None = None,
@@ -33,6 +32,7 @@ class Client:
             time=time,
             target=target,
             horizon=horizon,
+            context=context,
             model=model,
             future=future,
             static=static,
@@ -76,7 +76,7 @@ class Client:
     def close(self) -> None:
         self._transport.close()
 
-    def __enter__(self) -> Client:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *exc: object) -> None:

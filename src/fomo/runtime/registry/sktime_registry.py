@@ -1,14 +1,14 @@
 from fomo.runtime.registry import BASE_REGISTRY_TYPE
 
-# Catalog of aliases the server can load. Nothing here is loaded until
+# Catalog of ids the server can load. Nothing here is loaded until
 # --load-models / load_models selects it.
 # Checkout https://github.com/sktime/fomo/issues/1
 # Craft strings stay private to the registry; ModelInfo is listing-only.
 SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
-    "dummy": {
+    "naive": {
         "spec": "NaiveForecaster()",
     },
-    "chronos2": {
+    "chronos-2": {
         "spec": 'Chronos2Forecaster(model_path="amazon/chronos-2", config={"device_map": "auto"})',
     },
     "chronos": {
@@ -17,7 +17,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "kronos": {
         "spec": 'KronosForecaster(model_path="NeoQuasar/Kronos-small")',
     },
-    "moirai2": {
+    "moirai-2": {
         "spec": 'Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")',
     },
     "ttm": {
@@ -44,10 +44,10 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "tspulse": {
         "spec": 'TSPulseAnomalyDetector(model_path="ibm-granite/granite-timeseries-tspulse-r1")',
     },
-    "timesfm2.5": {
+    "timesfm-2.5": {
         "spec": 'TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers", device_map="auto")',
     },
-    "toto2": {
+    "toto-2": {
         "spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")',
     },
     "sundial": {
@@ -62,7 +62,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "falcontst": {
         "spec": 'FalconTSTForecaster(model_path="ant-intl/Falcon-TST_Large", device_map="auto")',
     },
-    "timers1": {
+    "timer-s1": {
         "spec": 'TimerS1Forecaster(model_path="bytedance-research/Timer-S1", device_map="auto")',
     },
     "windfm": {

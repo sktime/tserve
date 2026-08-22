@@ -2,22 +2,22 @@
 
 Time series foundation model inference server. Load models once, forecast over HTTP or the Python client.
 
-Nothing is loaded by default: a bare `fomo serve` starts with an empty model list. Name registry aliases with `--load-models` / `load_models` to load them. `dummy` is a `NaiveForecaster` (no download); the rest pull Hugging Face weights at load time. `GET /models` lists only what this process loaded.
+Nothing is loaded by default: a bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models` / `load_models` to load them. `naive` is a `NaiveForecaster` (no download); the rest pull Hugging Face weights at load time. `GET /models` lists only what this process loaded.
 
-| alias | estimator | alias | estimator |
+| id | estimator | id | estimator |
 | --- | --- | --- | --- |
-| `dummy` | `NaiveForecaster` | `chronos2` | `Chronos2Forecaster` |
+| `naive` | `NaiveForecaster` | `chronos-2` | `Chronos2Forecaster` |
 | `chronos` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
-| `moirai2` | `Moirai2Forecaster` | `moirai` | `MOIRAIForecaster` |
+| `moirai-2` | `Moirai2Forecaster` | `moirai` | `MOIRAIForecaster` |
 | `ttm` | `TinyTimeMixerForecaster` | `tirex` | `TiRexForecaster` |
-| `timesfm2.5` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
-| `toto` | `TotoForecaster` | `toto2` | `Toto2Forecaster` |
+| `timesfm-2.5` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
+| `toto` | `TotoForecaster` | `toto-2` | `Toto2Forecaster` |
 | `flowstate` | `FlowStateForecaster` | `patchtsmixer` | `PatchTSMixerForecaster` |
 | `patchtst` | `PatchTSTForecaster` | `windfm` | `WindFMForecaster` |
 | `aurora` | `AuroraForecaster` | `lagllama` | `LagLlamaForecaster` |
 | `falconx` | `FalconXForecaster` | `falcontst` | `FalconTSTForecaster` |
 | `timemoe` | `TimeMoEForecaster` | `sundial` | `SundialForecaster` |
-| `timer` | `TimerForecaster` | `timers1` | `TimerS1Forecaster` |
+| `timer` | `TimerForecaster` | `timer-s1` | `TimerS1Forecaster` |
 | `mira` | `MIRAForecaster` | `cisctsm` | `CiscoTSMForecaster` |
 | `momentfm` | `MomentFMAnomalyDetector` | `tspulse` | `TSPulseAnomalyDetector` |
 
@@ -34,7 +34,7 @@ Pick one way to run it. All of them expose the same API on `--host` / `--port`.
 ```bash
 docker run --rm -p 8000:8000 \
   docker.io/sktime/fomo:dl-py3.13 \
-  fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
+  fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-2
 ```
 
 ### Docker: custom image
@@ -51,7 +51,7 @@ RUN pip install my-package another-package
 docker build -t my-fomo:custom .
 docker run --rm -p 8000:8000 \
   my-fomo:custom \
-  fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
+  fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-2
 ```
 
 Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync --frozen`):
@@ -61,7 +61,7 @@ git clone git@github.com:sktime/fomo.git
 cd fomo
 docker build -t fomo:local .
 docker run --rm -p 8000:8000 fomo:local \
-  uv run --frozen fomo serve --host 0.0.0.0 --port 8000 --load-models dummy
+  uv run --frozen fomo serve --host 0.0.0.0 --port 8000 --load-models naive
 ```
 
 ### From source
@@ -72,14 +72,14 @@ Python >= 3.12. Uses [uv](https://docs.astral.sh/uv/).
 git clone git@github.com:sktime/fomo.git
 cd fomo
 uv sync
-uv run fomo serve --host 0.0.0.0 --port 8000 --load-models dummy
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models naive
 ```
 
 Same thing after a normal install:
 
 ```bash
 uv pip install -e .
-fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
+fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-2
 ```
 
 ### CLI
@@ -88,13 +88,13 @@ fomo serve --host 0.0.0.0 --port 8000 --load-models dummy chronos2
 fomo serve \
   --host 0.0.0.0 \
   --port 8000 \
-  --load-models dummy chronos2 \
+  --load-models naive chronos-2 \
   --log-level info
 ```
 
 | flag | default | |
 | --- | --- | --- |
-| `--load-models` | none | registry aliases to load |
+| `--load-models` | none | registry ids to load |
 | `--host` | `127.0.0.1` | use `0.0.0.0` in Docker |
 | `--port` | `8000` | |
 | `--log-level` | `info` | |
@@ -104,26 +104,27 @@ fomo serve \
 ```python
 from fomo.server import Server
 
-Server(load_models=["dummy"], host="0.0.0.0", port=8000).run()
+Server(load_models=["naive"], host="0.0.0.0", port=8000).run()
 ```
 
-Omitting `load_models` starts a server with no models, same as omitting `--load-models`. Aliases resolve from the registry (`source="registry"`). You can pass the same alias as a `ModelInfo` (SDK only; the CLI still takes names):
+Omitting `load_models` starts a server with no models, same as omitting `--load-models`. Ids resolve from the registry (`source="registry"`). You can pass a `(id, estimator)` pair (SDK only; the CLI still takes names):
 
 ```python
-from fomo.server import ModelInfo, Server
+from fomo.server import Server
+from sktime.forecasting.naive import NaiveForecaster
 
-dummy = ModelInfo(alias="dummy", executor="sktime", source="registry")
-Server(load_models=["chronos2", dummy], host="0.0.0.0", port=8000).run()
+naive = NaiveForecaster()
+Server(load_models=["chronos-2", ("naive", naive)], host="0.0.0.0", port=8000).run()
 ```
 
-`GET /models` returns `{alias, executor, source}` for each loaded model. `source` is `registry`, `directory`, or `object`; only `registry` is loadable today.
+`GET /models` returns `{id, executor, source}` for each loaded model. `source` is `registry`, `directory`, or `object`.
 
 The FastAPI app is `server.app` if you want to mount it yourself:
 
 ```python
 from fomo.server import Server
 
-server = Server(load_models=["dummy", "chronos2"], host="127.0.0.1", port=8000)
+server = Server(load_models=["naive", "chronos-2"], host="127.0.0.1", port=8000)
 print(server.url)  # http://127.0.0.1:8000
 # uvicorn.run(server.app, host=server.host, port=server.port)
 server.run()
@@ -144,7 +145,7 @@ curl -s http://127.0.0.1:8000/health
 curl -s http://127.0.0.1:8000/models
 ```
 
-Univariate, `dummy`, three daily steps:
+Univariate, `naive`, three daily steps:
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
@@ -163,8 +164,9 @@ curl -s http://127.0.0.1:8000/forecast \
       ]
     },
     "horizon": 3,
+    "context": 5,
     "freq": "D",
-    "model": "dummy"
+    "model": "naive"
   }'
 ```
 
@@ -179,23 +181,23 @@ curl -s http://127.0.0.1:8000/forecast \
     ]
   },
   "quantiles": null,
-  "model": "dummy",
+  "model": "naive",
   "request_id": "..."
 }
 ```
 
 ### Quantiles on a real model
 
-Add `quantiles` to get a probabilistic forecast. It works on aliases whose `GET /models` entry
-reports `"quantiles": true` (`timesfm2.5`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
-`toto2`, `sundial`, `timers1`, `cisctsm`, `falconx`, and `dummy`). Asking any other alias for
+Add `quantiles` to get a probabilistic forecast. It works on some loaded ids
+(`timesfm-2.5`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
+`toto-2`, `sundial`, `timer-s1`, `cisctsm`, `falconx`, and `naive`). Asking any other id for
 quantiles fails with `503 model_unavailable` and the estimator's own message, e.g.
 `ChronosForecaster does not have the capability to return quantile predictions.`
 
 Start a server with a real foundation model. First start downloads weights from the Hub:
 
 ```bash
-uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm2.5
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm-2.5
 ```
 
 Twelve monthly observations, three months ahead, 10th/50th/90th percentiles:
@@ -224,9 +226,10 @@ curl -s http://127.0.0.1:8000/forecast \
       ]
     },
     "horizon": 3,
+    "context": 12,
     "freq": "MS",
     "quantiles": [0.1, 0.5, 0.9],
-    "model": "timesfm2.5"
+    "model": "timesfm-2.5"
   }'
 ```
 
@@ -250,7 +253,7 @@ Real response from that request:
       ["2024-03-01T00:00:00", 245.2987060546875, 243.27342224121094, 251.66632080078125]
     ]
   },
-  "model": "timesfm2.5",
+  "model": "timesfm-2.5",
   "request_id": "..."
 }
 ```
@@ -279,9 +282,10 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         horizon=3,
+        context=12,
         freq="MS",
         quantiles=[0.1, 0.5, 0.9],
-        model="timesfm2.5",
+        model="timesfm-2.5",
     )
 
 print(result.predictions)
@@ -337,12 +341,13 @@ curl -s http://127.0.0.1:8000/forecast \
       "data": [["A", 1, "urban"], ["B", 2, "rural"]]
     },
     "horizon": 2,
+    "context": 4,
     "freq": "MS",
-    "model": "dummy"
+    "model": "naive"
   }'
 ```
 
-Swap `"model": "chronos2"` on a server that loaded that alias. Unlisted columns are ignored. Omit empty role lists.
+Swap `"model": "chronos-2"` on a server that loaded that id. Unlisted columns are ignored. Omit empty role lists.
 
 | field | required | |
 | --- | --- | --- |
@@ -355,10 +360,11 @@ Swap `"model": "chronos2"` on a server that loaded that alias. Unlisted columns 
 | `known_future` | no | dynamic covariates in both `history` and `future` |
 | `past_only` | no | history-only covariates (kept for later backends; not sktime `X`) |
 | `horizon` | yes | steps to forecast |
+| `context` | yes | context length (placeholder; ignored for now) |
 | `freq` | no | pandas offset (`D`, `MS`, `H`, …). not inferred |
 | `quantiles` | no | e.g. `[0.1, 0.5, 0.9]` |
 | `params` | no | model-specific overrides |
-| `model` | yes | loaded estimator alias |
+| `model` | yes | loaded estimator id |
 
 Tables on JSON are `{ "columns": [...], "data": [[...], ...] }`.
 
@@ -371,7 +377,7 @@ from fomo.client import Client
 
 with Client("http://127.0.0.1:8000") as client:
     print(client.health())   # status='ok'
-    print(client.models())   # aliases, executors, capabilities
+    print(client.models())   # ids, executors, sources
 ```
 
 JSON `{columns, data}` in, same shape out:
@@ -394,8 +400,9 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         horizon=3,
+        context=5,
         freq="D",
-        model="dummy",
+        model="naive",
     )
 
 print(result.model, result.request_id)
@@ -414,8 +421,9 @@ result = client.forecast(
     time="timestamp",
     target=["sales"],
     horizon=2,
+    context=3,
     freq="D",
-    model="dummy",
+    model="naive",
 )
 # result.predictions == {"timestamp": ["2024-01-04T00:00:00", ...], "sales": [128.0, 128.0]}
 ```
@@ -439,8 +447,9 @@ with Client("http://127.0.0.1:8000", timeout=60.0) as client:
         time="timestamp",
         target=["sales"],
         horizon=3,
+        context=5,
         freq="D",
-        model="dummy",  # or "chronos2" if that alias is loaded
+        model="naive",  # or "chronos-2" if that id is loaded
     )
 
 print(type(result.predictions))  # pandas.DataFrame
@@ -460,9 +469,10 @@ result = client.forecast(
     known_future=["price", "promo"],
     past_only=["inventory"],
     horizon=2,
+    context=4,
     freq="MS",
     quantiles=[0.1, 0.9],
     params={},
-    model="dummy",
+    model="naive",
 )
 ```

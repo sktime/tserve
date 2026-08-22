@@ -1,9 +1,8 @@
-from __future__ import annotations
-
 from typing import Any
 
 import narwhals as nw
 import pandas as pd
+from narwhals.typing import IntoFrame
 
 from fomo.types.models import ForecastRequest, ForecastResponse
 
@@ -11,7 +10,7 @@ import pyarrow as pa
 import io
 
 
-def _to_narwhals(df: nw.IntoFrame | dict[str, list]) -> nw.DataFrame:
+def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
     if type(df) == nw.DataFrame:
         return df
     if type(df) == dict:

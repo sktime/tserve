@@ -29,21 +29,21 @@ def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
     for item in load_models:
         info = resolve_model(item)
 
-        if info.alias in models:
-            raise ValueError(f"duplicate model alias {info.alias!r}")
+        if info.id in models:
+            raise ValueError(f"duplicate model id {info.id!r}")
 
         item = item[1] if isinstance(item, tuple) else item
-        logger.info(f"loading model {info.alias} via {info.executor}")
+        logger.info(f"loading model {info.id} via {info.executor}")
         executor = create_executor(info.executor)
         executor.load(info, item)
         stats.register(
-            info.alias,
+            info.id,
             info.executor,
             getattr(executor, "load_s", None),
             getattr(executor, "warmup_s", None),
         )
-        models[info.alias] = info
-        executors[info.alias] = executor
+        models[info.id] = info
+        executors[info.id] = executor
     return Runtime(
         executors=executors,
         scheduler=Scheduler(executors, stats),
