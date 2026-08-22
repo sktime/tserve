@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 FORECAST_REQUEST = {
     "time": "timestamp",
     "target": ["sales"],
