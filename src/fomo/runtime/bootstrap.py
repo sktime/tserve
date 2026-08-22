@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
+from fomo.logging import Stats
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_model
 from fomo.scheduling.scheduler import Scheduler
@@ -15,12 +16,14 @@ class Runtime:
     executors: dict[str, Executor]
     scheduler: Scheduler
     models: dict[str, ModelInfo] = field(default_factory=dict)
+    stats: Stats = field(default_factory=Stats)
 
     def loaded_models(self) -> ModelsResult:
         return ModelsResult(models=list(self.models.values()))
 
 
 def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
+    stats = Stats()
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
     for item in load_models:
@@ -33,7 +36,17 @@ def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
         logger.info(f"loading model {info.alias} via {info.executor}")
         executor = create_executor(info.executor)
         executor.load(info, item)
-
+        stats.register(
+            info.alias,
+            info.executor,
+            getattr(executor, "load_s", None),
+            getattr(executor, "warmup_s", None),
+        )
         models[info.alias] = info
         executors[info.alias] = executor
-    return Runtime(executors=executors, scheduler=Scheduler(executors), models=models)
+    return Runtime(
+        executors=executors,
+        scheduler=Scheduler(executors, stats),
+        models=models,
+        stats=stats,
+    )
