@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 
 from fomo.client.errors import FoMoError
-from fomo.types import HealthResult, ModelsResult
+from fomo.types import HealthResult, ModelsResult, StatsResult
 
 _ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
@@ -35,6 +35,9 @@ class HttpTransport:
 
     def models(self) -> ModelsResult:
         return ModelsResult.model_validate(self._request("GET", "/models").json())
+
+    def stats(self) -> StatsResult:
+        return StatsResult.model_validate(self._request("GET", "/stats").json())
 
     def close(self) -> None:
         self._client.close()

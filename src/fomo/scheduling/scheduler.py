@@ -1,13 +1,25 @@
+import time
+
+from fomo.logging import Stats
 from fomo.runtime.executors import Executor
 from fomo.types.models import ForecastRequest, ForecastResponse
 
 
 class Scheduler:
-    def __init__(self, executors: dict[str, Executor]) -> None:
+    def __init__(self, executors: dict[str, Executor], stats: Stats) -> None:
         self._executors = executors
+        self._stats = stats
 
     def run(self, request: ForecastRequest) -> ForecastResponse:
         executor = self._executors.get(request.model)
         if executor is None:
             raise RuntimeError(f"model {request.model!r} is not loaded on this server")
-        return executor.predict(request)
+
+        started = time.perf_counter()
+        ok = False
+        try:
+            response = executor.predict(request)
+            ok = True
+            return response
+        finally:
+            self._stats.record(request.model, time.perf_counter() - started, ok)

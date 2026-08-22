@@ -5,6 +5,7 @@ from fomo.types.models import (
     HealthResult,
     ModelInfo,
     ModelsResult,
+    StatsResult,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "HealthResult",
     "ModelInfo",
     "ModelsResult",
+    "StatsResult",
 ]

@@ -4,7 +4,13 @@ import uuid
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
-from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult
+from fomo.types import (
+    ForecastRequest,
+    ForecastResponse,
+    HealthResult,
+    ModelsResult,
+    StatsResult,
+)
 from fomo.types.converters import coerce_request, decode_request, encode_response
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
@@ -35,6 +41,11 @@ def health() -> HealthResult:
 @router.get("/models", response_model=ModelsResult)
 def models(request: Request) -> ModelsResult:
     return request.app.state.runtime.loaded_models()
+
+
+@router.get("/stats", response_model=StatsResult)
+def stats(request: Request) -> StatsResult:
+    return StatsResult.model_validate(request.app.state.runtime.stats.snapshot())
 
 
 @router.post("/forecast", response_model=ForecastResponse)
