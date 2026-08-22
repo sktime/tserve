@@ -18,6 +18,7 @@ class ForecastRequest(BaseModel):
     time: str
     target: list[str]
     horizon: int
+    context: int
     model: str = "naive"
     future: Any = None
     static: Any = None

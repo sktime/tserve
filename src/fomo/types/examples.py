@@ -12,6 +12,7 @@ FORECAST_REQUEST = {
         ],
     },
     "horizon": 3,
+    "context": 5,
     "freq": "D",
     "quantiles": [0.1, 0.5, 0.9],
     "model": "naive",
