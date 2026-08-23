@@ -27,6 +27,29 @@ def _df(**columns):
     return nw.from_dict(columns, backend="pyarrow")
 
 
+def _request(**kwargs):
+    payload = {
+        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "time": "timestamp",
+        "target": ["sales"],
+        "horizon": 1,
+        "context": 1,
+        "model": "naive",
+    }
+    payload.update(kwargs)
+    return ForecastRequest.model_validate(payload)
+
+
+def _response(**kwargs):
+    payload = {
+        "predictions": {"timestamp": ["2024-01-02"], "sales": [120.0]},
+        "model": "naive",
+        "request_id": "req-1",
+    }
+    payload.update(kwargs)
+    return ForecastResponse.model_validate(payload)
+
+
 def _coerced_request(**kwargs):
     payload = {
         "history": _df(timestamp=["2024-01-01"], sales=[120]),
@@ -65,6 +88,56 @@ def _coerced_response(**kwargs):
 def test_example_validates_against_model(example, model):
     parsed = model.model_validate(example)
     assert isinstance(parsed, model)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "match"),
+    [
+        pytest.param(
+            {"history": 123},
+            r"history must be a supported dataframe or dict\[str, list\], got int",
+            id="history_not_a_frame",
+        ),
+        pytest.param(
+            {"history": {"timestamp": "2024-01-01"}},
+            r"history must be dict\[str, list\]",
+            id="history_invalid_dict",
+        ),
+        pytest.param(
+            {"future": [1, 2]},
+            r"future must be a supported dataframe or dict\[str, list\], got list",
+            id="future_not_a_frame",
+        ),
+        pytest.param(
+            {"static": {"store": "A"}},
+            r"static must be dict\[str, list\]",
+            id="static_invalid_dict",
+        ),
+    ],
+)
+def test_forecast_request_rejects(kwargs, match):
+    with pytest.raises(ValidationError, match=match):
+        _request(**kwargs)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "match"),
+    [
+        pytest.param(
+            {"predictions": object()},
+            r"predictions must be a supported dataframe or dict\[str, list\], got object",
+            id="predictions_not_a_frame",
+        ),
+        pytest.param(
+            {"quantiles": {"q": 0.5}},
+            r"quantiles must be dict\[str, list\]",
+            id="quantiles_invalid_dict",
+        ),
+    ],
+)
+def test_forecast_response_rejects(kwargs, match):
+    with pytest.raises(ValidationError, match=match):
+        _response(**kwargs)
 
 
 @pytest.mark.parametrize(
