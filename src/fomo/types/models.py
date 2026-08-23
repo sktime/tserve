@@ -1,13 +1,9 @@
 from typing import Any, Literal, Self
 
 import narwhals as nw
-from narwhals.dependencies import (
-    is_pandas_like_dataframe,
-    is_polars_dataframe,
-    is_pyarrow_table,
-)
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from fomo.types._checks import _check_frame, _require_columns
 from fomo.types.examples import (
     FORECAST_REQUEST,
     FORECAST_RESULT,
@@ -15,26 +11,6 @@ from fomo.types.examples import (
     MODELS_RESULT,
     STATS_RESULT,
 )
-
-
-def _check_frame(value: Any, *, name: str) -> None:
-    if value is None:
-        return
-    if type(value) is dict:
-        if all(isinstance(k, str) and isinstance(v, list) for k, v in value.items()):
-            return
-        raise ValueError(f"{name} must be dict[str, list]")
-    if (
-        isinstance(value, nw.DataFrame)
-        or is_pandas_like_dataframe(value)
-        or is_polars_dataframe(value)
-        or is_pyarrow_table(value)
-    ):
-        return
-    raise ValueError(
-        f"{name} must be a supported dataframe or dict[str, list], "
-        f"got {type(value).__name__}"
-    )
 
 
 class ForecastRequest(BaseModel):
@@ -76,12 +52,6 @@ class ForecastResponse(BaseModel):
         _check_frame(self.predictions, name="predictions")
         _check_frame(self.quantiles, name="quantiles")
         return self
-
-
-def _require_columns(frame: nw.DataFrame[Any], columns: list[str], *, frame_name: str) -> None:
-    missing = [name for name in columns if name not in frame.columns]
-    if missing:
-        raise ValueError(f"{frame_name} is missing columns: {missing}")
 
 
 class CoercedForecastRequest(BaseModel):
