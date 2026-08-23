@@ -53,8 +53,8 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     request_id = str(uuid.uuid4())
 
     try:
-        request = coerce_request(request)
-        response = http_request.app.state.runtime.scheduler.run(request)
+        coerced = coerce_request(request)
+        response = http_request.app.state.runtime.scheduler.run(coerced)
 
     except Exception as exc:
         if isinstance(exc, ValueError):
@@ -68,12 +68,16 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
             detail={"error": str(exc), "code": code, "request_id": request_id},
         ) from exc
 
-    response.request_id = request_id
-    response.predictions = response.predictions.to_dict(as_series=False)
-    if response.quantiles is not None:
-        response.quantiles = response.quantiles.to_dict(as_series=False)
-
-    return response
+    return ForecastResponse(
+        predictions=response.predictions.to_dict(as_series=False),
+        model=response.model,
+        request_id=request_id,
+        quantiles=(
+            response.quantiles.to_dict(as_series=False)
+            if response.quantiles is not None
+            else None
+        ),
+    )
 
 
 @router.post("/forecast/bytes")
@@ -98,7 +102,7 @@ async def forecast_bytes(
 
     try:
         metadata = json.loads(metadata)
-        request: ForecastRequest = decode_request(metadata, files)
+        request = decode_request(metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
 
     except Exception as exc:

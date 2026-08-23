@@ -6,7 +6,7 @@ import pandas as pd
 from fomo.runtime.executors.plugins import register
 from fomo.runtime.executors.sktime.convertors import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
-from fomo.types import ForecastRequest, ForecastResponse, ModelInfo
+from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
 
 
 @register("sktime")
@@ -40,7 +40,7 @@ class SktimeExecutor:
         self._forecaster.predict(fh=[1])
         self.warmup_s = time.perf_counter() - t1
 
-    def predict(self, request: ForecastRequest) -> ForecastResponse:
+    def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
         y, X, X_future, fh, quantiles = from_request(request)
 
         self._forecaster.fit(y=y, X=X, fh=fh)
@@ -51,5 +51,5 @@ class SktimeExecutor:
                 alpha=quantiles, X=X_future, fh=fh
             )
 
-        response: ForecastResponse = to_response(pred, request, quantiles=pred_quantiles)
+        response: CoercedForecastResponse = to_response(pred, request, quantiles=pred_quantiles)
         return response

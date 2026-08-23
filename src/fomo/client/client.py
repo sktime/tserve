@@ -43,26 +43,37 @@ class Client:
             quantiles=quantiles,
             params=params,
         )
-        request = coerce_request(request)
+        coerced = coerce_request(request)
 
         # 1. encode request to json + bytes
-        req_metadata, req_bytes_encoded = encode_request(request)
+        req_metadata, req_bytes_encoded = encode_request(coerced)
         # 2. send request to transport
         res_metadata, res_bytes_encoded = self._transport.forecast(req_metadata, req_bytes_encoded)
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 
         if type(history) == dict:
-            response.predictions = response.predictions.to_dict(as_series=False)
-            if response.quantiles is not None:
-                response.quantiles = response.quantiles.to_dict(as_series=False)
+            predictions = response.predictions.to_dict(as_series=False)
+            quantile_table = (
+                response.quantiles.to_dict(as_series=False)
+                if response.quantiles is not None
+                else None
+            )
         else:
-            imp = request.history.implementation.value
-            response.predictions = getattr(response.predictions, f"to_{imp}")()
-            if response.quantiles is not None:
-                response.quantiles = getattr(response.quantiles, f"to_{imp}")()
+            imp = coerced.history.implementation.value
+            predictions = getattr(response.predictions, f"to_{imp}")()
+            quantile_table = (
+                getattr(response.quantiles, f"to_{imp}")()
+                if response.quantiles is not None
+                else None
+            )
 
-        return response
+        return ForecastResponse(
+            predictions=predictions,
+            model=response.model,
+            request_id=response.request_id,
+            quantiles=quantile_table,
+        )
 
     def health(self) -> HealthResult:
         return self._transport.health()
