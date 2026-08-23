@@ -4,10 +4,10 @@ import narwhals as nw
 import pandas as pd
 from sktime.forecasting.base import ForecastingHorizon
 
-from fomo.types import ForecastRequest, ForecastResponse
+from fomo.types import CoercedForecastRequest, CoercedForecastResponse
 
 
-def from_request(request: ForecastRequest) -> tuple[
+def from_request(request: CoercedForecastRequest) -> tuple[
     pd.DataFrame,
     pd.DataFrame | None,
     pd.DataFrame | None,
@@ -39,14 +39,14 @@ def from_request(request: ForecastRequest) -> tuple[
 
 def to_response(
     preds: pd.DataFrame,
-    request: ForecastRequest,
+    request: CoercedForecastRequest,
     quantiles: pd.DataFrame | None = None,
-) -> ForecastResponse:
+) -> CoercedForecastResponse:
     """Turn sktime predictions back into the tables the transport layer serializes."""
     predictions = _as_table(preds, request)
     quantile_table = None if quantiles is None else _as_table(_flatten(quantiles), request)
 
-    return ForecastResponse(
+    return CoercedForecastResponse(
         predictions=predictions,
         quantiles=quantile_table,
         model=request.model,
@@ -54,7 +54,7 @@ def to_response(
     )
 
 
-def _indexed(table: nw.DataFrame[Any], request: ForecastRequest) -> pd.DataFrame:
+def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.DataFrame:
     frame = table.to_pandas().sort_values(request.time)
     index = pd.DatetimeIndex(
         pd.to_datetime(frame[request.time]), freq="infer", name=request.time
@@ -62,7 +62,7 @@ def _indexed(table: nw.DataFrame[Any], request: ForecastRequest) -> pd.DataFrame
     return frame.drop(columns=request.time).set_index(index)
 
 
-def _static(request: ForecastRequest) -> dict[str, Any]:
+def _static(request: CoercedForecastRequest) -> dict[str, Any]:
     """Read the single row of static features as values to broadcast over time."""
     if request.static is None:
         return {}
@@ -70,7 +70,7 @@ def _static(request: ForecastRequest) -> dict[str, Any]:
     return static.to_pandas().iloc[0].to_dict()
 
 
-def _as_table(frame: pd.DataFrame, request: ForecastRequest) -> nw.DataFrame[Any]:
+def _as_table(frame: pd.DataFrame, request: CoercedForecastRequest) -> nw.DataFrame[Any]:
     return nw.from_native(frame.rename_axis(request.time).reset_index(), eager_only=True)
 
 

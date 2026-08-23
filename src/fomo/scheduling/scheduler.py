@@ -2,7 +2,7 @@ import time
 
 from fomo.logging import Stats
 from fomo.runtime.executors import Executor
-from fomo.types.models import ForecastRequest, ForecastResponse
+from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
 
 
 class Scheduler:
@@ -10,7 +10,7 @@ class Scheduler:
         self._executors = executors
         self._stats = stats
 
-    def run(self, request: ForecastRequest) -> ForecastResponse:
+    def run(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
         executor = self._executors.get(request.model)
         if executor is None:
             raise RuntimeError(f"model {request.model!r} is not loaded on this server")
