@@ -2,20 +2,20 @@ from typing import Any
 
 import narwhals as nw
 import pandas as pd
+from narwhals.typing import IntoFrame
 
 from fomo.types.models import (
     CoercedForecastRequest,
     CoercedForecastResponse,
     ForecastRequest,
     ForecastResponse,
-    Frame,
 )
 
 import pyarrow as pa
 import io
 
 
-def _to_narwhals(df: Frame) -> nw.DataFrame:
+def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
     if type(df) == nw.DataFrame:
         return df
     if type(df) == dict:
