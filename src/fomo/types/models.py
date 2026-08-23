@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+import narwhals as nw
 from pydantic import BaseModel, ConfigDict
 
 from fomo.types.examples import (
@@ -37,6 +38,34 @@ class ForecastResponse(BaseModel):
     model: str
     request_id: str
     quantiles: Any = None
+
+
+class CoercedForecastRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    history: nw.DataFrame[Any]
+    time: str
+    target: list[str]
+    horizon: int
+    context: int
+    model: str = "naive"
+    future: nw.DataFrame[Any] | None = None
+    static: nw.DataFrame[Any] | None = None
+    series_id: list[str] | None = None
+    known_future: list[str] | None = None
+    past_only: list[str] | None = None
+    freq: str | None = None
+    quantiles: list[float] | None = None
+    params: dict[str, Any] | None = None
+
+
+class CoercedForecastResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    predictions: nw.DataFrame[Any]
+    model: str
+    request_id: str
+    quantiles: nw.DataFrame[Any] | None = None
 
 
 class HealthError(BaseModel):
