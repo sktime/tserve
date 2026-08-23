@@ -37,11 +37,6 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     payload["future"] = _to_narwhals(request.future) if request.future is not None else None
     payload["static"] = _to_narwhals(request.static) if request.static is not None else None
 
-    # add more stringent conversions here
-    # e.g interpret freq from index
-    # add more stringent checks here
-    # e.g check if time/target column exists
-
     return CoercedForecastRequest.model_validate(payload)
 
 

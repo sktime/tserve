@@ -1,7 +1,7 @@
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import narwhals as nw
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from fomo.types.examples import (
     FORECAST_REQUEST,
@@ -40,6 +40,12 @@ class ForecastResponse(BaseModel):
     quantiles: Any = None
 
 
+def _require_columns(frame: nw.DataFrame[Any], columns: list[str], *, frame_name: str) -> None:
+    missing = [name for name in columns if name not in frame.columns]
+    if missing:
+        raise ValueError(f"{frame_name} is missing columns: {missing}")
+
+
 class CoercedForecastRequest(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -58,6 +64,33 @@ class CoercedForecastRequest(BaseModel):
     quantiles: list[float] | None = None
     params: dict[str, Any] | None = None
 
+    @model_validator(mode="after")
+    def _check_frame_columns(self) -> Self:
+        history_cols = [self.time, *self.target]
+        if self.series_id:
+            history_cols.extend(self.series_id)
+        if self.known_future:
+            history_cols.extend(self.known_future)
+        if self.past_only:
+            history_cols.extend(self.past_only)
+        _require_columns(self.history, history_cols, frame_name="history")
+
+        if self.known_future and self.future is None:
+            raise ValueError("future is required when known_future is set")
+
+        if self.future is not None:
+            future_cols = [self.time]
+            if self.series_id:
+                future_cols.extend(self.series_id)
+            if self.known_future:
+                future_cols.extend(self.known_future)
+            _require_columns(self.future, future_cols, frame_name="future")
+
+        if self.static is not None and self.series_id:
+            _require_columns(self.static, self.series_id, frame_name="static")
+
+        return self
+
 
 class CoercedForecastResponse(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -66,6 +99,14 @@ class CoercedForecastResponse(BaseModel):
     model: str
     request_id: str
     quantiles: nw.DataFrame[Any] | None = None
+
+    @model_validator(mode="after")
+    def _check_frame_columns(self) -> Self:
+        if not self.predictions.columns:
+            raise ValueError("predictions has no columns")
+        if self.quantiles is not None and not self.quantiles.columns:
+            raise ValueError("quantiles has no columns")
+        return self
 
 
 class HealthError(BaseModel):
