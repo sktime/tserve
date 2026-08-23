@@ -1,7 +1,8 @@
-from typing import Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, TypeAlias
 
 import narwhals as nw
-from pydantic import BaseModel, ConfigDict, model_validator
+from narwhals.typing import IntoDataFrame
+from pydantic import BaseModel, ConfigDict, GetPydanticSchema, model_validator
 
 from fomo.types.examples import (
     FORECAST_REQUEST,
@@ -11,18 +12,23 @@ from fomo.types.examples import (
     STATS_RESULT,
 )
 
+Frame: TypeAlias = Annotated[
+    IntoDataFrame | dict[str, list[Any]],
+    GetPydanticSchema(lambda _s, h: h(Any)),
+]
+
 
 class ForecastRequest(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
-    history: Any = None
+    history: Frame | None = None
     time: str
     target: list[str]
     horizon: int
     context: int
     model: str = "naive"
-    future: Any = None
-    static: Any = None
+    future: Frame | None = None
+    static: Frame | None = None
     series_id: list[str] | None = None
     known_future: list[str] | None = None
     past_only: list[str] | None = None
@@ -34,10 +40,10 @@ class ForecastRequest(BaseModel):
 class ForecastResponse(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})
 
-    predictions: Any = None
+    predictions: Frame | None = None
     model: str
     request_id: str
-    quantiles: Any = None
+    quantiles: Frame | None = None
 
 
 def _require_columns(frame: nw.DataFrame[Any], columns: list[str], *, frame_name: str) -> None:
