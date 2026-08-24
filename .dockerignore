@@ -1,22 +1,105 @@
+# Git
 .git
 .gitignore
-.venv
-.pytest_cache
-.mypy_cache
-.ruff_cache
-.coverage
-htmlcov
-.idea
-.vscode
-.cursor
-__pycache__
-**/__pycache__
-*.py[cod]
-*.egg-info
+.gitattributes
+
+
+# CI
+.github
+.codeclimate.yml
+.travis.yml
+.taskcluster.yml
+
+# Docker
+docker-compose.yml
+Dockerfile
+.docker
+.dockerignore
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+
+# C extensions
 *.so
-notes
-tests
-envs
-dask-worker-space
-*.md
-!README.md
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Virtual environment
+.env
+.venv/
+venv/
+
+# PyCharm
+.idea
+
+# Python mode for VIM
+.ropeproject
+**/.ropeproject
+
+# Vim swap files
+**/*.swp
+
+# VS Code
+.vscode/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# OS
+.DS_Store
+
+# Archives (weights, dumps); not needed to build the image
+*.zip
