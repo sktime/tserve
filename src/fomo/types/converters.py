@@ -1,7 +1,11 @@
+import io
+import json
+import struct
 from typing import Any
 
 import narwhals as nw
 import pandas as pd
+import pyarrow as pa
 from narwhals.typing import IntoFrame
 
 from fomo.types.models import (
@@ -10,9 +14,6 @@ from fomo.types.models import (
     ForecastRequest,
     ForecastResponse,
 )
-
-import pyarrow as pa
-import io
 
 
 def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
@@ -87,3 +88,42 @@ def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedF
         if frame in bytes_encoded:
             payload[frame] = nw.from_arrow(pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(), backend="pyarrow")
     return CoercedForecastResponse.model_validate(payload)
+
+
+def pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
+    parts = [("response", json.dumps(metadata).encode()), *files.items()]
+    body = bytearray(b"FOMO")
+    body.append(1)
+    body.extend(struct.pack("<I", len(parts)))
+    for name, payload in parts:
+        name_b = name.encode()
+        body.extend(struct.pack("<I", len(name_b)))
+        body.extend(name_b)
+        body.extend(struct.pack("<I", len(payload)))
+        body.extend(payload)
+    return bytes(body)
+
+
+def unpack_envelope(body: bytes) -> tuple[dict, dict[str, bytes]]:
+    if len(body) < 9 or body[:4] != b"FOMO" or body[4] != 1:
+        raise ValueError("invalid forecast envelope")
+    n_parts = struct.unpack_from("<I", body, 5)[0]
+    offset = 9
+    metadata: dict = {}
+    files: dict[str, bytes] = {}
+    for _ in range(n_parts):
+        if offset + 4 > len(body):
+            raise ValueError("invalid forecast envelope")
+        name_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        name = body[offset : offset + name_len].decode()
+        offset += name_len
+        payload_len = struct.unpack_from("<I", body, offset)[0]
+        offset += 4
+        payload = bytes(body[offset : offset + payload_len])
+        offset += payload_len
+        if name == "response":
+            metadata = json.loads(payload)
+        else:
+            files[name] = payload
+    return metadata, files

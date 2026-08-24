@@ -1,5 +1,4 @@
 import json
-import struct
 import uuid
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
@@ -11,23 +10,14 @@ from fomo.types import (
     ModelsResult,
     StatsResult,
 )
-from fomo.types.converters import coerce_request, decode_request, encode_response
+from fomo.types.converters import (
+    coerce_request,
+    decode_request,
+    encode_response,
+    pack_envelope,
+)
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
-
-
-def _pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
-    parts = [("response", json.dumps(metadata).encode()), *files.items()]
-    body = bytearray(b"FOMO")
-    body.append(1)
-    body.extend(struct.pack("<I", len(parts)))
-    for name, payload in parts:
-        name_b = name.encode()
-        body.extend(struct.pack("<I", len(name_b)))
-        body.extend(name_b)
-        body.extend(struct.pack("<I", len(payload)))
-        body.extend(payload)
-    return bytes(body)
 
 
 router = APIRouter()
@@ -121,6 +111,6 @@ async def forecast_bytes(
 
     metadata, files = encode_response(response)
     return Response(
-        content=_pack_envelope(metadata, files),
+        content=pack_envelope(metadata, files),
         media_type=_ENVELOPE_CONTENT_TYPE,
     )
