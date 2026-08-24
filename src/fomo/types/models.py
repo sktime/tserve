@@ -1,7 +1,7 @@
 from typing import Any, Literal, Self
 
 import narwhals as nw
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, ModelWrapValidatorHandler, model_validator
 
 from fomo.types._checks import _check_frame, _require_columns
 from fomo.types._examples import (
@@ -38,6 +38,23 @@ class ForecastRequest(BaseModel):
         _check_frame(self.static, name="static")
         return self
 
+    # @model_validator(mode="before")
+    # @classmethod
+    # def _check_things(cls, data: Any) -> Any:
+    #     return data
+
+    # @model_validator(mode="wrap")
+    # @classmethod
+    # def _debug_validation(
+    #     cls, data: Any, handler: ModelWrapValidatorHandler[Self]
+    # ) -> Self:
+    #     try:
+    #         return handler(data)
+    #     except Exception as error:
+    #         # Inspect `data`, `error`, and (for a Pydantic ValidationError)
+    #         # `error.errors()` at this breakpoint. Re-raise the original error
+    #         # so debugging does not change normal validation behaviour.
+    #         raise
 
 class ForecastResponse(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})

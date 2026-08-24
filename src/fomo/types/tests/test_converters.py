@@ -1,4 +1,6 @@
 import narwhals as nw
+import narwhals.testing as nwt
+import pyarrow as pa
 import pytest
 
 from fomo.types.converters import (
@@ -52,11 +54,30 @@ def test_coerce_request():
 
     coerced = coerce_request(request)
 
-    assert type(coerced) is CoercedForecastRequest
-    assert type(coerced.history) is nw.DataFrame
-    assert type(coerced.future) is nw.DataFrame
+    assert isinstance(coerced, CoercedForecastRequest)
+    assert isinstance(coerced.history, nw.DataFrame)
+    assert isinstance(coerced.future, nw.DataFrame)
     assert coerced.static is None
     assert request.history is original_history
+
+def test_coerce_request_columns_data():
+    hist_dict = {
+              "columns": ["timestamp", "sales"],
+              "data": [
+                ["2024-01-01", 120],
+                ["2024-01-02", 135],
+                ["2024-01-03", 128],
+                ["2024-01-04", 142],
+                ["2024-01-05", 138]
+              ]
+            }
+
+    request = _request(history=hist_dict)
+    coerced_request = coerce_request(request)
+    expected_table = pa.Table.from_arrays([[k[0] for k in hist_dict["data"]],
+                                           [k[1] for k in hist_dict["data"]]], names=hist_dict["columns"])
+    nw_df = nw.from_native(expected_table)
+    nwt.assert_frame_equal(nw_df, coerced_request.history)
 
 
 def test_encode_request():
