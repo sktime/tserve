@@ -2,7 +2,7 @@ import narwhals as nw
 import pytest
 from pydantic import ValidationError
 
-from fomo.types.examples import (
+from fomo.types._examples import (
     FORECAST_REQUEST,
     FORECAST_RESULT,
     HEALTH_OK,

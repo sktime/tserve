@@ -4,7 +4,7 @@ import narwhals as nw
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from fomo.types._checks import _check_frame, _require_columns
-from fomo.types.examples import (
+from fomo.types._examples import (
     FORECAST_REQUEST,
     FORECAST_RESULT,
     HEALTH_OK,
