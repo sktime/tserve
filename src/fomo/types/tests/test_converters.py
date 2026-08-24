@@ -1,4 +1,5 @@
 import narwhals as nw
+import pytest
 
 from fomo.types.converters import (
     coerce_request,
@@ -7,6 +8,8 @@ from fomo.types.converters import (
     decode_response,
     encode_request,
     encode_response,
+    pack_envelope,
+    unpack_envelope,
 )
 from fomo.types.models import (
     CoercedForecastRequest,
@@ -105,3 +108,35 @@ def test_decode_response():
     assert type(decoded.predictions) is nw.DataFrame
     assert decoded.quantiles is None
     assert decoded.request_id == "req-1"
+
+
+def test_pack_envelope():
+    metadata, files = encode_response(coerce_response(_response()))
+
+    body = pack_envelope(metadata, files)
+
+    assert body[:4] == b"FOMO"
+    assert body[4] == 1
+
+
+def test_unpack_envelope():
+    metadata, files = encode_response(coerce_response(_response()))
+
+    got_metadata, got_files = unpack_envelope(pack_envelope(metadata, files))
+
+    assert got_metadata["model"] == "naive"
+    assert got_metadata["request_id"] == "req-1"
+    assert set(got_files) == {"predictions"}
+
+
+@pytest.mark.parametrize(
+    ("body", "match"),
+    [
+        pytest.param(b"short", "invalid forecast envelope", id="too_short"),
+        pytest.param(b"XXXX\x01\x00\x00\x00\x00", "invalid forecast envelope", id="bad_magic"),
+        pytest.param(b"FOMO\x02\x00\x00\x00\x00", "invalid forecast envelope", id="bad_version"),
+    ],
+)
+def test_unpack_envelope_rejects(body, match):
+    with pytest.raises(ValueError, match=match):
+        unpack_envelope(body)
