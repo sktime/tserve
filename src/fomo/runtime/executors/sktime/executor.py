@@ -1,3 +1,4 @@
+import importlib
 import time
 from typing import Any
 
@@ -7,6 +8,12 @@ from fomo.runtime.executors.plugins import register
 from fomo.runtime.executors.sktime.convertors import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
+
+
+def _instantiate(spec: dict[str, Any]) -> Any:
+    module_path, class_name = spec["class"].rsplit(".", 1)
+    cls = getattr(importlib.import_module(module_path), class_name)
+    return cls(**spec.get("kwargs", {}))
 
 
 @register("sktime")
@@ -22,9 +29,7 @@ class SktimeExecutor:
 
         t0 = time.perf_counter()
         if info.source == "registry":
-            from sktime.registry import craft
-
-            self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+            self._forecaster = _instantiate(SKTIME_REGISTRY[model]["spec"])
 
         if info.source == "object":
             self._forecaster = model
