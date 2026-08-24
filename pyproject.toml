@@ -38,9 +38,6 @@ server = ["fastapi", "python-multipart", "uvicorn"]
 # transports specific dependencies
 http = ["httpx", "python-multipart"]
 grpc = ["grpcio"]
-# dataframe backend specific dependencies
-pandas = ["pandas"]
-polars = ["polars"]
 # executors specific dependencies
 sktime = [
 	"sktime",
