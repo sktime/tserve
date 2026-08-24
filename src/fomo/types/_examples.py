@@ -76,10 +76,3 @@ STATS_RESULT = {
         }
     },
 }
-
-ERROR_RESPONSE = {
-    "error": "bad forecast",
-    "code": "bad_request",
-    "request_id": "00000000-0000-0000-0000-000000000000",
-    "details": None,
-}

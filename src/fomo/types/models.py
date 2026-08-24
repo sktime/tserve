@@ -3,7 +3,8 @@ from typing import Any, Literal, Self
 import narwhals as nw
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from fomo.types.examples import (
+from fomo.types._checks import _check_frame, _require_columns
+from fomo.types._examples import (
     FORECAST_REQUEST,
     FORECAST_RESULT,
     HEALTH_OK,
@@ -30,6 +31,13 @@ class ForecastRequest(BaseModel):
     quantiles: list[float] | None = None
     params: dict[str, Any] | None = None
 
+    @model_validator(mode="after")
+    def _check_frames(self) -> Self:
+        _check_frame(self.history, name="history")
+        _check_frame(self.future, name="future")
+        _check_frame(self.static, name="static")
+        return self
+
 
 class ForecastResponse(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})
@@ -39,11 +47,11 @@ class ForecastResponse(BaseModel):
     request_id: str
     quantiles: Any = None
 
-
-def _require_columns(frame: nw.DataFrame[Any], columns: list[str], *, frame_name: str) -> None:
-    missing = [name for name in columns if name not in frame.columns]
-    if missing:
-        raise ValueError(f"{frame_name} is missing columns: {missing}")
+    @model_validator(mode="after")
+    def _check_frames(self) -> Self:
+        _check_frame(self.predictions, name="predictions")
+        _check_frame(self.quantiles, name="quantiles")
+        return self
 
 
 class CoercedForecastRequest(BaseModel):
