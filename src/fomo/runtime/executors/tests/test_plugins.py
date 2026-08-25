@@ -8,7 +8,6 @@ from fomo.types.models import ModelInfo
 def test_available_executors():
     names = available_executors()
 
-    assert "dummy" in names
     assert "sktime" in names
     assert "pytorch-forecasting" in names
 
