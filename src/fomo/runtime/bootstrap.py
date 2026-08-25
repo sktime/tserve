@@ -1,6 +1,5 @@
 import logging
 import time
-from dataclasses import dataclass, field
 from typing import Any
 
 from fomo.logging import Stats
@@ -12,12 +11,18 @@ from fomo.types import ModelInfo, ModelsResult
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class Runtime:
-    executors: dict[str, Executor]
-    scheduler: Scheduler
-    models: dict[str, ModelInfo] = field(default_factory=dict)
-    stats: Stats = field(default_factory=Stats)
+    def __init__(
+        self,
+        executors: dict[str, Executor],
+        scheduler: Scheduler,
+        models: dict[str, ModelInfo] | None = None,
+        stats: Stats | None = None,
+    ) -> None:
+        self.executors = executors
+        self.scheduler = scheduler
+        self.models = models if models is not None else {}
+        self.stats = stats if stats is not None else Stats()
 
     def loaded_models(self) -> ModelsResult:
         return ModelsResult(models=list(self.models.values()))
