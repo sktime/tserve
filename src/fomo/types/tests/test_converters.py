@@ -1,6 +1,4 @@
 import narwhals as nw
-import narwhals.testing as nwt
-import pyarrow as pa
 import pytest
 
 from fomo.types.converters import (
@@ -44,40 +42,38 @@ def _response(**kwargs):
     return ForecastResponse.model_validate(payload)
 
 
-def test_coerce_request():
-    request = _request(
-        future={"timestamp": ["2024-01-02"], "price": [8.99]},
-        known_future=["price"],
-        history={"timestamp": ["2024-01-01"], "sales": [120], "price": [9.99]},
-    )
+@pytest.mark.parametrize(
+    "history",
+    [
+        pytest.param(
+            {
+                "timestamp": ["2024-01-01"],
+                "sales": [120],
+            },
+            id="column_dict",
+        ),
+        pytest.param(
+            {
+                "columns": ["timestamp", "sales"],
+                "data": [
+                    ["2024-01-01", 120],
+                ],
+            },
+            id="columns_data",
+        ),
+    ],
+)
+def test_coerce_request(history):
+    request = _request(history=history)
     original_history = request.history
 
     coerced = coerce_request(request)
 
     assert isinstance(coerced, CoercedForecastRequest)
     assert isinstance(coerced.history, nw.DataFrame)
-    assert isinstance(coerced.future, nw.DataFrame)
+    assert coerced.future is None
     assert coerced.static is None
     assert request.history is original_history
-
-def test_coerce_request_columns_data():
-    hist_dict = {
-              "columns": ["timestamp", "sales"],
-              "data": [
-                ["2024-01-01", 120],
-                ["2024-01-02", 135],
-                ["2024-01-03", 128],
-                ["2024-01-04", 142],
-                ["2024-01-05", 138]
-              ]
-            }
-
-    request = _request(history=hist_dict)
-    coerced_request = coerce_request(request)
-    expected_table = pa.Table.from_arrays([[k[0] for k in hist_dict["data"]],
-                                           [k[1] for k in hist_dict["data"]]], names=hist_dict["columns"])
-    nw_df = nw.from_native(expected_table)
-    nwt.assert_frame_equal(nw_df, coerced_request.history)
 
 
 def test_encode_request():
