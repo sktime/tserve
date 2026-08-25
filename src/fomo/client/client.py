@@ -11,8 +11,14 @@ from fomo.types.converters import (
 
 
 class Client:
-    def __init__(self, url: str, *, timeout: float = 60.0) -> None:
-        self._transport = HttpTransport(url, timeout=timeout)
+    def __init__(
+        self,
+        url: str,
+        *,
+        timeout: float = 60.0,
+        transport: HttpTransport | None = None,
+    ) -> None:
+        self._transport = transport or HttpTransport(url, timeout=timeout)
 
     def forecast(
         self,
