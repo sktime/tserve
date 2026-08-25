@@ -42,19 +42,36 @@ def _response(**kwargs):
     return ForecastResponse.model_validate(payload)
 
 
-def test_coerce_request():
-    request = _request(
-        future={"timestamp": ["2024-01-02"], "price": [8.99]},
-        known_future=["price"],
-        history={"timestamp": ["2024-01-01"], "sales": [120], "price": [9.99]},
-    )
+@pytest.mark.parametrize(
+    "history",
+    [
+        pytest.param(
+            {
+                "timestamp": ["2024-01-01"],
+                "sales": [120],
+            },
+            id="column_dict",
+        ),
+        pytest.param(
+            {
+                "columns": ["timestamp", "sales"],
+                "data": [
+                    ["2024-01-01", 120],
+                ],
+            },
+            id="columns_data",
+        ),
+    ],
+)
+def test_coerce_request(history):
+    request = _request(history=history)
     original_history = request.history
 
     coerced = coerce_request(request)
 
-    assert type(coerced) is CoercedForecastRequest
-    assert type(coerced.history) is nw.DataFrame
-    assert type(coerced.future) is nw.DataFrame
+    assert isinstance(coerced, CoercedForecastRequest)
+    assert isinstance(coerced.history, nw.DataFrame)
+    assert coerced.future is None
     assert coerced.static is None
     assert request.history is original_history
 

@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from fomo.client.client import Client
 from fomo.types.converters import coerce_response, encode_response
 from fomo.types.models import ForecastResponse, HealthResult, ModelsResult, StatsResult
@@ -46,13 +48,41 @@ def test_uses_injected_transport():
 
 
 def test_forecast():
+@pytest.mark.parametrize(
+    "history",
+    [
+        pytest.param(
+            {
+                "timestamp": ["2024-01-01"],
+                "sales": [120],
+            },
+            id="column_dict",
+        ),
+        pytest.param(
+            {
+                "columns": ["timestamp", "sales"],
+                "data": [
+                    ["2024-01-01", 120],
+                ],
+            },
+            id="columns_data",
+        ),
+    ],
+)
+def test_forecast(history):
     client, transport = _client()
     transport.forecast.return_value = encode_response(coerce_response(_response()))
 
-    result = client.forecast(**_request())
+    result = client.forecast(**_request(history=history))
 
     assert type(result) is ForecastResponse
     assert type(result.predictions) is dict
+    if set(history) == {"columns", "data"}:
+        assert set(result.predictions) == {"columns", "data"}
+    else:
+        assert "timestamp" in result.predictions
+        assert "sales" in result.predictions
+        assert "columns" not in result.predictions
     assert result.model == "naive"
     assert result.request_id == "req-1"
     transport.forecast.assert_called_once()

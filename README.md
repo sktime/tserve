@@ -54,14 +54,15 @@ docker run --rm -p 8000:8000 \
   fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-2
 ```
 
-Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync --frozen`):
+Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync`).
+The image entrypoint is `uv run fomo serve --host 0.0.0.0 --port 8000` and loads `naive` unless you pass `--load-models`:
 
 ```bash
 git clone git@github.com:sktime/fomo.git
 cd fomo
 docker build -t fomo:local .
-docker run --rm -p 8000:8000 fomo:local \
-  uv run --frozen fomo serve --host 0.0.0.0 --port 8000 --load-models naive
+docker run --rm -p 8000:8000 fomo:local
+# or: docker run --rm -p 8000:8000 fomo:local --load-models naive chronos-2
 ```
 
 ### From source
