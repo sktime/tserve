@@ -2,7 +2,12 @@ from typing import Any, Self
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
-from fomo.types.converters import coerce_request, encode_request, decode_response
+from fomo.types.converters import (
+    _from_narwhals,
+    coerce_request,
+    decode_response,
+    encode_request,
+)
 
 
 class Client:
@@ -52,21 +57,12 @@ class Client:
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 
-        if type(history) == dict:
-            predictions = response.predictions.to_dict(as_series=False)
-            quantile_table = (
-                response.quantiles.to_dict(as_series=False)
-                if response.quantiles is not None
-                else None
-            )
-        else:
-            imp = coerced.history.implementation.value
-            predictions = getattr(response.predictions, f"to_{imp}")()
-            quantile_table = (
-                getattr(response.quantiles, f"to_{imp}")()
-                if response.quantiles is not None
-                else None
-            )
+        predictions = _from_narwhals(response.predictions, history)
+        quantile_table = (
+            _from_narwhals(response.quantiles, history)
+            if response.quantiles is not None
+            else None
+        )
 
         return ForecastResponse(
             predictions=predictions,

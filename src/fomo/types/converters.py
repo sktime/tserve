@@ -17,11 +17,35 @@ from fomo.types.models import (
 
 
 def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
-    if type(df) == nw.DataFrame:
+    if isinstance(df, nw.DataFrame):
         return df
-    if type(df) == dict:
-        return nw.from_dict(df, backend="pyarrow")
+    if isinstance(df, dict):
+        if set(df.keys()) == {"data", "columns"}:
+            rows = [
+                dict(zip(df["columns"], row, strict=True))
+                for row in df["data"]
+            ]
+            return nw.from_dicts(rows, backend="pyarrow")
+        else:
+            return nw.from_dict(df, backend="pyarrow")
     return nw.from_native(df, eager_only=True)
+
+
+def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
+    if type(template) is dict:
+        as_dict = df.to_dict(as_series=False)
+        if set(template) == {"data", "columns"}:
+            return {
+                "columns": list(as_dict),
+                "data": [list(row) for row in zip(*as_dict.values(), strict=True)],
+            }
+        return as_dict
+    native = (
+        template
+        if isinstance(template, nw.DataFrame)
+        else nw.from_native(template, eager_only=True)
+    )
+    return getattr(df, f"to_{native.implementation.value}")()
 
 
 def _to_bytes(df: nw.DataFrame) -> bytes:
