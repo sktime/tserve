@@ -38,6 +38,19 @@ def _ok(**kwargs):
     return response
 
 
+def test_uses_injected_client():
+    http = MagicMock()
+    http.request.return_value = _ok()
+    http.request.return_value.json.return_value = {"status": "ok"}
+
+    transport = HttpTransport("http://example", client=http)
+
+    result = transport.health()
+
+    http.request.assert_called_once_with("GET", "/health")
+    assert result == HealthResult(status="ok")
+
+
 def test_forecast():
     metadata, files = encode_response(coerce_response(_response()))
     transport, http = _http(_ok(content=pack_envelope(metadata, files)))

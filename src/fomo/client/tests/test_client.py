@@ -35,6 +35,16 @@ def _client():
     return client, transport
 
 
+def test_uses_injected_transport():
+    transport = MagicMock()
+    transport.health.return_value = HealthResult(status="ok")
+
+    client = Client("http://example", transport=transport)
+
+    assert client.health() == HealthResult(status="ok")
+    transport.health.assert_called_once()
+
+
 def test_forecast():
     client, transport = _client()
     transport.forecast.return_value = encode_response(coerce_response(_response()))
