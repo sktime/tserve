@@ -131,7 +131,7 @@ class HealthResult(BaseModel):
 
 class ModelInfo(BaseModel):
     id: str
-    executor: Literal["dummy", "sktime", "pytorch-forecasting", "custom"]
+    executor: Literal["sktime", "pytorch-forecasting", "custom"]
     source: Literal["object", "registry", "directory"]
 
 

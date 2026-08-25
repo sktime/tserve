@@ -8,7 +8,6 @@ _PLUGINS: dict[str, type[Executor]] = {}
 T = TypeVar("T", bound=type[Executor])
 
 _EXECUTOR_MODULES = {
-    "dummy": "fomo.runtime.executors.dummy.executor",
     "sktime": "fomo.runtime.executors.sktime.executor",
     "pytorch-forecasting": "fomo.runtime.executors.pytorch_forecasting.executor",
 }
