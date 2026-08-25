@@ -31,6 +31,23 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
     return nw.from_native(df, eager_only=True)
 
 
+def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
+    if type(template) is dict:
+        as_dict = df.to_dict(as_series=False)
+        if set(template) == {"data", "columns"}:
+            return {
+                "columns": list(as_dict),
+                "data": [list(row) for row in zip(*as_dict.values(), strict=True)],
+            }
+        return as_dict
+    native = (
+        template
+        if isinstance(template, nw.DataFrame)
+        else nw.from_native(template, eager_only=True)
+    )
+    return getattr(df, f"to_{native.implementation.value}")()
+
+
 def _to_bytes(df: nw.DataFrame) -> bytes:
     df = df.to_arrow()
     sink = io.BytesIO()
