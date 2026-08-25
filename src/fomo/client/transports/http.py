@@ -16,9 +16,9 @@ class HttpTransport:
         base_url: str,
         *,
         timeout: float = 60.0,
-        client: httpx.Client | None = None,
+        httpx_client: httpx.Client | None = None,
     ) -> None:
-        self._client = client or httpx.Client(
+        self._client = httpx_client or httpx.Client(
             base_url=base_url.rstrip("/"), timeout=timeout
         )
 

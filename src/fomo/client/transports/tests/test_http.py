@@ -43,7 +43,7 @@ def test_uses_injected_client():
     http.request.return_value = _ok()
     http.request.return_value.json.return_value = {"status": "ok"}
 
-    transport = HttpTransport("http://example", client=http)
+    transport = HttpTransport("http://example", httpx_client=http)
 
     result = transport.health()
 
