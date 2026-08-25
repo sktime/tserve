@@ -359,7 +359,6 @@ Swap `"model": "chronos-2"` on a server that loaded that id. Unlisted columns ar
 | `time` | yes | timestamp column |
 | `target` | yes | always a list |
 | `known_future` | no | dynamic covariates in both `history` and `future` |
-| `past_only` | no | history-only covariates (kept for later backends; not sktime `X`) |
 | `horizon` | yes | steps to forecast |
 | `context` | yes | context length (placeholder; ignored for now) |
 | `freq` | no | pandas offset (`D`, `MS`, `H`, …). not inferred |
@@ -468,7 +467,6 @@ result = client.forecast(
     time="date",
     target=["sales"],
     known_future=["price", "promo"],
-    past_only=["inventory"],
     horizon=2,
     context=4,
     freq="MS",
