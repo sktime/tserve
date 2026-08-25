@@ -2,6 +2,7 @@ from typing import Any
 
 import pandas as pd
 
+from fomo.runtime.executors.base import Executor
 from fomo.runtime.executors.plugins import register
 from fomo.runtime.executors.sktime.convertors import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
@@ -9,7 +10,7 @@ from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInf
 
 
 @register("sktime")
-class SktimeExecutor:
+class SktimeExecutor(Executor):
     def __init__(self) -> None:
         self._info: ModelInfo | None = None
         self._forecaster: Any = None
