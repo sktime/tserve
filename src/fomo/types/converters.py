@@ -4,7 +4,6 @@ import struct
 from typing import Any
 
 import narwhals as nw
-import pandas as pd
 import pyarrow as pa
 from narwhals.typing import IntoFrame
 

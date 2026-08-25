@@ -7,7 +7,6 @@ from fastapi import FastAPI
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
-from fomo.types import ModelInfo
 
 
 class Server:
