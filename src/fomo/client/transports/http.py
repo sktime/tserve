@@ -11,8 +11,16 @@ _ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
 
 class HttpTransport:
-    def __init__(self, base_url: str, *, timeout: float = 60.0) -> None:
-        self._client = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout)
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        timeout: float = 60.0,
+        client: httpx.Client | None = None,
+    ) -> None:
+        self._client = client or httpx.Client(
+            base_url=base_url.rstrip("/"), timeout=timeout
+        )
 
     def forecast(
         self, metadata: dict, bytes_encoded: dict[str, bytes]
