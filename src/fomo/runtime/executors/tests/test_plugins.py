@@ -24,6 +24,9 @@ def test_register():
         def load(self, info, model):
             pass
 
+        def warmup(self):
+            pass
+
         def predict(self, request):
             pass
 

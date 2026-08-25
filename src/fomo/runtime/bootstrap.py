@@ -1,4 +1,5 @@
 import logging
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -35,13 +36,13 @@ def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
         item = item[1] if isinstance(item, tuple) else item
         logger.info(f"loading model {info.id} via {info.executor}")
         executor = create_executor(info.executor)
+        started = time.perf_counter()
         executor.load(info, item)
-        stats.register(
-            info.id,
-            info.executor,
-            getattr(executor, "load_s", None),
-            getattr(executor, "warmup_s", None),
-        )
+        load_s = time.perf_counter() - started
+        started = time.perf_counter()
+        executor.warmup()
+        warmup_s = time.perf_counter() - started
+        stats.register(info.id, info.executor, load_s, warmup_s)
         models[info.id] = info
         executors[info.id] = executor
     return Runtime(

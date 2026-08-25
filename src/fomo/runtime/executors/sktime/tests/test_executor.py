@@ -31,8 +31,16 @@ def test_load():
     executor.load(ModelInfo(id="naive", executor="sktime", source="registry"), "naive")
 
     assert executor._forecaster is not None
-    assert executor.load_s is not None
-    assert executor.warmup_s is not None
+    assert not executor._forecaster.is_fitted
+
+
+def test_warmup():
+    executor = SktimeExecutor()
+    executor.load(ModelInfo(id="naive", executor="sktime", source="registry"), "naive")
+
+    executor.warmup()
+
+    assert executor._forecaster.is_fitted
 
 
 def test_load_object():

@@ -10,6 +10,9 @@ class PytorchForecastingExecutor:
             f"pytorch-forecasting executor is not implemented yet (model {info.id!r})"
         )
 
+    def warmup(self) -> None:
+        raise NotImplementedError("pytorch-forecasting executor is not implemented yet")
+
     def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
         raise NotImplementedError(
             f"pytorch-forecasting executor is not implemented yet (model {request.model!r})"

@@ -13,10 +13,7 @@ def _info(**kwargs):
 
 
 def _executor():
-    executor = MagicMock()
-    executor.load_s = 1.24
-    executor.warmup_s = 0.31
-    return executor
+    return MagicMock()
 
 
 def test_bootstrap():
@@ -32,9 +29,15 @@ def test_bootstrap():
     resolve_model.assert_called_once_with("naive")
     create_executor.assert_called_once_with("sktime")
     executor.load.assert_called_once_with(info, "naive")
+    executor.warmup.assert_called_once_with()
     assert runtime.executors == {"naive": executor}
     assert runtime.models == {"naive": info}
-    assert runtime.stats.snapshot()["models"]["naive"]["executor"] == "sktime"
+    row = runtime.stats.snapshot()["models"]["naive"]
+    assert row["executor"] == "sktime"
+    assert isinstance(row["load_s"], float)
+    assert isinstance(row["warmup_s"], float)
+    assert row["load_s"] >= 0
+    assert row["warmup_s"] >= 0
 
 
 def test_bootstrap_loads_object():
@@ -49,6 +52,7 @@ def test_bootstrap_loads_object():
         bootstrap([("mine", model)])
 
     executor.load.assert_called_once_with(info, model)
+    executor.warmup.assert_called_once_with()
 
 
 def test_bootstrap_rejects_duplicate():
