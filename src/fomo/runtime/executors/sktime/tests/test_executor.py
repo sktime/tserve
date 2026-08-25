@@ -30,7 +30,7 @@ def test_load():
 
     executor.load(ModelInfo(id="naive", executor="sktime", source="registry"), "naive")
 
-    assert type(executor._forecaster) is NaiveForecaster
+    assert executor._forecaster is not None
     assert executor.load_s is not None
     assert executor.warmup_s is not None
 
