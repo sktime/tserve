@@ -64,8 +64,8 @@ def test_forecast(history):
 
     result = client.forecast(**payload)
 
-    assert type(result) is ForecastResponse
-    assert type(result.predictions) is dict
+    assert isinstance(result, ForecastResponse)
+    assert isinstance(result.predictions, dict)
     if set(history) == {"columns", "data"}:
         assert set(result.predictions) == {"columns", "data"}
     else:

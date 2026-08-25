@@ -104,7 +104,7 @@ def test_forecast():
     assert result.status_code == 200
     body = result.json()
     assert body["model"] == "naive"
-    assert type(body["predictions"]) is dict
+    assert isinstance(body["predictions"], dict)
     assert body["request_id"]
     runtime.scheduler.run.assert_called_once()
 

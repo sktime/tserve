@@ -89,8 +89,8 @@ def test_encode_request():
 def test_decode_request():
     decoded = decode_request(*encode_request(coerce_request(_request())))
 
-    assert type(decoded) is CoercedForecastRequest
-    assert type(decoded.history) is nw.DataFrame
+    assert isinstance(decoded, CoercedForecastRequest)
+    assert isinstance(decoded.history, nw.DataFrame)
     assert decoded.future is None
     assert decoded.model == "naive"
 
@@ -103,9 +103,9 @@ def test_coerce_response():
 
     coerced = coerce_response(response)
 
-    assert type(coerced) is CoercedForecastResponse
-    assert type(coerced.predictions) is nw.DataFrame
-    assert type(coerced.quantiles) is nw.DataFrame
+    assert isinstance(coerced, CoercedForecastResponse)
+    assert isinstance(coerced.predictions, nw.DataFrame)
+    assert isinstance(coerced.quantiles, nw.DataFrame)
     assert response.predictions is original_predictions
 
 
@@ -121,8 +121,8 @@ def test_encode_response():
 def test_decode_response():
     decoded = decode_response(*encode_response(coerce_response(_response())))
 
-    assert type(decoded) is CoercedForecastResponse
-    assert type(decoded.predictions) is nw.DataFrame
+    assert isinstance(decoded, CoercedForecastResponse)
+    assert isinstance(decoded.predictions, nw.DataFrame)
     assert decoded.quantiles is None
     assert decoded.request_id == "req-1"
 

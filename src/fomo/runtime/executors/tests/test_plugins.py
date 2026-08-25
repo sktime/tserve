@@ -32,7 +32,7 @@ def test_register():
         def predict(self, request):
             pass
 
-    assert type(create_executor("test-executor")) is DummyExecutor
+    assert isinstance(create_executor("test-executor"), DummyExecutor)
 
 
 def test_create_executor_rejects_unknown():

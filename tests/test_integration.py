@@ -48,7 +48,7 @@ def test_models():
 def test_stats():
     stats = client.stats()
 
-    assert type(stats) is StatsResult
+    assert isinstance(stats, StatsResult)
     assert stats.uptime_s >= 0
     assert "naive" in stats.models
     assert stats.models["naive"].executor == "sktime"

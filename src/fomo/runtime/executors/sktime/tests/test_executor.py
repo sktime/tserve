@@ -61,7 +61,7 @@ def test_load_path(tmp_path):
         ModelInfo(id="naive", executor="sktime", source="directory"), zip_path
     )
 
-    assert type(executor._forecaster) is NaiveForecaster
+    assert isinstance(executor._forecaster, NaiveForecaster)
 
 
 def test_predict():
@@ -70,6 +70,6 @@ def test_predict():
 
     response = executor.predict(_request())
 
-    assert type(response) is CoercedForecastResponse
-    assert type(response.predictions) is nw.DataFrame
+    assert isinstance(response, CoercedForecastResponse)
+    assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"
