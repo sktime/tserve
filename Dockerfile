@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .
-RUN uv sync --frozen --no-dev --extra server --extra pandas --extra sktime
+RUN uv sync --no-dev --extra server --extra sktime
 
 EXPOSE 8000
-CMD ["uv", "run", "--frozen", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uv", "run", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["--load-models", "naive"]
