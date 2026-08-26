@@ -39,6 +39,7 @@ server = ["fastapi", "python-multipart", "uvicorn"]
 http = ["httpx", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
+sktime-lite = ["sktime"]
 sktime = [
 	"sktime",
 	"skpro",

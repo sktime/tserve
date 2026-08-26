@@ -55,14 +55,16 @@ docker run --rm -p 8000:8000 \
 ```
 
 Or build this repo’s `Dockerfile` from source (Python 3.13, `uv sync`).
-The image entrypoint is `uv run fomo serve --host 0.0.0.0 --port 8000` and loads `naive` unless you pass `--load-models`:
+The image always installs `server` and `sktime-lite` and loads `naive` unless you pass `--load-models`.
+Add heavier extras at build time (`sktime`, `pytorch-forecasting`):
 
 ```bash
 git clone git@github.com:sktime/fomo.git
 cd fomo
 docker build -t fomo:local .
 docker run --rm -p 8000:8000 fomo:local
-# or: docker run --rm -p 8000:8000 fomo:local --load-models naive chronos-2
+# or: docker build --build-arg FOMO_EXTRAS=sktime -t fomo:sktime .
+#     docker run --rm -p 8000:8000 fomo:sktime --load-models naive chronos-2
 ```
 
 ### From source
