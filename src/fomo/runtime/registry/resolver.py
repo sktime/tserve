@@ -19,9 +19,11 @@ def _resolve_from_path(item: Path) -> ModelInfo:
 
 
 def _resolve_from_object(item: tuple[str, Any]) -> ModelInfo:
+    from sktime.forecasting.base import BaseForecaster
+
     model_id, obj = item
 
-    if type(obj).__module__.startswith("sktime."):
+    if isinstance(obj, BaseForecaster):
         return ModelInfo(id=model_id, executor="sktime", source="object")
 
     raise TypeError(f"expected sktime object, got {type(obj).__name__}")

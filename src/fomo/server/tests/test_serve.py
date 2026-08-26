@@ -15,7 +15,7 @@ def _server(**kwargs):
 def test_server():
     server, bootstrap, runtime = _server(load_models=["naive"])
 
-    assert type(server.app) is FastAPI
+    assert isinstance(server.app, FastAPI)
     assert server.app.state.runtime is runtime
     bootstrap.assert_called_once_with(["naive"])
     assert server.url == "http://127.0.0.1:8000"

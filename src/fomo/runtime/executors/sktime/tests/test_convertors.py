@@ -51,7 +51,7 @@ def test_to_response():
 
     response = to_response(preds, _request())
 
-    assert type(response) is CoercedForecastResponse
-    assert type(response.predictions) is nw.DataFrame
+    assert isinstance(response, CoercedForecastResponse)
+    assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"
     assert response.quantiles is None
