@@ -4,7 +4,6 @@ import struct
 from typing import Any
 
 import narwhals as nw
-import pandas as pd
 import pyarrow as pa
 from narwhals.typing import IntoFrame
 
@@ -32,7 +31,7 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
-    if type(template) is dict:
+    if isinstance(template, dict):
         as_dict = df.to_dict(as_series=False)
         if set(template) == {"data", "columns"}:
             return {

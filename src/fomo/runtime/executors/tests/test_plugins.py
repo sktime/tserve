@@ -1,5 +1,6 @@
 import pytest
 
+from fomo.runtime.executors.base import Executor
 from fomo.runtime.executors.plugins import available_executors, create_executor, register
 from fomo.runtime.executors.sktime.executor import SktimeExecutor
 from fomo.types.models import ModelInfo
@@ -15,19 +16,22 @@ def test_available_executors():
 def test_create_executor():
     executor = create_executor("sktime")
 
-    assert type(executor) is SktimeExecutor
+    assert isinstance(executor, SktimeExecutor)
 
 
 def test_register():
     @register("test-executor")
-    class DummyExecutor:
+    class DummyExecutor(Executor):
         def load(self, info, model):
+            pass
+
+        def warmup(self):
             pass
 
         def predict(self, request):
             pass
 
-    assert type(create_executor("test-executor")) is DummyExecutor
+    assert isinstance(create_executor("test-executor"), DummyExecutor)
 
 
 def test_create_executor_rejects_unknown():

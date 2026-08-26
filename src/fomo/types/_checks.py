@@ -11,7 +11,7 @@ from narwhals.dependencies import (
 def _check_frame(value: Any, *, name: str) -> None:
     if value is None:
         return
-    if type(value) is dict:
+    if isinstance(value, dict):
         if all(isinstance(k, str) and isinstance(v, list) for k, v in value.items()):
             return
         raise ValueError(f"{name} must be dict[str, list]")

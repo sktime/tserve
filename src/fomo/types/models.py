@@ -26,7 +26,6 @@ class ForecastRequest(BaseModel):
     static: Any = None
     series_id: list[str] | None = None
     known_future: list[str] | None = None
-    past_only: list[str] | None = None
     freq: str | None = None
     quantiles: list[float] | None = None
     params: dict[str, Any] | None = None
@@ -67,7 +66,6 @@ class CoercedForecastRequest(BaseModel):
     static: nw.DataFrame[Any] | None = None
     series_id: list[str] | None = None
     known_future: list[str] | None = None
-    past_only: list[str] | None = None
     freq: str | None = None
     quantiles: list[float] | None = None
     params: dict[str, Any] | None = None
@@ -79,8 +77,6 @@ class CoercedForecastRequest(BaseModel):
             history_cols.extend(self.series_id)
         if self.known_future:
             history_cols.extend(self.known_future)
-        if self.past_only:
-            history_cols.extend(self.past_only)
         _require_columns(self.history, history_cols, frame_name="history")
 
         if self.known_future and self.future is None:

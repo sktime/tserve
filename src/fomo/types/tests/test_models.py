@@ -164,11 +164,6 @@ def test_forecast_response_rejects(kwargs, match):
             id="history_missing_known_future_column",
         ),
         pytest.param(
-            {"past_only": ["promo"]},
-            r"history is missing columns: \['promo'\]",
-            id="history_missing_past_only_column",
-        ),
-        pytest.param(
             {
                 "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
                 "known_future": ["price"],

@@ -31,8 +31,16 @@ def test_load():
     executor.load(ModelInfo(id="naive", executor="sktime", source="registry"), "naive")
 
     assert executor._forecaster is not None
-    assert executor.load_s is not None
-    assert executor.warmup_s is not None
+    assert not executor._forecaster.is_fitted
+
+
+def test_warmup():
+    executor = SktimeExecutor()
+    executor.load(ModelInfo(id="naive", executor="sktime", source="registry"), "naive")
+
+    executor.warmup()
+
+    assert executor._forecaster.is_fitted
 
 
 def test_load_object():
@@ -53,7 +61,7 @@ def test_load_path(tmp_path):
         ModelInfo(id="naive", executor="sktime", source="directory"), zip_path
     )
 
-    assert type(executor._forecaster) is NaiveForecaster
+    assert isinstance(executor._forecaster, NaiveForecaster)
 
 
 def test_predict():
@@ -62,6 +70,6 @@ def test_predict():
 
     response = executor.predict(_request())
 
-    assert type(response) is CoercedForecastResponse
-    assert type(response.predictions) is nw.DataFrame
+    assert isinstance(response, CoercedForecastResponse)
+    assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"

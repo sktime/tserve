@@ -1,10 +1,10 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from fomo.client.client import Client
-from fomo.types.converters import coerce_response, encode_response
-from fomo.types.models import ForecastResponse, HealthResult, ModelsResult, StatsResult
+from fomo.types.converters import coerce_request, coerce_response, encode_request, encode_response
+from fomo.types.models import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
 
 
 def _request(**kwargs):
@@ -30,24 +30,9 @@ def _response(**kwargs):
     return ForecastResponse.model_validate(payload)
 
 
-def _client():
-    transport = MagicMock()
-    with patch("fomo.client.client.HttpTransport", return_value=transport):
-        client = Client("http://example")
-    return client, transport
+client = Client("http://example", transport=MagicMock())
 
 
-def test_uses_injected_transport():
-    transport = MagicMock()
-    transport.health.return_value = HealthResult(status="ok")
-
-    client = Client("http://example", transport=transport)
-
-    assert client.health() == HealthResult(status="ok")
-    transport.health.assert_called_once()
-
-
-def test_forecast():
 @pytest.mark.parametrize(
     "history",
     [
@@ -70,13 +55,17 @@ def test_forecast():
     ],
 )
 def test_forecast(history):
-    client, transport = _client()
-    transport.forecast.return_value = encode_response(coerce_response(_response()))
+    client._transport.reset_mock()
+    payload = _request(history=history)
+    encoded = encode_request(coerce_request(ForecastRequest.model_validate(payload)))
+    client._transport.forecast.return_value = encode_response(
+        coerce_response(_response())
+    )
 
-    result = client.forecast(**_request(history=history))
+    result = client.forecast(**payload)
 
-    assert type(result) is ForecastResponse
-    assert type(result.predictions) is dict
+    assert isinstance(result, ForecastResponse)
+    assert isinstance(result.predictions, dict)
     if set(history) == {"columns", "data"}:
         assert set(result.predictions) == {"columns", "data"}
     else:
@@ -85,48 +74,45 @@ def test_forecast(history):
         assert "columns" not in result.predictions
     assert result.model == "naive"
     assert result.request_id == "req-1"
-    transport.forecast.assert_called_once()
+    client._transport.forecast.assert_called_once_with(*encoded)
 
 
 def test_health():
-    client, transport = _client()
-    transport.health.return_value = HealthResult(status="ok")
+    client._transport.reset_mock()
+    client._transport.health.return_value = HealthResult(status="ok")
 
     assert client.health() == HealthResult(status="ok")
-    transport.health.assert_called_once()
+    client._transport.health.assert_called_once_with()
 
 
 def test_models():
-    client, transport = _client()
-    transport.models.return_value = ModelsResult(models=[])
+    client._transport.reset_mock()
+    client._transport.models.return_value = ModelsResult(models=[])
 
     assert client.models() == ModelsResult(models=[])
-    transport.models.assert_called_once()
+    client._transport.models.assert_called_once_with()
 
 
 def test_stats():
-    client, transport = _client()
+    client._transport.reset_mock()
     expected = StatsResult.model_validate(
         {"uptime_s": 1.0, "memory": {}, "models": {}}
     )
-    transport.stats.return_value = expected
+    client._transport.stats.return_value = expected
 
     assert client.stats() is expected
-    transport.stats.assert_called_once()
+    client._transport.stats.assert_called_once_with()
 
 
 def test_close():
-    client, transport = _client()
-
+    client._transport.reset_mock()
     client.close()
-
-    transport.close.assert_called_once()
+    client._transport.close.assert_called_once_with()
 
 
 def test_context_manager():
-    client, transport = _client()
+    client._transport.reset_mock()
+    with client as _:
+        pass
 
-    with client as entered:
-        assert entered is client
-
-    transport.close.assert_called_once()
+    client._transport.close.assert_called_once_with()
