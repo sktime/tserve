@@ -47,15 +47,9 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
         response = http_request.app.state.runtime.scheduler.run(coerced)
 
     except Exception as exc:
-        if isinstance(exc, ValueError):
-            status_code, code = 400, "bad_request"
-        elif isinstance(exc, RuntimeError):
-            status_code, code = 503, "model_unavailable"
-        else:
-            status_code, code = 500, "internal_error"
         raise HTTPException(
-            status_code=status_code,
-            detail={"error": str(exc), "code": code, "request_id": request_id},
+            status_code=400,
+            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
         ) from exc
 
     return ForecastResponse(
@@ -96,15 +90,9 @@ async def forecast_bytes(
         response = http_request.app.state.runtime.scheduler.run(request)
 
     except Exception as exc:
-        if isinstance(exc, ValueError):
-            status_code, code = 400, "bad_request"
-        elif isinstance(exc, RuntimeError):
-            status_code, code = 503, "model_unavailable"
-        else:
-            status_code, code = 500, "internal_error"
         raise HTTPException(
-            status_code=status_code,
-            detail={"error": str(exc), "code": code, "request_id": request_id},
+            status_code=400,
+            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
         ) from exc
 
     response.request_id = request_id
