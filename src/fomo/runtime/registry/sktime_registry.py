@@ -1,3 +1,25 @@
+"""Catalog of sktime craft specs keyed by registry id.
+
+``SKTIME_REGISTRY`` lists ids the server *can* load (``naive``,
+``chronos-2``, …). It is not the loaded-model list: ``GET /models``
+returns only models ``bootstrap(load_models)`` / ``--load-models``
+actually instantiated. Registry ids are not executor names (``sktime``,
+``pytorch-forecasting``, ``custom``).
+
+Craft strings stay private to this catalog. ``ModelInfo`` is
+listing-only (``id``, ``executor``, ``source``) and does not expose
+specs. ``SktimeExecutor.load`` calls
+``sktime.registry.craft(SKTIME_REGISTRY[model]["spec"])`` when
+``source`` is ``registry``.
+
+See Also
+--------
+fomo.runtime.registry.resolver.resolve_model
+    String ids in this catalog become ``source="registry"``.
+fomo.runtime.bootstrap.bootstrap
+    Selects which catalog ids (if any) to load.
+"""
+
 from fomo.runtime.registry import BASE_REGISTRY_TYPE
 
 # Catalog of ids the server can load. Nothing here is loaded until
@@ -90,3 +112,4 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         "spec": "FalconXForecaster()",
     },
 }
+"""Catalog of loadable sktime model ids; see the module docstring."""
