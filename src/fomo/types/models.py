@@ -1,7 +1,7 @@
 from typing import Any, Literal, Self
 
 import narwhals as nw
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from fomo.types._checks import _check_frame, _require_columns
 from fomo.types._examples import (
@@ -18,8 +18,8 @@ class ForecastRequest(BaseModel):
 
     history: Any
     time: str
-    target: list[str]
-    horizon: int
+    target: list[str] = Field(min_length=1)
+    horizon: int = Field(gt=0)
     context: int
     model: str = "naive"
     future: Any = None
@@ -58,8 +58,8 @@ class CoercedForecastRequest(BaseModel):
 
     history: nw.DataFrame[Any]
     time: str
-    target: list[str]
-    horizon: int
+    target: list[str] = Field(min_length=1)
+    horizon: int = Field(gt=0)
     context: int
     model: str = "naive"
     future: nw.DataFrame[Any] | None = None
