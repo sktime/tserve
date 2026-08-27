@@ -16,7 +16,7 @@ from fomo.types._examples import (
 class ForecastRequest(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
-    history: Any = None
+    history: Any
     time: str
     target: list[str]
     horizon: int
