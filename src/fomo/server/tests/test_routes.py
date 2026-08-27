@@ -127,21 +127,21 @@ def test_forecast_bytes():
 
 
 @pytest.mark.parametrize(
-    ("exc", "status_code", "code"),
+    "exc",
     [
-        pytest.param(ValueError("bad input"), 400, "bad_request", id="bad_request"),
-        pytest.param(RuntimeError("not loaded"), 503, "model_unavailable", id="model_unavailable"),
-        pytest.param(TypeError("boom"), 500, "internal_error", id="internal_error"),
+        pytest.param(ValueError("history is missing columns: ['date']"), id="value_error"),
+        pytest.param(RuntimeError("model 'chronos-2' is not loaded on this server"), id="runtime_error"),
+        pytest.param(TypeError("boom"), id="type_error"),
     ],
 )
-def test_forecast_errors(exc, status_code, code):
+def test_forecast_errors_use_generic_http_exception(exc):
     runtime = _runtime()
     runtime.scheduler.run.side_effect = exc
 
     result = _client(runtime).post("/forecast", json=_payload())
 
-    assert result.status_code == status_code
+    assert result.status_code == 400
     detail = result.json()["detail"]
-    assert detail["code"] == code
+    assert detail["code"] == "request_failed"
     assert detail["error"] == str(exc)
     assert detail["request_id"]
