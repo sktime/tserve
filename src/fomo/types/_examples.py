@@ -1,3 +1,16 @@
+"""OpenAPI / JSON-schema examples for Pydantic forecast and status models.
+
+These dicts are attached via ``model_config.json_schema_extra`` on the
+public models in ``fomo.types.models``. They illustrate the JSON wire
+shape (row-oriented ``{columns, data}`` tables), not pandas or polars
+objects. They are not executed as tests and are not a runtime contract
+beyond documentation.
+
+``context`` and ``freq`` appear in ``FORECAST_REQUEST`` because they are
+required or accepted API fields; the current sktime executor does not
+use them for inference.
+"""
+
 FORECAST_REQUEST = {
     "time": "timestamp",
     "target": ["sales"],

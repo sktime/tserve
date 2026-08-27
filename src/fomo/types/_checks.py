@@ -1,3 +1,23 @@
+"""Validate user-facing frame values before they are coerced to narwhals.
+
+``ForecastRequest`` and ``ForecastResponse`` accept several native table
+shapes. These helpers reject values that are none of those shapes, so
+coercion in ``fomo.types.converters`` can assume a pandas-like, polars,
+pyarrow, narwhals, column-dict, or ``{columns, data}`` payload.
+
+Column *presence* (time, target, known-future, …) is checked later on
+``CoercedForecastRequest``, after frames are narwhals. This module does
+not interpret forecast semantics and does not mention sktime.
+
+See Also
+--------
+fomo.types.models.ForecastRequest
+    Construction runs ``_check_frame`` on ``history``, ``future``, and
+    ``static``.
+fomo.types.converters._to_narwhals
+    Converts a frame that has already passed these checks.
+"""
+
 from typing import Any
 
 import narwhals as nw
@@ -11,6 +31,28 @@ _TABLE_SHAPE = "{'columns': [...], 'data': [[...], ...]} or a dict of column nam
 
 
 def _check_frame(value: Any, *, name: str) -> None:
+    """Accept a supported table, ``None``, or raise ``ValueError``.
+
+    Supported values are a narwhals DataFrame, a pandas-like DataFrame, a
+    polars DataFrame, a pyarrow Table, a column-oriented ``dict`` of name
+    to list, or a row-oriented ``{"columns": [...], "data": [[...], ...]}``
+    dict. ``None`` is allowed so optional request fields (``future``,
+    ``static``, ``quantiles``) can be omitted.
+
+    Parameters
+    ----------
+    value : any
+        Candidate frame or ``None``.
+    name : str
+        Field name used in error messages (``"history"``, ``"future"``,
+        ``"static"``, ``"predictions"``, ``"quantiles"``).
+
+    Raises
+    ------
+    ValueError
+        If ``value`` is not ``None`` and not one of the supported shapes.
+        Dict payloads are delegated to ``_check_frame_dict``.
+    """
     if (
         value is None
         or isinstance(value, nw.DataFrame)
@@ -28,6 +70,26 @@ def _check_frame(value: Any, *, name: str) -> None:
 
 
 def _check_frame_dict(value: dict[Any, Any], *, name: str) -> None:
+    """Validate a dict-shaped table as either row-oriented or column-oriented.
+
+    A dict with both ``"columns"`` and ``"data"`` is treated as a row
+    matrix and passed to ``_check_columns_data``. Any other dict must map
+    string column names to lists of equal length (column-oriented).
+
+    Parameters
+    ----------
+    value : dict
+        Frame payload from JSON or a Python caller.
+    name : str
+        Field name used in error messages.
+
+    Raises
+    ------
+    ValueError
+        If a row-oriented dict has extra keys besides ``columns`` and
+        ``data``; if the dict is empty; if keys are not strings; if
+        values are not lists; or if column lengths differ.
+    """
     if "columns" in value and "data" in value:
         extra = sorted(set(value) - {"columns", "data"})
         if extra:
@@ -62,6 +124,22 @@ def _check_frame_dict(value: dict[Any, Any], *, name: str) -> None:
 
 
 def _check_columns_data(value: dict[Any, Any], *, name: str) -> None:
+    """Validate a ``{columns, data}`` row-oriented table.
+
+    Parameters
+    ----------
+    value : dict
+        Mapping with ``"columns"`` (list of str) and ``"data"`` (list of
+        rows). Each row must be a list whose length matches ``columns``.
+    name : str
+        Field name used in error messages.
+
+    Raises
+    ------
+    ValueError
+        If ``columns`` is not a list of strings, ``data`` is not a list
+        of lists, or a row has the wrong width.
+    """
     columns, data = value["columns"], value["data"]
 
     if not isinstance(columns, list) or not all(isinstance(col, str) for col in columns):
@@ -90,6 +168,27 @@ def _check_columns_data(value: dict[Any, Any], *, name: str) -> None:
 def _require_columns(
     frame: nw.DataFrame[Any], columns: list[str], *, frame_name: str
 ) -> None:
+    """Require named columns to exist on a coerced narwhals frame.
+
+    Used by ``CoercedForecastRequest`` after wire conversion, not by
+    user-facing ``ForecastRequest`` (which only checks table *shape*).
+
+    Parameters
+    ----------
+    frame : narwhals.DataFrame
+        Coerced table.
+    columns : list of str
+        Required column names, in any order relative to the frame.
+    frame_name : str
+        Field name used in error messages (``"history"``, ``"future"``,
+        ``"static"``).
+
+    Raises
+    ------
+    ValueError
+        If any name in ``columns`` is missing. The message lists missing
+        and available columns.
+    """
     missing = [name for name in columns if name not in frame.columns]
     if missing:
         available = list(frame.columns)

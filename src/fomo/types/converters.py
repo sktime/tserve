@@ -1,3 +1,31 @@
+"""Wire converters: native frames ↔ narwhals ↔ Arrow IPC ↔ FOMO envelope.
+
+This module is the *wire* layer. It does not map requests onto sktime
+``(y, X, fh)`` — that is ``fomo.runtime.executors.sktime.convertors``
+(note the spelling).
+
+Typical paths:
+
+* JSON ``POST /forecast``: ``ForecastRequest`` → ``coerce_request`` →
+  ``Scheduler.run`` → ``Executor.predict`` → column-dict JSON.
+* Bytes ``POST /forecast/bytes`` (server): multipart metadata + Arrow
+  files → ``decode_request`` → ``Scheduler.run`` → ``encode_response``
+  → ``pack_envelope``.
+* ``Client.forecast``: ``coerce_request`` → ``encode_request`` →
+  ``HttpTransport`` (``POST /forecast/bytes``) → ``unpack_envelope``
+  → ``decode_response`` → ``_from_narwhals``.
+
+``Client.forecast`` also calls ``_from_narwhals`` so returned tables
+match the caller's ``history`` native type.
+
+See Also
+--------
+fomo.types.models.ForecastRequest
+    Field semantics for the payload split into metadata vs frames.
+fomo.runtime.executors.sktime.convertors
+    Domain convertors used only inside the sktime executor.
+"""
+
 import io
 import json
 import struct
@@ -16,6 +44,29 @@ from fomo.types.models import (
 
 
 def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
+    """Convert a supported native table into a narwhals DataFrame.
+
+    Parameters
+    ----------
+    df : narwhals.DataFrame, mapping, or into-frame
+        Already-narwhals frames are returned unchanged. A dict with
+        exactly ``{"columns", "data"}`` is read as a row matrix via
+        ``narwhals.from_dicts``. Any other dict is column-oriented
+        (name → list) via ``narwhals.from_dict``. Other values go
+        through ``narwhals.from_native(..., eager_only=True)``.
+
+    Returns
+    -------
+    narwhals.DataFrame
+        Eager narwhals frame, pyarrow-backed when built from dicts.
+
+    Raises
+    ------
+    Exception
+        Narwhals/pyarrow errors if ``df`` cannot be interpreted as a
+        table. Shape should already have been checked by
+        ``ForecastRequest`` / ``ForecastResponse``.
+    """
     if isinstance(df, nw.DataFrame):
         return df
     if isinstance(df, dict):
@@ -31,6 +82,34 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
+    """Convert a narwhals frame back to the native type of ``template``.
+
+    Used by ``Client.forecast`` so ``predictions`` / ``quantiles`` match
+    the caller's ``history`` (pandas, polars, dict, …).
+
+    Parameters
+    ----------
+    df : narwhals.DataFrame
+        Table to convert.
+    template : any
+        Original native object. If it is a ``{columns, data}`` dict, the
+        result is that row-oriented shape. If it is any other dict, the
+        result is a column dict (name → list). Otherwise the frame is
+        converted with ``to_<implementation>`` of the template's
+        narwhals implementation.
+
+    Returns
+    -------
+    any
+        Native table of the same kind as ``template``.
+
+    Raises
+    ------
+    AttributeError
+        If the template's implementation has no matching ``to_*`` method.
+    Exception
+        Narwhals conversion errors for unsupported templates.
+    """
     if isinstance(template, dict):
         as_dict = df.to_dict(as_series=False)
         if set(template) == {"data", "columns"}:
@@ -48,6 +127,20 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
 
 
 def _to_bytes(df: nw.DataFrame) -> bytes:
+    """Serialize a narwhals frame as an Arrow IPC stream.
+
+    Parameters
+    ----------
+    df : narwhals.DataFrame
+        Frame to write (converted with ``to_arrow()``).
+
+    Returns
+    -------
+    bytes
+        Arrow IPC stream bytes. Multipart parts use content type
+        ``application/vnd.apache.arrow.stream``; the packed envelope
+        uses media type ``application/vnd.fomo.forecast+arrow``.
+    """
     df = df.to_arrow()
     sink = io.BytesIO()
     with pa.ipc.new_stream(sink, df.schema) as writer:
@@ -56,6 +149,40 @@ def _to_bytes(df: nw.DataFrame) -> bytes:
 
 
 def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
+    """Turn a user-facing request into the narwhals form executors consume.
+
+    Copies scalar metadata with ``model_dump``, converts ``history`` /
+    ``future`` / ``static`` via ``_to_narwhals``, then validates
+    ``CoercedForecastRequest`` (column contracts).
+
+    Parameters
+    ----------
+    request : ForecastRequest
+        User-facing forecast input (JSON body or ``Client.forecast``).
+
+    Returns
+    -------
+    CoercedForecastRequest
+        Internal request with narwhals frames.
+
+    Raises
+    ------
+    ValidationError
+        If coerced frames fail column checks (missing time/target/
+        known-future columns, or ``future`` omitted when
+        ``known_future`` is set) or dumped fields cannot construct
+        ``CoercedForecastRequest``. Inner validators raise
+        ``ValueError``, which Pydantic wraps.
+    Exception
+        If a frame cannot be converted to narwhals.
+
+    See Also
+    --------
+    CoercedForecastRequest
+        Column contracts applied here.
+    encode_request
+        Next step on the bytes path.
+    """
     payload = request.model_dump(exclude={"history", "future", "static"})
     payload["history"] = _to_narwhals(request.history)
     payload["future"] = _to_narwhals(request.future) if request.future is not None else None
@@ -65,6 +192,31 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
 
 
 def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, bytes]]:
+    """Split a coerced request into JSON metadata and Arrow IPC files.
+
+    Frame fields ``history``, ``future``, and ``static`` become named
+    byte blobs when not ``None``. Remaining fields (``time``, ``target``,
+    ``horizon``, ``context``, ``model``, …) stay in the metadata dict
+    for the multipart ``metadata`` form field.
+
+    Parameters
+    ----------
+    request : CoercedForecastRequest
+        Coerced forecast input.
+
+    Returns
+    -------
+    metadata : dict
+        JSON-serializable fields, excluding encoded frames.
+    bytes_encoded : dict of str to bytes
+        Mapping of frame name (``history`` / ``future`` / ``static``)
+        to Arrow IPC stream bytes.
+
+    See Also
+    --------
+    decode_request
+        Inverse used by ``POST /forecast/bytes``.
+    """
     bytes_encoded = {}
     for frame in ['history', 'future', 'static']:
         value = getattr(request, frame)
@@ -77,6 +229,36 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
 
 
 def decode_request(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedForecastRequest:
+    """Rebuild a coerced request from metadata plus Arrow IPC files.
+
+    Parameters
+    ----------
+    metadata : dict
+        JSON object from the multipart ``metadata`` field (non-frame
+        forecast fields such as ``time``, ``target``, ``horizon``,
+        ``model``, ``series_id``, ``params``).
+    bytes_encoded : dict of str to bytes
+        Optional ``history``, ``future``, ``static`` Arrow IPC streams.
+
+    Returns
+    -------
+    CoercedForecastRequest
+        Validated internal request.
+
+    Raises
+    ------
+    ValidationError
+        If column contracts fail after frames are attached, or
+        metadata types are invalid. Inner validators raise
+        ``ValueError``, which Pydantic wraps.
+    Exception
+        If an IPC blob is not a readable Arrow stream.
+
+    See Also
+    --------
+    encode_request
+        Inverse used by ``Client.forecast``.
+    """
     payload = dict(metadata)
     for frame in ['history', 'future', 'static']:
         if frame in bytes_encoded:
@@ -85,6 +267,27 @@ def decode_request(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedFo
 
 
 def coerce_response(response: ForecastResponse) -> CoercedForecastResponse:
+    """Turn a user-facing response into narwhals prediction tables.
+
+    Parameters
+    ----------
+    response : ForecastResponse
+        User-facing forecast output.
+
+    Returns
+    -------
+    CoercedForecastResponse
+        Internal response with narwhals frames.
+
+    Raises
+    ------
+    ValueError
+        If prediction tables have no columns after conversion.
+    ValidationError
+        If dumped fields cannot construct ``CoercedForecastResponse``.
+    Exception
+        If a frame cannot be converted to narwhals.
+    """
     payload = response.model_dump(exclude={"predictions", "quantiles"})
     payload["predictions"] = _to_narwhals(response.predictions)
     payload["quantiles"] = (
@@ -94,6 +297,26 @@ def coerce_response(response: ForecastResponse) -> CoercedForecastResponse:
 
 
 def encode_response(response: CoercedForecastResponse) -> tuple[dict, dict[str, bytes]]:
+    """Split a coerced response into JSON metadata and Arrow IPC files.
+
+    Parameters
+    ----------
+    response : CoercedForecastResponse
+        Executor output (``request_id`` should already be set by the
+        bytes route when used from the server).
+
+    Returns
+    -------
+    metadata : dict
+        JSON-serializable fields, excluding encoded frames.
+    bytes_encoded : dict of str to bytes
+        ``predictions`` and, when present, ``quantiles`` as Arrow IPC.
+
+    See Also
+    --------
+    pack_envelope
+        Wraps this pair in the ``FOMO`` binary envelope.
+    """
     bytes_encoded = {}
     for frame in ['predictions', 'quantiles']:
         value = getattr(response, frame)
@@ -106,6 +329,29 @@ def encode_response(response: CoercedForecastResponse) -> tuple[dict, dict[str, 
 
 
 def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedForecastResponse:
+    """Rebuild a coerced response from metadata plus Arrow IPC files.
+
+    Parameters
+    ----------
+    metadata : dict
+        JSON object from the envelope ``response`` part.
+    bytes_encoded : dict of str to bytes
+        ``predictions`` and optional ``quantiles`` Arrow IPC streams.
+
+    Returns
+    -------
+    CoercedForecastResponse
+        Validated internal response.
+
+    Raises
+    ------
+    ValueError
+        If prediction tables have no columns.
+    ValidationError
+        If metadata types are invalid.
+    Exception
+        If an IPC blob is not a readable Arrow stream.
+    """
     payload = dict(metadata)
     for frame in ['predictions', 'quantiles']:
         if frame in bytes_encoded:
@@ -114,6 +360,32 @@ def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedF
 
 
 def pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
+    """Pack response metadata and Arrow blobs into a ``FOMO`` envelope.
+
+    Layout: magic ``b"FOMO"``, version byte ``1``, little-endian
+    ``uint32`` part count, then for each part name length, name bytes,
+    payload length, payload. The first part is always named
+    ``"response"`` and holds ``json.dumps(metadata)``. Remaining parts
+    are the ``files`` mapping (typically ``predictions`` / ``quantiles``).
+
+    Parameters
+    ----------
+    metadata : dict
+        JSON-serializable response fields from ``encode_response``.
+    files : dict of str to bytes
+        Named Arrow IPC blobs.
+
+    Returns
+    -------
+    bytes
+        Envelope body. Server sets media type
+        ``application/vnd.fomo.forecast+arrow``.
+
+    See Also
+    --------
+    unpack_envelope
+        Inverse used by ``HttpTransport.forecast``.
+    """
     parts = [("response", json.dumps(metadata).encode()), *files.items()]
     body = bytearray(b"FOMO")
     body.append(1)
@@ -128,6 +400,30 @@ def pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
 
 
 def unpack_envelope(body: bytes) -> tuple[dict, dict[str, bytes]]:
+    """Parse a ``FOMO`` version-1 envelope into metadata and file parts.
+
+    Parameters
+    ----------
+    body : bytes
+        Raw HTTP response body from ``POST /forecast/bytes``.
+
+    Returns
+    -------
+    metadata : dict
+        JSON object from the ``response`` part (empty dict if missing).
+    files : dict of str to bytes
+        All other parts (frame name → payload).
+
+    Raises
+    ------
+    ValueError
+        If the buffer is truncated, magic is not ``FOMO``, or the
+        version byte is not ``1``.
+    json.JSONDecodeError
+        If the ``response`` part is not valid JSON.
+    UnicodeDecodeError
+        If a part name is not valid UTF-8.
+    """
     if len(body) < 9:
         raise ValueError("invalid forecast envelope: truncated")
     if body[:4] != b"FOMO":
