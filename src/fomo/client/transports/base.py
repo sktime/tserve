@@ -1,13 +1,17 @@
 """Abstract transport used by the FoMo client.
 
-FoMo is a time-series foundation-model inference server. This module
-defines ``BaseTransport`` as an ABC. ``HttpTransport`` is the only
-concrete subclass today. ``Client`` accepts ``BaseTransport | None``.
+A transport moves encoded forecast payloads and status queries between
+``Client`` and a FoMo runtime. ``HttpTransport`` is the implemented
+subclass. Transports do not coerce frames: ``Client`` runs the wire
+converters and passes metadata plus named frame blobs into
+``forecast``.
 
 See Also
 --------
+fomo.client.client.Client
+    Builds the metadata/bytes payload this ABC consumes.
 fomo.client.transports.http.HttpTransport
-    httpx implementation that posts Arrow IPC to ``/forecast/bytes``.
+    Default HTTP subclass.
 """
 
 from abc import ABC, abstractmethod
@@ -16,18 +20,19 @@ from fomo.types import HealthResult, ModelsResult, StatsResult
 
 
 class BaseTransport(ABC):
-    """Send encoded forecasts and call the status endpoints.
+    """Send encoded forecasts and fetch health, models, and stats.
 
-    Subclasses own the wire (HTTP, and later other transports). They do
-    not coerce frames; ``Client`` runs the wire converters and passes
-    metadata plus Arrow IPC blobs into ``forecast``.
+    ``forecast`` takes JSON-serializable metadata and named Arrow IPC
+    blobs (``history``, optional ``future`` / ``static``) and returns
+    the same pair for the response (``predictions``, optional
+    ``quantiles``). ``HttpTransport`` sends them over HTTP.
     """
 
     @abstractmethod
     def forecast(
         self, metadata: dict, bytes_encoded: dict[str, bytes]
     ) -> tuple[dict, dict[str, bytes]]:
-        """Send an encoded forecast and return the unpacked envelope.
+        """Send an encoded forecast and return encoded predictions.
 
         Parameters
         ----------
@@ -40,7 +45,7 @@ class BaseTransport(ABC):
         Returns
         -------
         metadata : dict
-            Response metadata from the envelope ``response`` part.
+            JSON-serializable response fields (no frames).
         bytes_encoded : dict of str to bytes
             Named Arrow IPC streams (``predictions``, optional
             ``quantiles``).
@@ -48,7 +53,7 @@ class BaseTransport(ABC):
 
     @abstractmethod
     def health(self) -> HealthResult:
-        """Return server health.
+        """Return runtime health.
 
         Returns
         -------
@@ -60,12 +65,12 @@ class BaseTransport(ABC):
     def models(self) -> ModelsResult:
         """Return loaded models.
 
-        Lists **loaded** models only.
+        Lists **loaded** models only, not the full registry catalog.
 
         Returns
         -------
         ModelsResult
-            Parsed listing of models currently loaded on the server.
+            Parsed listing of models currently loaded.
         """
 
     @abstractmethod
@@ -80,4 +85,4 @@ class BaseTransport(ABC):
 
     @abstractmethod
     def close(self) -> None:
-        """Release the underlying connection."""
+        """Release the underlying connection or other resources."""

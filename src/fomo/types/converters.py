@@ -12,8 +12,9 @@ Typical paths:
   files → ``decode_request`` → ``Scheduler.run`` → ``encode_response``
   → ``pack_envelope``.
 * ``Client.forecast``: ``coerce_request`` → ``encode_request`` →
-  ``HttpTransport`` (``POST /forecast/bytes``) → ``unpack_envelope``
-  → ``decode_response`` → ``_from_narwhals``.
+  ``BaseTransport.forecast`` → ``decode_response`` →
+  ``_from_narwhals``. The default transport is ``HttpTransport``
+  (``POST /forecast/bytes`` + ``unpack_envelope``).
 
 ``Client.forecast`` also calls ``_from_narwhals`` so returned tables
 match the caller's ``history`` native type.
