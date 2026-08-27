@@ -57,3 +57,19 @@ def test_run():
 def test_run_rejects_unloaded_model():
     with pytest.raises(RuntimeError, match="model 'naive' is not loaded on this server"):
         Scheduler({}, Stats()).run(_request())
+
+
+def test_run_wraps_executor_errors():
+    executor = MagicMock()
+    executor.predict.side_effect = TypeError()
+    stats = Stats()
+    stats.register("naive", "sktime", 1.0, 0.5)
+
+    with pytest.raises(Exception):
+        Scheduler({"naive": executor}, stats).run(_request())
+
+    assert stats.snapshot()["models"]["naive"]["requests"] == {
+        "total": 1,
+        "ok": 0,
+        "failed": 1,
+    }
