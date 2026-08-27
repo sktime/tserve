@@ -13,7 +13,7 @@ class Scheduler:
     def run(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
         executor = self._executors.get(request.model)
         if executor is None:
-            raise RuntimeError(f"model {request.model!r} is not loaded on this server")
+            raise RuntimeError(f"model {request.model!r} is not loaded on the server")
 
         started = time.perf_counter()
         ok = False
