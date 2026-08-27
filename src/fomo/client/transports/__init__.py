@@ -1,13 +1,12 @@
 """HTTP transports used by ``Client``.
 
-``BaseTransport`` is a typing Protocol. The only concrete
-implementation today is ``HttpTransport``. ``Client`` accepts
-``HttpTransport | None``, not the Protocol.
+``BaseTransport`` is an ABC. The only concrete subclass today is
+``HttpTransport``. ``Client`` accepts ``BaseTransport | None``.
 
 See Also
 --------
 fomo.client.transports.base.BaseTransport
-    Structural interface for forecast and status calls.
+    Abstract interface for forecast and status calls.
 fomo.client.transports.http.HttpTransport
     httpx transport that posts Arrow IPC to ``/forecast/bytes``.
 """

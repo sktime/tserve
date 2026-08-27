@@ -1,23 +1,29 @@
-"""Transport Protocol for the FoMo client.
+"""Abstract transport used by the FoMo client.
 
 FoMo is a time-series foundation-model inference server. This module
-defines ``BaseTransport`` as a ``typing.Protocol``. Only
-``HttpTransport`` implements it today. ``Client`` still annotates its
-optional transport as ``HttpTransport | None``, not this Protocol.
+defines ``BaseTransport`` as an ABC. ``HttpTransport`` is the only
+concrete subclass today. ``Client`` accepts ``BaseTransport | None``.
+
+See Also
+--------
+fomo.client.transports.http.HttpTransport
+    httpx implementation that posts Arrow IPC to ``/forecast/bytes``.
 """
 
-from typing import Protocol
+from abc import ABC, abstractmethod
 
 from fomo.types import HealthResult, ModelsResult, StatsResult
 
 
-class BaseTransport(Protocol):
-    """Structural interface for forecast and status calls.
+class BaseTransport(ABC):
+    """Send encoded forecasts and call the status endpoints.
 
-    Implementations send encoded forecast bytes and expose the
-    ``/health``, ``/models``, and ``/stats`` endpoints.
+    Subclasses own the wire (HTTP, and later other transports). They do
+    not coerce frames; ``Client`` runs the wire converters and passes
+    metadata plus Arrow IPC blobs into ``forecast``.
     """
 
+    @abstractmethod
     def forecast(
         self, metadata: dict, bytes_encoded: dict[str, bytes]
     ) -> tuple[dict, dict[str, bytes]]:
@@ -39,20 +45,20 @@ class BaseTransport(Protocol):
             Named Arrow IPC streams (``predictions``, optional
             ``quantiles``).
         """
-        ...
 
+    @abstractmethod
     def health(self) -> HealthResult:
-        """Return server health. Delegates to ``GET /health``.
+        """Return server health.
 
         Returns
         -------
         HealthResult
             Parsed status payload.
         """
-        ...
 
+    @abstractmethod
     def models(self) -> ModelsResult:
-        """Return loaded models. Delegates to ``GET /models``.
+        """Return loaded models.
 
         Lists **loaded** models only.
 
@@ -61,18 +67,17 @@ class BaseTransport(Protocol):
         ModelsResult
             Parsed listing of models currently loaded on the server.
         """
-        ...
 
+    @abstractmethod
     def stats(self) -> StatsResult:
-        """Return process stats. Delegates to ``GET /stats``.
+        """Return process stats.
 
         Returns
         -------
         StatsResult
             Parsed process and per-model metrics.
         """
-        ...
 
+    @abstractmethod
     def close(self) -> None:
         """Release the underlying connection."""
-        ...

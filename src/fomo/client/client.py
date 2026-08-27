@@ -9,9 +9,8 @@ onto sktime ``(y, X, fh)`` is a different layer:
 
 See Also
 --------
-fomo.client.transports.http.HttpTransport
-    Default transport. ``Client`` annotates it as
-    ``HttpTransport | None``, not ``BaseTransport``.
+fomo.client.transports.base.BaseTransport
+    Abstract transport ``Client`` injects. Defaults to ``HttpTransport``.
 fomo.types.models.ForecastRequest
     User-facing forecast fields.
 fomo.types.converters
@@ -21,6 +20,7 @@ fomo.types.converters
 
 from typing import Any, Self
 
+from fomo.client.transports.base import BaseTransport
 from fomo.client.transports.http import HttpTransport
 from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
 from fomo.types.converters import (
@@ -41,18 +41,19 @@ class Client:
     timeout : float, default 60.0
         Request timeout in seconds for a newly constructed
         ``HttpTransport``.
-    transport : HttpTransport or None, default None
+    transport : BaseTransport or None, default None
         Optional prebuilt transport. When omitted, constructs
-        ``HttpTransport(url, timeout=timeout)``. The annotation is
-        ``HttpTransport | None``, not the ``BaseTransport`` Protocol.
+        ``HttpTransport(url, timeout=timeout)``.
 
     Notes
     -----
-    Only ``HttpTransport`` exists today. ``BaseTransport`` is a
-    Protocol and is not the constructor type.
+    Only ``HttpTransport`` exists today. Inject another
+    ``BaseTransport`` subclass to swap the wire.
 
     See Also
     --------
+    fomo.client.transports.base.BaseTransport
+        Abstract transport type.
     fomo.client.transports.http.HttpTransport
         Default transport.
     fomo.types.models.ForecastRequest
@@ -66,7 +67,7 @@ class Client:
         url: str,
         *,
         timeout: float = 60.0,
-        transport: HttpTransport | None = None,
+        transport: BaseTransport | None = None,
     ) -> None:
         """Construct a client. See ``Client`` for parameters."""
         self._transport = transport or HttpTransport(url, timeout=timeout)

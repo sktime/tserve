@@ -9,13 +9,14 @@ from typing import Any
 
 import httpx
 
+from fomo.client.transports.base import BaseTransport
 from fomo.types import HealthResult, ModelsResult, StatsResult
 from fomo.types.converters import unpack_envelope
 
 _ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
 
-class HttpTransport:
+class HttpTransport(BaseTransport):
     """httpx transport for FoMo JSON status routes and ``/forecast/bytes``.
 
     Parameters
@@ -43,7 +44,7 @@ class HttpTransport:
     See Also
     --------
     fomo.client.transports.base.BaseTransport
-        Protocol this class satisfies.
+        Abstract class this transport inherits.
     fomo.types.converters.unpack_envelope
         Parses the ``application/vnd.fomo.forecast+arrow`` body.
     """
