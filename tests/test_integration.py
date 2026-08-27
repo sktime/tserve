@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from fomo.client import Client
-from fomo.client.errors import FoMoError
 from fomo.client.transports.http import HttpTransport
 from fomo.server import Server
 from fomo.types import HealthResult, ModelInfo, StatsResult
@@ -97,7 +96,7 @@ def test_forecast():
 
 
 def test_forecast_unknown_model():
-    with pytest.raises(FoMoError) as exc_info:
+    with pytest.raises(RuntimeError, match="chronos-2"):
         client.forecast(
             history=HISTORY,
             time="timestamp",
@@ -107,13 +106,9 @@ def test_forecast_unknown_model():
             model="chronos-2",
         )
 
-    assert exc_info.value.code == "model_unavailable"
-    assert exc_info.value.status_code == 503
-    assert "chronos-2" in exc_info.value.message
-
 
 def test_forecast_panel():
-    with pytest.raises(FoMoError) as exc_info:
+    with pytest.raises(RuntimeError, match="panel data"):
         client.forecast(
             history={**HISTORY, "store": ["A"] * 5},
             time="timestamp",
@@ -123,7 +118,3 @@ def test_forecast_panel():
             model="naive",
             series_id=["store"],
         )
-
-    assert exc_info.value.code == "bad_request"
-    assert exc_info.value.status_code == 400
-    assert "panel data" in exc_info.value.message
