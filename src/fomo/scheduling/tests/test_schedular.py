@@ -55,7 +55,10 @@ def test_run():
 
 
 def test_run_rejects_unloaded_model():
-    with pytest.raises(RuntimeError, match="model 'naive' is not loaded on the server"):
+    with pytest.raises(
+        RuntimeError,
+        match=r"model 'naive' is not loaded on this server \(loaded: none\)",
+    ):
         Scheduler({}, Stats()).run(_request())
 
 

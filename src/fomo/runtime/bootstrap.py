@@ -38,7 +38,7 @@ def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
         item = item[1] if isinstance(item, tuple) else item
 
         if info.id in models:
-            raise ValueError(f"duplicate model id {info.id!r}")
+            raise ValueError(f"duplicate model id {info.id!r} in load_models")
 
         logger.info(f"loading model {info.id} via {info.executor}")
         executor = create_executor(info.executor)

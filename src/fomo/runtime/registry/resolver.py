@@ -8,14 +8,16 @@ def _resolve_from_registry(item: str) -> ModelInfo:
     if item in SKTIME_REGISTRY:
         return ModelInfo(id=item, executor="sktime", source="registry")
 
-    raise ValueError(f"unknown registry {item!r}, choose one of: {', '.join(SKTIME_REGISTRY.keys())}")
+    raise ValueError(
+        f"unknown model {item!r}; known registry ids: {', '.join(SKTIME_REGISTRY.keys())}"
+    )
 
 
 def _resolve_from_path(item: Path) -> ModelInfo:
     if item.suffix == ".zip":
         return ModelInfo(id=item.stem, executor="sktime", source="directory")
 
-    raise ValueError(f"unknown file {item!r}, must be a zip file")
+    raise ValueError(f"{item} is not a saved sktime model; expected a .zip file")
 
 
 def _resolve_from_object(item: tuple[str, Any]) -> ModelInfo:
@@ -26,7 +28,10 @@ def _resolve_from_object(item: tuple[str, Any]) -> ModelInfo:
     if isinstance(obj, BaseForecaster):
         return ModelInfo(id=model_id, executor="sktime", source="object")
 
-    raise TypeError(f"expected sktime object, got {type(obj).__name__}")
+    raise TypeError(
+        f"load_models entry {model_id!r} must be a sktime forecaster, "
+        f"got {type(obj).__name__}"
+    )
 
 
 def resolve_model(item: str | Path | tuple[str, Any]) -> ModelInfo:

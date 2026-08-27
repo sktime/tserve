@@ -80,7 +80,10 @@ class CoercedForecastRequest(BaseModel):
         _require_columns(self.history, history_cols, frame_name="history")
 
         if self.known_future and self.future is None:
-            raise ValueError("future is required when known_future is set")
+            raise ValueError(
+                "future is required when known_future is set; "
+                f"send a future table with {self.time!r} and {self.known_future}"
+            )
 
         if self.future is not None:
             future_cols = [self.time]
@@ -107,9 +110,9 @@ class CoercedForecastResponse(BaseModel):
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
         if not self.predictions.columns:
-            raise ValueError("predictions has no columns")
+            raise ValueError("predictions table has no columns")
         if self.quantiles is not None and not self.quantiles.columns:
-            raise ValueError("quantiles has no columns")
+            raise ValueError("quantiles table has no columns")
         return self
 
 

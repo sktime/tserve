@@ -103,7 +103,7 @@ def test_example_validates_against_model(example, model):
         ),
         pytest.param(
             {"history": {"timestamp": "2024-01-01"}},
-            rf"history must be {re.escape(_TABLE_SHAPE)}",
+            r"history column values must be lists, got \{'timestamp': 'str'\}",
             id="history_invalid_dict",
         ),
         pytest.param(
@@ -113,7 +113,7 @@ def test_example_validates_against_model(example, model):
         ),
         pytest.param(
             {"static": {"store": "A"}},
-            rf"static must be {re.escape(_TABLE_SHAPE)}",
+            r"static column values must be lists, got \{'store': 'str'\}",
             id="static_invalid_dict",
         ),
         pytest.param(
@@ -138,7 +138,7 @@ def test_example_validates_against_model(example, model):
                     "data": [["2024-01-01", 120], ["2024-01-02"]],
                 }
             },
-            r"history\['data'\] row 1 has 1 values, expected 2",
+            r"history\['data'\] row 1 has 1 values, expected 2 for columns",
             id="history_row_length_mismatch",
         ),
         pytest.param(
@@ -155,7 +155,7 @@ def test_example_validates_against_model(example, model):
         ),
         pytest.param(
             {"history": {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120]}},
-            r"history columns have unequal lengths: ",
+            r"history columns must have the same number of rows",
             id="history_unequal_column_lengths",
         ),
     ],
@@ -175,7 +175,7 @@ def test_forecast_request_rejects(kwargs, match):
         ),
         pytest.param(
             {"quantiles": {"q": 0.5}},
-            rf"quantiles must be {re.escape(_TABLE_SHAPE)}",
+            r"quantiles column values must be lists, got \{'q': 'float'\}",
             id="quantiles_invalid_dict",
         ),
     ],
@@ -190,7 +190,7 @@ def test_forecast_response_rejects(kwargs, match):
     [
         pytest.param(
             {"time": "date"},
-            r"history is missing columns: \['date'\]",
+            r"history is missing columns: \['date'\] \(available:",
             id="history_missing_time_column",
         ),
         pytest.param(
@@ -264,12 +264,12 @@ def test_coerced_request_rejects(kwargs, match):
     [
         pytest.param(
             {"predictions": _df()},
-            "predictions has no columns",
+            "predictions table has no columns",
             id="predictions_with_no_columns",
         ),
         pytest.param(
             {"quantiles": _df()},
-            "quantiles has no columns",
+            "quantiles table has no columns",
             id="quantiles_with_no_columns",
         ),
     ],

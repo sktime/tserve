@@ -31,19 +31,19 @@ def test_resolve_model_from_object():
         pytest.param(
             "not-a-model",
             ValueError,
-            "unknown registry 'not-a-model'",
+            "unknown model 'not-a-model'",
             id="unknown_registry",
         ),
         pytest.param(
             Path("naive.pkl"),
             ValueError,
-            "unknown file",
+            "not a saved sktime model",
             id="non_zip_path",
         ),
         pytest.param(
             ("mine", object()),
             TypeError,
-            "expected sktime object, got object",
+            "must be a sktime forecaster, got object",
             id="non_sktime_object",
         ),
     ],

@@ -149,9 +149,17 @@ def test_unpack_envelope():
 @pytest.mark.parametrize(
     ("body", "match"),
     [
-        pytest.param(b"short", "invalid forecast envelope", id="too_short"),
-        pytest.param(b"XXXX\x01\x00\x00\x00\x00", "invalid forecast envelope", id="bad_magic"),
-        pytest.param(b"FOMO\x02\x00\x00\x00\x00", "invalid forecast envelope", id="bad_version"),
+        pytest.param(b"short", "invalid forecast envelope: truncated", id="too_short"),
+        pytest.param(
+            b"XXXX\x01\x00\x00\x00\x00",
+            "invalid forecast envelope: expected FOMO magic bytes",
+            id="bad_magic",
+        ),
+        pytest.param(
+            b"FOMO\x02\x00\x00\x00\x00",
+            "invalid forecast envelope: unsupported version 2",
+            id="bad_version",
+        ),
     ],
 )
 def test_unpack_envelope_rejects(body, match):
