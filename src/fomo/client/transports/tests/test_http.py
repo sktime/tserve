@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 import json
 import pytest
 
-from fomo.client.errors import FoMoError
 from fomo.client.transports.http import HttpTransport
 from fomo.types.converters import coerce_response, encode_response, pack_envelope
 from fomo.types.models import ForecastResponse, HealthResult, ModelsResult, StatsResult
@@ -110,23 +109,29 @@ def test_close():
     http.close.assert_called_once()
 
 
-def test_json_error_raises_fomo_error():
+def test_json_error_raises_runtime_error():
     response = _ok()
     response.status_code = 400
     response.headers = {"content-type": "application/json"}
     response.json.return_value = {
         "detail": {
             "error": "nope",
-            "code": "bad_request",
+            "code": "request_failed",
             "request_id": "req-1",
-            "details": {"reason": "x"},
         }
     }
     transport, _ = _http(response)
 
-    with pytest.raises(FoMoError, match=r"nope \[bad_request\]") as exc_info:
+    with pytest.raises(RuntimeError, match="^nope$"):
         transport.health()
 
-    assert exc_info.value.request_id == "req-1"
-    assert exc_info.value.status_code == 400
-    assert exc_info.value.details == {"reason": "x"}
+
+def test_non_json_error_raises_runtime_error():
+    response = _ok()
+    response.status_code = 404
+    response.headers = {"content-type": "text/plain"}
+    response.text = "Not Found"
+    transport, _ = _http(response)
+
+    with pytest.raises(RuntimeError, match="Not Found"):
+        transport.health()
