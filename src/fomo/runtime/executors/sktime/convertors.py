@@ -16,7 +16,9 @@ def from_request(request: CoercedForecastRequest) -> tuple[
 ]:
     """Map a request onto the ``y``, ``X``, future ``X``, ``fh`` and quantiles sktime expects."""
     if request.series_id:
-        raise ValueError("panel data (series_id) is not supported yet")
+        raise ValueError(
+            "panel data is not supported yet; omit series_id to forecast a single series"
+        )
 
     history = _indexed(request.history, request)
     y: pd.DataFrame = history.loc[:, request.target]

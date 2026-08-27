@@ -128,15 +128,19 @@ def pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
 
 
 def unpack_envelope(body: bytes) -> tuple[dict, dict[str, bytes]]:
-    if len(body) < 9 or body[:4] != b"FOMO" or body[4] != 1:
-        raise ValueError("invalid forecast envelope")
+    if len(body) < 9:
+        raise ValueError("invalid forecast envelope: truncated")
+    if body[:4] != b"FOMO":
+        raise ValueError("invalid forecast envelope: expected FOMO magic bytes")
+    if body[4] != 1:
+        raise ValueError(f"invalid forecast envelope: unsupported version {body[4]}")
     n_parts = struct.unpack_from("<I", body, 5)[0]
     offset = 9
     metadata: dict = {}
     files: dict[str, bytes] = {}
     for _ in range(n_parts):
         if offset + 4 > len(body):
-            raise ValueError("invalid forecast envelope")
+            raise ValueError("invalid forecast envelope: truncated")
         name_len = struct.unpack_from("<I", body, offset)[0]
         offset += 4
         name = body[offset : offset + name_len].decode()

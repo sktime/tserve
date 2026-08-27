@@ -3,7 +3,6 @@ from typing import Any
 
 import httpx
 
-from fomo.client.errors import FoMoError
 from fomo.types import HealthResult, ModelsResult, StatsResult
 from fomo.types.converters import unpack_envelope
 
@@ -59,11 +58,5 @@ class HttpTransport:
             body = response.text
         detail = body.get("detail", body) if isinstance(body, dict) else body
         if isinstance(detail, dict):
-            raise FoMoError(
-                str(detail.get("error", detail)),
-                code=str(detail.get("code", "http_error")),
-                request_id=str(detail.get("request_id", "")),
-                details=detail.get("details"),
-                status_code=response.status_code,
-            )
-        raise FoMoError(str(detail), status_code=response.status_code)
+            raise RuntimeError(str(detail.get("error", detail)))
+        raise RuntimeError(str(detail))

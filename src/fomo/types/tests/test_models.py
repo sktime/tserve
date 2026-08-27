@@ -1,7 +1,10 @@
+import re
+
 import narwhals as nw
 import pytest
 from pydantic import ValidationError
 
+from fomo.types._checks import _TABLE_SHAPE
 from fomo.types._examples import (
     FORECAST_REQUEST,
     FORECAST_RESULT,
@@ -95,23 +98,65 @@ def test_example_validates_against_model(example, model):
     [
         pytest.param(
             {"history": 123},
-            r"history must be a supported dataframe or dict\[str, list\], got int",
+            rf"history must be {re.escape(_TABLE_SHAPE)}, got int",
             id="history_not_a_frame",
         ),
         pytest.param(
             {"history": {"timestamp": "2024-01-01"}},
-            r"history must be dict\[str, list\]",
+            r"history column values must be lists, got \{'timestamp': 'str'\}",
             id="history_invalid_dict",
         ),
         pytest.param(
             {"future": [1, 2]},
-            r"future must be a supported dataframe or dict\[str, list\], got list",
+            rf"future must be {re.escape(_TABLE_SHAPE)}, got list",
             id="future_not_a_frame",
         ),
         pytest.param(
             {"static": {"store": "A"}},
-            r"static must be dict\[str, list\]",
+            r"static column values must be lists, got \{'store': 'str'\}",
             id="static_invalid_dict",
+        ),
+        pytest.param(
+            {"horizon": 0},
+            "Input should be greater than 0",
+            id="horizon_zero",
+        ),
+        pytest.param(
+            {"horizon": -1},
+            "Input should be greater than 0",
+            id="horizon_negative",
+        ),
+        pytest.param(
+            {"target": []},
+            "List should have at least 1 item",
+            id="target_empty",
+        ),
+        pytest.param(
+            {
+                "history": {
+                    "columns": ["timestamp", "sales"],
+                    "data": [["2024-01-01", 120], ["2024-01-02"]],
+                }
+            },
+            r"history\['data'\] row 1 has 1 values, expected 2 for columns",
+            id="history_row_length_mismatch",
+        ),
+        pytest.param(
+            {
+                "history": {
+                    "columns": ["timestamp", "sales"],
+                    "data": [["2024-01-01", 120]],
+                    "index": [0],
+                }
+            },
+            r"history has extra keys \['index'\]; use only 'columns' and 'data', "
+            r"or a column-oriented dict",
+            id="history_columns_data_extra_keys",
+        ),
+        pytest.param(
+            {"history": {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120]}},
+            r"history columns must have the same number of rows",
+            id="history_unequal_column_lengths",
         ),
     ],
 )
@@ -125,12 +170,12 @@ def test_forecast_request_rejects(kwargs, match):
     [
         pytest.param(
             {"predictions": object()},
-            r"predictions must be a supported dataframe or dict\[str, list\], got object",
+            rf"predictions must be {re.escape(_TABLE_SHAPE)}, got object",
             id="predictions_not_a_frame",
         ),
         pytest.param(
             {"quantiles": {"q": 0.5}},
-            r"quantiles must be dict\[str, list\]",
+            r"quantiles column values must be lists, got \{'q': 'float'\}",
             id="quantiles_invalid_dict",
         ),
     ],
@@ -145,7 +190,7 @@ def test_forecast_response_rejects(kwargs, match):
     [
         pytest.param(
             {"time": "date"},
-            r"history is missing columns: \['date'\]",
+            r"history is missing columns: \['date'\] \(available:",
             id="history_missing_time_column",
         ),
         pytest.param(
@@ -219,12 +264,12 @@ def test_coerced_request_rejects(kwargs, match):
     [
         pytest.param(
             {"predictions": _df()},
-            "predictions has no columns",
+            "predictions table has no columns",
             id="predictions_with_no_columns",
         ),
         pytest.param(
             {"quantiles": _df()},
-            "quantiles has no columns",
+            "quantiles table has no columns",
             id="quantiles_with_no_columns",
         ),
     ],

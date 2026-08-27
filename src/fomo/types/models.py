@@ -1,7 +1,7 @@
 from typing import Any, Literal, Self
 
 import narwhals as nw
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from fomo.types._checks import _check_frame, _require_columns
 from fomo.types._examples import (
@@ -16,10 +16,10 @@ from fomo.types._examples import (
 class ForecastRequest(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
-    history: Any = None
+    history: Any
     time: str
-    target: list[str]
-    horizon: int
+    target: list[str] = Field(min_length=1)
+    horizon: int = Field(gt=0)
     context: int
     model: str = "naive"
     future: Any = None
@@ -58,8 +58,8 @@ class CoercedForecastRequest(BaseModel):
 
     history: nw.DataFrame[Any]
     time: str
-    target: list[str]
-    horizon: int
+    target: list[str] = Field(min_length=1)
+    horizon: int = Field(gt=0)
     context: int
     model: str = "naive"
     future: nw.DataFrame[Any] | None = None
@@ -80,7 +80,10 @@ class CoercedForecastRequest(BaseModel):
         _require_columns(self.history, history_cols, frame_name="history")
 
         if self.known_future and self.future is None:
-            raise ValueError("future is required when known_future is set")
+            raise ValueError(
+                "future is required when known_future is set; "
+                f"send a future table with {self.time!r} and {self.known_future}"
+            )
 
         if self.future is not None:
             future_cols = [self.time]
@@ -107,9 +110,9 @@ class CoercedForecastResponse(BaseModel):
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
         if not self.predictions.columns:
-            raise ValueError("predictions has no columns")
+            raise ValueError("predictions table has no columns")
         if self.quantiles is not None and not self.quantiles.columns:
-            raise ValueError("quantiles has no columns")
+            raise ValueError("quantiles table has no columns")
         return self
 
 
