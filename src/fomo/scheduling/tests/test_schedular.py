@@ -59,6 +59,11 @@ def test_run_rejects_unloaded_model():
         Scheduler({}, Stats()).run(_request())
 
 
+def test_run_rejects_unloaded_model_lists_loaded():
+    with pytest.raises(RuntimeError, match=r"loaded: 'naive'"):
+        Scheduler({"naive": MagicMock()}, Stats()).run(_request(model="missing"))
+
+
 def test_run_wraps_executor_errors():
     executor = MagicMock()
     executor.predict.side_effect = TypeError()
