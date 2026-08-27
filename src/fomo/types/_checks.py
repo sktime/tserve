@@ -11,18 +11,19 @@ _TABLE_SHAPE = "{'columns': [...], 'data': [[...], ...]} or a dict of column nam
 
 
 def _check_frame(value: Any, *, name: str) -> None:
-    if value is None:
-        return
-    if isinstance(value, dict):
-        _check_frame_dict(value, name=name)
-        return
     if (
-        isinstance(value, nw.DataFrame)
+        value is None
+        or isinstance(value, nw.DataFrame)
         or is_pandas_like_dataframe(value)
         or is_polars_dataframe(value)
         or is_pyarrow_table(value)
     ):
         return
+
+    if isinstance(value, dict):
+        _check_frame_dict(value, name=name)
+        return
+
     raise ValueError(f"{name} must be {_TABLE_SHAPE}, got {type(value).__name__}")
 
 
@@ -36,20 +37,25 @@ def _check_frame_dict(value: dict[Any, Any], *, name: str) -> None:
             )
         _check_columns_data(value, name=name)
         return
+
     if value and all(isinstance(k, str) and isinstance(v, list) for k, v in value.items()):
         lengths = {key: len(values) for key, values in value.items()}
         if len(set(lengths.values())) > 1:
             raise ValueError(f"{name} columns have unequal lengths: {lengths}")
         return
+
     raise ValueError(f"{name} must be {_TABLE_SHAPE}")
 
 
 def _check_columns_data(value: dict[Any, Any], *, name: str) -> None:
     columns, data = value["columns"], value["data"]
+
     if not isinstance(columns, list) or not all(isinstance(col, str) for col in columns):
         raise ValueError(f"{name}['columns'] must be a list of strings")
+
     if not isinstance(data, list):
         raise ValueError(f"{name}['data'] must be a list of rows")
+
     for index, row in enumerate(data):
         if not isinstance(row, list):
             raise ValueError(f"{name}['data'] row {index} must be a list")
