@@ -114,6 +114,9 @@ dmypy.json
 # ruff
 .ruff_cache/
 
+# ty
+.ty_cache/
+
 # Pyre type checker
 .pyre/
 .pyre_configuration
