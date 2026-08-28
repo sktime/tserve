@@ -21,3 +21,12 @@ repos:
       - id: ruff-check
         args: ["--fix"]
       - id: ruff-format
+
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.75
+    hooks:
+      - id: ty
+        # Isolated: do not create/update uv.lock or the local venv on commit.
+        # The hook still needs network (uv resolves project deps). That works
+        # in GitHub Actions; skip this hook if you ever enable pre-commit.ci.
+        args: ["--isolated"]
