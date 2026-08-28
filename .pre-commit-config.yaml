@@ -30,3 +30,9 @@ repos:
         # The hook still needs network (uv resolves project deps). That works
         # in GitHub Actions; skip this hook if you ever enable pre-commit.ci.
         args: ["--isolated"]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        additional_dependencies: [tomli]

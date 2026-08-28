@@ -82,6 +82,7 @@ dev = [
   "pre-commit>=4",
   "ruff>=0.16.5",
   "ty>=0.0.75",
+  "codespell>=2.4.3",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -150,3 +151,9 @@ allowed-unresolved-imports = [
   "pandas.**",
   "sktime.**",
 ]
+
+[tool.codespell]
+# skip caches, venvs, lockfiles, and local untracked dirs
+skip = ".git,.venv,.ruff_cache,.ty_cache,.pytest_cache,.mypy_cache,uv.lock,__pycache__,*.pyc,my-models,notes,scripts"
+# convertor(s) is the sktime-layer spelling, distinct from wire converters
+ignore-words-list = "convertor,convertors"

@@ -8,6 +8,7 @@ quality:
 	uv run ruff check $(check_dirs)
 	uv run ruff format --check $(check_dirs)
 	uv run ty check
+	uv run codespell
 
 style:
 	uv run ruff check $(check_dirs) --fix
