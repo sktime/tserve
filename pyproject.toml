@@ -101,12 +101,24 @@ select = [
   "F",
   "I",
   "UP",
+  "B",
+  "C4",
+  "SIM",
+  "FURB",
+  "S",
+  "PT",
+  "RUF",
+]
+ignore = [
+  "S101",  # assert is fine in tests and contracts
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
 # craft strings are data (HF model paths); wrapping them hurts grep
 "src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
+"**/tests/**" = ["S"]
+"tests/**" = ["S"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["fomo"]
