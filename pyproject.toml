@@ -109,17 +109,26 @@ select = [
   "S",
   "PT",
   "RUF",
+  "D",
 ]
 ignore = [
   "S101",  # assert is fine in tests and contracts
 ]
 
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
 # craft strings are data (HF model paths); wrapping them hurts grep
 "src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
-"**/tests/**" = ["S"]
-"tests/**" = ["S"]
+# D is phased: public API first (client, types, cli). sktime ignores D in tests.
+"**/tests/**" = ["S", "D"]
+"tests/**" = ["S", "D"]
+"src/fomo/runtime/**" = ["D"]
+"src/fomo/server/**" = ["D"]
+"src/fomo/scheduling/**" = ["D"]
+"src/fomo/logging/**" = ["D"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["fomo"]
