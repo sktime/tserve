@@ -140,5 +140,7 @@ class SktimeExecutor(Executor):
                 alpha=quantiles, X=X_future, fh=fh
             )
 
-        response: CoercedForecastResponse = to_response(pred, request, quantiles=pred_quantiles)
+        response: CoercedForecastResponse = to_response(
+            pred, request, quantiles=pred_quantiles
+        )
         return response

@@ -42,6 +42,7 @@ def register(name: str) -> Callable[[T], T]:
     callable
         Class decorator that records ``cls`` in ``_PLUGINS[name]``.
     """
+
     def decorator(cls: T) -> T:
         """Store ``cls`` in ``_PLUGINS`` and return it.
 

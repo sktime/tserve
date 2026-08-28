@@ -173,7 +173,11 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     except Exception as exc:
         raise HTTPException(
             status_code=400,
-            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
     return ForecastResponse(
@@ -267,7 +271,11 @@ async def forecast_bytes(
     except Exception as exc:
         raise HTTPException(
             status_code=400,
-            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
     response.request_id = request_id

@@ -22,7 +22,13 @@ from typing import Any, Self
 
 from fomo.client.transports.base import BaseTransport
 from fomo.client.transports.http import HttpTransport
-from fomo.types import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
+from fomo.types import (
+    ForecastRequest,
+    ForecastResponse,
+    HealthResult,
+    ModelsResult,
+    StatsResult,
+)
 from fomo.types.converters import (
     _from_narwhals,
     coerce_request,
@@ -186,7 +192,9 @@ class Client:
         # 1. encode request to json + bytes
         req_metadata, req_bytes_encoded = encode_request(coerced)
         # 2. send request to transport
-        res_metadata, res_bytes_encoded = self._transport.forecast(req_metadata, req_bytes_encoded)
+        res_metadata, res_bytes_encoded = self._transport.forecast(
+            req_metadata, req_bytes_encoded
+        )
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 

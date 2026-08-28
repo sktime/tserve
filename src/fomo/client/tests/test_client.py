@@ -3,8 +3,19 @@ from unittest.mock import MagicMock
 import pytest
 
 from fomo.client.client import Client
-from fomo.types.converters import coerce_request, coerce_response, encode_request, encode_response
-from fomo.types.models import ForecastRequest, ForecastResponse, HealthResult, ModelsResult, StatsResult
+from fomo.types.converters import (
+    coerce_request,
+    coerce_response,
+    encode_request,
+    encode_response,
+)
+from fomo.types.models import (
+    ForecastRequest,
+    ForecastResponse,
+    HealthResult,
+    ModelsResult,
+    StatsResult,
+)
 
 
 def _request(**kwargs):
@@ -95,9 +106,7 @@ def test_models():
 
 def test_stats():
     client._transport.reset_mock()
-    expected = StatsResult.model_validate(
-        {"uptime_s": 1.0, "memory": {}, "models": {}}
-    )
+    expected = StatsResult.model_validate({"uptime_s": 1.0, "memory": {}, "models": {}})
     client._transport.stats.return_value = expected
 
     assert client.stats() is expected

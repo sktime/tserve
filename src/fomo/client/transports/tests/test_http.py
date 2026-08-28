@@ -1,6 +1,6 @@
+import json
 from unittest.mock import MagicMock, patch
 
-import json
 import pytest
 
 from fomo.client.transports.http import HttpTransport
@@ -63,7 +63,10 @@ def test_forecast():
     method, path = http.request.call_args.args
     assert method == "POST"
     assert path == "/forecast/bytes"
-    assert json.loads(http.request.call_args.kwargs["data"]["metadata"])["model"] == "naive"
+    assert (
+        json.loads(http.request.call_args.kwargs["data"]["metadata"])["model"]
+        == "naive"
+    )
     assert "history" in http.request.call_args.kwargs["files"]
     assert got_metadata["model"] == "naive"
     assert "predictions" in got_files

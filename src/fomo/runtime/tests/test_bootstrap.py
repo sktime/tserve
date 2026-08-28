@@ -21,8 +21,12 @@ def test_bootstrap():
     executor = _executor()
 
     with (
-        patch("fomo.runtime.bootstrap.resolve_model", return_value=info) as resolve_model,
-        patch("fomo.runtime.bootstrap.create_executor", return_value=executor) as create_executor,
+        patch(
+            "fomo.runtime.bootstrap.resolve_model", return_value=info
+        ) as resolve_model,
+        patch(
+            "fomo.runtime.bootstrap.create_executor", return_value=executor
+        ) as create_executor,
     ):
         runtime = bootstrap(["naive"])
 
@@ -60,7 +64,9 @@ def test_bootstrap_rejects_duplicate():
         patch("fomo.runtime.bootstrap.resolve_model", return_value=_info()),
         patch("fomo.runtime.bootstrap.create_executor", return_value=_executor()),
     ):
-        with pytest.raises(ValueError, match="duplicate model id 'naive' in load_models"):
+        with pytest.raises(
+            ValueError, match="duplicate model id 'naive' in load_models"
+        ):
             bootstrap(["naive", "naive"])
 
 

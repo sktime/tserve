@@ -34,7 +34,9 @@ from sktime.forecasting.base import ForecastingHorizon
 from fomo.types import CoercedForecastRequest, CoercedForecastResponse
 
 
-def from_request(request: CoercedForecastRequest) -> tuple[
+def from_request(
+    request: CoercedForecastRequest,
+) -> tuple[
     pd.DataFrame,
     pd.DataFrame | None,
     pd.DataFrame | None,
@@ -83,7 +85,8 @@ def from_request(request: CoercedForecastRequest) -> tuple[
     """
     if request.series_id:
         raise ValueError(
-            "panel data is not supported yet; omit series_id to forecast a single series"
+            "panel data is not supported yet; "
+            "omit series_id to forecast a single series"
         )
 
     history = _indexed(request.history, request)
@@ -140,7 +143,9 @@ def to_response(
         columns when constructing ``CoercedForecastResponse``.
     """
     predictions = _as_table(preds, request)
-    quantile_table = None if quantiles is None else _as_table(_flatten(quantiles), request)
+    quantile_table = (
+        None if quantiles is None else _as_table(_flatten(quantiles), request)
+    )
 
     return CoercedForecastResponse(
         predictions=predictions,
@@ -195,7 +200,9 @@ def _static(request: CoercedForecastRequest) -> dict[str, Any]:
     return static.to_pandas().iloc[0].to_dict()
 
 
-def _as_table(frame: pd.DataFrame, request: CoercedForecastRequest) -> nw.DataFrame[Any]:
+def _as_table(
+    frame: pd.DataFrame, request: CoercedForecastRequest
+) -> nw.DataFrame[Any]:
     """Move the time index back into a column and wrap as narwhals.
 
     Parameters
@@ -210,7 +217,9 @@ def _as_table(frame: pd.DataFrame, request: CoercedForecastRequest) -> nw.DataFr
     narwhals.DataFrame
         Eager frame from ``rename_axis(time).reset_index()``.
     """
-    return nw.from_native(frame.rename_axis(request.time).reset_index(), eager_only=True)
+    return nw.from_native(
+        frame.rename_axis(request.time).reset_index(), eager_only=True
+    )
 
 
 def _flatten(quantiles: pd.DataFrame) -> pd.DataFrame:
@@ -226,4 +235,6 @@ def _flatten(quantiles: pd.DataFrame) -> pd.DataFrame:
     pandas.DataFrame
         Same values with flattened columns ``f"{var}_{alpha}"``.
     """
-    return quantiles.set_axis([f"{var}_{alpha}" for var, alpha in quantiles.columns], axis=1)
+    return quantiles.set_axis(
+        [f"{var}_{alpha}" for var, alpha in quantiles.columns], axis=1
+    )

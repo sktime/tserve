@@ -1,6 +1,7 @@
 # FoMo
 
 Time series foundation model inference server. Load models once, forecast over HTTP or the Python client.
+See [docs/](docs/index.md) for install, serving, the forecast API, the Python client, models, and architecture.
 
 Nothing is loaded by default: a bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models` / `load_models` to load them. `naive` is a `NaiveForecaster` (no download); the rest pull Hugging Face weights at load time. `GET /models` lists only what this process loaded.
 
@@ -378,8 +379,8 @@ Install the same `fomo` package the server uses. Point it at a running `fomo ser
 from fomo.client import Client
 
 with Client("http://127.0.0.1:8000") as client:
-    print(client.health())   # status='ok'
-    print(client.models())   # ids, executors, sources
+    print(client.health())  # status='ok'
+    print(client.models())  # ids, executors, sources
 ```
 
 JSON `{columns, data}` in, same shape out:
@@ -462,9 +463,9 @@ Panel + covariates + quantiles, same kwargs as the JSON body:
 
 ```python
 result = client.forecast(
-    history=history_df,       # pandas / polars / {columns, data}
-    future=future_df,         # required when known_future is set
-    static=static_df,         # one row per series
+    history=history_df,  # pandas / polars / {columns, data}
+    future=future_df,  # required when known_future is set
+    static=static_df,  # one row per series
     series_id=["store", "sku"],
     time="date",
     target=["sales"],
