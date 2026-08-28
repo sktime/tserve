@@ -15,6 +15,7 @@ forecast failures become ``HTTPException`` 400.
 
 import json
 import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
@@ -195,10 +196,10 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
 @router.post("/forecast/bytes")
 async def forecast_bytes(
     http_request: Request,
-    metadata: str = Form(),
-    history: UploadFile = File(),
-    future: UploadFile | None = File(None),
-    static: UploadFile | None = File(None),
+    metadata: Annotated[str, Form()],
+    history: Annotated[UploadFile, File()],
+    future: Annotated[UploadFile | None, File()] = None,
+    static: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
     """Run a multipart ``POST /forecast/bytes``.
 

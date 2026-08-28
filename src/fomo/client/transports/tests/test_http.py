@@ -125,7 +125,7 @@ def test_json_error_raises_runtime_error():
     }
     transport, _ = _http(response)
 
-    with pytest.raises(RuntimeError, match="^nope$"):
+    with pytest.raises(RuntimeError, match=r"^nope$"):
         transport.health()
 
 

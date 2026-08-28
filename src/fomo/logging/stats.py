@@ -14,7 +14,7 @@ the nested ``StatsResult`` schema (``count`` / ``total`` / ``mean`` /
 ``failed``; ``latency_s``).
 
 ``register`` and ``record`` wrap their bodies in
-``try`` / ``except Exception: pass`` so metrics never break inference.
+``contextlib.suppress(Exception)`` so metrics never break inference.
 ``_probe`` likewise returns ``None`` on any exception. There are no
 custom exception classes; ``HealthError`` is an unrelated Pydantic
 health payload.
@@ -31,6 +31,7 @@ fomo.scheduling.scheduler.Scheduler
     Times ``Executor.predict`` and always calls ``record``.
 """
 
+import contextlib
 import importlib
 import sys
 import threading
@@ -81,11 +82,11 @@ def _probe(fn: Callable[[], float | None]) -> float | None:
 def _cpu_rss_mb() -> float | None:
     """Read this process's resident set size in mebibytes.
 
-    Prefers ``/proc/self/status`` ``VmRSS`` (kilobytes × 1024). If that
+    Prefers ``/proc/self/status`` ``VmRSS`` (kilobytes x 1024). If that
     path fails or has no ``VmRSS`` line, falls back to
     ``resource.getrusage(RUSAGE_SELF).ru_maxrss`` with a platform unit:
-    Darwin treats ``ru_maxrss`` as bytes (× 1), Linux as kilobytes
-    (× 1024). Any other platform returns ``None`` without calling
+    Darwin treats ``ru_maxrss`` as bytes (x 1), Linux as kilobytes
+    (x 1024). Any other platform returns ``None`` without calling
     ``resource``.
 
     Returns
@@ -94,14 +95,14 @@ def _cpu_rss_mb() -> float | None:
         RSS in MiB, or ``None`` if probing fails or the platform is
         neither Darwin nor Linux after the ``/proc`` path misses.
     """
-    try:
-        with open("/proc/self/status", encoding="utf-8") as status:
-            for line in status:
-                if line.startswith("VmRSS:"):
-                    cpu_bytes = int(line.split()[1]) * 1024
-                    return _mb(cpu_bytes)
-    except Exception:
-        pass
+    with (
+        contextlib.suppress(Exception),
+        open("/proc/self/status", encoding="utf-8") as status,
+    ):
+        for line in status:
+            if line.startswith("VmRSS:"):
+                cpu_bytes = int(line.split()[1]) * 1024
+                return _mb(cpu_bytes)
     if sys.platform == "darwin":
         rss_unit_bytes = 1
     elif sys.platform.startswith("linux"):
@@ -329,7 +330,7 @@ class Stats:
 
         Called from bootstrap after ``Executor.load`` and
         ``Executor.warmup``. Replaces any existing row for ``id``.
-        Failures are swallowed (``except Exception: pass``).
+        Failures are swallowed (``contextlib.suppress(Exception)``).
 
         Parameters
         ----------
@@ -342,11 +343,8 @@ class Stats:
         warmup_s : float or None
             Wall time of ``Executor.warmup``.
         """
-        try:
-            with self._lock:
-                self.models[id] = ModelStat(executor, load_s, warmup_s)
-        except Exception:
-            pass
+        with contextlib.suppress(Exception), self._lock:
+            self.models[id] = ModelStat(executor, load_s, warmup_s)
 
     def record(self, id: str, seconds: float, ok: bool) -> None:
         """Count one predict attempt and add its latency.
@@ -354,7 +352,7 @@ class Stats:
         Called from ``Scheduler.run``. Increments ``requests_total``,
         then ``requests_ok`` or ``requests_failed``, and ``execute.add``.
         Unknown ``id`` returns without changing state. Failures are
-        swallowed (``except Exception: pass``).
+        swallowed (``contextlib.suppress(Exception)``).
 
         Parameters
         ----------
@@ -366,19 +364,16 @@ class Stats:
             ``True`` if ``Executor.predict`` returned; ``False`` if it
             raised.
         """
-        try:
-            with self._lock:
-                row = self.models.get(id)
-                if row is None:
-                    return
-                row.requests_total += 1
-                if ok:
-                    row.requests_ok += 1
-                else:
-                    row.requests_failed += 1
-                row.execute.add(seconds)
-        except Exception:
-            pass
+        with contextlib.suppress(Exception), self._lock:
+            row = self.models.get(id)
+            if row is None:
+                return
+            row.requests_total += 1
+            if ok:
+                row.requests_ok += 1
+            else:
+                row.requests_failed += 1
+            row.execute.add(seconds)
 
     def snapshot(self) -> dict[str, Any]:
         """Return the dict ``GET /stats`` validates as ``StatsResult``.

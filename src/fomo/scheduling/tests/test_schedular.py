@@ -73,7 +73,7 @@ def test_run_wraps_executor_errors():
     stats = Stats()
     stats.register("naive", "sktime", 1.0, 0.5)
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         Scheduler({"naive": executor}, stats).run(_request())
 
     assert stats.snapshot()["models"]["naive"]["requests"] == {

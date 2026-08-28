@@ -63,11 +63,9 @@ def test_bootstrap_rejects_duplicate():
     with (
         patch("fomo.runtime.bootstrap.resolve_model", return_value=_info()),
         patch("fomo.runtime.bootstrap.create_executor", return_value=_executor()),
+        pytest.raises(ValueError, match="duplicate model id 'naive' in load_models"),
     ):
-        with pytest.raises(
-            ValueError, match="duplicate model id 'naive' in load_models"
-        ):
-            bootstrap(["naive", "naive"])
+        bootstrap(["naive", "naive"])
 
 
 def test_loaded_models():
