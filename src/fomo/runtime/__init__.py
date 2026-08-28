@@ -7,12 +7,11 @@ warmup; register stats. Forecast dispatch lives in ``fomo.scheduling``,
 not here.
 
 Executors only see ``CoercedForecastRequest`` /
-``CoercedForecastResponse``. Two conversion layers (spellings differ on
-purpose):
+``CoercedForecastResponse``. Two conversion layers:
 
-* Wire **converters** (``fomo.types.converters``): native frames ↔
+* Wire converters (``fomo.types.converters``): native frames ↔
   narwhals ↔ Arrow IPC ↔ FOMO envelope.
-* sktime **convertors** (``fomo.runtime.executors.sktime.convertors``):
+* sktime converters (``fomo.runtime.executors.sktime.converters``):
   coerced request ↔ ``(y, X, X_future, fh)`` and back.
 
 ``GET /models`` lists **loaded** models only. Registry ids (``naive``,

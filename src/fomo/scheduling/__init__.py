@@ -10,7 +10,7 @@ calls still get latency.
 Executors and the scheduler only see ``CoercedForecastRequest``. This
 package does not convert frames: wire conversion lives in
 ``fomo.types.converters``; sktime ``(y, X, fh)`` mapping lives in
-``fomo.runtime.executors.sktime.convertors``.
+``fomo.runtime.executors.sktime.converters``.
 
 See Also
 --------

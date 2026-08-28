@@ -14,7 +14,7 @@ Notes
 -----
 ``context``, ``freq``, and ``params`` are part of the forecast API for
 forward compatibility. Current executors do not use them. ``series_id``
-is column-validated on coerced frames; the sktime convertor
+is column-validated on coerced frames; the sktime converter
 ``from_request`` raises ``ValueError`` (panel not supported).
 
 See Also
@@ -82,7 +82,7 @@ class ForecastRequest(BaseModel):
         is an executor concern, not this schema.
     series_id : list of str, optional
         Panel key columns. Validated as columns on coerced frames;
-        the sktime convertor raises if this is set (panel not supported).
+        the sktime converter raises if this is set (panel not supported).
     known_future : list of str, optional
         Exogenous column names that must appear in history and future.
     freq : str, optional
@@ -272,7 +272,7 @@ class CoercedForecastRequest(BaseModel):
     --------
     ForecastRequest
         User-facing dual of this model.
-    fomo.runtime.executors.sktime.convertors.from_request
+    fomo.runtime.executors.sktime.converters.from_request
         Maps this model onto sktime ``y``, ``X``, ``fh`` (sktime only).
     """
 
@@ -342,7 +342,7 @@ class CoercedForecastResponse(BaseModel):
     ``to_dict(as_series=False)``. The bytes path encodes them as Arrow
     IPC inside a ``FOMO`` envelope.
 
-    ``request_id`` may be ``""`` from the sktime convertor; server
+    ``request_id`` may be ``""`` from the sktime converter; server
     routes overwrite it with a UUID on the bytes path, and the JSON path
     builds a new ``ForecastResponse`` with a fresh id.
 

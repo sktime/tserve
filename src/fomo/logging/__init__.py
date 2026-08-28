@@ -8,7 +8,7 @@ calls ``record``. ``GET /stats`` serializes ``snapshot()`` via
 
 Stats keys are **loaded model ids** (the same ids ``GET /models``
 lists), not executor plugin names. This package does not convert
-frames — it never sees wire converters or sktime convertors.
+frames — it never sees wire converters or sktime converters.
 
 See Also
 --------

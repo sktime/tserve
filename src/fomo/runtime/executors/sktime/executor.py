@@ -4,12 +4,12 @@ Registered as executor name ``sktime``. Registry ids such as ``naive``
 are catalog keys consumed by ``load``, not this plugin name.
 
 ``context`` is required on the request but unused here. ``freq`` is
-accepted; the convertor index uses ``freq="infer"``. ``params`` is
+accepted; the converter index uses ``freq="infer"``. ``params`` is
 accepted and not applied.
 
 See Also
 --------
-fomo.runtime.executors.sktime.convertors.from_request
+fomo.runtime.executors.sktime.converters.from_request
     Maps ``CoercedForecastRequest`` onto ``y``, ``X``, ``X_future``,
     ``fh``.
 fomo.types.models.CoercedForecastRequest
@@ -22,7 +22,7 @@ import pandas as pd
 
 from fomo.runtime.executors.base import Executor
 from fomo.runtime.executors.plugins import register
-from fomo.runtime.executors.sktime.convertors import from_request, to_response
+from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
 

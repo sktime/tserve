@@ -3,7 +3,7 @@
 Mounted on the FastAPI app by ``Server``. Forecast handlers use *wire*
 converters in ``fomo.types.converters`` (``coerce_request``,
 ``decode_request``, ``encode_response``, ``pack_envelope``), not the
-sktime *convertors* in ``fomo.runtime.executors.sktime.convertors``.
+sktime *converters* in ``fomo.runtime.executors.sktime.converters``.
 
 ``request.model`` is a loaded model id. ``request_id`` is assigned in
 these handlers: the JSON path puts a UUID on ``ForecastResponse``
@@ -135,7 +135,7 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     ``request.model`` is a loaded model id, not an executor name.
     ``context``, ``freq``, and ``params`` are accepted on
     ``ForecastRequest`` but unused by current executors; ``series_id``
-    is rejected by the sktime convertor.
+    is rejected by the sktime converter.
 
     Parameters
     ----------

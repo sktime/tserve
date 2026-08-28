@@ -1,8 +1,7 @@
 """Wire converters: native frames ↔ narwhals ↔ Arrow IPC ↔ FOMO envelope.
 
 This module is the *wire* layer. It does not map requests onto sktime
-``(y, X, fh)`` — that is ``fomo.runtime.executors.sktime.convertors``
-(note the spelling).
+``(y, X, fh)`` — that is ``fomo.runtime.executors.sktime.converters``.
 
 Typical paths:
 
@@ -23,8 +22,8 @@ See Also
 --------
 fomo.types.models.ForecastRequest
     Field semantics for the payload split into metadata vs frames.
-fomo.runtime.executors.sktime.convertors
-    Domain convertors used only inside the sktime executor.
+fomo.runtime.executors.sktime.converters
+    Domain converters used only inside the sktime executor.
 """
 
 import io

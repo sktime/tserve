@@ -1,8 +1,8 @@
-"""sktime **convertors**: coerced request ↔ ``(y, X, X_future, fh)``.
+"""sktime converters: coerced request ↔ ``(y, X, X_future, fh)``.
 
 This module is the domain layer used only inside ``SktimeExecutor``.
 It does not move frames across the wire — that is
-``fomo.types.converters`` (note the spelling): native frames ↔ narwhals
+``fomo.types.converters``: native frames ↔ narwhals
 ↔ Arrow IPC ↔ FOMO envelope.
 
 Executors only see ``CoercedForecastRequest`` /

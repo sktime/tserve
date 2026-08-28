@@ -2,7 +2,7 @@ import narwhals as nw
 import pandas as pd
 import pytest
 
-from fomo.runtime.executors.sktime.convertors import from_request, to_response
+from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
 
 

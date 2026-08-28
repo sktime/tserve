@@ -5,7 +5,7 @@ builds a ``ForecastRequest``, runs the *wire* converters in
 ``fomo.types.converters``, and sends metadata plus named frame blobs
 through a ``BaseTransport``. Mapping a coerced request onto sktime
 ``(y, X, fh)`` is a different layer:
-``fomo.runtime.executors.sktime.convertors``.
+``fomo.runtime.executors.sktime.converters``.
 
 See Also
 --------

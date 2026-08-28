@@ -20,8 +20,8 @@ custom exception classes; ``HealthError`` is an unrelated Pydantic
 health payload.
 
 This module does not convert frames. It does not call wire converters
-(``fomo.types.converters``) or sktime convertors
-(``fomo.runtime.executors.sktime.convertors``).
+(``fomo.types.converters``) or sktime converters
+(``fomo.runtime.executors.sktime.converters``).
 
 See Also
 --------
