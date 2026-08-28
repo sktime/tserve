@@ -29,7 +29,7 @@ def test_from_request():
     assert list(y.columns) == ["sales"]
     assert X is None
     assert X_future is None
-    assert list(fh) == [1]
+    assert list(fh.to_pandas()) == [1]
     assert quantiles is None
 
 

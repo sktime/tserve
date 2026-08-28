@@ -76,7 +76,9 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
             return nw.from_dicts(rows, backend="pyarrow")
         else:
             return nw.from_dict(df, backend="pyarrow")
-    return nw.from_native(df, eager_only=True)
+    # IntoFrame includes lazy frames; narwhals overloads don't match after
+    # the dict branch, but eager_only=True is the documented conversion.
+    return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:

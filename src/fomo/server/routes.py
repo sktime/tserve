@@ -265,8 +265,8 @@ async def forecast_bytes(
     request_id = str(uuid.uuid4())
 
     try:
-        metadata = json.loads(metadata)
-        request = decode_request(metadata, files)
+        parsed_metadata = json.loads(metadata)
+        request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
 
     except Exception as exc:
@@ -281,8 +281,8 @@ async def forecast_bytes(
 
     response.request_id = request_id
 
-    metadata, files = encode_response(response)
+    response_metadata, response_files = encode_response(response)
     return Response(
-        content=pack_envelope(metadata, files),
+        content=pack_envelope(response_metadata, response_files),
         media_type=_ENVELOPE_CONTENT_TYPE,
     )

@@ -16,6 +16,7 @@ fomo.scheduling.scheduler.Scheduler
 
 import logging
 import time
+from pathlib import Path
 from typing import Any
 
 from fomo.logging import Stats
@@ -72,7 +73,7 @@ class Runtime:
         return ModelsResult(models=list(self.models.values()))
 
 
-def bootstrap(load_models: list[str | tuple[str, Any]]) -> Runtime:
+def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     """Resolve, construct, load, warmup, and register each selected model.
 
     For every item: ``resolve_model`` → ``create_executor(info.executor)``

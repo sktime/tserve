@@ -101,7 +101,7 @@ class Server:
 
     def __init__(
         self,
-        load_models: list[str | tuple[str, Any]] | None = None,
+        load_models: list[str | Path | tuple[str, Any]] | None = None,
         models_dir: str | Path | None = None,
         *,
         host: str = "127.0.0.1",

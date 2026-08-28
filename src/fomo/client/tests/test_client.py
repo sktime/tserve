@@ -1,8 +1,10 @@
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
 
 from fomo.client.client import Client
+from fomo.client.transports.base import BaseTransport
 from fomo.types.converters import (
     coerce_request,
     coerce_response,
@@ -41,7 +43,8 @@ def _response(**kwargs):
     return ForecastResponse.model_validate(payload)
 
 
-client = Client("http://example", transport=MagicMock())
+_transport = MagicMock()
+client = Client("http://example", transport=cast(BaseTransport, _transport))
 
 
 @pytest.mark.parametrize(
@@ -66,12 +69,10 @@ client = Client("http://example", transport=MagicMock())
     ],
 )
 def test_forecast(history):
-    client._transport.reset_mock()
+    _transport.reset_mock()
     payload = _request(history=history)
     encoded = encode_request(coerce_request(ForecastRequest.model_validate(payload)))
-    client._transport.forecast.return_value = encode_response(
-        coerce_response(_response())
-    )
+    _transport.forecast.return_value = encode_response(coerce_response(_response()))
 
     result = client.forecast(**payload)
 
@@ -85,43 +86,43 @@ def test_forecast(history):
         assert "columns" not in result.predictions
     assert result.model == "naive"
     assert result.request_id == "req-1"
-    client._transport.forecast.assert_called_once_with(*encoded)
+    _transport.forecast.assert_called_once_with(*encoded)
 
 
 def test_health():
-    client._transport.reset_mock()
-    client._transport.health.return_value = HealthResult(status="ok")
+    _transport.reset_mock()
+    _transport.health.return_value = HealthResult(status="ok")
 
     assert client.health() == HealthResult(status="ok")
-    client._transport.health.assert_called_once_with()
+    _transport.health.assert_called_once_with()
 
 
 def test_models():
-    client._transport.reset_mock()
-    client._transport.models.return_value = ModelsResult(models=[])
+    _transport.reset_mock()
+    _transport.models.return_value = ModelsResult(models=[])
 
     assert client.models() == ModelsResult(models=[])
-    client._transport.models.assert_called_once_with()
+    _transport.models.assert_called_once_with()
 
 
 def test_stats():
-    client._transport.reset_mock()
+    _transport.reset_mock()
     expected = StatsResult.model_validate({"uptime_s": 1.0, "memory": {}, "models": {}})
-    client._transport.stats.return_value = expected
+    _transport.stats.return_value = expected
 
     assert client.stats() is expected
-    client._transport.stats.assert_called_once_with()
+    _transport.stats.assert_called_once_with()
 
 
 def test_close():
-    client._transport.reset_mock()
+    _transport.reset_mock()
     client.close()
-    client._transport.close.assert_called_once_with()
+    _transport.close.assert_called_once_with()
 
 
 def test_context_manager():
-    client._transport.reset_mock()
+    _transport.reset_mock()
     with client as _:
         pass
 
-    client._transport.close.assert_called_once_with()
+    _transport.close.assert_called_once_with()
