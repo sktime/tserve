@@ -81,6 +81,7 @@ dev = [
   "pytest",
   "pre-commit>=4",
   "ruff>=0.16.5",
+  "ty>=0.0.75",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -123,8 +124,20 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["fomo"]
 
-[tool.basedpyright]
-pythonVersion = "3.13"
-venvPath = "."
-venv = ".venv"
-extraPaths = ["src"]
+[tool.ty.environment]
+python-version = "3.12"
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src"]
+
+[tool.ty.analysis]
+# Optional extras are not installed in the code-quality env (`uv sync --group dev`).
+# http → httpx; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+allowed-unresolved-imports = [
+  "httpx.**",
+  "fastapi.**",
+  "uvicorn.**",
+  "pandas.**",
+  "sktime.**",
+]
