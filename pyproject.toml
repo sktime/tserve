@@ -77,13 +77,39 @@ fomo = "fomo.cli.main:main"
 # HomePage = ""
 
 [dependency-groups]
-dev = ["pytest"]
+dev = [
+  "pytest",
+  "pre-commit>=4",
+  "ruff>=0.16.5",
+]
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
 # (`uv pip install -e ".[server,sktime]"`) `from fomo.scheduling.scheduler import Scheduler`
 # works from anywhere
 packages = ["src/fomo"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "W",
+  "F",
+  "I",
+  "UP",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+# craft strings are data (HF model paths); wrapping them hurts grep
+"src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fomo"]
 
 [tool.basedpyright]
 pythonVersion = "3.13"
