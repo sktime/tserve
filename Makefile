@@ -1,5 +1,3 @@
-# Adapted from granite-tsfm / Hugging Face transformers:
-# https://github.com/huggingface/transformers/tree/main
 .PHONY: quality style
 
 check_dirs := src tests
