@@ -13,10 +13,11 @@ fomo.types.models.ModelInfo
     Listing row (``id``, ``executor``, ``source``).
 """
 
-from fomo.types import ModelInfo
-from fomo.runtime.registry import SKTIME_REGISTRY
-from typing import Any
 from pathlib import Path
+from typing import Any
+
+from fomo.runtime.registry.sktime_registry import SKTIME_REGISTRY
+from fomo.types import ModelInfo
 
 
 def _resolve_from_registry(item: str) -> ModelInfo:
@@ -42,7 +43,8 @@ def _resolve_from_registry(item: str) -> ModelInfo:
         return ModelInfo(id=item, executor="sktime", source="registry")
 
     raise ValueError(
-        f"unknown model {item!r}; known registry ids: {', '.join(SKTIME_REGISTRY.keys())}"
+        f"unknown model {item!r}; "
+        f"known registry ids: {', '.join(SKTIME_REGISTRY.keys())}"
     )
 
 

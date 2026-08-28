@@ -2,7 +2,7 @@ import narwhals as nw
 import pandas as pd
 import pytest
 
-from fomo.runtime.executors.sktime.convertors import from_request, to_response
+from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
 
 
@@ -29,7 +29,7 @@ def test_from_request():
     assert list(y.columns) == ["sales"]
     assert X is None
     assert X_future is None
-    assert list(fh) == [1]
+    assert list(fh.to_pandas()) == [1]
     assert quantiles is None
 
 

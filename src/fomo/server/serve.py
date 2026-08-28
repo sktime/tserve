@@ -101,7 +101,7 @@ class Server:
 
     def __init__(
         self,
-        load_models: list[str | tuple[str, Any]] = [],
+        load_models: list[str | Path | tuple[str, Any]] | None = None,
         models_dir: str | Path | None = None,
         *,
         host: str = "127.0.0.1",
@@ -112,7 +112,7 @@ class Server:
 
         See the class docstring for parameters and attributes.
         """
-        self.load_models = load_models
+        self.load_models = list(load_models) if load_models is not None else []
         self.models_dir = Path(models_dir) if models_dir is not None else None
         self.host = host
         self.port = port

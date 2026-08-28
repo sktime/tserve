@@ -77,7 +77,13 @@ fomo = "fomo.cli.main:main"
 # HomePage = ""
 
 [dependency-groups]
-dev = ["pytest"]
+dev = [
+  "pytest",
+  "pre-commit>=4",
+  "ruff>=0.16.5",
+  "ty>=0.0.75",
+  "codespell>=2.4.3",
+]
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
@@ -85,8 +91,67 @@ dev = ["pytest"]
 # works from anywhere
 packages = ["src/fomo"]
 
-[tool.basedpyright]
-pythonVersion = "3.13"
-venvPath = "."
-venv = ".venv"
-extraPaths = ["src"]
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "W",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "C4",
+  "SIM",
+  "FURB",
+  "S",
+  "PT",
+  "RUF",
+  "D",
+]
+ignore = [
+  "S101",  # assert is fine in tests and contracts
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+# craft strings are data (HF model paths); wrapping them hurts grep
+"src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
+# D is phased: public API first (client, types, cli). sktime ignores D in tests.
+"**/tests/**" = ["S", "D"]
+"tests/**" = ["S", "D"]
+"src/fomo/runtime/**" = ["D"]
+"src/fomo/server/**" = ["D"]
+"src/fomo/scheduling/**" = ["D"]
+"src/fomo/logging/**" = ["D"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fomo"]
+
+[tool.ty.environment]
+python-version = "3.12"
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src"]
+
+[tool.ty.analysis]
+# Optional extras are not installed in the code-quality env (`uv sync --group dev`).
+# http → httpx; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+allowed-unresolved-imports = [
+  "httpx.**",
+  "fastapi.**",
+  "uvicorn.**",
+  "pandas.**",
+  "sktime.**",
+]
+
+[tool.codespell]
+# skip caches, venvs, lockfiles, and local untracked dirs
+skip = ".git,.venv,.ruff_cache,.ty_cache,.pytest_cache,.mypy_cache,uv.lock,__pycache__,*.pyc,my-models,notes,scripts"

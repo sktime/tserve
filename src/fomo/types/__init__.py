@@ -11,7 +11,7 @@ This package is the shared vocabulary for that contract. Frame checking
 lives in ``fomo.types._checks``; native ↔ narwhals ↔ Arrow IPC ↔ ``FOMO``
 envelope conversion lives in ``fomo.types.converters`` (the *wire*
 converters). Mapping a coerced request onto sktime ``(y, X, fh)`` is a
-different layer: ``fomo.runtime.executors.sktime.convertors``.
+different layer: ``fomo.runtime.executors.sktime.converters``.
 
 See Also
 --------

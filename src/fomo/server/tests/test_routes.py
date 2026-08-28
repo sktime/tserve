@@ -116,11 +116,19 @@ def test_forecast_bytes():
     result = _client(runtime).post(
         "/forecast/bytes",
         data={"metadata": json.dumps(metadata)},
-        files={"history": ("history", files["history"], "application/vnd.apache.arrow.stream")},
+        files={
+            "history": (
+                "history",
+                files["history"],
+                "application/vnd.apache.arrow.stream",
+            )
+        },
     )
 
     assert result.status_code == 200
-    assert result.headers["content-type"].startswith("application/vnd.fomo.forecast+arrow")
+    assert result.headers["content-type"].startswith(
+        "application/vnd.fomo.forecast+arrow"
+    )
     decoded = decode_response(*unpack_envelope(result.content))
     assert decoded.model == "naive"
     runtime.scheduler.run.assert_called_once()
@@ -129,8 +137,13 @@ def test_forecast_bytes():
 @pytest.mark.parametrize(
     "exc",
     [
-        pytest.param(ValueError("history is missing columns: ['date']"), id="value_error"),
-        pytest.param(RuntimeError("model 'chronos-2' is not loaded on this server"), id="runtime_error"),
+        pytest.param(
+            ValueError("history is missing columns: ['date']"), id="value_error"
+        ),
+        pytest.param(
+            RuntimeError("model 'chronos-2' is not loaded on this server"),
+            id="runtime_error",
+        ),
         pytest.param(TypeError("boom"), id="type_error"),
     ],
 )

@@ -1,8 +1,7 @@
 """Wire converters: native frames ↔ narwhals ↔ Arrow IPC ↔ FOMO envelope.
 
 This module is the *wire* layer. It does not map requests onto sktime
-``(y, X, fh)`` — that is ``fomo.runtime.executors.sktime.convertors``
-(note the spelling).
+``(y, X, fh)`` — that is ``fomo.runtime.executors.sktime.converters``.
 
 Typical paths:
 
@@ -23,8 +22,8 @@ See Also
 --------
 fomo.types.models.ForecastRequest
     Field semantics for the payload split into metadata vs frames.
-fomo.runtime.executors.sktime.convertors
-    Domain convertors used only inside the sktime executor.
+fomo.runtime.executors.sktime.converters
+    Domain converters used only inside the sktime executor.
 """
 
 import io
@@ -72,14 +71,13 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
         return df
     if isinstance(df, dict):
         if set(df.keys()) == {"data", "columns"}:
-            rows = [
-                dict(zip(df["columns"], row, strict=True))
-                for row in df["data"]
-            ]
+            rows = [dict(zip(df["columns"], row, strict=True)) for row in df["data"]]
             return nw.from_dicts(rows, backend="pyarrow")
         else:
             return nw.from_dict(df, backend="pyarrow")
-    return nw.from_native(df, eager_only=True)
+    # IntoFrame includes lazy frames; narwhals overloads don't match after
+    # the dict branch, but eager_only=True is the documented conversion.
+    return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
@@ -186,8 +184,12 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     """
     payload = request.model_dump(exclude={"history", "future", "static"})
     payload["history"] = _to_narwhals(request.history)
-    payload["future"] = _to_narwhals(request.future) if request.future is not None else None
-    payload["static"] = _to_narwhals(request.static) if request.static is not None else None
+    payload["future"] = (
+        _to_narwhals(request.future) if request.future is not None else None
+    )
+    payload["static"] = (
+        _to_narwhals(request.static) if request.static is not None else None
+    )
 
     return CoercedForecastRequest.model_validate(payload)
 
@@ -219,7 +221,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
         Inverse used by ``POST /forecast/bytes``.
     """
     bytes_encoded = {}
-    for frame in ['history', 'future', 'static']:
+    for frame in ["history", "future", "static"]:
         value = getattr(request, frame)
         if value is not None:
             bytes_encoded[frame] = _to_bytes(value)
@@ -229,7 +231,9 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
     return metadata, bytes_encoded
 
 
-def decode_request(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedForecastRequest:
+def decode_request(
+    metadata: dict, bytes_encoded: dict[str, bytes]
+) -> CoercedForecastRequest:
     """Rebuild a coerced request from metadata plus Arrow IPC files.
 
     Parameters
@@ -261,9 +265,12 @@ def decode_request(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedFo
         Inverse used by ``Client.forecast``.
     """
     payload = dict(metadata)
-    for frame in ['history', 'future', 'static']:
+    for frame in ["history", "future", "static"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(), backend="pyarrow")
+            payload[frame] = nw.from_arrow(
+                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
+                backend="pyarrow",
+            )
     return CoercedForecastRequest.model_validate(payload)
 
 
@@ -319,7 +326,7 @@ def encode_response(response: CoercedForecastResponse) -> tuple[dict, dict[str, 
         Wraps this pair in the ``FOMO`` binary envelope.
     """
     bytes_encoded = {}
-    for frame in ['predictions', 'quantiles']:
+    for frame in ["predictions", "quantiles"]:
         value = getattr(response, frame)
         if value is not None:
             bytes_encoded[frame] = _to_bytes(value)
@@ -329,7 +336,9 @@ def encode_response(response: CoercedForecastResponse) -> tuple[dict, dict[str, 
     return metadata, bytes_encoded
 
 
-def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedForecastResponse:
+def decode_response(
+    metadata: dict, bytes_encoded: dict[str, bytes]
+) -> CoercedForecastResponse:
     """Rebuild a coerced response from metadata plus Arrow IPC files.
 
     Parameters
@@ -354,9 +363,12 @@ def decode_response(metadata: dict, bytes_encoded: dict[str, bytes]) -> CoercedF
         If an IPC blob is not a readable Arrow stream.
     """
     payload = dict(metadata)
-    for frame in ['predictions', 'quantiles']:
+    for frame in ["predictions", "quantiles"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(), backend="pyarrow")
+            payload[frame] = nw.from_arrow(
+                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
+                backend="pyarrow",
+            )
     return CoercedForecastResponse.model_validate(payload)
 
 

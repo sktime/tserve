@@ -27,7 +27,9 @@ from narwhals.dependencies import (
     is_pyarrow_table,
 )
 
-_TABLE_SHAPE = "{'columns': [...], 'data': [[...], ...]} or a dict of column name -> list"
+_TABLE_SHAPE = (
+    "{'columns': [...], 'data': [[...], ...]} or a dict of column name -> list"
+)
 
 
 def _check_frame(value: Any, *, name: str) -> None:
@@ -112,9 +114,7 @@ def _check_frame_dict(value: dict[Any, Any], *, name: str) -> None:
         if not isinstance(values, list)
     }
     if not_lists:
-        raise ValueError(
-            f"{name} column values must be lists, got {not_lists}"
-        )
+        raise ValueError(f"{name} column values must be lists, got {not_lists}")
 
     lengths = {key: len(values) for key, values in value.items()}
     if len(set(lengths.values())) > 1:
@@ -142,7 +142,9 @@ def _check_columns_data(value: dict[Any, Any], *, name: str) -> None:
     """
     columns, data = value["columns"], value["data"]
 
-    if not isinstance(columns, list) or not all(isinstance(col, str) for col in columns):
+    if not isinstance(columns, list) or not all(
+        isinstance(col, str) for col in columns
+    ):
         raise ValueError(
             f"{name}['columns'] must be a list of strings, got {type(columns).__name__}"
         )

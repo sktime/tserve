@@ -29,7 +29,7 @@ class Scheduler:
     latency. The return value is the ``CoercedForecastResponse`` from
     ``executor.predict``. Executors only see coerced requests; this
     class does not convert frames (wire converters vs sktime
-    convertors live elsewhere).
+    converters live elsewhere).
 
     There are no custom exception classes. ``HealthError`` is an
     unrelated Pydantic health payload.

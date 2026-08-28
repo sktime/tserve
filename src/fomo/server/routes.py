@@ -3,7 +3,7 @@
 Mounted on the FastAPI app by ``Server``. Forecast handlers use *wire*
 converters in ``fomo.types.converters`` (``coerce_request``,
 ``decode_request``, ``encode_response``, ``pack_envelope``), not the
-sktime *convertors* in ``fomo.runtime.executors.sktime.convertors``.
+sktime *converters* in ``fomo.runtime.executors.sktime.converters``.
 
 ``request.model`` is a loaded model id. ``request_id`` is assigned in
 these handlers: the JSON path puts a UUID on ``ForecastResponse``
@@ -15,6 +15,7 @@ forecast failures become ``HTTPException`` 400.
 
 import json
 import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
@@ -134,7 +135,7 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     ``request.model`` is a loaded model id, not an executor name.
     ``context``, ``freq``, and ``params`` are accepted on
     ``ForecastRequest`` but unused by current executors; ``series_id``
-    is rejected by the sktime convertor.
+    is rejected by the sktime converter.
 
     Parameters
     ----------
@@ -173,7 +174,11 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     except Exception as exc:
         raise HTTPException(
             status_code=400,
-            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
     return ForecastResponse(
@@ -191,10 +196,10 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
 @router.post("/forecast/bytes")
 async def forecast_bytes(
     http_request: Request,
-    metadata: str = Form(),
-    history: UploadFile = File(),
-    future: UploadFile | None = File(None),
-    static: UploadFile | None = File(None),
+    metadata: Annotated[str, Form()],
+    history: Annotated[UploadFile, File()],
+    future: Annotated[UploadFile | None, File()] = None,
+    static: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
     """Run a multipart ``POST /forecast/bytes``.
 
@@ -260,20 +265,24 @@ async def forecast_bytes(
     request_id = str(uuid.uuid4())
 
     try:
-        metadata = json.loads(metadata)
-        request = decode_request(metadata, files)
+        parsed_metadata = json.loads(metadata)
+        request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
 
     except Exception as exc:
         raise HTTPException(
             status_code=400,
-            detail={"error": str(exc), "code": "request_failed", "request_id": request_id},
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
     response.request_id = request_id
 
-    metadata, files = encode_response(response)
+    response_metadata, response_files = encode_response(response)
     return Response(
-        content=pack_envelope(metadata, files),
+        content=pack_envelope(response_metadata, response_files),
         media_type=_ENVELOPE_CONTENT_TYPE,
     )

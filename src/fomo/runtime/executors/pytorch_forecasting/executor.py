@@ -69,5 +69,6 @@ class PytorchForecastingExecutor(Executor):
             Always. Message includes ``request.model``.
         """
         raise NotImplementedError(
-            f"pytorch-forecasting executor is not implemented yet (model {request.model!r})"
+            "pytorch-forecasting executor is not implemented yet "
+            f"(model {request.model!r})"
         )

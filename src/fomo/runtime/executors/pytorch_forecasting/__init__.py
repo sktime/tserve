@@ -9,6 +9,8 @@ fomo.runtime.executors.pytorch_forecasting.executor.PytorchForecastingExecutor
     Stub implementation.
 """
 
-from fomo.runtime.executors.pytorch_forecasting.executor import PytorchForecastingExecutor
+from fomo.runtime.executors.pytorch_forecasting.executor import (
+    PytorchForecastingExecutor,
+)
 
 __all__ = ["PytorchForecastingExecutor"]
