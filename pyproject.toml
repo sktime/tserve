@@ -155,5 +155,3 @@ allowed-unresolved-imports = [
 [tool.codespell]
 # skip caches, venvs, lockfiles, and local untracked dirs
 skip = ".git,.venv,.ruff_cache,.ty_cache,.pytest_cache,.mypy_cache,uv.lock,__pycache__,*.pyc,my-models,notes,scripts"
-# convertor(s) is the sktime-layer spelling, distinct from wire converters
-ignore-words-list = "convertor,convertors"
