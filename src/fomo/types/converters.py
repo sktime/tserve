@@ -151,8 +151,14 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     """Turn a user-facing request into the narwhals form executors consume.
 
     Copies scalar metadata with ``model_dump``, converts ``past`` /
-    ``future`` / ``static`` via ``_to_narwhals``, then validates
-    ``CoercedForecastRequest`` (column contracts).
+    ``future`` / ``static`` via ``_to_narwhals``, then fills omitted
+    ``time`` / ``target`` and validates ``CoercedForecastRequest``
+    (column contracts).
+
+    When ``time`` is omitted, the first column of ``past`` is used.
+    When ``target`` is a string, it becomes a one-element list. When
+    ``target`` is omitted, every ``past`` column other than ``time``
+    and the column names of ``future`` (if present) is inferred.
 
     Parameters
     ----------
@@ -168,9 +174,11 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     ------
     ValidationError
         If coerced frames fail column checks (missing time/target
-        columns) or dumped fields cannot construct
-        ``CoercedForecastRequest``. Inner validators raise
-        ``ValueError``, which Pydantic wraps.
+        columns), inferred ``target`` is empty, or dumped fields
+        cannot construct ``CoercedForecastRequest``. Inner validators
+        raise ``ValueError``, which Pydantic wraps.
+    ValueError
+        If ``time`` is omitted and ``past`` has no columns.
     Exception
         If a frame cannot be converted to narwhals.
 
@@ -182,13 +190,29 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
         Next step on the bytes path.
     """
     payload = request.model_dump(exclude={"past", "future", "static"})
-    payload["past"] = _to_narwhals(request.past)
-    payload["future"] = (
-        _to_narwhals(request.future) if request.future is not None else None
-    )
+    past = _to_narwhals(request.past)
+    future = _to_narwhals(request.future) if request.future is not None else None
+    payload["past"] = past
+    payload["future"] = future
     payload["static"] = (
         _to_narwhals(request.static) if request.static is not None else None
     )
+
+    if payload["time"] is None:
+        if not past.columns:
+            raise ValueError("time is omitted but past has no columns")
+        payload["time"] = past.columns[0]
+
+    target = payload["target"]
+    if target is None:
+        future_cols = set(future.columns) if future is not None else set()
+        payload["target"] = [
+            col
+            for col in past.columns
+            if col != payload["time"] and col not in future_cols
+        ]
+    elif isinstance(target, str):
+        payload["target"] = [target]
 
     return CoercedForecastRequest.model_validate(payload)
 

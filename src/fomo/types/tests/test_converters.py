@@ -75,6 +75,54 @@ def test_coerce_request(past):
     assert request.past is original_past
 
 
+def test_coerce_request_omitted_time_uses_first_past_column():
+    request = _request(time=None)
+
+    coerced = coerce_request(request)
+
+    assert request.time is None
+    assert coerced.time == "timestamp"
+
+
+def test_coerce_request_target_str_becomes_one_element_list():
+    request = _request(target="sales")
+
+    coerced = coerce_request(request)
+
+    assert request.target == "sales"
+    assert coerced.target == ["sales"]
+
+
+def test_coerce_request_omitted_target_infers_non_time_non_future_columns():
+    request = _request(
+        past={
+            "timestamp": ["2024-01-01"],
+            "sales": [120],
+            "price": [9.99],
+        },
+        time=None,
+        target=None,
+        future={"timestamp": ["2024-01-02"], "price": [8.99]},
+    )
+
+    coerced = coerce_request(request)
+
+    assert request.target is None
+    assert coerced.time == "timestamp"
+    assert coerced.target == ["sales"]
+
+
+def test_coerce_request_omitted_target_without_future_excludes_only_time():
+    request = _request(
+        past={"timestamp": ["2024-01-01"], "sales": [120], "promo": [0]},
+        target=None,
+    )
+
+    coerced = coerce_request(request)
+
+    assert coerced.target == ["sales", "promo"]
+
+
 def test_encode_request():
     metadata, files = encode_request(coerce_request(_request()))
 

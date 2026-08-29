@@ -47,8 +47,9 @@ class ForecastRequest(BaseModel):
     Frames may be pandas-like, polars, a pyarrow Table, a narwhals
     DataFrame, a column dict (name → list), or a row matrix
     ``{"columns": [...], "data": [[...], ...]}``. Construction only
-    checks table *shape* via ``_check_frame``. Column names are
-    enforced after coercion on ``CoercedForecastRequest``.
+    checks table *shape* via ``_check_frame``. ``time`` and ``target``
+    may be omitted or loosely typed; ``coerce_request`` resolves them.
+    Column names are enforced after coercion on ``CoercedForecastRequest``.
 
     ``model`` is a **loaded model id** (registry id, zip stem, or the
     id passed with an in-process forecaster), not an executor name
@@ -60,11 +61,15 @@ class ForecastRequest(BaseModel):
         Past observations. Construction only checks table shape.
         After coercion the frame must include ``time`` and every
         ``target``.
-    time : str
+    time : str or None, optional
         Name of the time-index column in ``past`` / ``future`` /
-        predictions.
-    target : list of str
-        One or more target column names (``min_length=1``).
+        predictions. When omitted, ``coerce_request`` uses the first
+        column of ``past``.
+    target : str or list of str or None, optional
+        Target column names. A string is wrapped as a one-element
+        list at coerce time. When omitted, ``coerce_request`` infers
+        every ``past`` column other than ``time`` and the columns of
+        ``future``.
     fh : int
         Number of forecast steps ahead (must be ``> 0``).
     model : str, default ``"naive"``
@@ -83,9 +88,10 @@ class ForecastRequest(BaseModel):
     ValidationError
         If ``past``, ``future``, or ``static`` is not a supported
         table shape (or ``None`` for the optional frames); if
-        ``target`` has fewer than one name; if ``fh <= 0``; or if
-        other field types fail. Inner validators raise ``ValueError``,
-        which Pydantic wraps.
+        ``fh <= 0``; or if other field types fail. Inner validators
+        raise ``ValueError``, which Pydantic wraps. Empty ``target``
+        lists and missing inferred targets fail on
+        ``CoercedForecastRequest``, not here.
 
     See Also
     --------
@@ -98,8 +104,8 @@ class ForecastRequest(BaseModel):
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
     past: Any
-    time: str
-    target: list[str] = Field(min_length=1)
+    time: str | None = None
+    target: str | list[str] | None = None
     fh: int = Field(gt=0)
     model: str = "naive"
     future: Any = None
@@ -209,9 +215,9 @@ class CoercedForecastRequest(BaseModel):
     past : narwhals.DataFrame
         Past observations as a narwhals frame.
     time : str
-        Time-index column name.
+        Time-index column name. Always resolved (never ``None``).
     target : list of str
-        Target column names (``min_length=1``).
+        Target column names (``min_length=1``). Always a list.
     fh : int
         Forecast steps (``> 0``).
     model : str, default ``"naive"``

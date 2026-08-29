@@ -91,6 +91,13 @@ def test_example_validates_against_model(example, model):
     assert isinstance(parsed, model)
 
 
+def test_forecast_request_keeps_optional_time_and_target_unconverted():
+    request = _request(time=None, target="sales")
+
+    assert request.time is None
+    assert request.target == "sales"
+
+
 @pytest.mark.parametrize(
     ("kwargs", "match"),
     [
@@ -123,11 +130,6 @@ def test_example_validates_against_model(example, model):
             {"fh": -1},
             "Input should be greater than 0",
             id="fh_negative",
-        ),
-        pytest.param(
-            {"target": []},
-            "List should have at least 1 item",
-            id="target_empty",
         ),
         pytest.param(
             {
@@ -200,6 +202,11 @@ def test_forecast_response_rejects(kwargs, match):
             {"future": _df(price=[8.99])},
             r"future is missing columns: \['timestamp'\]",
             id="future_missing_time_column",
+        ),
+        pytest.param(
+            {"target": []},
+            "List should have at least 1 item",
+            id="target_empty",
         ),
     ],
 )

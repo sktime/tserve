@@ -82,9 +82,9 @@ class Client:
         self,
         *,
         past: Any,
-        time: str,
-        target: list[str],
         fh: int,
+        time: str | None = None,
+        target: str | list[str] | None = None,
         model: str = "naive",
         future: Any = None,
         static: Any = None,
@@ -103,10 +103,13 @@ class Client:
         past : any
             Past observations. Native type is the template for returned
             frames. See ``ForecastRequest`` for accepted shapes.
-        time : str
-            Time-index column name.
-        target : list of str
-            Target column names.
+        time : str, optional
+            Time-index column name. When omitted, ``coerce_request``
+            uses the first column of ``past``.
+        target : str or list of str, optional
+            Target column names. A string is wrapped as a one-element
+            list. When omitted, ``coerce_request`` infers columns of
+            ``past`` other than ``time`` and ``future``.
         fh : int
             Forecast steps ahead.
         model : str, default ``"naive"``
