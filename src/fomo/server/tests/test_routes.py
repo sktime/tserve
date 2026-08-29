@@ -23,7 +23,6 @@ def _request(**kwargs):
         "time": "timestamp",
         "target": ["sales"],
         "horizon": 1,
-        "context": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -46,7 +45,6 @@ def _payload(**kwargs):
         "time": "timestamp",
         "target": ["sales"],
         "horizon": 1,
-        "context": 1,
         "model": "naive",
     }
     payload.update(kwargs)

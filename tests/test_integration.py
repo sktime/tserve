@@ -80,12 +80,8 @@ def test_forecast():
         time="timestamp",
         target=["sales"],
         horizon=3,
-        context=5,
         model="naive",
-        known_future=["price"],
-        freq="D",
         quantiles=[0.1, 0.5, 0.9],
-        params={},
     )
 
     assert result.model == "naive"
@@ -102,19 +98,5 @@ def test_forecast_unknown_model():
             time="timestamp",
             target=["sales"],
             horizon=3,
-            context=5,
             model="chronos-2",
-        )
-
-
-def test_forecast_panel():
-    with pytest.raises(RuntimeError, match="panel data"):
-        client.forecast(
-            history={**HISTORY, "store": ["A"] * 5},
-            time="timestamp",
-            target=["sales"],
-            horizon=3,
-            context=5,
-            model="naive",
-            series_id=["store"],
         )

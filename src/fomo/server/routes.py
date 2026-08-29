@@ -133,9 +133,6 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     by FastAPI as 422 before this handler runs.
 
     ``request.model`` is a loaded model id, not an executor name.
-    ``context``, ``freq``, and ``params`` are accepted on
-    ``ForecastRequest`` but unused by current executors; ``series_id``
-    is rejected by the sktime converter.
 
     Parameters
     ----------

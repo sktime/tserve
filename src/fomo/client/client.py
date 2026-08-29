@@ -85,15 +85,10 @@ class Client:
         time: str,
         target: list[str],
         horizon: int,
-        context: int,
         model: str = "naive",
         future: Any = None,
         static: Any = None,
-        series_id: list[str] | None = None,
-        known_future: list[str] | None = None,
-        freq: str | None = None,
         quantiles: list[float] | None = None,
-        params: dict[str, Any] | None = None,
     ) -> ForecastResponse:
         """Send a forecast through the transport and restore native frames.
 
@@ -114,25 +109,14 @@ class Client:
             Target column names.
         horizon : int
             Forecast steps ahead.
-        context : int
-            Required look-back length. Unused by current executors.
         model : str, default ``"naive"``
             Loaded model id, not an executor name.
         future : any, optional
             Future rows for known covariates.
         static : any, optional
             Per-series static features.
-        series_id : list of str, optional
-            Panel key columns. Not supported yet; the runtime rejects
-            them and the transport raises ``RuntimeError``.
-        known_future : list of str, optional
-            Exogenous column names present in history and future.
-        freq : str, optional
-            Unused by current executors.
         quantiles : list of float, optional
             Quantile alphas when the executor supports them.
-        params : dict, optional
-            Unused by current executors.
 
         Returns
         -------
@@ -147,9 +131,9 @@ class Client:
             fails (shape, columns, field constraints). Inner
             validators raise ``ValueError``, which Pydantic wraps.
         RuntimeError
-            If the transport reports a failed forecast, including panel
-            rejection on the runtime. There is no custom FoMo exception
-            class; ``HealthError`` is a Pydantic model, not raised here.
+            If the transport reports a failed forecast. There is no
+            custom FoMo exception class; ``HealthError`` is a Pydantic
+            model, not raised here.
         Exception
             Other transport failures (connection, encoding, decode of
             the returned blobs). See ``HttpTransport`` for the HTTP
@@ -159,8 +143,7 @@ class Client:
         --------
         fomo.types.models.ForecastRequest
             Full field semantics for history/time/target/horizon/
-            context/model/future/static/series_id/known_future/freq/
-            quantiles/params.
+            model/future/static/quantiles.
         fomo.types.converters.coerce_request
             Wire conversion to ``CoercedForecastRequest``.
         fomo.types.converters.encode_request
@@ -177,15 +160,10 @@ class Client:
             time=time,
             target=target,
             horizon=horizon,
-            context=context,
             model=model,
             future=future,
             static=static,
-            series_id=series_id,
-            known_future=known_future,
-            freq=freq,
             quantiles=quantiles,
-            params=params,
         )
         coerced = coerce_request(request)
 

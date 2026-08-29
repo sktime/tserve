@@ -22,9 +22,7 @@ class Executor(ABC):
     """Load, warmup, and forecast for one loaded model.
 
     Bootstrap calls ``load`` then ``warmup`` once per selected model.
-    The scheduler calls ``predict`` per request. ``params``, ``context``,
-    and ``freq`` are request fields; whether an implementation uses them
-    is executor-specific (the sktime executor does not).
+    The scheduler calls ``predict`` per request.
     """
 
     @abstractmethod

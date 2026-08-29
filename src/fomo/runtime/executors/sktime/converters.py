@@ -10,12 +10,8 @@ Executors only see ``CoercedForecastRequest`` /
 
 Notes
 -----
-``context`` is unused. ``freq`` is accepted; indexes use
-``freq="infer"``. ``params`` is not applied. ``series_id`` is
-column-validated on ``CoercedForecastRequest``; ``from_request`` still
-raises ``ValueError`` (panel not supported). ``to_response`` sets
-``request_id=""``; server routes assign the real id (bytes path
-overwrites after predict).
+Indexes use ``freq="infer"``. ``to_response`` sets ``request_id=""``;
+server routes assign the real id (bytes path overwrites after predict).
 
 See Also
 --------
@@ -47,9 +43,9 @@ def from_request(
 
     Builds a relative ``ForecastingHorizon`` ``1 .. horizon``. Static
     features become constant columns via ``_static`` (first row of the
-    static table). If there is no ``known_future`` and no static, both
-    ``X`` and ``X_future`` are ``None``. If ``future`` is ``None`` while
-    exogenous columns are still needed, the future index is
+    static table). If there is no static, both ``X`` and ``X_future``
+    are ``None``. If ``future`` is ``None`` while static columns are
+    still needed, the future index is
     ``fh.to_absolute(history.index[-1:]).to_pandas()``.
 
     Parameters
@@ -63,8 +59,7 @@ def from_request(
     y : pandas.DataFrame
         Target columns from history, time column as ``DatetimeIndex``.
     X : pandas.DataFrame or None
-        History exogenous (``known_future`` columns plus broadcast
-        static), or ``None``.
+        History exogenous (broadcast static), or ``None``.
     X_future : pandas.DataFrame or None
         Future exogenous with the same columns as ``X``, or ``None``.
     fh : sktime.forecasting.base.ForecastingHorizon
@@ -72,30 +67,17 @@ def from_request(
     quantiles : list of float or None
         ``request.quantiles``, forwarded unchanged.
 
-    Raises
-    ------
-    ValueError
-        If ``request.series_id`` is set (panel data is not supported).
-
     See Also
     --------
     fomo.types.models.CoercedForecastRequest
-        Column contracts and unused API fields (``context``, ``freq``,
-        ``params``).
+        Column contracts for the coerced payload.
     """
-    if request.series_id:
-        raise ValueError(
-            "panel data is not supported yet; "
-            "omit series_id to forecast a single series"
-        )
-
     history = _indexed(request.history, request)
     y: pd.DataFrame = history.loc[:, request.target]
     fh = ForecastingHorizon(range(1, request.horizon + 1), is_relative=True)
 
-    known = request.known_future or []
     static = _static(request)
-    if not known and not static:
+    if not static:
         return y, None, None, fh, request.quantiles
 
     if request.future is not None:
@@ -103,8 +85,8 @@ def from_request(
     else:
         future = pd.DataFrame(index=fh.to_absolute(history.index[-1:]).to_pandas())
 
-    x: pd.DataFrame = history.loc[:, known].assign(**static)
-    x_future: pd.DataFrame = future.loc[:, known].assign(**static)
+    x = pd.DataFrame(static, index=history.index)
+    x_future = pd.DataFrame(static, index=future.index)
     return y, x, x_future, fh, request.quantiles
 
 
@@ -159,7 +141,7 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.Da
     """Sort by time and set a ``DatetimeIndex`` with ``freq="infer"``.
 
     Drops the time column from the frame body and names the index
-    ``request.time``. ``request.freq`` is not applied.
+    ``request.time``.
 
     Parameters
     ----------

@@ -1,6 +1,5 @@
 import narwhals as nw
 import pandas as pd
-import pytest
 
 from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
@@ -16,7 +15,6 @@ def _request(**kwargs):
         "time": "timestamp",
         "target": ["sales"],
         "horizon": 1,
-        "context": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -31,16 +29,6 @@ def test_from_request():
     assert X_future is None
     assert list(fh.to_pandas()) == [1]
     assert quantiles is None
-
-
-def test_from_request_rejects_panel():
-    request = _request(
-        series_id=["store"],
-        history=_df(store=["A"], timestamp=["2024-01-01"], sales=[120]),
-    )
-
-    with pytest.raises(ValueError, match="panel data"):
-        from_request(request)
 
 
 def test_to_response():

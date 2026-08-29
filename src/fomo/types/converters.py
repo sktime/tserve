@@ -167,9 +167,8 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     Raises
     ------
     ValidationError
-        If coerced frames fail column checks (missing time/target/
-        known-future columns, or ``future`` omitted when
-        ``known_future`` is set) or dumped fields cannot construct
+        If coerced frames fail column checks (missing time/target
+        columns) or dumped fields cannot construct
         ``CoercedForecastRequest``. Inner validators raise
         ``ValueError``, which Pydantic wraps.
     Exception
@@ -199,7 +198,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
 
     Frame fields ``history``, ``future``, and ``static`` become named
     byte blobs when not ``None``. Remaining fields (``time``, ``target``,
-    ``horizon``, ``context``, ``model``, …) stay in the metadata dict
+    ``horizon``, ``model``, …) stay in the metadata dict
     for the multipart ``metadata`` form field.
 
     Parameters
@@ -241,7 +240,7 @@ def decode_request(
     metadata : dict
         JSON object from the multipart ``metadata`` field (non-frame
         forecast fields such as ``time``, ``target``, ``horizon``,
-        ``model``, ``series_id``, ``params``).
+        ``model``).
     bytes_encoded : dict of str to bytes
         Optional ``history``, ``future``, ``static`` Arrow IPC streams.
 

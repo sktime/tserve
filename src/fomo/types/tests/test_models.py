@@ -36,7 +36,6 @@ def _request(**kwargs):
         "time": "timestamp",
         "target": ["sales"],
         "horizon": 1,
-        "context": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -59,7 +58,6 @@ def _coerced_request(**kwargs):
         "time": "timestamp",
         "target": ["sales"],
         "horizon": 1,
-        "context": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -199,58 +197,9 @@ def test_forecast_response_rejects(kwargs, match):
             id="history_missing_target_column",
         ),
         pytest.param(
-            {"series_id": ["store"]},
-            r"history is missing columns: \['store'\]",
-            id="history_missing_series_id_column",
-        ),
-        pytest.param(
-            {"known_future": ["price"], "future": _df(timestamp=["2024-01-02"])},
-            r"history is missing columns: \['price'\]",
-            id="history_missing_known_future_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-            },
-            "future is required when known_future is set",
-            id="known_future_without_future_frame",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-                "future": _df(price=[8.99]),
-            },
+            {"future": _df(price=[8.99])},
             r"future is missing columns: \['timestamp'\]",
             id="future_missing_time_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(store=["A"], timestamp=["2024-01-01"], sales=[120]),
-                "series_id": ["store"],
-                "future": _df(timestamp=["2024-01-02"]),
-            },
-            r"future is missing columns: \['store'\]",
-            id="future_missing_series_id_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-                "future": _df(timestamp=["2024-01-02"]),
-            },
-            r"future is missing columns: \['price'\]",
-            id="future_missing_known_future_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(store=["A"], timestamp=["2024-01-01"], sales=[120]),
-                "series_id": ["store"],
-                "static": _df(store_type=["urban"]),
-            },
-            r"static is missing columns: \['store'\]",
-            id="static_missing_series_id_column",
         ),
     ],
 )
