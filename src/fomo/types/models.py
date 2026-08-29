@@ -96,10 +96,10 @@ class ForecastRequest(BaseModel):
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
-    history: Any
+    past: Any
     time: str
     target: list[str] = Field(min_length=1)
-    horizon: int = Field(gt=0)
+    fh: int = Field(gt=0)
     model: str = "naive"
     future: Any = None
     static: Any = None
