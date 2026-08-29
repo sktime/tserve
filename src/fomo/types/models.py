@@ -117,15 +117,10 @@ class ForecastRequest(BaseModel):
     time: str
     target: list[str] = Field(min_length=1)
     horizon: int = Field(gt=0)
-    context: int
     model: str = "naive"
     future: Any = None
     static: Any = None
-    series_id: list[str] | None = None
-    known_future: list[str] | None = None
-    freq: str | None = None
     quantiles: list[float] | None = None
-    params: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def _check_frames(self) -> Self:
