@@ -41,12 +41,12 @@ def from_request(
 ]:
     """Map a coerced request onto sktime ``y``, ``X``, ``X_future``, ``fh``.
 
-    Builds a relative ``ForecastingHorizon`` ``1 .. horizon``. Static
+    Builds a relative ``ForecastingHorizon`` ``1 .. fh``. Static
     features become constant columns via ``_static`` (first row of the
     static table). If there is no static, both ``X`` and ``X_future``
     are ``None``. If ``future`` is ``None`` while static columns are
     still needed, the future index is
-    ``fh.to_absolute(history.index[-1:]).to_pandas()``.
+    ``fh.to_absolute(past.index[-1:]).to_pandas()``.
 
     Parameters
     ----------
@@ -57,13 +57,14 @@ def from_request(
     Returns
     -------
     y : pandas.DataFrame
-        Target columns from history, time column as ``DatetimeIndex``.
+        Target columns from past observations, time column as
+        ``DatetimeIndex``.
     X : pandas.DataFrame or None
-        History exogenous (broadcast static), or ``None``.
+        Past exogenous (broadcast static), or ``None``.
     X_future : pandas.DataFrame or None
         Future exogenous with the same columns as ``X``, or ``None``.
     fh : sktime.forecasting.base.ForecastingHorizon
-        Relative horizon ``range(1, horizon + 1)``.
+        Relative horizon ``range(1, request.fh + 1)``.
     quantiles : list of float or None
         ``request.quantiles``, forwarded unchanged.
 
@@ -72,9 +73,9 @@ def from_request(
     fomo.types.models.CoercedForecastRequest
         Column contracts for the coerced payload.
     """
-    history = _indexed(request.history, request)
-    y: pd.DataFrame = history.loc[:, request.target]
-    fh = ForecastingHorizon(range(1, request.horizon + 1), is_relative=True)
+    past = _indexed(request.past, request)
+    y: pd.DataFrame = past.loc[:, request.target]
+    fh = ForecastingHorizon(range(1, request.fh + 1), is_relative=True)
 
     static = _static(request)
     if not static:
@@ -83,9 +84,9 @@ def from_request(
     if request.future is not None:
         future = _indexed(request.future, request)
     else:
-        future = pd.DataFrame(index=fh.to_absolute(history.index[-1:]).to_pandas())
+        future = pd.DataFrame(index=fh.to_absolute(past.index[-1:]).to_pandas())
 
-    x = pd.DataFrame(static, index=history.index)
+    x = pd.DataFrame(static, index=past.index)
     x_future = pd.DataFrame(static, index=future.index)
     return y, x, x_future, fh, request.quantiles
 
@@ -146,7 +147,7 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.Da
     Parameters
     ----------
     table : narwhals.DataFrame
-        History or future table.
+        Past or future table.
     request : CoercedForecastRequest
         Supplies the time column name.
 

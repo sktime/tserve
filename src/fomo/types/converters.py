@@ -16,7 +16,7 @@ Typical paths:
   (``POST /forecast/bytes`` + ``unpack_envelope``).
 
 ``Client.forecast`` also calls ``_from_narwhals`` so returned tables
-match the caller's ``history`` native type.
+match the caller's ``past`` native type.
 
 See Also
 --------
@@ -84,7 +84,7 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
     """Convert a narwhals frame back to the native type of ``template``.
 
     Used by ``Client.forecast`` so ``predictions`` / ``quantiles`` match
-    the caller's ``history`` (pandas, polars, dict, …).
+    the caller's ``past`` (pandas, polars, dict, …).
 
     Parameters
     ----------
@@ -150,7 +150,7 @@ def _to_bytes(df: nw.DataFrame) -> bytes:
 def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     """Turn a user-facing request into the narwhals form executors consume.
 
-    Copies scalar metadata with ``model_dump``, converts ``history`` /
+    Copies scalar metadata with ``model_dump``, converts ``past`` /
     ``future`` / ``static`` via ``_to_narwhals``, then validates
     ``CoercedForecastRequest`` (column contracts).
 
@@ -181,8 +181,8 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     encode_request
         Next step on the bytes path.
     """
-    payload = request.model_dump(exclude={"history", "future", "static"})
-    payload["history"] = _to_narwhals(request.history)
+    payload = request.model_dump(exclude={"past", "future", "static"})
+    payload["past"] = _to_narwhals(request.past)
     payload["future"] = (
         _to_narwhals(request.future) if request.future is not None else None
     )
@@ -196,9 +196,9 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
 def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, bytes]]:
     """Split a coerced request into JSON metadata and Arrow IPC files.
 
-    Frame fields ``history``, ``future``, and ``static`` become named
+    Frame fields ``past``, ``future``, and ``static`` become named
     byte blobs when not ``None``. Remaining fields (``time``, ``target``,
-    ``horizon``, ``model``, …) stay in the metadata dict
+    ``fh``, ``model``, …) stay in the metadata dict
     for the multipart ``metadata`` form field.
 
     Parameters
@@ -211,7 +211,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
     metadata : dict
         JSON-serializable fields, excluding encoded frames.
     bytes_encoded : dict of str to bytes
-        Mapping of frame name (``history`` / ``future`` / ``static``)
+        Mapping of frame name (``past`` / ``future`` / ``static``)
         to Arrow IPC stream bytes.
 
     See Also
@@ -220,7 +220,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
         Inverse used by ``POST /forecast/bytes``.
     """
     bytes_encoded = {}
-    for frame in ["history", "future", "static"]:
+    for frame in ["past", "future", "static"]:
         value = getattr(request, frame)
         if value is not None:
             bytes_encoded[frame] = _to_bytes(value)
@@ -239,10 +239,10 @@ def decode_request(
     ----------
     metadata : dict
         JSON object from the multipart ``metadata`` field (non-frame
-        forecast fields such as ``time``, ``target``, ``horizon``,
+        forecast fields such as ``time``, ``target``, ``fh``,
         ``model``).
     bytes_encoded : dict of str to bytes
-        Optional ``history``, ``future``, ``static`` Arrow IPC streams.
+        Optional ``past``, ``future``, ``static`` Arrow IPC streams.
 
     Returns
     -------
@@ -264,7 +264,7 @@ def decode_request(
         Inverse used by ``Client.forecast``.
     """
     payload = dict(metadata)
-    for frame in ["history", "future", "static"]:
+    for frame in ["past", "future", "static"]:
         if frame in bytes_encoded:
             payload[frame] = nw.from_arrow(
                 pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),

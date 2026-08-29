@@ -77,7 +77,7 @@ class HttpTransport(BaseTransport):
         metadata : dict
             JSON-serializable forecast fields from ``encode_request``.
         bytes_encoded : dict of str to bytes
-            Named Arrow IPC streams (``history``, optional ``future`` /
+            Named Arrow IPC streams (``past``, optional ``future`` /
             ``static``).
 
         Returns

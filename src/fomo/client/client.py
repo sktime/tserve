@@ -81,10 +81,10 @@ class Client:
     def forecast(
         self,
         *,
-        history: Any,
+        past: Any,
         time: str,
         target: list[str],
-        horizon: int,
+        fh: int,
         model: str = "naive",
         future: Any = None,
         static: Any = None,
@@ -95,19 +95,19 @@ class Client:
         Builds a ``ForecastRequest``, then runs ``coerce_request`` →
         ``encode_request`` (JSON metadata + Arrow IPC blobs) →
         ``BaseTransport.forecast`` → ``decode_response`` →
-        ``_from_narwhals(template=history)`` so returned frames match
+        ``_from_narwhals(template=past)`` so returned frames match
         the caller's native type.
 
         Parameters
         ----------
-        history : any
+        past : any
             Past observations. Native type is the template for returned
             frames. See ``ForecastRequest`` for accepted shapes.
         time : str
             Time-index column name.
         target : list of str
             Target column names.
-        horizon : int
+        fh : int
             Forecast steps ahead.
         model : str, default ``"naive"``
             Loaded model id, not an executor name.
@@ -122,7 +122,7 @@ class Client:
         -------
         ForecastResponse
             ``predictions`` and optional ``quantiles`` restored to the
-            native type of ``history``.
+            native type of ``past``.
 
         Raises
         ------
@@ -142,7 +142,7 @@ class Client:
         See Also
         --------
         fomo.types.models.ForecastRequest
-            Full field semantics for history/time/target/horizon/
+            Full field semantics for past/time/target/fh/
             model/future/static/quantiles.
         fomo.types.converters.coerce_request
             Wire conversion to ``CoercedForecastRequest``.
@@ -156,10 +156,10 @@ class Client:
             Rebuild the coerced response from metadata and blobs.
         """
         request = ForecastRequest(
-            history=history,
+            past=past,
             time=time,
             target=target,
-            horizon=horizon,
+            fh=fh,
             model=model,
             future=future,
             static=static,
@@ -176,9 +176,9 @@ class Client:
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 
-        predictions = _from_narwhals(response.predictions, history)
+        predictions = _from_narwhals(response.predictions, past)
         quantile_table = (
-            _from_narwhals(response.quantiles, history)
+            _from_narwhals(response.quantiles, past)
             if response.quantiles is not None
             else None
         )

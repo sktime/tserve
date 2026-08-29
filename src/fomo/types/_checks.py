@@ -12,7 +12,7 @@ not interpret forecast semantics and does not mention sktime.
 See Also
 --------
 fomo.types.models.ForecastRequest
-    Construction runs ``_check_frame`` on ``history``, ``future``, and
+    Construction runs ``_check_frame`` on ``past``, ``future``, and
     ``static``.
 fomo.types.converters._to_narwhals
     Converts a frame that has already passed these checks.
@@ -46,7 +46,7 @@ def _check_frame(value: Any, *, name: str) -> None:
     value : any
         Candidate frame or ``None``.
     name : str
-        Field name used in error messages (``"history"``, ``"future"``,
+        Field name used in error messages (``"past"``, ``"future"``,
         ``"static"``, ``"predictions"``, ``"quantiles"``).
 
     Raises
@@ -182,7 +182,7 @@ def _require_columns(
     columns : list of str
         Required column names, in any order relative to the frame.
     frame_name : str
-        Field name used in error messages (``"history"``, ``"future"``,
+        Field name used in error messages (``"past"``, ``"future"``,
         ``"static"``).
 
     Raises

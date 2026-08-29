@@ -10,7 +10,7 @@ beyond documentation.
 FORECAST_REQUEST = {
     "time": "timestamp",
     "target": ["sales"],
-    "history": {
+    "past": {
         "columns": ["timestamp", "sales"],
         "data": [
             ["2024-01-01", 120],
@@ -20,7 +20,7 @@ FORECAST_REQUEST = {
             ["2024-01-05", 138],
         ],
     },
-    "horizon": 3,
+    "fh": 3,
     "quantiles": [0.1, 0.5, 0.9],
     "model": "naive",
 }

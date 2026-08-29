@@ -21,10 +21,10 @@ from fomo.types.models import (
 
 def _request(**kwargs):
     payload = {
-        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "past": {"timestamp": ["2024-01-01"], "sales": [120]},
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -42,7 +42,7 @@ def _response(**kwargs):
 
 
 @pytest.mark.parametrize(
-    "history",
+    "past",
     [
         pytest.param(
             {
@@ -62,34 +62,34 @@ def _response(**kwargs):
         ),
     ],
 )
-def test_coerce_request(history):
-    request = _request(history=history)
-    original_history = request.history
+def test_coerce_request(past):
+    request = _request(past=past)
+    original_past = request.past
 
     coerced = coerce_request(request)
 
     assert isinstance(coerced, CoercedForecastRequest)
-    assert isinstance(coerced.history, nw.DataFrame)
+    assert isinstance(coerced.past, nw.DataFrame)
     assert coerced.future is None
     assert coerced.static is None
-    assert request.history is original_history
+    assert request.past is original_past
 
 
 def test_encode_request():
     metadata, files = encode_request(coerce_request(_request()))
 
-    assert "history" in files
+    assert "past" in files
     assert "future" not in files
     assert "static" not in files
     assert metadata["time"] == "timestamp"
-    assert "history" not in metadata
+    assert "past" not in metadata
 
 
 def test_decode_request():
     decoded = decode_request(*encode_request(coerce_request(_request())))
 
     assert isinstance(decoded, CoercedForecastRequest)
-    assert isinstance(decoded.history, nw.DataFrame)
+    assert isinstance(decoded.past, nw.DataFrame)
     assert decoded.future is None
     assert decoded.model == "naive"
 

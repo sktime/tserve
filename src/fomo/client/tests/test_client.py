@@ -22,10 +22,10 @@ from fomo.types.models import (
 
 def _request(**kwargs):
     payload = {
-        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "past": {"timestamp": ["2024-01-01"], "sales": [120]},
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -47,7 +47,7 @@ client = Client("http://example", transport=cast(BaseTransport, _transport))
 
 
 @pytest.mark.parametrize(
-    "history",
+    "past",
     [
         pytest.param(
             {
@@ -67,9 +67,9 @@ client = Client("http://example", transport=cast(BaseTransport, _transport))
         ),
     ],
 )
-def test_forecast(history):
+def test_forecast(past):
     _transport.reset_mock()
-    payload = _request(history=history)
+    payload = _request(past=past)
     encoded = encode_request(coerce_request(ForecastRequest.model_validate(payload)))
     _transport.forecast.return_value = encode_response(coerce_response(_response()))
 
@@ -77,7 +77,7 @@ def test_forecast(history):
 
     assert isinstance(result, ForecastResponse)
     assert isinstance(result.predictions, dict)
-    if set(history) == {"columns", "data"}:
+    if set(past) == {"columns", "data"}:
         assert set(result.predictions) == {"columns", "data"}
     else:
         assert "timestamp" in result.predictions

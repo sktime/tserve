@@ -13,7 +13,8 @@ Validators raise ``ValueError``; Pydantic constructors expose that as
 Notes
 -----
 Panel (multi-series) input is not supported. The sktime converter
-``from_request`` maps a single series from ``time`` and ``target``.
+``from_request`` maps a single series from ``past``, ``time``, and
+``target``.
 
 See Also
 --------
@@ -55,16 +56,16 @@ class ForecastRequest(BaseModel):
 
     Attributes
     ----------
-    history : any
+    past : any
         Past observations. Construction only checks table shape.
         After coercion the frame must include ``time`` and every
         ``target``.
     time : str
-        Name of the time-index column in ``history`` / ``future`` /
+        Name of the time-index column in ``past`` / ``future`` /
         predictions.
     target : list of str
         One or more target column names (``min_length=1``).
-    horizon : int
+    fh : int
         Number of forecast steps ahead (must be ``> 0``).
     model : str, default ``"naive"``
         Id of a model loaded on this server (see ``GET /models``).
@@ -80,9 +81,9 @@ class ForecastRequest(BaseModel):
     Raises
     ------
     ValidationError
-        If ``history``, ``future``, or ``static`` is not a supported
+        If ``past``, ``future``, or ``static`` is not a supported
         table shape (or ``None`` for the optional frames); if
-        ``target`` has fewer than one name; if ``horizon <= 0``; or if
+        ``target`` has fewer than one name; if ``fh <= 0``; or if
         other field types fail. Inner validators raise ``ValueError``,
         which Pydantic wraps.
 
@@ -112,7 +113,7 @@ class ForecastRequest(BaseModel):
         Returns
         -------
         ForecastRequest
-            ``self`` after ``history``, ``future``, and ``static`` pass
+            ``self`` after ``past``, ``future``, and ``static`` pass
             ``_check_frame``.
 
         Raises
@@ -120,7 +121,7 @@ class ForecastRequest(BaseModel):
         ValueError
             If a provided frame is not ``None`` and not a supported shape.
         """
-        _check_frame(self.history, name="history")
+        _check_frame(self.past, name="past")
         _check_frame(self.future, name="future")
         _check_frame(self.static, name="static")
         return self
@@ -131,7 +132,7 @@ class ForecastResponse(BaseModel):
 
     JSON ``POST /forecast`` returns predictions as a column dict
     (``DataFrame.to_dict(as_series=False)``). ``Client.forecast`` restores
-    pandas/polars/dict to match the caller's ``history`` type.
+    pandas/polars/dict to match the caller's ``past`` type.
 
     ``request_id`` is assigned by the server routes, not by executors.
 
@@ -200,18 +201,18 @@ class CoercedForecastRequest(BaseModel):
 
     Column rules (after narwhals conversion):
 
-    * ``history`` must contain ``time`` and every ``target`` column.
+    * ``past`` must contain ``time`` and every ``target`` column.
     * If ``future`` is set, it must contain ``time``.
 
     Attributes
     ----------
-    history : narwhals.DataFrame
+    past : narwhals.DataFrame
         Past observations as a narwhals frame.
     time : str
         Time-index column name.
     target : list of str
         Target column names (``min_length=1``).
-    horizon : int
+    fh : int
         Forecast steps (``> 0``).
     model : str, default ``"naive"``
         Loaded model id used by ``Scheduler.run`` to pick an executor.
@@ -226,7 +227,7 @@ class CoercedForecastRequest(BaseModel):
     ------
     ValidationError
         If required columns are missing or field types fail (including
-        non-narwhals ``history``). Inner validators raise
+        non-narwhals ``past``). Inner validators raise
         ``ValueError``, which Pydantic wraps. Messages list missing vs
         available columns.
 
@@ -240,10 +241,10 @@ class CoercedForecastRequest(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    history: nw.DataFrame[Any]
+    past: nw.DataFrame[Any]
     time: str
     target: list[str] = Field(min_length=1)
-    horizon: int = Field(gt=0)
+    fh: int = Field(gt=0)
     model: str = "naive"
     future: nw.DataFrame[Any] | None = None
     static: nw.DataFrame[Any] | None = None
@@ -261,10 +262,10 @@ class CoercedForecastRequest(BaseModel):
         Raises
         ------
         ValueError
-            If ``history`` (or ``future`` when present) is missing
+            If ``past`` (or ``future`` when present) is missing
             required columns.
         """
-        _require_columns(self.history, [self.time, *self.target], frame_name="history")
+        _require_columns(self.past, [self.time, *self.target], frame_name="past")
 
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
