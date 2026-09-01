@@ -12,10 +12,9 @@ Validators raise ``ValueError``; Pydantic constructors expose that as
 
 Notes
 -----
-``context``, ``freq``, and ``params`` are part of the forecast API for
-forward compatibility. Current executors do not use them. ``series_id``
-is column-validated on coerced frames; the sktime converter
-``from_request`` raises ``ValueError`` (panel not supported).
+Panel (multi-series) input is not supported. The sktime converter
+``from_request`` maps a single series from ``past``, ``time``, and
+``target``.
 
 See Also
 --------
@@ -48,9 +47,9 @@ class ForecastRequest(BaseModel):
     Frames may be pandas-like, polars, a pyarrow Table, a narwhals
     DataFrame, a column dict (name → list), or a row matrix
     ``{"columns": [...], "data": [[...], ...]}``. Construction only
-    checks table *shape* via ``_check_frame``. Column names and
-    known-future consistency are enforced after coercion on
-    ``CoercedForecastRequest``.
+    checks table *shape* via ``_check_frame``. ``time`` and ``target``
+    may be omitted or loosely typed; ``coerce_request`` resolves them.
+    Column names are enforced after coercion on ``CoercedForecastRequest``.
 
     ``model`` is a **loaded model id** (registry id, zip stem, or the
     id passed with an in-process forecaster), not an executor name
@@ -58,50 +57,41 @@ class ForecastRequest(BaseModel):
 
     Attributes
     ----------
-    history : any
+    past : any
         Past observations. Construction only checks table shape.
-        After coercion the frame must include ``time``, every
-        ``target``, and when set ``series_id`` and ``known_future``.
-    time : str
-        Name of the time-index column in ``history`` / ``future`` /
-        predictions.
-    target : list of str
-        One or more target column names (``min_length=1``).
-    horizon : int
+        After coercion the frame must include ``time`` and every
+        ``target``.
+    time : str or None, optional
+        Name of the time-index column in ``past`` / ``future`` /
+        predictions. When omitted, ``coerce_request`` uses the first
+        column of ``past``.
+    target : str or list of str or None, optional
+        Target column names. A string is wrapped as a one-element
+        list at coerce time. When omitted, ``coerce_request`` infers
+        every ``past`` column other than ``time`` and the columns of
+        ``future``.
+    fh : int
         Number of forecast steps ahead (must be ``> 0``).
-    context : int
-        Required look-back length reserved for foundation models.
-        Unused by current executors; still must be provided.
     model : str, default ``"naive"``
         Id of a model loaded on this server (see ``GET /models``).
     future : any, optional
-        Future rows for known covariates. Required after coercion when
-        ``known_future`` is set.
+        Future rows for known covariates.
     static : any, optional
         Per-series (or single-row) static features. Broadcast over time
         is an executor concern, not this schema.
-    series_id : list of str, optional
-        Panel key columns. Validated as columns on coerced frames;
-        the sktime converter raises if this is set (panel not supported).
-    known_future : list of str, optional
-        Exogenous column names that must appear in history and future.
-    freq : str, optional
-        Frequency string accepted for forward compatibility. Not
-        applied by current executors.
     quantiles : list of float, optional
         Quantile alphas. When set, executors that support them return a
         quantile table; column naming is executor-specific.
-    params : dict, optional
-        Optional model kwargs. Not applied by current executors.
 
     Raises
     ------
     ValidationError
-        If ``history``, ``future``, or ``static`` is not a supported
+        If ``past``, ``future``, or ``static`` is not a supported
         table shape (or ``None`` for the optional frames); if
-        ``target`` has fewer than one name; if ``horizon <= 0``; or if
-        other field types fail. Inner validators raise ``ValueError``,
-        which Pydantic wraps.
+        ``fh <= 0``; or if other field types fail. Inner validators
+        raise ``ValueError``, which Pydantic wraps. Empty ``target``
+        lists and missing inferred targets fail on
+        ``CoercedForecastRequest``, not here.
 
     See Also
     --------
@@ -113,19 +103,14 @@ class ForecastRequest(BaseModel):
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
 
-    history: Any
-    time: str
-    target: list[str] = Field(min_length=1)
-    horizon: int = Field(gt=0)
-    context: int
+    past: Any
+    time: str | None = None
+    target: str | list[str] | None = None
+    fh: int = Field(gt=0)
     model: str = "naive"
     future: Any = None
     static: Any = None
-    series_id: list[str] | None = None
-    known_future: list[str] | None = None
-    freq: str | None = None
     quantiles: list[float] | None = None
-    params: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def _check_frames(self) -> Self:
@@ -134,7 +119,7 @@ class ForecastRequest(BaseModel):
         Returns
         -------
         ForecastRequest
-            ``self`` after ``history``, ``future``, and ``static`` pass
+            ``self`` after ``past``, ``future``, and ``static`` pass
             ``_check_frame``.
 
         Raises
@@ -142,7 +127,7 @@ class ForecastRequest(BaseModel):
         ValueError
             If a provided frame is not ``None`` and not a supported shape.
         """
-        _check_frame(self.history, name="history")
+        _check_frame(self.past, name="past")
         _check_frame(self.future, name="future")
         _check_frame(self.static, name="static")
         return self
@@ -153,7 +138,7 @@ class ForecastResponse(BaseModel):
 
     JSON ``POST /forecast`` returns predictions as a column dict
     (``DataFrame.to_dict(as_series=False)``). ``Client.forecast`` restores
-    pandas/polars/dict to match the caller's ``history`` type.
+    pandas/polars/dict to match the caller's ``past`` type.
 
     ``request_id`` is assigned by the server routes, not by executors.
 
@@ -222,49 +207,33 @@ class CoercedForecastRequest(BaseModel):
 
     Column rules (after narwhals conversion):
 
-    * ``history`` must contain ``time``, every ``target``, and when set
-      every ``series_id`` and ``known_future`` column.
-    * If ``known_future`` is set, ``future`` is required and must contain
-      ``time`` plus those known-future (and ``series_id``) columns.
-    * If both ``static`` and ``series_id`` are set, ``static`` must
-      contain the ``series_id`` columns.
+    * ``past`` must contain ``time`` and every ``target`` column.
+    * If ``future`` is set, it must contain ``time``.
 
     Attributes
     ----------
-    history : narwhals.DataFrame
+    past : narwhals.DataFrame
         Past observations as a narwhals frame.
     time : str
-        Time-index column name.
+        Time-index column name. Always resolved (never ``None``).
     target : list of str
-        Target column names (``min_length=1``).
-    horizon : int
+        Target column names (``min_length=1``). Always a list.
+    fh : int
         Forecast steps (``> 0``).
-    context : int
-        Required API field; unused by current executors.
     model : str, default ``"naive"``
         Loaded model id used by ``Scheduler.run`` to pick an executor.
     future : narwhals.DataFrame or None
         Future known covariates, or ``None``.
     static : narwhals.DataFrame or None
         Static features, or ``None``.
-    series_id : list of str or None
-        Panel keys. Column-validated here; sktime ``from_request``
-        still rejects a non-empty value.
-    known_future : list of str or None
-        Exogenous columns required on history and future.
-    freq : str or None
-        Unused by current executors.
     quantiles : list of float or None
         Alphas forwarded to executors that support quantile forecasts.
-    params : dict or None
-        Unused by current executors.
 
     Raises
     ------
     ValidationError
-        If required columns are missing, ``future`` is omitted while
-        ``known_future`` is set, or field types fail (including
-        non-narwhals ``history``). Inner validators raise
+        If required columns are missing or field types fail (including
+        non-narwhals ``past``). Inner validators raise
         ``ValueError``, which Pydantic wraps. Messages list missing vs
         available columns.
 
@@ -278,23 +247,18 @@ class CoercedForecastRequest(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    history: nw.DataFrame[Any]
+    past: nw.DataFrame[Any]
     time: str
     target: list[str] = Field(min_length=1)
-    horizon: int = Field(gt=0)
-    context: int
+    fh: int = Field(gt=0)
     model: str = "naive"
     future: nw.DataFrame[Any] | None = None
     static: nw.DataFrame[Any] | None = None
-    series_id: list[str] | None = None
-    known_future: list[str] | None = None
-    freq: str | None = None
     quantiles: list[float] | None = None
-    params: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
-        """Require time, target, panel, and known-future columns.
+        """Require time and target columns.
 
         Returns
         -------
@@ -304,33 +268,13 @@ class CoercedForecastRequest(BaseModel):
         Raises
         ------
         ValueError
-            If ``history`` (or ``future`` / ``static`` when present) is
-            missing required columns, or ``future`` is ``None`` while
-            ``known_future`` is set.
+            If ``past`` (or ``future`` when present) is missing
+            required columns.
         """
-        history_cols = [self.time, *self.target]
-        if self.series_id:
-            history_cols.extend(self.series_id)
-        if self.known_future:
-            history_cols.extend(self.known_future)
-        _require_columns(self.history, history_cols, frame_name="history")
-
-        if self.known_future and self.future is None:
-            raise ValueError(
-                "future is required when known_future is set; "
-                f"send a future table with {self.time!r} and {self.known_future}"
-            )
+        _require_columns(self.past, [self.time, *self.target], frame_name="past")
 
         if self.future is not None:
-            future_cols = [self.time]
-            if self.series_id:
-                future_cols.extend(self.series_id)
-            if self.known_future:
-                future_cols.extend(self.known_future)
-            _require_columns(self.future, future_cols, frame_name="future")
-
-        if self.static is not None and self.series_id:
-            _require_columns(self.static, self.series_id, frame_name="static")
+            _require_columns(self.future, [self.time], frame_name="future")
 
         return self
 

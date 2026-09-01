@@ -81,64 +81,51 @@ class Client:
     def forecast(
         self,
         *,
-        history: Any,
-        time: str,
-        target: list[str],
-        horizon: int,
-        context: int,
+        past: Any,
+        fh: int,
+        time: str | None = None,
+        target: str | list[str] | None = None,
         model: str = "naive",
         future: Any = None,
         static: Any = None,
-        series_id: list[str] | None = None,
-        known_future: list[str] | None = None,
-        freq: str | None = None,
         quantiles: list[float] | None = None,
-        params: dict[str, Any] | None = None,
     ) -> ForecastResponse:
         """Send a forecast through the transport and restore native frames.
 
         Builds a ``ForecastRequest``, then runs ``coerce_request`` →
         ``encode_request`` (JSON metadata + Arrow IPC blobs) →
         ``BaseTransport.forecast`` → ``decode_response`` →
-        ``_from_narwhals(template=history)`` so returned frames match
+        ``_from_narwhals(template=past)`` so returned frames match
         the caller's native type.
 
         Parameters
         ----------
-        history : any
+        past : any
             Past observations. Native type is the template for returned
             frames. See ``ForecastRequest`` for accepted shapes.
-        time : str
-            Time-index column name.
-        target : list of str
-            Target column names.
-        horizon : int
+        time : str, optional
+            Time-index column name. When omitted, ``coerce_request``
+            uses the first column of ``past``.
+        target : str or list of str, optional
+            Target column names. A string is wrapped as a one-element
+            list. When omitted, ``coerce_request`` infers columns of
+            ``past`` other than ``time`` and ``future``.
+        fh : int
             Forecast steps ahead.
-        context : int
-            Required look-back length. Unused by current executors.
         model : str, default ``"naive"``
             Loaded model id, not an executor name.
         future : any, optional
             Future rows for known covariates.
         static : any, optional
             Per-series static features.
-        series_id : list of str, optional
-            Panel key columns. Not supported yet; the runtime rejects
-            them and the transport raises ``RuntimeError``.
-        known_future : list of str, optional
-            Exogenous column names present in history and future.
-        freq : str, optional
-            Unused by current executors.
         quantiles : list of float, optional
             Quantile alphas when the executor supports them.
-        params : dict, optional
-            Unused by current executors.
 
         Returns
         -------
         ForecastResponse
             ``predictions`` and optional ``quantiles`` restored to the
-            native type of ``history``.
+            native type of ``past``.
 
         Raises
         ------
@@ -147,9 +134,9 @@ class Client:
             fails (shape, columns, field constraints). Inner
             validators raise ``ValueError``, which Pydantic wraps.
         RuntimeError
-            If the transport reports a failed forecast, including panel
-            rejection on the runtime. There is no custom FoMo exception
-            class; ``HealthError`` is a Pydantic model, not raised here.
+            If the transport reports a failed forecast. There is no
+            custom FoMo exception class; ``HealthError`` is a Pydantic
+            model, not raised here.
         Exception
             Other transport failures (connection, encoding, decode of
             the returned blobs). See ``HttpTransport`` for the HTTP
@@ -158,9 +145,8 @@ class Client:
         See Also
         --------
         fomo.types.models.ForecastRequest
-            Full field semantics for history/time/target/horizon/
-            context/model/future/static/series_id/known_future/freq/
-            quantiles/params.
+            Full field semantics for past/time/target/fh/
+            model/future/static/quantiles.
         fomo.types.converters.coerce_request
             Wire conversion to ``CoercedForecastRequest``.
         fomo.types.converters.encode_request
@@ -173,19 +159,14 @@ class Client:
             Rebuild the coerced response from metadata and blobs.
         """
         request = ForecastRequest(
-            history=history,
+            past=past,
             time=time,
             target=target,
-            horizon=horizon,
-            context=context,
+            fh=fh,
             model=model,
             future=future,
             static=static,
-            series_id=series_id,
-            known_future=known_future,
-            freq=freq,
             quantiles=quantiles,
-            params=params,
         )
         coerced = coerce_request(request)
 
@@ -198,9 +179,9 @@ class Client:
         # 3. decode response to json + bytes
         response = decode_response(res_metadata, res_bytes_encoded)
 
-        predictions = _from_narwhals(response.predictions, history)
+        predictions = _from_narwhals(response.predictions, past)
         quantile_table = (
-            _from_narwhals(response.quantiles, history)
+            _from_narwhals(response.quantiles, past)
             if response.quantiles is not None
             else None
         )

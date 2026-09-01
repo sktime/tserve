@@ -56,7 +56,7 @@ def test_forecast():
 
     got_metadata, got_files = transport.forecast(
         {"time": "timestamp", "model": "naive"},
-        {"history": b"arrow"},
+        {"past": b"arrow"},
     )
 
     http.request.assert_called_once()
@@ -67,7 +67,7 @@ def test_forecast():
         json.loads(http.request.call_args.kwargs["data"]["metadata"])["model"]
         == "naive"
     )
-    assert "history" in http.request.call_args.kwargs["files"]
+    assert "past" in http.request.call_args.kwargs["files"]
     assert got_metadata["model"] == "naive"
     assert "predictions" in got_files
 

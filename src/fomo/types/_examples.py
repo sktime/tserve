@@ -5,16 +5,12 @@ public models in ``fomo.types.models``. They illustrate the JSON wire
 shape (row-oriented ``{columns, data}`` tables), not pandas or polars
 objects. They are not executed as tests and are not a runtime contract
 beyond documentation.
-
-``context`` and ``freq`` appear in ``FORECAST_REQUEST`` because they are
-required or accepted API fields; the current sktime executor does not
-use them for inference.
 """
 
 FORECAST_REQUEST = {
     "time": "timestamp",
     "target": ["sales"],
-    "history": {
+    "past": {
         "columns": ["timestamp", "sales"],
         "data": [
             ["2024-01-01", 120],
@@ -24,9 +20,7 @@ FORECAST_REQUEST = {
             ["2024-01-05", 138],
         ],
     },
-    "horizon": 3,
-    "context": 5,
-    "freq": "D",
+    "fh": 3,
     "quantiles": [0.1, 0.5, 0.9],
     "model": "naive",
 }

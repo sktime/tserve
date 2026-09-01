@@ -133,9 +133,6 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     by FastAPI as 422 before this handler runs.
 
     ``request.model`` is a loaded model id, not an executor name.
-    ``context``, ``freq``, and ``params`` are accepted on
-    ``ForecastRequest`` but unused by current executors; ``series_id``
-    is rejected by the sktime converter.
 
     Parameters
     ----------
@@ -197,15 +194,15 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
 async def forecast_bytes(
     http_request: Request,
     metadata: Annotated[str, Form()],
-    history: Annotated[UploadFile, File()],
+    past: Annotated[UploadFile, File()],
     future: Annotated[UploadFile | None, File()] = None,
     static: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
     """Run a multipart ``POST /forecast/bytes``.
 
-    Form field ``metadata`` is a JSON string; file ``history`` is
+    Form field ``metadata`` is a JSON string; file ``past`` is
     required; ``future`` and ``static`` are optional. Empty file bodies
-    for ``future``/``static`` are skipped (not attached). ``history`` is
+    for ``future``/``static`` are skipped (not attached). ``past`` is
     always included.
 
     After ``json.loads(metadata)``, calls ``decode_request``, then
@@ -221,8 +218,8 @@ async def forecast_bytes(
         Used to read ``app.state.runtime.scheduler``.
     metadata : str
         JSON object of scalar forecast fields (multipart ``metadata``).
-    history : fastapi.UploadFile
-        Required history-frame bytes.
+    past : fastapi.UploadFile
+        Required past-frame bytes.
     future : fastapi.UploadFile, optional
         Optional future-frame bytes; omitted when the body is empty.
     static : fastapi.UploadFile, optional
@@ -252,7 +249,7 @@ async def forecast_bytes(
     forecast
         JSON variant that assigns ``request_id`` on ``ForecastResponse``.
     """
-    files = {"history": await history.read()}
+    files = {"past": await past.read()}
     if future is not None:
         blob = await future.read()
         if blob:

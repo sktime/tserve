@@ -20,7 +20,7 @@ def create_client():
 
 client = create_client()
 
-HISTORY = {
+PAST = {
     "timestamp": [
         "2024-01-01",
         "2024-01-02",
@@ -71,7 +71,7 @@ def test_context_manager():
 
 def test_forecast():
     result = client.forecast(
-        history=HISTORY,
+        past=PAST,
         future={
             "timestamp": ["2024-01-06", "2024-01-07", "2024-01-08"],
             "price": [8.99, 9.99, 8.99],
@@ -79,13 +79,9 @@ def test_forecast():
         static={"store_type": ["urban"]},
         time="timestamp",
         target=["sales"],
-        horizon=3,
-        context=5,
+        fh=3,
         model="naive",
-        known_future=["price"],
-        freq="D",
         quantiles=[0.1, 0.5, 0.9],
-        params={},
     )
 
     assert result.model == "naive"
@@ -98,23 +94,9 @@ def test_forecast():
 def test_forecast_unknown_model():
     with pytest.raises(RuntimeError, match="chronos-2"):
         client.forecast(
-            history=HISTORY,
+            past=PAST,
             time="timestamp",
             target=["sales"],
-            horizon=3,
-            context=5,
+            fh=3,
             model="chronos-2",
-        )
-
-
-def test_forecast_panel():
-    with pytest.raises(RuntimeError, match="panel data"):
-        client.forecast(
-            history={**HISTORY, "store": ["A"] * 5},
-            time="timestamp",
-            target=["sales"],
-            horizon=3,
-            context=5,
-            model="naive",
-            series_id=["store"],
         )

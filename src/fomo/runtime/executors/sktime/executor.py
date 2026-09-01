@@ -3,9 +3,8 @@
 Registered as executor name ``sktime``. Registry ids such as ``naive``
 are catalog keys consumed by ``load``, not this plugin name.
 
-``context`` is required on the request but unused here. ``freq`` is
-accepted; the converter index uses ``freq="infer"``. ``params`` is
-accepted and not applied.
+``to_response`` sets ``request_id=""``; server routes assign the real
+id. The converter index uses ``freq="infer"``.
 
 See Also
 --------
@@ -115,20 +114,12 @@ class SktimeExecutor(Executor):
 
         Raises
         ------
-        ValueError
-            If ``request.series_id`` is set (panel not supported;
-            raised by ``from_request``).
         ValidationError
             If ``to_response`` cannot construct
             ``CoercedForecastResponse`` (empty prediction tables).
         Exception
             Errors from the wrapped sktime ``fit`` / ``predict`` /
             ``predict_quantiles`` call.
-
-        Notes
-        -----
-        ``context``, ``freq``, and ``params`` are not read. Panel
-        ``series_id`` is rejected in ``from_request``.
         """
         y, X, X_future, fh, quantiles = from_request(request)
 

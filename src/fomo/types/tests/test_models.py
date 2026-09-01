@@ -32,11 +32,10 @@ def _df(**columns):
 
 def _request(**kwargs):
     payload = {
-        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "past": {"timestamp": ["2024-01-01"], "sales": [120]},
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
-        "context": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -55,11 +54,10 @@ def _response(**kwargs):
 
 def _coerced_request(**kwargs):
     payload = {
-        "history": _df(timestamp=["2024-01-01"], sales=[120]),
+        "past": _df(timestamp=["2024-01-01"], sales=[120]),
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
-        "context": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -93,18 +91,25 @@ def test_example_validates_against_model(example, model):
     assert isinstance(parsed, model)
 
 
+def test_forecast_request_keeps_optional_time_and_target_unconverted():
+    request = _request(time=None, target="sales")
+
+    assert request.time is None
+    assert request.target == "sales"
+
+
 @pytest.mark.parametrize(
     ("kwargs", "match"),
     [
         pytest.param(
-            {"history": 123},
-            rf"history must be {re.escape(_TABLE_SHAPE)}, got int",
-            id="history_not_a_frame",
+            {"past": 123},
+            rf"past must be {re.escape(_TABLE_SHAPE)}, got int",
+            id="past_not_a_frame",
         ),
         pytest.param(
-            {"history": {"timestamp": "2024-01-01"}},
-            r"history column values must be lists, got \{'timestamp': 'str'\}",
-            id="history_invalid_dict",
+            {"past": {"timestamp": "2024-01-01"}},
+            r"past column values must be lists, got \{'timestamp': 'str'\}",
+            id="past_invalid_dict",
         ),
         pytest.param(
             {"future": [1, 2]},
@@ -117,46 +122,41 @@ def test_example_validates_against_model(example, model):
             id="static_invalid_dict",
         ),
         pytest.param(
-            {"horizon": 0},
+            {"fh": 0},
             "Input should be greater than 0",
-            id="horizon_zero",
+            id="fh_zero",
         ),
         pytest.param(
-            {"horizon": -1},
+            {"fh": -1},
             "Input should be greater than 0",
-            id="horizon_negative",
-        ),
-        pytest.param(
-            {"target": []},
-            "List should have at least 1 item",
-            id="target_empty",
+            id="fh_negative",
         ),
         pytest.param(
             {
-                "history": {
+                "past": {
                     "columns": ["timestamp", "sales"],
                     "data": [["2024-01-01", 120], ["2024-01-02"]],
                 }
             },
-            r"history\['data'\] row 1 has 1 values, expected 2 for columns",
-            id="history_row_length_mismatch",
+            r"past\['data'\] row 1 has 1 values, expected 2 for columns",
+            id="past_row_length_mismatch",
         ),
         pytest.param(
             {
-                "history": {
+                "past": {
                     "columns": ["timestamp", "sales"],
                     "data": [["2024-01-01", 120]],
                     "index": [0],
                 }
             },
-            r"history has extra keys \['index'\]; use only 'columns' and 'data', "
+            r"past has extra keys \['index'\]; use only 'columns' and 'data', "
             r"or a column-oriented dict",
-            id="history_columns_data_extra_keys",
+            id="past_columns_data_extra_keys",
         ),
         pytest.param(
-            {"history": {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120]}},
-            r"history columns must have the same number of rows",
-            id="history_unequal_column_lengths",
+            {"past": {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120]}},
+            r"past columns must have the same number of rows",
+            id="past_unequal_column_lengths",
         ),
     ],
 )
@@ -190,67 +190,23 @@ def test_forecast_response_rejects(kwargs, match):
     [
         pytest.param(
             {"time": "date"},
-            r"history is missing columns: \['date'\] \(available:",
-            id="history_missing_time_column",
+            r"past is missing columns: \['date'\] \(available:",
+            id="past_missing_time_column",
         ),
         pytest.param(
             {"target": ["demand"]},
-            r"history is missing columns: \['demand'\]",
-            id="history_missing_target_column",
+            r"past is missing columns: \['demand'\]",
+            id="past_missing_target_column",
         ),
         pytest.param(
-            {"series_id": ["store"]},
-            r"history is missing columns: \['store'\]",
-            id="history_missing_series_id_column",
-        ),
-        pytest.param(
-            {"known_future": ["price"], "future": _df(timestamp=["2024-01-02"])},
-            r"history is missing columns: \['price'\]",
-            id="history_missing_known_future_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-            },
-            "future is required when known_future is set",
-            id="known_future_without_future_frame",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-                "future": _df(price=[8.99]),
-            },
+            {"future": _df(price=[8.99])},
             r"future is missing columns: \['timestamp'\]",
             id="future_missing_time_column",
         ),
         pytest.param(
-            {
-                "history": _df(store=["A"], timestamp=["2024-01-01"], sales=[120]),
-                "series_id": ["store"],
-                "future": _df(timestamp=["2024-01-02"]),
-            },
-            r"future is missing columns: \['store'\]",
-            id="future_missing_series_id_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(timestamp=["2024-01-01"], sales=[120], price=[9.99]),
-                "known_future": ["price"],
-                "future": _df(timestamp=["2024-01-02"]),
-            },
-            r"future is missing columns: \['price'\]",
-            id="future_missing_known_future_column",
-        ),
-        pytest.param(
-            {
-                "history": _df(store=["A"], timestamp=["2024-01-01"], sales=[120]),
-                "series_id": ["store"],
-                "static": _df(store_type=["urban"]),
-            },
-            r"static is missing columns: \['store'\]",
-            id="static_missing_series_id_column",
+            {"target": []},
+            "List should have at least 1 item",
+            id="target_empty",
         ),
     ],
 )

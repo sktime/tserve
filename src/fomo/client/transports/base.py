@@ -23,7 +23,7 @@ class BaseTransport(ABC):
     """Send encoded forecasts and fetch health, models, and stats.
 
     ``forecast`` takes JSON-serializable metadata and named Arrow IPC
-    blobs (``history``, optional ``future`` / ``static``) and returns
+    blobs (``past``, optional ``future`` / ``static``) and returns
     the same pair for the response (``predictions``, optional
     ``quantiles``). ``HttpTransport`` sends them over HTTP.
     """
@@ -39,7 +39,7 @@ class BaseTransport(ABC):
         metadata : dict
             JSON-serializable forecast fields (no frames).
         bytes_encoded : dict of str to bytes
-            Named Arrow IPC streams (``history``, optional ``future`` /
+            Named Arrow IPC streams (``past``, optional ``future`` /
             ``static``).
 
         Returns

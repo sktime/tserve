@@ -11,14 +11,13 @@ def _df(**columns):
 
 def _request(**kwargs):
     payload = {
-        "history": _df(
+        "past": _df(
             timestamp=["2024-01-01", "2024-01-02", "2024-01-03"],
             sales=[120, 135, 128],
         ),
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
-        "context": 3,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)

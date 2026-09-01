@@ -19,11 +19,10 @@ from fomo.types.models import ForecastRequest, ForecastResponse, ModelInfo, Mode
 
 def _request(**kwargs):
     payload = {
-        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "past": {"timestamp": ["2024-01-01"], "sales": [120]},
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
-        "context": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -42,11 +41,10 @@ def _response(**kwargs):
 
 def _payload(**kwargs):
     payload = {
-        "history": {"timestamp": ["2024-01-01"], "sales": [120]},
+        "past": {"timestamp": ["2024-01-01"], "sales": [120]},
         "time": "timestamp",
         "target": ["sales"],
-        "horizon": 1,
-        "context": 1,
+        "fh": 1,
         "model": "naive",
     }
     payload.update(kwargs)
@@ -117,9 +115,9 @@ def test_forecast_bytes():
         "/forecast/bytes",
         data={"metadata": json.dumps(metadata)},
         files={
-            "history": (
-                "history",
-                files["history"],
+            "past": (
+                "past",
+                files["past"],
                 "application/vnd.apache.arrow.stream",
             )
         },
@@ -137,9 +135,7 @@ def test_forecast_bytes():
 @pytest.mark.parametrize(
     "exc",
     [
-        pytest.param(
-            ValueError("history is missing columns: ['date']"), id="value_error"
-        ),
+        pytest.param(ValueError("past is missing columns: ['date']"), id="value_error"),
         pytest.param(
             RuntimeError("model 'chronos-2' is not loaded on this server"),
             id="runtime_error",

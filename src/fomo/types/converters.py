@@ -16,7 +16,7 @@ Typical paths:
   (``POST /forecast/bytes`` + ``unpack_envelope``).
 
 ``Client.forecast`` also calls ``_from_narwhals`` so returned tables
-match the caller's ``history`` native type.
+match the caller's ``past`` native type.
 
 See Also
 --------
@@ -84,7 +84,7 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
     """Convert a narwhals frame back to the native type of ``template``.
 
     Used by ``Client.forecast`` so ``predictions`` / ``quantiles`` match
-    the caller's ``history`` (pandas, polars, dict, …).
+    the caller's ``past`` (pandas, polars, dict, …).
 
     Parameters
     ----------
@@ -150,9 +150,15 @@ def _to_bytes(df: nw.DataFrame) -> bytes:
 def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     """Turn a user-facing request into the narwhals form executors consume.
 
-    Copies scalar metadata with ``model_dump``, converts ``history`` /
-    ``future`` / ``static`` via ``_to_narwhals``, then validates
-    ``CoercedForecastRequest`` (column contracts).
+    Copies scalar metadata with ``model_dump``, converts ``past`` /
+    ``future`` / ``static`` via ``_to_narwhals``, then fills omitted
+    ``time`` / ``target`` and validates ``CoercedForecastRequest``
+    (column contracts).
+
+    When ``time`` is omitted, the first column of ``past`` is used.
+    When ``target`` is a string, it becomes a one-element list. When
+    ``target`` is omitted, every ``past`` column other than ``time``
+    and the column names of ``future`` (if present) is inferred.
 
     Parameters
     ----------
@@ -167,11 +173,12 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     Raises
     ------
     ValidationError
-        If coerced frames fail column checks (missing time/target/
-        known-future columns, or ``future`` omitted when
-        ``known_future`` is set) or dumped fields cannot construct
-        ``CoercedForecastRequest``. Inner validators raise
-        ``ValueError``, which Pydantic wraps.
+        If coerced frames fail column checks (missing time/target
+        columns), inferred ``target`` is empty, or dumped fields
+        cannot construct ``CoercedForecastRequest``. Inner validators
+        raise ``ValueError``, which Pydantic wraps.
+    ValueError
+        If ``time`` is omitted and ``past`` has no columns.
     Exception
         If a frame cannot be converted to narwhals.
 
@@ -182,14 +189,30 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
     encode_request
         Next step on the bytes path.
     """
-    payload = request.model_dump(exclude={"history", "future", "static"})
-    payload["history"] = _to_narwhals(request.history)
-    payload["future"] = (
-        _to_narwhals(request.future) if request.future is not None else None
-    )
+    payload = request.model_dump(exclude={"past", "future", "static"})
+    past = _to_narwhals(request.past)
+    future = _to_narwhals(request.future) if request.future is not None else None
+    payload["past"] = past
+    payload["future"] = future
     payload["static"] = (
         _to_narwhals(request.static) if request.static is not None else None
     )
+
+    if payload["time"] is None:
+        if not past.columns:
+            raise ValueError("time is omitted but past has no columns")
+        payload["time"] = past.columns[0]
+
+    target = payload["target"]
+    if target is None:
+        future_cols = set(future.columns) if future is not None else set()
+        payload["target"] = [
+            col
+            for col in past.columns
+            if col != payload["time"] and col not in future_cols
+        ]
+    elif isinstance(target, str):
+        payload["target"] = [target]
 
     return CoercedForecastRequest.model_validate(payload)
 
@@ -197,9 +220,9 @@ def coerce_request(request: ForecastRequest) -> CoercedForecastRequest:
 def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, bytes]]:
     """Split a coerced request into JSON metadata and Arrow IPC files.
 
-    Frame fields ``history``, ``future``, and ``static`` become named
+    Frame fields ``past``, ``future``, and ``static`` become named
     byte blobs when not ``None``. Remaining fields (``time``, ``target``,
-    ``horizon``, ``context``, ``model``, …) stay in the metadata dict
+    ``fh``, ``model``, …) stay in the metadata dict
     for the multipart ``metadata`` form field.
 
     Parameters
@@ -212,7 +235,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
     metadata : dict
         JSON-serializable fields, excluding encoded frames.
     bytes_encoded : dict of str to bytes
-        Mapping of frame name (``history`` / ``future`` / ``static``)
+        Mapping of frame name (``past`` / ``future`` / ``static``)
         to Arrow IPC stream bytes.
 
     See Also
@@ -221,7 +244,7 @@ def encode_request(request: CoercedForecastRequest) -> tuple[dict, dict[str, byt
         Inverse used by ``POST /forecast/bytes``.
     """
     bytes_encoded = {}
-    for frame in ["history", "future", "static"]:
+    for frame in ["past", "future", "static"]:
         value = getattr(request, frame)
         if value is not None:
             bytes_encoded[frame] = _to_bytes(value)
@@ -240,10 +263,10 @@ def decode_request(
     ----------
     metadata : dict
         JSON object from the multipart ``metadata`` field (non-frame
-        forecast fields such as ``time``, ``target``, ``horizon``,
-        ``model``, ``series_id``, ``params``).
+        forecast fields such as ``time``, ``target``, ``fh``,
+        ``model``).
     bytes_encoded : dict of str to bytes
-        Optional ``history``, ``future``, ``static`` Arrow IPC streams.
+        Optional ``past``, ``future``, ``static`` Arrow IPC streams.
 
     Returns
     -------
@@ -265,7 +288,7 @@ def decode_request(
         Inverse used by ``Client.forecast``.
     """
     payload = dict(metadata)
-    for frame in ["history", "future", "static"]:
+    for frame in ["past", "future", "static"]:
         if frame in bytes_encoded:
             payload[frame] = nw.from_arrow(
                 pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
