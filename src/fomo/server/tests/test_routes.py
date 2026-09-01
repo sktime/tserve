@@ -69,6 +69,26 @@ def _client(runtime):
     return TestClient(app)
 
 
+def test_dashboard():
+    result = _client(_runtime()).get("/")
+
+    assert result.status_code == 200
+    assert result.headers["content-type"].startswith("text/html")
+    assert "<title>FoMo" in result.text
+
+
+def test_static_assets():
+    client = _client(_runtime())
+
+    for path, content_type in [
+        ("/static/index.html", "text/html"),
+        ("/favicon.ico", "image/svg+xml"),
+    ]:
+        result = client.get(path)
+        assert result.status_code == 200, path
+        assert result.headers["content-type"].startswith(content_type), path
+
+
 def test_health():
     result = _client(_runtime()).get("/health")
 
