@@ -149,7 +149,7 @@ include = ["src"]
 # Optional extras are not installed in the code-quality env (`uv sync --group dev`).
 # http → httpx2; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
 allowed-unresolved-imports = [
-"httpx2.**",
+  "httpx2.**",
   "fastapi.**",
   "uvicorn.**",
   "pandas.**",
