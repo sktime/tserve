@@ -8,11 +8,11 @@ Nothing is loaded by default: a bare `fomo serve` starts with an empty model lis
 | id | estimator | id | estimator |
 | --- | --- | --- | --- |
 | `naive` | `NaiveForecaster` | `chronos-2` | `Chronos2Forecaster` |
-| `chronos` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
-| `moirai-2` | `Moirai2Forecaster` | `moirai` | `MOIRAIForecaster` |
-| `ttm` | `TinyTimeMixerForecaster` | `tirex` | `TiRexForecaster` |
-| `timesfm-2.5` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
-| `toto` | `TotoForecaster` | `toto-2` | `Toto2Forecaster` |
+| `chronos-bolt-tiny` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
+| `moirai-2.0-r-small` | `Moirai2Forecaster` | `moirai-1.0-r-small` | `MOIRAIForecaster` |
+| `ttm-r2-512-96` | `TinyTimeMixerForecaster` | `tirex` | `TiRexForecaster` |
+| `timesfm-2.5-200m` | `TimesFM2Forecaster` | `timesfm` | `TimesFMForecaster` |
+| `toto` | `TotoForecaster` | `toto-2.0-22m` | `Toto2Forecaster` |
 | `flowstate` | `FlowStateForecaster` | `patchtsmixer` | `PatchTSMixerForecaster` |
 | `patchtst` | `PatchTSTForecaster` | `windfm` | `WindFMForecaster` |
 | `aurora` | `AuroraForecaster` | `lagllama` | `LagLlamaForecaster` |
@@ -193,15 +193,15 @@ curl -s http://127.0.0.1:8000/forecast \
 ### Quantiles on a real model
 
 Add `quantiles` to get a probabilistic forecast. It works on some loaded ids
-(`timesfm-2.5`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
-`toto-2`, `sundial`, `timer-s1`, `cisctsm`, `falconx`, and `naive`). Asking any other id for
+(`timesfm-2.5-200m`, `flowstate`, `windfm`, `aurora`, `lagllama`, `toto`,
+`toto-2.0-22m`, `sundial`, `timer-s1`, `cisctsm`, `falconx`, and `naive`). Asking any other id for
 quantiles fails with `503 model_unavailable` and the estimator's own message, e.g.
 `ChronosForecaster does not have the capability to return quantile predictions.`
 
 Start a server with a real foundation model. First start downloads weights from the Hub:
 
 ```bash
-uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm-2.5
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models timesfm-2.5-200m
 ```
 
 Twelve monthly observations, three months ahead, 10th/50th/90th percentiles:
@@ -233,7 +233,7 @@ curl -s http://127.0.0.1:8000/forecast \
     "context": 12,
     "freq": "MS",
     "quantiles": [0.1, 0.5, 0.9],
-    "model": "timesfm-2.5"
+    "model": "timesfm-2.5-200m"
   }'
 ```
 
@@ -257,7 +257,7 @@ Real response from that request:
       ["2024-03-01T00:00:00", 245.2987060546875, 243.27342224121094, 251.66632080078125]
     ]
   },
-  "model": "timesfm-2.5",
+  "model": "timesfm-2.5-200m",
   "request_id": "..."
 }
 ```
@@ -289,7 +289,7 @@ with Client("http://127.0.0.1:8000") as client:
         context=12,
         freq="MS",
         quantiles=[0.1, 0.5, 0.9],
-        model="timesfm-2.5",
+        model="timesfm-2.5-200m",
     )
 
 print(result.predictions)
