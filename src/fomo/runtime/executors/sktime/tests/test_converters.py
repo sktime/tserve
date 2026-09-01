@@ -40,9 +40,7 @@ def test_from_request_keeps_integer_index():
 
 def test_from_request_keeps_datetime_index():
     stamps = pd.to_datetime(["2024-01-01", "2024-01-02"])
-    y, *_ = from_request(
-        _request(past=_df(timestamp=stamps, sales=[120, 135]), fh=1)
-    )
+    y, *_ = from_request(_request(past=_df(timestamp=stamps, sales=[120, 135]), fh=1))
 
     assert y.index.equals(pd.DatetimeIndex(stamps, name="timestamp"))
 

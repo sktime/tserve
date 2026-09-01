@@ -147,9 +147,9 @@ include = ["src"]
 
 [tool.ty.analysis]
 # Optional extras are not installed in the code-quality env (`uv sync --group dev`).
-# http → httpx; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+# http → httpx2; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
 allowed-unresolved-imports = [
-  "httpx.**",
+"httpx2.**",
   "fastapi.**",
   "uvicorn.**",
   "pandas.**",
