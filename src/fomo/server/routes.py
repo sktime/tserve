@@ -5,6 +5,10 @@ converters in ``fomo.types.converters`` (``coerce_request``,
 ``decode_request``, ``encode_response``, ``pack_envelope``), not the
 sktime *converters* in ``fomo.runtime.executors.sktime.converters``.
 
+``GET /`` serves the browser dashboard from ``fomo/server/static``,
+which is also mounted at ``/static``. It drives the JSON endpoints only
+(``/health``, ``/models``, ``/stats``, ``POST /forecast``).
+
 ``request.model`` is a loaded model id. ``request_id`` is assigned in
 these handlers: the JSON path puts a UUID on ``ForecastResponse``
 directly; the bytes path overwrites
@@ -15,9 +19,12 @@ forecast failures become ``HTTPException`` 400.
 
 import json
 import uuid
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from fomo.types import (
     ForecastRequest,
@@ -37,8 +44,54 @@ _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
 """Media type for ``POST /forecast/bytes`` envelope bodies."""
 
 
+_STATIC_DIR = Path(__file__).parent / "static"
+"""Directory holding the dashboard assets (``index.html``, css, js, icon)."""
+
+
 router = APIRouter()
-"""FastAPI router included by ``Server`` (health, models, stats, forecast)."""
+"""FastAPI router included by ``Server`` (dashboard, health, models, stats,
+forecast)."""
+
+
+router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
+"""Serve ``fomo/server/static`` under ``/static`` for the dashboard assets."""
+
+
+@router.get("/", include_in_schema=False)
+def dashboard() -> FileResponse:
+    """Serve the dashboard shell as ``GET /``.
+
+    Returns ``static/index.html``; the page then calls the JSON
+    endpoints (``GET /health``, ``GET /models``, ``GET /stats``,
+    ``POST /forecast``) from the browser. ``POST /forecast/bytes`` is
+    not used by the dashboard.
+
+    Returns
+    -------
+    fastapi.responses.FileResponse
+        ``static/index.html`` with media type ``text/html``.
+
+    See Also
+    --------
+    fomo.server.serve.Server
+        Includes this router on the FastAPI app.
+    """
+    return FileResponse(_STATIC_DIR / "index.html", media_type="text/html")
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    """Serve the sktime icon as ``GET /favicon.ico``.
+
+    Browsers request this path directly, so it is served alongside the
+    ``/static/favicon.svg`` copy the page links.
+
+    Returns
+    -------
+    fastapi.responses.FileResponse
+        ``static/favicon.svg`` with media type ``image/svg+xml``.
+    """
+    return FileResponse(_STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
 
 
 @router.get("/health", response_model=HealthResult, response_model_exclude_none=True)
