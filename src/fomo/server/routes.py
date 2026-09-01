@@ -52,6 +52,21 @@ router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 """Serve ``fomo/server/static`` under ``/static`` for the dashboard assets."""
 
 
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    """Serve the sktime icon as ``GET /favicon.ico``.
+
+    Browsers request this path directly, so it is served alongside the
+    ``/static/favicon.svg`` copy the page links.
+
+    Returns
+    -------
+    fastapi.responses.FileResponse
+        ``static/favicon.svg`` with media type ``image/svg+xml``.
+    """
+    return FileResponse(_STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
+
+
 @router.get("/health", response_model=HealthResult, response_model_exclude_none=True)
 def health() -> HealthResult:
     """Return process liveness as ``GET /health``.
