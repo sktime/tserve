@@ -7,8 +7,7 @@ list: ``GET /models`` returns only models ``bootstrap(load_models)`` /
 names (``sktime``, ``pytorch-forecasting``, ``custom``).
 
 Ids are kebab-case and name the checkpoint (family, version, size or
-revision). Short aliases such as ``chronos-2``, ``ttm``, and ``moirai``
-keep older ``--load-models`` strings working.
+revision).
 
 Craft strings stay private to this catalog. ``ModelInfo`` is
 listing-only (``id``, ``executor``, ``source``) and does not expose
@@ -55,13 +54,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'config={"device_map": "auto"})'
         )
     },
-    # Chronos-Bolt. ``chronos`` keeps the historical tiny alias.
-    "chronos": {
-        "spec": (
-            'ChronosForecaster(model_path="amazon/chronos-bolt-tiny", '
-            'config={"device_map": "auto"})'
-        )
-    },
+    # Chronos-Bolt.
     "chronos-bolt-tiny": {
         "spec": (
             'ChronosForecaster(model_path="amazon/chronos-bolt-tiny", '
@@ -139,17 +132,6 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # Moirai 2.0 (small is the only published 2.0 size).
     "moirai-2": {
         "spec": 'Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")'
-    },
-    "moirai-2.0-r-small": {
-        "spec": 'Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")'
-    },
-    # TinyTimeMixer. ``ttm`` is granite r2 512/96, the previous default.
-    "ttm": {
-        "spec": (
-            "TinyTimeMixerForecaster("
-            'model_path="ibm-granite/granite-timeseries-ttm-r2", '
-            'revision="main", fit_strategy="zero-shot")'
-        )
     },
     # TTM r1.
     "ttm-r1-512-96": {
@@ -703,12 +685,6 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     #     )
     # },
     # Time-MoE. Ignored: incompatible dependency pin (`transformers<=4.40.1`).
-    # "timemoe": {
-    #     "spec": (
-    #         'TimeMoEForecaster(model_path="Maple728/TimeMoE-50M", '
-    #         'config={"device_map": "auto"})'
-    #     )
-    # },
     # "timemoe-50m": {
     #     "spec": (
     #         'TimeMoEForecaster(model_path="Maple728/TimeMoE-50M", '
@@ -747,12 +723,6 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     #     "spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2-fevbench", device="auto")'
     # },
     # MOIRAI 1.0 / 1.1. Salesforce safetensors path; map_location auto-picks device.
-    "moirai": {
-        "spec": (
-            'MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small", '
-            'map_location="cpu")'
-        )
-    },
     "moirai-1.0-r-small": {
         "spec": (
             'MOIRAIForecaster(checkpoint_path="Salesforce/moirai-1.0-R-small", '
@@ -792,9 +762,6 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # Toto 1.0. Ignored: incompatible dependency pin
     # (`toto-ts>=0.1.3` pins transformers).
     # "toto": {"spec": 'TotoForecaster(model_path="Datadog/Toto-Open-Base-1.0")'},
-    # "toto-1.0-base": {
-    #     "spec": 'TotoForecaster(model_path="Datadog/Toto-Open-Base-1.0")'
-    # },
     # FlowState. Pin r1.1; Hub ``main`` is still v1.0.
     "flowstate": {
         "spec": (
@@ -815,26 +782,18 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'device_map="auto")'
         )
     },
-    "timesfm-2.5-200m": {
-        "spec": (
-            'TimesFM2Forecaster(model_path="google/timesfm-2.5-200m-transformers", '
-            'device_map="auto")'
-        )
-    },
-    "timesfm-2.0-500m": {
+    "timesfm-2": {
         "spec": (
             'TimesFM2Forecaster(model_path="google/timesfm-2.0-500m-pytorch", '
             'device_map="auto", forward_kwargs={"forecast_context_len": 1024})'
         )
     },
     # Toto 2.0 size grid.
-    "toto-2": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")'},
     "toto-2.0-4m": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-4m")'},
     "toto-2.0-22m": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-22m")'},
     "toto-2.0-313m": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-313m")'},
-    # Toto 2.0 1B / 2.5B. Ignored: large checkpoints not enabled.
-    # "toto-2.0-1b": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-1B")'},
-    # "toto-2.0-2.5b": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-2.5B")'},
+    "toto-2.0-1b": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-1B")'},
+    "toto-2.0-2.5b": {"spec": 'Toto2Forecaster(model_path="Datadog/Toto-2.0-2.5B")'},
     # Sundial. Ignored: incompatible dependency pin (`transformers[torch]~=4.40.0`).
     # "sundial": {"spec": 'SundialForecaster(model_path="thuml/sundial-base-128m")'},
     # Timer. Ignored: incompatible dependency pin (`python<3.13`).
@@ -917,9 +876,6 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # },
     # TimesFM 1.0. Ignored: incompatible dependency pin (`python>=3.10,<3.11`).
     # "timesfm": {"spec": 'TimesFMForecaster(repo_id="google/timesfm-1.0-200m")'},
-    # "timesfm-1.0-200m": {
-    #     "spec": 'TimesFMForecaster(repo_id="google/timesfm-1.0-200m")'
-    # },
     "aurora": {"spec": 'AuroraForecaster(repo_id="DecisionIntelligence/Aurora")'},
     "lagllama": {
         "spec": (
