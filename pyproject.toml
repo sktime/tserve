@@ -36,7 +36,7 @@ dependencies = [
 client = ["fomo[http]"]
 server = ["fastapi", "python-multipart", "uvicorn"]
 # transports specific dependencies
-http = ["httpx", "python-multipart"]
+http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
 sktime-lite = ["sktime"]
