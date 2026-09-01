@@ -10,8 +10,11 @@ Executors only see ``CoercedForecastRequest`` /
 
 Notes
 -----
-Indexes use ``freq="infer"``. ``to_response`` sets ``request_id=""``;
-server routes assign the real id (bytes path overwrites after predict).
+Time is the original ``time`` column, set as the pandas index. Indexes
+already valid for sktime are left unchanged. JSON string timestamps are
+converted with ``pandas.to_datetime``. ``to_response`` sets
+``request_id=""``; server routes assign the real id (bytes path
+overwrites after predict).
 
 See Also
 --------
@@ -26,6 +29,7 @@ from typing import Any
 import narwhals as nw
 import pandas as pd
 from sktime.forecasting.base import ForecastingHorizon
+from sktime.utils.validation.series import is_in_valid_index_types
 
 from fomo.types import CoercedForecastRequest, CoercedForecastResponse
 
@@ -57,8 +61,9 @@ def from_request(
     Returns
     -------
     y : pandas.DataFrame
-        Target columns from past observations, time column as
-        ``DatetimeIndex``.
+        Target columns from past observations, indexed by ``time``.
+        String timestamps (JSON) become ``DatetimeIndex``; integer and
+        datetime indexes are passed through.
     X : pandas.DataFrame or None
         Past exogenous (broadcast static), or ``None``.
     X_future : pandas.DataFrame or None
@@ -139,10 +144,11 @@ def to_response(
 
 
 def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.DataFrame:
-    """Sort by time and set a ``DatetimeIndex`` with ``freq="infer"``.
+    """Set the time column as the index, converting JSON strings if needed.
 
-    Drops the time column from the frame body and names the index
-    ``request.time``.
+    Indexes already valid for sktime (datetime, period, timedelta,
+    range, integer) are unchanged. Anything else, typically a string
+    timestamp column from JSON, is converted with ``pandas.to_datetime``.
 
     Parameters
     ----------
@@ -154,13 +160,12 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.Da
     Returns
     -------
     pandas.DataFrame
-        Time-sorted frame indexed by ``DatetimeIndex``.
+        Frame indexed by ``request.time``.
     """
-    frame = table.to_pandas().sort_values(request.time)
-    index = pd.DatetimeIndex(
-        pd.to_datetime(frame[request.time]), freq="infer", name=request.time
-    )
-    return frame.drop(columns=request.time).set_index(index)
+    frame = table.to_pandas().set_index(request.time)
+    if not is_in_valid_index_types(frame.index):
+        frame.index = pd.to_datetime(frame.index)
+    return frame
 
 
 def _static(request: CoercedForecastRequest) -> dict[str, Any]:

@@ -25,10 +25,24 @@ def test_from_request():
     y, X, X_future, fh, quantiles = from_request(_request())
 
     assert list(y.columns) == ["sales"]
+    assert y.index.equals(pd.DatetimeIndex(["2024-01-01"], name="timestamp"))
     assert X is None
     assert X_future is None
     assert list(fh.to_pandas()) == [1]
     assert quantiles is None
+
+
+def test_from_request_keeps_integer_index():
+    y, *_ = from_request(_request(past=_df(timestamp=[1, 2, 3], sales=[120, 135, 128])))
+
+    assert y.index.equals(pd.Index([1, 2, 3], name="timestamp"))
+
+
+def test_from_request_keeps_datetime_index():
+    stamps = pd.to_datetime(["2024-01-01", "2024-01-02"])
+    y, *_ = from_request(_request(past=_df(timestamp=stamps, sales=[120, 135]), fh=1))
+
+    assert y.index.equals(pd.DatetimeIndex(stamps, name="timestamp"))
 
 
 def test_to_response():

@@ -7,7 +7,7 @@ implements the only concrete ``BaseTransport`` today.
 import json
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 
 from fomo.client.transports.base import BaseTransport
 from fomo.types import HealthResult, ModelsResult, StatsResult

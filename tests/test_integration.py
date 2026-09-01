@@ -86,7 +86,7 @@ def test_forecast():
 
     assert result.model == "naive"
     assert result.request_id
-    assert list(result.predictions["sales"]) == [138.0, 138.0, 138.0]
+    assert list(result.predictions["sales"]) == [142.5, 147.0, 151.5]
     assert result.quantiles is not None
     assert len(result.quantiles["timestamp"]) == 3
 

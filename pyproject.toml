@@ -36,7 +36,7 @@ dependencies = [
 client = ["fomo[http]"]
 server = ["fastapi", "python-multipart", "uvicorn"]
 # transports specific dependencies
-http = ["httpx", "python-multipart"]
+http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
 sktime-lite = ["sktime"]
@@ -62,10 +62,14 @@ sktime = [
 	"gluonts>=0.14.0",
 	"lightning>=2.0",
 	"hydra-core",
-	# FlowState/PatchTSMixer/TSPulse
+	# FlowState/PatchTSMixer
 	"granite-tsfm>=0.3.5",
 	# TiRexForecaster
 	"tirex-ts",
+# Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
+	"toto-models",
+	# MantisForecaster
+	"mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
 
@@ -143,9 +147,9 @@ include = ["src"]
 
 [tool.ty.analysis]
 # Optional extras are not installed in the code-quality env (`uv sync --group dev`).
-# http → httpx; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+# http → httpx2; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
 allowed-unresolved-imports = [
-  "httpx.**",
+  "httpx2.**",
   "fastapi.**",
   "uvicorn.**",
   "pandas.**",
