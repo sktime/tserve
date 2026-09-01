@@ -72,6 +72,11 @@ sktime = [
 	"mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
+docs = [
+	"fomo[server,http,sktime-lite]",
+	"mkdocs-material>=9.6",
+	"mkdocstrings[python]>=0.30",
+]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"

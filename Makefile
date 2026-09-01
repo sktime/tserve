@@ -1,4 +1,4 @@
-.PHONY: quality style
+.PHONY: quality style docs docs-serve
 
 check_dirs := src tests
 
@@ -11,3 +11,9 @@ quality:
 style:
 	uv run ruff check $(check_dirs) --fix
 	uv run ruff format $(check_dirs)
+
+docs:
+	uv run --extra docs mkdocs build --strict
+
+docs-serve:
+	uv run --extra docs mkdocs serve

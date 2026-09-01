@@ -1,0 +1,138 @@
+site_name: FoMo
+site_description: Time series foundation model inference server
+site_url: https://fomo.readthedocs.io
+
+repo_name: sktime/fomo
+repo_url: https://github.com/sktime/fomo
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; FoMo authors
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - toc.follow
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: numpy
+            docstring_section_style: table
+            filters: ["!^_"]
+            group_by_category: true
+            heading_level: 2
+            inherited_members: true
+            members_order: source
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: true
+            show_signature_annotations: true
+            show_source: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+
+watch:
+  - src
+  - docs
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+validation:
+  omitted_files: warn
+  absolute_links: ignore
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+  - Tutorials:
+      - First forecast: tutorials/first-forecast.md
+      - Quantiles: tutorials/quantiles.md
+      - Covariates: tutorials/covariates.md
+  - Use cases:
+      - Notebook and local server: use-cases/notebook.md
+      - Docker sidecar: use-cases/docker-sidecar.md
+      - Embed Server: use-cases/embed-server.md
+  - How-to:
+      - Run the server: how-to/run-server.md
+      - Load models: how-to/load-models.md
+      - Extras and Hub weights: how-to/extras.md
+  - Concepts:
+      - Loaded vs catalog: concepts/loaded-vs-catalog.md
+      - Forecast tables: concepts/forecast-tables.md
+      - Architecture: concepts/architecture.md
+  - Reference:
+      - API: reference/api.md
+      - CLI: reference/cli.md
+      - HTTP: reference/http.md
+      - Errors: reference/errors.md
+      - Model catalog: reference/catalog.md
