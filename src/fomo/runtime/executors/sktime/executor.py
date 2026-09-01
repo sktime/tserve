@@ -4,7 +4,8 @@ Registered as executor name ``sktime``. Registry ids such as ``naive``
 are catalog keys consumed by ``load``, not this plugin name.
 
 ``to_response`` sets ``request_id=""``; server routes assign the real
-id. The converter index uses ``freq="infer"``.
+id. String timestamps are converted with ``pandas.to_datetime``;
+already-valid sktime indexes are left unchanged.
 
 See Also
 --------
@@ -87,10 +88,10 @@ class SktimeExecutor(Executor):
     def warmup(self) -> None:
         """Fit a dummy 3-row ``y`` and ``predict`` with ``fh=[1]``.
 
-        The dummy frame is ``pandas.DataFrame({"y": [0.0, 1.0, 2.0]})``.
+        The dummy frame is ``pandas.DataFrame({"y": [0, 1, 2, ..., 127]})``.
         """
-        self._forecaster.fit(pd.DataFrame({"y": [0.0, 1.0, 2.0]}))
-        self._forecaster.predict(fh=[1])
+        self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
+        self._forecaster.predict()
 
     def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
         """Fit on the request, predict, optionally predict quantiles.
