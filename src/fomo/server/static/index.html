@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FoMo · Forecast Console</title>
+<meta name="description" content="FoMo — time-series foundation model inference server console." />
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__grid"></div>
+  <div class="backdrop__glow backdrop__glow--a"></div>
+  <div class="backdrop__glow backdrop__glow--b"></div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <img class="brand__mark" src="/static/favicon.svg" alt="sktime" width="36" height="36" />
+    <div class="brand__text">
+      <span class="brand__name">FoMo</span>
+      <span class="brand__sub">Time-series foundation model inference</span>
+    </div>
+  </div>
+
+  <div class="topbar__actions">
+    <div id="health-pill" class="pill is-pending" title="GET /health">
+      <span class="pill__dot"></span>
+      <span id="health-pill-text">connecting</span>
+    </div>
+    <label class="switch" title="Poll /health and /stats every 5 seconds">
+      <input type="checkbox" id="auto-refresh" checked />
+      <span class="switch__track"><span class="switch__thumb"></span></span>
+      <span class="switch__label">Live</span>
+    </label>
+    <button id="refresh-btn" class="btn btn--ghost" type="button" title="Refresh health, models and stats">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5"/></svg>
+      <span>Refresh</span>
+    </button>
+    <button id="theme-btn" class="btn btn--ghost btn--icon" type="button" title="Toggle light / dark" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ── left: request builder ───────────────────────────────────────── -->
+  <aside class="col col--controls">
+    <section class="panel panel--controls">
+      <header class="panel__head">
+        <h2 class="panel__title">Forecast request</h2>
+        <code class="tag tag--verb">POST /forecast</code>
+      </header>
+
+      <div class="panel__body stack">
+
+        <div class="field">
+          <label class="field__label" for="model-select">Model</label>
+          <div class="select-wrap">
+            <select id="model-select" class="select"></select>
+            <svg viewBox="0 0 24 24" class="select__chevron" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+          </div>
+          <p class="field__hint" id="model-hint">loading models…</p>
+        </div>
+
+        <div class="field">
+          <div class="field__row">
+            <label class="field__label" for="fh-range">Forecast horizon</label>
+            <output class="field__value" id="fh-value">12</output>
+          </div>
+          <input type="range" id="fh-range" class="range" min="1" max="96" step="1" value="12" />
+          <div class="range__scale"><span>1</span><span>24</span><span>48</span><span>72</span><span>96</span></div>
+          <p class="field__hint">steps ahead of the last observation</p>
+        </div>
+
+        <div class="field">
+          <div class="field__row">
+            <label class="field__label" for="quantiles-toggle">Prediction interval</label>
+            <label class="switch switch--sm">
+              <input type="checkbox" id="quantiles-toggle" checked />
+              <span class="switch__track"><span class="switch__thumb"></span></span>
+            </label>
+          </div>
+          <div class="segmented" id="coverage-group" role="group" aria-label="Interval coverage">
+            <button type="button" class="segmented__item" data-q="0.25,0.5,0.75">50%</button>
+            <button type="button" class="segmented__item is-active" data-q="0.1,0.5,0.9">80%</button>
+            <button type="button" class="segmented__item" data-q="0.05,0.5,0.95">90%</button>
+          </div>
+          <p class="field__hint">executors without quantile support ignore this</p>
+        </div>
+
+        <hr class="rule" />
+
+        <div class="field">
+          <div class="field__row">
+            <span class="field__label">Input series</span>
+            <span class="chip chip--muted" id="data-shape">—</span>
+          </div>
+          <div class="tabs" role="tablist">
+            <button class="tabs__btn is-active" data-tab="sample" role="tab" type="button">Sample</button>
+            <button class="tabs__btn" data-tab="paste" role="tab" type="button">Paste</button>
+            <button class="tabs__btn" data-tab="upload" role="tab" type="button">Upload</button>
+          </div>
+
+          <div class="tabpanel is-active" data-panel="sample">
+            <div class="select-wrap">
+              <select id="sample-select" class="select">
+                <option value="retail">Retail sales · daily</option>
+                <option value="energy">Energy demand · hourly</option>
+                <option value="traffic">API traffic · hourly</option>
+                <option value="airline">Airline passengers · monthly</option>
+              </select>
+              <svg viewBox="0 0 24 24" class="select__chevron" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+            </div>
+            <button id="regen-btn" class="btn btn--ghost btn--block" type="button">
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5"/></svg>
+              <span>Resample series</span>
+            </button>
+          </div>
+
+          <div class="tabpanel" data-panel="paste">
+            <textarea id="csv-input" class="textarea" spellcheck="false"
+              placeholder="timestamp,sales&#10;2024-01-01,120&#10;2024-01-02,135&#10;2024-01-03,128"></textarea>
+            <button id="parse-btn" class="btn btn--ghost btn--block" type="button">Parse CSV</button>
+          </div>
+
+          <div class="tabpanel" data-panel="upload">
+            <label class="dropzone" for="csv-file">
+              <svg viewBox="0 0 24 24" class="dropzone__icon" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+              <span class="dropzone__title">Drop a CSV file</span>
+              <span class="dropzone__hint">or click to browse</span>
+              <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden />
+            </label>
+            <p class="field__hint" id="file-hint">parsed in the browser — nothing is uploaded</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="time-select">Time column</label>
+          <div class="select-wrap">
+            <select id="time-select" class="select"></select>
+            <svg viewBox="0 0 24 24" class="select__chevron" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Target columns</span>
+          <div class="chips" id="target-chips"></div>
+        </div>
+
+        <button id="run-btn" class="btn btn--primary btn--block btn--lg" type="button">
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M5 3.5l14 8.5-14 8.5z"/></svg>
+          <span class="btn__label">Run forecast</span>
+        </button>
+
+        <div id="error-box" class="alert" hidden>
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
+          <div><strong class="alert__title" id="error-title">Request failed</strong><span class="alert__body" id="error-body"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel--log">
+      <header class="panel__head">
+        <h2 class="panel__title">Activity</h2>
+        <button id="clear-log" class="linkbtn" type="button">clear</button>
+      </header>
+      <ol class="log" id="log"></ol>
+    </section>
+  </aside>
+
+  <!-- ── middle: chart + predictions ─────────────────────────────────── -->
+  <section class="col col--main">
+    <section class="panel panel--chart">
+      <header class="panel__head">
+        <div>
+          <h2 class="panel__title">Forecast</h2>
+          <p class="panel__sub" id="chart-sub">run a request to plot predictions</p>
+        </div>
+        <div class="panel__head-actions">
+          <div class="legend" id="legend"></div>
+          <button id="download-btn" class="btn btn--ghost btn--sm" type="button" disabled>
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M12 4v10m0 0l-4-4m4 4l4-4"/><path d="M5 19h14"/></svg>
+            <span>CSV</span>
+          </button>
+        </div>
+      </header>
+      <div class="chart" id="chart">
+        <div class="chart__empty" id="chart-empty">
+          <svg viewBox="0 0 24 24" class="chart__empty-icon" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l3.5-4.5 3 3L20 6"/></svg>
+          <p>No forecast yet</p>
+          <span>Pick a model and horizon, then run the request.</span>
+        </div>
+        <svg class="chart__svg" id="chart-svg" role="img" aria-label="Forecast chart"></svg>
+        <div class="chart__tooltip" id="chart-tooltip" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel panel--table">
+      <header class="panel__head">
+        <h2 class="panel__title">Predictions</h2>
+        <span class="chip chip--muted" id="request-id">request_id —</span>
+      </header>
+      <div class="tablewrap">
+        <table class="table" id="pred-table">
+          <thead><tr><th>—</th></tr></thead>
+          <tbody><tr><td class="table__empty">predictions appear here</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- ── right: health + stats corner cards ──────────────────────────── -->
+  <aside class="col col--status">
+    <section class="panel card card--health" id="health-card">
+      <header class="panel__head">
+        <h2 class="panel__title">Health</h2>
+        <code class="tag">GET /health</code>
+      </header>
+      <div class="card__body">
+        <div class="statusline">
+          <span class="statusline__beacon" id="health-beacon"></span>
+          <span class="statusline__value" id="health-status">…</span>
+        </div>
+        <p class="card__note" id="health-note">waiting for first probe</p>
+      </div>
+    </section>
+
+    <section class="panel card">
+      <header class="panel__head">
+        <h2 class="panel__title">Runtime</h2>
+        <code class="tag">GET /stats</code>
+      </header>
+      <div class="card__body">
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric__label">Uptime</span>
+            <span class="metric__value" id="stat-uptime">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">CPU RSS</span>
+            <span class="metric__value" id="stat-rss">—<small>MB</small></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">GPU</span>
+            <span class="metric__value" id="stat-gpu">—<small>MB</small></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Models</span>
+            <span class="metric__value" id="stat-models">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel card">
+      <header class="panel__head">
+        <h2 class="panel__title">Requests</h2>
+        <span class="chip chip--muted" id="req-total">0 total</span>
+      </header>
+      <div class="card__body">
+        <div class="bar" id="req-bar">
+          <div class="bar__seg bar__seg--ok" id="req-ok-bar"></div>
+          <div class="bar__seg bar__seg--err" id="req-err-bar"></div>
+        </div>
+        <div class="keyvals">
+          <div class="keyval"><span class="dotmark dotmark--ok"></span>ok<b id="req-ok">0</b></div>
+          <div class="keyval"><span class="dotmark dotmark--err"></span>failed<b id="req-failed">0</b></div>
+        </div>
+        <div class="metrics metrics--3">
+          <div class="metric metric--tight">
+            <span class="metric__label">mean</span><span class="metric__value" id="lat-mean">—</span>
+          </div>
+          <div class="metric metric--tight">
+            <span class="metric__label">fastest</span><span class="metric__value" id="lat-fast">—</span>
+          </div>
+          <div class="metric metric--tight">
+            <span class="metric__label">slowest</span><span class="metric__value" id="lat-slow">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel card card--models">
+      <header class="panel__head">
+        <h2 class="panel__title">Loaded models</h2>
+        <code class="tag">GET /models</code>
+      </header>
+      <div class="card__body card__body--flush">
+        <ul class="modellist" id="model-list">
+          <li class="modellist__empty">loading…</li>
+        </ul>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<footer class="footer">
+  <span>FoMo inference server</span>
+  <span class="footer__dot">•</span>
+  <a href="/docs" target="_blank" rel="noreferrer">OpenAPI docs</a>
+  <span class="footer__dot">•</span>
+  <span id="footer-clock">—</span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

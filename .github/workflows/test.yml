@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  code-quality:
+    name: code-quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: uv sync --group dev
+
+      - name: Run pre-commit
+        run: uv run pre-commit run --all-files --show-diff-on-failure
+
+  pytest:
+    needs: code-quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: uv sync --all-extras
+
+      - name: Run pytest
+        run: uv run pytest

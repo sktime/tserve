@@ -1,4 +1,9 @@
-from __future__ import annotations
+"""HTTP inference server.
+
+``Server`` loads the models you name, then serves forecasts, a
+dashboard at ``/``, and OpenAPI at ``/docs``. CLI ``fomo serve``
+constructs this class and calls ``run``.
+"""
 
 import logging
 from pathlib import Path
@@ -9,20 +14,59 @@ from fastapi import FastAPI
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
-from fomo.types import ModelInfo
 
 
 class Server:
+    """Run a FoMo inference HTTP server.
+
+    Parameters
+    ----------
+    load_models : list of str or (str, object), optional
+        Registry ids to load, or ``(id, estimator)`` pairs. Default
+        ``[]`` loads nothing. When ``models_dir`` is set, matching
+        ``.zip`` stems already in this list are loaded from disk.
+    models_dir : str or pathlib.Path, optional
+        Directory of saved sktime ``.zip`` files. Not loaded wholesale.
+    host : str, default ``"127.0.0.1"``
+        Bind address.
+    port : int, default 8000
+        Bind port.
+    log_level : str, default ``"info"``
+        Uvicorn log level.
+
+    Attributes
+    ----------
+    url : str
+        ``http://{host}:{port}``.
+    app : fastapi.FastAPI
+        The ASGI app (dashboard, JSON, OpenAPI).
+
+    Raises
+    ------
+    ValueError
+        Unknown registry id, non-zip path, or duplicate id.
+    TypeError
+        ``(id, object)`` whose object is not a sktime ``BaseForecaster``.
+    ImportError
+        Executor extra is not installed.
+
+    Examples
+    --------
+    >>> from fomo.server import Server
+    >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
+    """
+
     def __init__(
         self,
-        load_models: list[str | tuple[str, Any]] = [],
+        load_models: list[str | Path | tuple[str, Any]] | None = None,
         models_dir: str | Path | None = None,
         *,
         host: str = "127.0.0.1",
         port: int = 8000,
         log_level: str = "info",
     ) -> None:
-        self.load_models = load_models
+        """Construct a Server."""
+        self.load_models = list(load_models) if load_models is not None else []
         self.models_dir = Path(models_dir) if models_dir is not None else None
         self.host = host
         self.port = port
@@ -43,9 +87,11 @@ class Server:
 
     @property
     def url(self) -> str:
+        """Return ``http://{host}:{port}``."""
         return f"http://{self.host}:{self.port}"
 
     def run(self) -> None:
+        """Serve ``self.app`` with uvicorn. Blocks until the process exits."""
         logging.basicConfig(level=logging.INFO)
         uvicorn.run(
             self.app,

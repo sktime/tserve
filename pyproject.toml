@@ -36,12 +36,10 @@ dependencies = [
 client = ["fomo[http]"]
 server = ["fastapi", "python-multipart", "uvicorn"]
 # transports specific dependencies
-http = ["httpx", "python-multipart"]
+http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
-# dataframe backend specific dependencies
-pandas = ["pandas"]
-polars = ["polars"]
 # executors specific dependencies
+sktime-lite = ["sktime"]
 sktime = [
 	"sktime",
 	"skpro",
@@ -64,22 +62,39 @@ sktime = [
 	"gluonts>=0.14.0",
 	"lightning>=2.0",
 	"hydra-core",
-	# FlowState/PatchTSMixer/TSPulse
+	# FlowState/PatchTSMixer
 	"granite-tsfm>=0.3.5",
 	# TiRexForecaster
 	"tirex-ts",
+# Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
+	"toto-models",
+	# MantisForecaster
+	"mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
+docs = [
+	"fomo[server,http,sktime-lite]",
+	"mkdocs-material>=9.6",
+	"mkdocstrings[python]>=0.30",
+]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"
 
 [project.urls]
-# todo: add homepage once it is ready
-# HomePage = ""
+Homepage = "https://fomo.readthedocs.io"
+Documentation = "https://fomo.readthedocs.io"
+Repository = "https://github.com/sktime/fomo"
+Issues = "https://github.com/sktime/fomo/issues"
 
 [dependency-groups]
-dev = ["pytest"]
+dev = [
+  "pytest",
+  "pre-commit>=4",
+  "ruff>=0.16.5",
+  "ty>=0.0.75",
+  "codespell>=2.4.3",
+]
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
@@ -87,8 +102,67 @@ dev = ["pytest"]
 # works from anywhere
 packages = ["src/fomo"]
 
-[tool.basedpyright]
-pythonVersion = "3.13"
-venvPath = "."
-venv = ".venv"
-extraPaths = ["src"]
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "W",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "C4",
+  "SIM",
+  "FURB",
+  "S",
+  "PT",
+  "RUF",
+  "D",
+]
+ignore = [
+  "S101",  # assert is fine in tests and contracts
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+# craft strings are data (HF model paths); wrapping them hurts grep
+"src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
+# D is phased: public API first (client, types, cli). sktime ignores D in tests.
+"**/tests/**" = ["S", "D"]
+"tests/**" = ["S", "D"]
+"src/fomo/runtime/**" = ["D"]
+"src/fomo/server/**" = ["D"]
+"src/fomo/scheduling/**" = ["D"]
+"src/fomo/logging/**" = ["D"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fomo"]
+
+[tool.ty.environment]
+python-version = "3.12"
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src"]
+
+[tool.ty.analysis]
+# Optional extras are not installed in the code-quality env (`uv sync --group dev`).
+# http → httpx2; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+allowed-unresolved-imports = [
+  "httpx2.**",
+  "fastapi.**",
+  "uvicorn.**",
+  "pandas.**",
+  "sktime.**",
+]
+
+[tool.codespell]
+# skip caches, venvs, lockfiles, and local untracked dirs
+skip = ".git,.venv,.ruff_cache,.ty_cache,.pytest_cache,.mypy_cache,uv.lock,__pycache__,*.pyc,my-models,notes,scripts"

@@ -1,8 +1,30 @@
+"""HTTP routes for health, listing, stats, and forecast.
+
+Mounted on the FastAPI app by ``Server``. Forecast handlers use *wire*
+converters in ``fomo.types.converters`` (``coerce_request``,
+``decode_request``, ``encode_response``, ``pack_envelope``), not the
+sktime *converters* in ``fomo.runtime.executors.sktime.converters``.
+
+``GET /`` serves the browser dashboard from ``fomo/server/static``,
+which is also mounted at ``/static``. It drives the JSON endpoints only
+(``/health``, ``/models``, ``/stats``, ``POST /forecast``).
+
+``request.model`` is a loaded model id. ``request_id`` is assigned in
+these handlers: the JSON path puts a UUID on ``ForecastResponse``
+directly; the bytes path overwrites
+``CoercedForecastResponse.request_id`` after predict (sktime
+``to_response`` sets ``""``). FoMo has no custom exception types;
+forecast failures become ``HTTPException`` 400.
+"""
+
 import json
-import struct
 import uuid
+from pathlib import Path
+from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from fomo.types import (
     ForecastRequest,
@@ -11,80 +33,276 @@ from fomo.types import (
     ModelsResult,
     StatsResult,
 )
-from fomo.types.converters import coerce_request, decode_request, encode_response
+from fomo.types.converters import (
+    coerce_request,
+    decode_request,
+    encode_response,
+    pack_envelope,
+)
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
+"""Media type for ``POST /forecast/bytes`` envelope bodies."""
 
 
-def _pack_envelope(metadata: dict, files: dict[str, bytes]) -> bytes:
-    parts = [("response", json.dumps(metadata).encode()), *files.items()]
-    body = bytearray(b"FOMO")
-    body.append(1)
-    body.extend(struct.pack("<I", len(parts)))
-    for name, payload in parts:
-        name_b = name.encode()
-        body.extend(struct.pack("<I", len(name_b)))
-        body.extend(name_b)
-        body.extend(struct.pack("<I", len(payload)))
-        body.extend(payload)
-    return bytes(body)
+_STATIC_DIR = Path(__file__).parent / "static"
+"""Directory holding the dashboard assets (``index.html``, css, js, icon)."""
 
 
 router = APIRouter()
+"""FastAPI router included by ``Server`` (dashboard, health, models, stats,
+forecast)."""
+
+
+router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
+"""Serve ``fomo/server/static`` under ``/static`` for the dashboard assets."""
+
+
+@router.get("/", include_in_schema=False)
+def dashboard() -> FileResponse:
+    """Serve the dashboard shell as ``GET /``.
+
+    Returns ``static/index.html``; the page then calls the JSON
+    endpoints (``GET /health``, ``GET /models``, ``GET /stats``,
+    ``POST /forecast``) from the browser. ``POST /forecast/bytes`` is
+    not used by the dashboard.
+
+    Returns
+    -------
+    fastapi.responses.FileResponse
+        ``static/index.html`` with media type ``text/html``.
+
+    See Also
+    --------
+    fomo.server.serve.Server
+        Includes this router on the FastAPI app.
+    """
+    return FileResponse(_STATIC_DIR / "index.html", media_type="text/html")
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    """Serve the sktime icon as ``GET /favicon.ico``.
+
+    Browsers request this path directly, so it is served alongside the
+    ``/static/favicon.svg`` copy the page links.
+
+    Returns
+    -------
+    fastapi.responses.FileResponse
+        ``static/favicon.svg`` with media type ``image/svg+xml``.
+    """
+    return FileResponse(_STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
 
 
 @router.get("/health", response_model=HealthResult, response_model_exclude_none=True)
 def health() -> HealthResult:
+    """Return process liveness as ``GET /health``.
+
+    Always returns ``HealthResult(status="ok")`` today. ``HealthError``
+    is a nested payload model on ``HealthResult.error``, not an
+    exception this handler raises.
+
+    Returns
+    -------
+    HealthResult
+        ``status="ok"`` with ``error`` omitted.
+
+    See Also
+    --------
+    fomo.types.models.HealthResult
+        Response schema, including unused ``error``.
+    fomo.types.models.HealthError
+        Payload nested under ``HealthResult.error``, never raised.
+    """
     return HealthResult(status="ok")
 
 
 @router.get("/models", response_model=ModelsResult)
 def models(request: Request) -> ModelsResult:
+    """List **loaded** models as ``GET /models``.
+
+    Delegates to ``runtime.loaded_models()``. This is not the full
+    registry catalog: ids never passed to ``load_models`` /
+    ``--load-models`` do not appear.
+
+    Parameters
+    ----------
+    request : fastapi.Request
+        Used to read ``app.state.runtime``.
+
+    Returns
+    -------
+    ModelsResult
+        Currently loaded models (may be empty).
+
+    See Also
+    --------
+    fomo.types.models.ModelsResult
+        Response schema.
+    fomo.runtime.bootstrap.Runtime.loaded_models
+        Source of the listing.
+    """
     return request.app.state.runtime.loaded_models()
 
 
 @router.get("/stats", response_model=StatsResult)
 def stats(request: Request) -> StatsResult:
+    """Return runtime metrics as ``GET /stats``.
+
+    Builds ``StatsResult.model_validate(runtime.stats.snapshot())``.
+
+    Parameters
+    ----------
+    request : fastapi.Request
+        Used to read ``app.state.runtime``.
+
+    Returns
+    -------
+    StatsResult
+        Uptime, memory probes, and per loaded-model-id metrics.
+
+    See Also
+    --------
+    fomo.types.models.StatsResult
+        Response schema.
+    fomo.logging.stats.Stats.snapshot
+        Dict this handler validates.
+    """
     return StatsResult.model_validate(request.app.state.runtime.stats.snapshot())
 
 
 @router.post("/forecast", response_model=ForecastResponse)
 def forecast(request: ForecastRequest, http_request: Request) -> ForecastResponse:
+    """Run a JSON ``POST /forecast``.
+
+    Assigns a UUID ``request_id``, coerces the body with
+    ``coerce_request``, then ``scheduler.run``. On success, returns
+    ``ForecastResponse`` with ``predictions`` (and ``quantiles`` when
+    present) as ``to_dict(as_series=False)``, ``model`` from the
+    executor response, and the UUID. Handler failures (coerce or
+    predict) become ``HTTPException`` 400 with ``detail``
+    ``{error: str(exc), code: "request_failed", request_id}``. Invalid
+    JSON bodies that fail ``ForecastRequest`` validation are rejected
+    by FastAPI as 422 before this handler runs.
+
+    ``request.model`` is a loaded model id, not an executor name.
+
+    Parameters
+    ----------
+    request : ForecastRequest
+        JSON body. See that class for fields.
+    http_request : fastapi.Request
+        Used to read ``app.state.runtime.scheduler``.
+
+    Returns
+    -------
+    ForecastResponse
+        Column-dict tables plus ``model`` and ``request_id``.
+
+    Raises
+    ------
+    HTTPException
+        Status 400 when coerce or predict fails. FoMo has no custom
+        exception types. FastAPI/Pydantic body validation on this
+        JSON route is 422, not 400.
+
+    See Also
+    --------
+    ForecastRequest
+        JSON body schema.
+    fomo.types.converters.coerce_request
+        Wire conversion to ``CoercedForecastRequest``.
+    forecast_bytes
+        Multipart / Arrow envelope variant.
+    """
     request_id = str(uuid.uuid4())
 
     try:
-        request = coerce_request(request)
-        response = http_request.app.state.runtime.scheduler.run(request)
+        coerced = coerce_request(request)
+        response = http_request.app.state.runtime.scheduler.run(coerced)
 
     except Exception as exc:
-        if isinstance(exc, ValueError):
-            status_code, code = 400, "bad_request"
-        elif isinstance(exc, RuntimeError):
-            status_code, code = 503, "model_unavailable"
-        else:
-            status_code, code = 500, "internal_error"
         raise HTTPException(
-            status_code=status_code,
-            detail={"error": str(exc), "code": code, "request_id": request_id},
+            status_code=400,
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
-    response.request_id = request_id
-    response.predictions = response.predictions.to_dict(as_series=False)
-    if response.quantiles is not None:
-        response.quantiles = response.quantiles.to_dict(as_series=False)
-
-    return response
+    return ForecastResponse(
+        predictions=response.predictions.to_dict(as_series=False),
+        model=response.model,
+        request_id=request_id,
+        quantiles=(
+            response.quantiles.to_dict(as_series=False)
+            if response.quantiles is not None
+            else None
+        ),
+    )
 
 
 @router.post("/forecast/bytes")
 async def forecast_bytes(
     http_request: Request,
-    metadata: str = Form(),
-    history: UploadFile = File(),
-    future: UploadFile | None = File(None),
-    static: UploadFile | None = File(None),
+    metadata: Annotated[str, Form()],
+    past: Annotated[UploadFile, File()],
+    future: Annotated[UploadFile | None, File()] = None,
+    static: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
-    files = {"history": await history.read()}
+    """Run a multipart ``POST /forecast/bytes``.
+
+    Form field ``metadata`` is a JSON string; file ``past`` is
+    required; ``future`` and ``static`` are optional. Empty file bodies
+    for ``future``/``static`` are skipped (not attached). ``past`` is
+    always included.
+
+    After ``json.loads(metadata)``, calls ``decode_request``, then
+    ``scheduler.run``. Sets ``response.request_id`` to a UUID (sktime
+    ``to_response`` leaves ``""``), then ``encode_response`` and
+    ``pack_envelope``. Media type is
+    ``application/vnd.fomo.forecast+arrow``. Failures use the same
+    HTTP 400 wrapping as ``forecast``.
+
+    Parameters
+    ----------
+    http_request : fastapi.Request
+        Used to read ``app.state.runtime.scheduler``.
+    metadata : str
+        JSON object of scalar forecast fields (multipart ``metadata``).
+    past : fastapi.UploadFile
+        Required past-frame bytes.
+    future : fastapi.UploadFile, optional
+        Optional future-frame bytes; omitted when the body is empty.
+    static : fastapi.UploadFile, optional
+        Optional static-frame bytes; omitted when the body is empty.
+
+    Returns
+    -------
+    fastapi.Response
+        Packed ``FOMO`` envelope with media type
+        ``application/vnd.fomo.forecast+arrow``.
+
+    Raises
+    ------
+    HTTPException
+        Status 400 when JSON parse, decode, or predict fails.
+
+    See Also
+    --------
+    ForecastRequest
+        Field semantics split across metadata vs files.
+    fomo.types.converters.decode_request
+        Rebuilds ``CoercedForecastRequest`` from metadata + Arrow.
+    fomo.types.converters.encode_response
+        Splits the coerced response into metadata and files.
+    fomo.types.converters.pack_envelope
+        Binary envelope written as the response body.
+    forecast
+        JSON variant that assigns ``request_id`` on ``ForecastResponse``.
+    """
+    files = {"past": await past.read()}
     if future is not None:
         blob = await future.read()
         if blob:
@@ -97,26 +315,24 @@ async def forecast_bytes(
     request_id = str(uuid.uuid4())
 
     try:
-        metadata = json.loads(metadata)
-        request: ForecastRequest = decode_request(metadata, files)
+        parsed_metadata = json.loads(metadata)
+        request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
 
     except Exception as exc:
-        if isinstance(exc, ValueError):
-            status_code, code = 400, "bad_request"
-        elif isinstance(exc, RuntimeError):
-            status_code, code = 503, "model_unavailable"
-        else:
-            status_code, code = 500, "internal_error"
         raise HTTPException(
-            status_code=status_code,
-            detail={"error": str(exc), "code": code, "request_id": request_id},
+            status_code=400,
+            detail={
+                "error": str(exc),
+                "code": "request_failed",
+                "request_id": request_id,
+            },
         ) from exc
 
     response.request_id = request_id
 
-    metadata, files = encode_response(response)
+    response_metadata, response_files = encode_response(response)
     return Response(
-        content=_pack_envelope(metadata, files),
+        content=pack_envelope(response_metadata, response_files),
         media_type=_ENVELOPE_CONTENT_TYPE,
     )

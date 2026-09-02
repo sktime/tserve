@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 <!--
-Add a Minimal, Complete, and Verifiable example (for more details, see e.g. 
+Add a Minimal, Complete, and Verifiable example (for more details, see e.g.
 https://stackoverflow.com/help/mcve
 
 If the code is too long, feel free to put it in a public gist and link
