@@ -27,9 +27,9 @@ requires-python = ">=3.12"
 # note: this has to stay inside [project]. It used to sit below [project.urls],
 # where toml reads it as project.urls.dependencies - so nothing was declared.
 dependencies = [
-	"pydantic",
-	"narwhals",
-	"pyarrow>=25.0.1",
+  "pydantic",
+  "narwhals",
+  "pyarrow>=25.0.1",
 ]
 
 [project.optional-dependencies]
@@ -41,41 +41,41 @@ grpc = ["grpcio"]
 # executors specific dependencies
 sktime-lite = ["sktime"]
 sktime = [
-	"sktime",
-	"skpro",
-	# estimators-general-deps
-	"torch",
-	"transformers",
-	"accelerate",
-	"huggingface_hub",
-	"hf-xet",
-	"safetensors",
-	"einops",
-	"tqdm",
-	# estimators-specific-deps
-	# Chronos2Forecaster
-	"chronos-forecasting>=2.0.0",
-	# AuroraForecaster
-	"aurora-model==0.2.0",
-	"torchvision",
-	# MOIRAI/Moirai2/LagLlama
-	"gluonts>=0.14.0",
-	"lightning>=2.0",
-	"hydra-core",
-	# FlowState/PatchTSMixer
-	"granite-tsfm>=0.3.5",
-	# TiRexForecaster
-	"tirex-ts",
-# Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
-	"toto-models",
-	# MantisForecaster
-	"mantis-tsfm>=1.0.0",
+  "sktime",
+  "skpro",
+  # estimators-general-deps
+  "torch",
+  "transformers",
+  "accelerate",
+  "huggingface_hub",
+  "hf-xet",
+  "safetensors",
+  "einops",
+  "tqdm",
+  # estimators-specific-deps
+  # Chronos2Forecaster
+  "chronos-forecasting>=2.0.0",
+  # AuroraForecaster
+  "aurora-model==0.2.0",
+  "torchvision",
+  # MOIRAI/Moirai2/LagLlama
+  "gluonts>=0.14.0",
+  "lightning>=2.0",
+  "hydra-core",
+  # FlowState/PatchTSMixer
+  "granite-tsfm>=0.3.5",
+  # TiRexForecaster
+  "tirex-ts",
+  # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
+  "toto-models",
+  # MantisForecaster
+  "mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
 docs = [
-	"fomo[server,http,sktime-lite]",
-	"mkdocs-material>=9.6",
-	"mkdocstrings[python]>=0.30",
+  "fomo[server,http,sktime-lite]",
+  "mkdocs-material>=9.6",
+  "mkdocstrings[python]>=0.30",
 ]
 
 [project.scripts]
