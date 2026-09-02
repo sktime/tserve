@@ -1,8 +1,9 @@
 """Python client for a running FoMo inference server.
 
 Import ``Client`` from ``fomo.client``. Tables keep the type you send
-(pandas in, pandas out). JSON ``POST /forecast`` is the curl path; this
-client sends Arrow to ``POST /forecast/bytes``.
+as ``past`` (pandas, polars, pyarrow, narwhals, or dict). JSON
+``POST /forecast`` is the curl path; this client sends Arrow to
+``POST /forecast/bytes``.
 """
 
 from typing import Any, Self

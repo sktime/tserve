@@ -182,7 +182,7 @@ past = {
 
 **polars** — see [quantiles](#quantiles). Requires `pip install polars` (the `polars` package, not FoMo).
 
-**pyarrow** Table is a supported request shape, but `Client.forecast` does not restore a pyarrow Table on the way back. Convert first:
+**pyarrow** Table:
 
 ```python
 import pyarrow as pa
@@ -198,14 +198,14 @@ past = pa.table(
         ],
         "sales": [120.0, 135.0, 128.0, 142.0, 138.0],
     }
-).to_pandas()
+)
 result = client.forecast(
     past=past, time="timestamp", target=["sales"], fh=3, model="ttm-r3-52-16"
 )
-type(result.predictions)  # pandas.DataFrame
+type(result.predictions)  # pyarrow.Table
 ```
 
-**Narwhals** wrapping pandas comes back as pandas (the native implementation):
+**Narwhals** (stays Narwhals, same backend as `past`):
 
 ```python
 import narwhals as nw
@@ -222,7 +222,7 @@ past = nw.from_native(
 result = client.forecast(
     past=past, time="timestamp", target=["sales"], fh=3, model="ttm-r3-52-16"
 )
-type(result.predictions)  # pandas.DataFrame
+type(result.predictions)  # narwhals.DataFrame
 ```
 
 You can omit `time` and `target` when the first column is time and the rest are targets:
