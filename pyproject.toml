@@ -34,7 +34,7 @@ dependencies = [
 
 [project.optional-dependencies]
 client = ["fomo[http]"]
-server = ["fastapi", "python-multipart", "uvicorn"]
+server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime-lite]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
