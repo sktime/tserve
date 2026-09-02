@@ -91,7 +91,7 @@ dev = [
   "codespell>=2.4.3",
 ]
 docs = [
-  "fomo[server,http,sktime-lite]",
+  "fomo[server,client]",
   "mkdocs-material>=9.6",
   "mkdocstrings[python]>=0.30",
 ]
