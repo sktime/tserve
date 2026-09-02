@@ -72,11 +72,6 @@ sktime = [
   "mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
-docs = [
-  "fomo[server,http,sktime-lite]",
-  "mkdocs-material>=9.6",
-  "mkdocstrings[python]>=0.30",
-]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"
@@ -94,6 +89,11 @@ dev = [
   "ruff>=0.16.5",
   "ty>=0.0.75",
   "codespell>=2.4.3",
+]
+docs = [
+  "fomo[server,http,sktime-lite]",
+  "mkdocs-material>=9.6",
+  "mkdocstrings[python]>=0.30",
 ]
 
 [tool.hatch.build.targets.wheel]
