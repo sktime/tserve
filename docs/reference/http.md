@@ -1,35 +1,24 @@
-# HTTP API
+# HTTP
 
-Routes live on [`fomo.server.routes`][fomo.server.routes] and are included by [`Server`][fomo.server.serve.Server]. After `fomo serve`, the live OpenAPI UI is the interactive source of truth:
-
-- Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-- Schema: [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
-
-There is no hosted FoMo API. Those URLs stay on the running app.
+Routes on the running [`Server`][fomo.server.serve.Server]. Live OpenAPI is the interactive source of truth: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
 | method | path | |
 | --- | --- | --- |
-| `GET` | `/` | browser dashboard (JSON endpoints only; not `/forecast/bytes`) |
-| `GET` | `/health` | liveness; currently always [`HealthResult`][fomo.types.models.HealthResult] `status="ok"` |
-| `GET` | `/models` | loaded models ([`ModelsResult`][fomo.types.models.ModelsResult]) |
-| `GET` | `/stats` | uptime, memory, per loaded-id metrics ([`StatsResult`][fomo.types.models.StatsResult]) |
-| `POST` | `/forecast` | JSON [`ForecastRequest`][fomo.types.models.ForecastRequest] |
-| `POST` | `/forecast/bytes` | multipart metadata + Arrow frames; response `application/vnd.fomo.forecast+arrow` |
-| `GET` | `/docs` | FastAPI Swagger UI |
-| `GET` | `/redoc` | FastAPI ReDoc |
+| `GET` | `/` | [dashboard](../walkthrough/dashboard.md) |
+| `GET` | `/health` | liveness; currently always `{"status":"ok"}` |
+| `GET` | `/models` | loaded models (`id`, `executor`, `source`) |
+| `GET` | `/stats` | uptime, memory, per loaded-id metrics |
+| `POST` | `/forecast` | JSON body — [`ForecastRequest`][fomo.types.models.ForecastRequest] |
+| `POST` | `/forecast/bytes` | Arrow; used by [`Client`][fomo.client.client.Client] |
+| `GET` | `/docs` | Swagger |
+| `GET` | `/redoc` | ReDoc |
 | `GET` | `/openapi.json` | OpenAPI schema |
 
-`GET /health` is liveness, not “models are warm”. [`HealthError`][fomo.types.models.HealthError] is a nested payload on `HealthResult.error`, not something the handler raises; the live route omits `error`.
+`GET /health` is not “models are warm”. `GET /models` is not the registry catalog.
 
 ## JSON `POST /forecast`
 
-`Content-Type: application/json`. Body is [`ForecastRequest`][fomo.types.models.ForecastRequest]. The handler assigns a UUID `request_id`, runs [`coerce_request`][fomo.types.converters.coerce_request], then [`Scheduler.run`][fomo.scheduling.scheduler.Scheduler.run]. On success, [`ForecastResponse`][fomo.types.models.ForecastResponse] with `predictions` / `quantiles` as column dicts.
-
-Invalid JSON bodies that fail Pydantic validation are **422** before the handler runs. Coerce or predict failures are **400** with `detail` `{error, code: "request_failed", request_id}`. See [Errors](errors.md).
-
-`request.model` is a loaded model id. Tables: [Forecast tables](../concepts/forecast-tables.md).
+`Content-Type: application/json`. Fields: [Client](../walkthrough/client.md#request-fields).
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
@@ -46,22 +35,8 @@ curl -s http://127.0.0.1:8000/forecast \
   }'
 ```
 
+Invalid bodies are **422**. Coerce or predict failures are **400** — see [Errors](errors.md).
+
 ## Bytes `POST /forecast/bytes`
 
-This is the [`Client`][fomo.client.client.Client] / [`HttpTransport`][fomo.client.transports.http.HttpTransport] wire. Form field `metadata` is a JSON string of scalar fields (`time`, `target`, `fh`, `model`, `quantiles`, …). File `past` is required; `future` and `static` are optional. Empty file bodies for `future` / `static` are skipped. Arrow parts use content type `application/vnd.apache.arrow.stream`.
-
-The handler [`decode_request`][fomo.types.converters.decode_request], runs the scheduler, overwrites `request_id` (sktime [`to_response`][fomo.runtime.executors.sktime.converters.to_response] leaves `""`), then [`encode_response`][fomo.types.converters.encode_response] and [`pack_envelope`][fomo.types.converters.pack_envelope]. Media type is `application/vnd.fomo.forecast+arrow`. Failures use the same HTTP 400 wrapping as JSON.
-
-## Status
-
-```bash
-curl -s http://127.0.0.1:8000/health
-# {"status":"ok"}
-
-curl -s http://127.0.0.1:8000/models
-# {"models":[{"id":"naive","executor":"sktime","source":"registry"}]}
-
-curl -s http://127.0.0.1:8000/stats
-```
-
-[`Stats.snapshot`][fomo.logging.stats.Stats.snapshot] is validated as [`StatsResult`][fomo.types.models.StatsResult]: `uptime_s`, `memory` (`cpu_rss_mb`, `gpu_mb`; either may be `None`), and per **loaded model id** load/warmup/request/latency counters.
+Multipart: JSON `metadata` plus Arrow files (`past` required; `future` / `static` optional). Response media type `application/vnd.fomo.forecast+arrow`. You normally go through [`Client`][fomo.client.client.Client] instead of building this by hand.

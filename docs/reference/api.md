@@ -1,47 +1,50 @@
-# API reference
+# Python API
 
-Python API generated from NumPy-style docstrings in the source. Guides link here with identifiers such as [`Client`][fomo.client.client.Client] and [`ForecastRequest`][fomo.types.models.ForecastRequest].
-
-Public entry points: [`Client`][fomo.client.client.Client], [`Server`][fomo.server.serve.Server], [`main`][fomo.cli.main.main], and the models in [`fomo.types.models`][fomo.types.models].
+Public entry points. Guides use [`Client`][fomo.client.client.Client], [`Server`][fomo.server.serve.Server], and [`ForecastRequest`][fomo.types.models.ForecastRequest].
 
 ## Client
 
-::: fomo.client.client
-::: fomo.client.transports.base
-::: fomo.client.transports.http
-
-## Types
-
-::: fomo.types.models
-::: fomo.types.converters
+::: fomo.client.client.Client
+    options:
+      members:
+        - forecast
+        - health
+        - models
+        - stats
+        - close
 
 ## Server
 
-::: fomo.server.serve
-::: fomo.server.routes
+::: fomo.server.serve.Server
+    options:
+      members:
+        - run
+        - url
 
-## CLI
+## Request and response
 
-::: fomo.cli.main
+::: fomo.types.models.ForecastRequest
+    options:
+      members: false
 
-## Runtime
+::: fomo.types.models.ForecastResponse
+    options:
+      members: false
 
-::: fomo.runtime.bootstrap
-::: fomo.runtime.registry.resolver
-::: fomo.runtime.registry.sktime_registry
+## Status payloads
 
-## Executors
+::: fomo.types.models.HealthResult
+    options:
+      members: false
 
-::: fomo.runtime.executors.base
-::: fomo.runtime.executors.plugins
-::: fomo.runtime.executors.sktime.executor
-::: fomo.runtime.executors.sktime.converters
-::: fomo.runtime.executors.pytorch_forecasting.executor
+::: fomo.types.models.ModelsResult
+    options:
+      members: false
 
-## Scheduling
+::: fomo.types.models.ModelInfo
+    options:
+      members: false
 
-::: fomo.scheduling.scheduler
-
-## Logging
-
-::: fomo.logging.stats
+::: fomo.types.models.StatsResult
+    options:
+      members: false

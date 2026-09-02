@@ -1,9 +1,8 @@
-"""Build and run the FoMo FastAPI inference server.
+"""HTTP inference server.
 
-``Server`` calls ``bootstrap`` on ``load_models`` (after optional
-``models_dir`` path rewriting), attaches the runtime to
-``app.state.runtime``, and includes ``routes.router``. ``run`` starts
-uvicorn on ``host``/``port``.
+``Server`` loads the models you name, then serves forecasts, a
+dashboard at ``/``, and OpenAPI at ``/docs``. CLI ``fomo serve``
+constructs this class and calls ``run``.
 """
 
 import logging
@@ -20,83 +19,41 @@ from fomo.server.routes import router
 class Server:
     """Run a FoMo inference HTTP server.
 
-    FoMo is a time-series foundation-model inference server. CLI
-    ``fomo serve`` constructs this class and calls ``run``.
-
-    ``load_models`` entries start as registry ids (or ``(id, object)``
-    tuples). When ``models_dir`` is set, the constructor iterates that
-    directory; for each path whose stem is in ``load_models``, it
-    replaces that string id with the ``Path`` so ``resolve_model``
-    treats it as a directory ``.zip``. Default ``load_models=[]`` loads
-    nothing.
-
-    Then ``bootstrap(self.load_models)`` runs, a FastAPI app titled
-    ``"FoMo"`` is created, ``app.state.runtime`` is set, and
-    ``routes.router`` is included.
-
     Parameters
     ----------
-    load_models : list of str or (str, object), default []
-        Registry ids to load, or later rewritten to ``Path`` when
-        ``models_dir`` contains a matching stem. Tuples pass an
-        in-process object through to ``bootstrap``.
+    load_models : list of str or (str, object), optional
+        Registry ids to load, or ``(id, estimator)`` pairs. Default
+        ``[]`` loads nothing. When ``models_dir`` is set, matching
+        ``.zip`` stems already in this list are loaded from disk.
     models_dir : str or pathlib.Path, optional
-        Directory to scan. When set, each path whose stem is in
-        ``load_models`` replaces that string id with the ``Path``.
+        Directory of saved sktime ``.zip`` files. Not loaded wholesale.
     host : str, default ``"127.0.0.1"``
-        Bind address passed to ``uvicorn.run``.
+        Bind address.
     port : int, default 8000
-        Bind port passed to ``uvicorn.run``.
+        Bind port.
     log_level : str, default ``"info"``
-        Uvicorn log level. ``run`` still calls
-        ``logging.basicConfig(level=logging.INFO)``.
+        Uvicorn log level.
 
     Attributes
     ----------
-    load_models : list
-        Specs passed to ``bootstrap`` after optional ``models_dir``
-        rewriting.
-    models_dir : pathlib.Path or None
-        Directory being scanned, or ``None`` if unset.
-    host : str
-        Bind host.
-    port : int
-        Bind port.
-    log_level : str
-        Uvicorn log level.
-    runtime : fomo.runtime.bootstrap.Runtime
-        Result of ``bootstrap(self.load_models)``.
-    app : fastapi.FastAPI
-        App titled ``"FoMo"`` with ``state.runtime`` and ``router``.
     url : str
         ``http://{host}:{port}``.
+    app : fastapi.FastAPI
+        The ASGI app (dashboard, JSON, OpenAPI).
 
     Raises
     ------
     ValueError
-        If ``bootstrap`` / ``resolve_model`` / ``create_executor``
-        reject a load spec (duplicate id, unknown registry id,
-        non-zip path, unknown executor).
+        Unknown registry id, non-zip path, or duplicate id.
     TypeError
-        If a ``(id, object)`` entry is not a sktime ``BaseForecaster``.
+        ``(id, object)`` whose object is not a sktime ``BaseForecaster``.
     ImportError
-        If the executor extra is not installed.
-    OSError
-        If ``models_dir`` cannot be listed.
+        Executor extra is not installed.
 
-    Notes
-    -----
-    Forecast ``request.model`` is a **loaded model id**, not an
-    executor plugin name (``sktime``, and so on).
-
-    See Also
+    Examples
     --------
-    fomo.runtime.bootstrap.bootstrap
-        Loads executors and builds the scheduler.
-    fomo.runtime.registry.resolver.resolve_model
-        Interprets string ids vs ``Path`` vs object tuples.
-    fomo.server.routes
-        HTTP handlers mounted on ``app``.
+    >>> from fomo.server import Server
+    >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
     """
 
     def __init__(
@@ -108,10 +65,7 @@ class Server:
         port: int = 8000,
         log_level: str = "info",
     ) -> None:
-        """Construct a Server.
-
-        See the class docstring for parameters and attributes.
-        """
+        """Construct a Server."""
         self.load_models = list(load_models) if load_models is not None else []
         self.models_dir = Path(models_dir) if models_dir is not None else None
         self.host = host
@@ -133,23 +87,11 @@ class Server:
 
     @property
     def url(self) -> str:
-        """Return the HTTP origin ``http://{host}:{port}``.
-
-        Returns
-        -------
-        str
-            ``f"http://{self.host}:{self.port}"``. No path prefix.
-        """
+        """Return ``http://{host}:{port}``."""
         return f"http://{self.host}:{self.port}"
 
     def run(self) -> None:
-        """Configure logging and serve ``self.app`` with uvicorn.
-
-        Calls ``logging.basicConfig(level=logging.INFO)`` then
-        ``uvicorn.run(self.app, host=..., port=..., log_level=...)``.
-        Blocks until the server exits. ``KeyboardInterrupt`` is not
-        caught here; CLI ``main`` maps it to exit code 0.
-        """
+        """Serve ``self.app`` with uvicorn. Blocks until the process exits."""
         logging.basicConfig(level=logging.INFO)
         uvicorn.run(
             self.app,
