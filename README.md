@@ -69,6 +69,8 @@ result = client.forecast(
 )
 print(result.predictions)
 client.close()
+# {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
+#  'sales': [135.89…, 136.19…, 136.59…]}
 ```
 
 Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/) · Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)

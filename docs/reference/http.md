@@ -31,7 +31,7 @@ curl -s http://127.0.0.1:8000/forecast \
     "time": "timestamp",
     "target": ["sales"],
     "fh": 3,
-    "model": "flowstate"
+    "model": "timesfm-2.5"
   }'
 ```
 

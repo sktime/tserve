@@ -81,7 +81,7 @@ RUN pip install my-package another-package
 ```bash
 docker build -t my-fomo:custom .
 docker run --rm -p 8000:8000 my-fomo:custom \
-  --load-models naive flowstate
+  --load-models naive chronos-2 timesfm-2.5
 ```
 
 ## Sidecar

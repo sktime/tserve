@@ -62,13 +62,15 @@ curl -s http://127.0.0.1:8000/forecast \
 {
   "predictions": {
     "timestamp": ["2024-01-06T00:00:00", "2024-01-07T00:00:00", "2024-01-08T00:00:00"],
-    "sales": [138.0, 138.0, 138.0]
+    "sales": [142.5, 147.0, 151.5]
   },
   "quantiles": null,
   "model": "naive",
   "request_id": "…"
 }
 ```
+
+`naive` is `NaiveForecaster(strategy="drift")`, so the point forecast continues the slope rather than repeating the last value.
 
 Or the Python client (same package, Arrow on the wire, your table type back):
 
@@ -94,6 +96,8 @@ result = client.forecast(
 )
 print(result.predictions)
 client.close()
+# {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
+#  'sales': [135.89…, 136.19…, 136.59…]}
 ```
 
 Next: [Overview](overview.md) for how the pieces fit, then the [server](walkthrough/server.md), [models](walkthrough/models.md), and [client](walkthrough/client.md) walkthroughs.

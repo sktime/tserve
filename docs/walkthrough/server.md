@@ -39,7 +39,7 @@ FoMo is **not published on PyPI yet**. The commands below are a showcase of what
 ```bash
 pip install 'fomo[server,sktime,client]'   # not on PyPI yet
 fomo serve --host 127.0.0.1 --port 8000 \
-  --load-models naive flowstate tirex
+  --load-models naive chronos-2 timesfm-2.5
 ```
 
 Until then, install from a clone (`uv sync --all-extras` or `uv pip install -e '.[server,sktime,client]'`).
@@ -52,7 +52,7 @@ Same process, no CLI:
 from fomo.server import Server
 
 server = Server(
-    load_models=["naive", "kronos", "moirai-2", "flowstate"],
+    load_models=["naive", "chronos-2", "timesfm-2.5", "ttm-r3-52-16"],
     host="127.0.0.1",
     port=8000,
 )

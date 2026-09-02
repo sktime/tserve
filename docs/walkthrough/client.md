@@ -53,7 +53,9 @@ curl -s http://127.0.0.1:8000/stats
 Browser [dashboard](dashboard.md) (`text/html`). Static assets under `/static`.
 
 ```bash
-curl -sI http://127.0.0.1:8000/
+curl -s -D - -o /dev/null http://127.0.0.1:8000/
+# HTTP/1.1 200 OK
+# content-type: text/html; charset=utf-8
 ```
 
 ### `POST /forecast`
@@ -71,7 +73,7 @@ curl -s http://127.0.0.1:8000/forecast \
     "time": "timestamp",
     "target": ["sales"],
     "fh": 3,
-    "model": "flowstate"
+    "model": "timesfm-2.5"
   }'
 ```
 
@@ -113,7 +115,7 @@ Construct a client, call it, then close the session:
 from fomo.client import Client
 
 client = Client("http://127.0.0.1:8000")
-print(client.health())  # status='ok'
+print(client.health())  # status='ok' error=None
 print(client.models())  # loaded ids only
 print(client.stats())
 client.close()
@@ -178,9 +180,9 @@ past = {
 
 **pandas** — see [covariates](#covariates).
 
-**polars** — see [quantiles](#quantiles).
+**polars** — see [quantiles](#quantiles). Requires `pip install polars` (the `polars` package, not FoMo).
 
-**pyarrow:**
+**pyarrow** Table is a supported request shape, but `Client.forecast` does not restore a pyarrow Table on the way back. Convert first:
 
 ```python
 import pyarrow as pa
@@ -196,14 +198,14 @@ past = pa.table(
         ],
         "sales": [120.0, 135.0, 128.0, 142.0, 138.0],
     }
-)
+).to_pandas()
 result = client.forecast(
-    past=past, time="timestamp", target=["sales"], fh=3, model="tirex"
+    past=past, time="timestamp", target=["sales"], fh=3, model="ttm-r3-52-16"
 )
-type(result.predictions)  # pyarrow.Table
+type(result.predictions)  # pandas.DataFrame
 ```
 
-**Narwhals:**
+**Narwhals** wrapping pandas comes back as pandas (the native implementation):
 
 ```python
 import narwhals as nw
@@ -218,9 +220,9 @@ past = nw.from_native(
     )
 )
 result = client.forecast(
-    past=past, time="timestamp", target=["sales"], fh=3, model="moirai-2"
+    past=past, time="timestamp", target=["sales"], fh=3, model="ttm-r3-52-16"
 )
-# predictions is a Narwhals frame wrapping the same native type you passed in
+type(result.predictions)  # pandas.DataFrame
 ```
 
 You can omit `time` and `target` when the first column is time and the rest are targets:
@@ -252,15 +254,13 @@ curl -s http://127.0.0.1:8000/forecast \
 {
   "predictions": {
     "timestamp": ["2024-01-06T00:00:00", "2024-01-07T00:00:00", "2024-01-08T00:00:00"],
-    "sales": [138.0, 138.0, 138.0]
+    "sales": [135.62701416015625, 136.48983764648438, 139.23500061035156]
   },
   "quantiles": null,
   "model": "ttm-r3-52-16",
   "request_id": "…"
 }
 ```
-
-(The numbers above are illustrative for `naive`; Hub models return their own point forecast.)
 
 Same fields on the client, row-matrix in → row-matrix out:
 
@@ -286,9 +286,11 @@ result = client.forecast(
 )
 print(result.predictions)
 client.close()
+# {'columns': ['timestamp', 'sales'],
+#  'data': [[Timestamp('2024-01-06 00:00:00'), 137.76…], …]}
 ```
 
-`naive` is a drift `NaiveForecaster` — that is the pipe with no download. Swap `model` to any loaded id (`chronos-2`, `timesfm-2.5`, `ttm-r3-52-16`, `mantis-8m`, …).
+`naive` is a drift `NaiveForecaster` — that is the pipe with no download. Swap `model` to any loaded id (`chronos-2`, `timesfm-2.5`, `ttm-r3-52-16`, `toto-2.0-4m`, …). Some ids need a longer history than the 5-row toy series — `mantis-8m` requires more observations than its `context_length` (127).
 
 ## Covariates
 
@@ -350,6 +352,10 @@ result = client.forecast(
 print(type(result.predictions))  # pandas.DataFrame
 print(result.predictions)
 client.close()
+#         date  sales
+# 0 2024-01-01  215.0
+# 1 2024-02-01  226.0
+# 2 2024-03-01  230.0
 ```
 
 `target` can be a list of several columns if the loaded estimator accepts multivariate `y`.
@@ -358,7 +364,7 @@ client.close()
 
 Add `quantiles=[0.1, 0.5, 0.9]`. Columns come back flattened: `{variable}_{alpha}` (often positional `0`, e.g. `0_0.1`). The estimator must implement `predict_quantiles`; otherwise the request fails.
 
-polars in → polars out, on a Hub model that supports quantiles:
+polars in → polars out, on a Hub model that supports quantiles. Install polars yourself (`pip install polars`); it is not a FoMo extra.
 
 ```python
 import polars as pl
@@ -397,6 +403,8 @@ print(type(result.predictions))  # polars.DataFrame
 print(result.predictions)
 print(result.quantiles)
 client.close()
+# predictions: month / sales ≈ 217.25, 233.56, 243.88
+# quantiles columns: month, 0_0.1, 0_0.5, 0_0.9
 ```
 
-`predictions` stays the point forecast. `quantiles` is a second table, or `null` / `None` when the field was omitted. `naive` and `flowstate` are lighter alternatives if you want the same call without a large TimesFM download.
+`predictions` stays the point forecast. `quantiles` is a second table, or `null` / `None` when the field was omitted. `naive` supports the same `quantiles=` call with no Hub download.
