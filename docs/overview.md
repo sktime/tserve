@@ -35,12 +35,12 @@ A forecast is tables plus column roles, not a 1-d `y` vector. The same fields go
 | `future`, `static` | optional covariate tables |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |
 
-JSON tables are **column dicts**: `{"col": [values...]}`. A row matrix `{"columns": [...], "data": [[...], ...]}` is also accepted.
+Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see [data format](walkthrough/client.md#data-format).
 
 Panel (multi-series) input is not supported.
 
 ## Next
 
-1. [Start a server](walkthrough/server.md)
+1. [Start a server](walkthrough/server.md) (including [dependencies](walkthrough/server.md#dependencies))
 2. [Load models](walkthrough/models.md)
 3. [Send forecasts](walkthrough/client.md)

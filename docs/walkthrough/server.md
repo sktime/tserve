@@ -11,11 +11,11 @@ The CLI `fomo serve` constructs [`Server`][fomo.server.serve.Server] and calls `
 The sktime image can load registry models. Extra `docker run` arguments replace the image `CMD` (which otherwise loads `naive`):
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
-`geetu040/fomo:base` is the same entrypoint with only `naive` available — useful for tests and CI. See the [Docker walkthrough](docker.md) for GPU, building locally, and custom images.
+`geetu040/fomo:base` is the same entrypoint with only `naive` available — useful for tests and CI. See the [Docker walkthrough](docker.md) for GPU, volume mounts, building locally, and custom images.
 
 The image `ENTRYPOINT` already includes `--host 0.0.0.0 --port 8000`. Map the port with `-p 8000:8000`.
 
@@ -25,36 +25,24 @@ Python >= 3.12. Uses [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone git@github.com:sktime/fomo.git && cd fomo
-uv sync --extra server --extra sktime-lite --extra client
-uv run fomo serve --host 127.0.0.1 --port 8000 --load-models naive
+uv sync --all-extras
+uv run fomo serve --host 127.0.0.1 --port 8000 \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
-Hub ids such as `chronos-2` need the `sktime` extra (torch, transformers, estimator packages):
-
-```bash
-uv sync --extra server --extra sktime --extra client
-uv run fomo serve --host 127.0.0.1 --port 8000 --load-models naive chronos-2
-```
-
-Install only what the process will use:
-
-| extra | use |
-| --- | --- |
-| `client` | [`Client`][fomo.client.client.Client] talking to a running server |
-| `server` | `fomo serve` / [`Server`][fomo.server.serve.Server] |
-| `sktime-lite` | registry id `naive` |
-| `sktime` | other registry ids (Hub checkpoints) |
-
-`client` is enough on a machine that only calls a remote server. A process that loads models needs `server` plus `sktime-lite` or `sktime`.
+`--all-extras` is the blunt option (server, client, Hub-model deps). To install less, see [Dependencies](#dependencies).
 
 ### Install from PyPI
 
-Not published yet. When it is:
+FoMo is **not published on PyPI yet**. The commands below are a showcase of what the install will look like:
 
 ```bash
-pip install 'fomo[server,sktime-lite,client]'
-fomo serve --host 127.0.0.1 --port 8000 --load-models naive
+pip install 'fomo[server,sktime,client]'   # not on PyPI yet
+fomo serve --host 127.0.0.1 --port 8000 \
+  --load-models naive flowstate tirex
 ```
+
+Until then, install from a clone (`uv sync --all-extras` or `uv pip install -e '.[server,sktime,client]'`).
 
 ### Server class
 
@@ -64,7 +52,7 @@ Same process, no CLI:
 from fomo.server import Server
 
 server = Server(
-    load_models=["naive", "chronos-2"],
+    load_models=["naive", "kronos", "moirai-2", "flowstate"],
     host="127.0.0.1",
     port=8000,
 )
@@ -79,7 +67,7 @@ from fomo.server import Server
 from sktime.forecasting.naive import NaiveForecaster
 
 Server(
-    load_models=["chronos-2", ("naive", NaiveForecaster())],
+    load_models=["timesfm-2.5", "ttm-r3-52-16", ("naive", NaiveForecaster())],
     host="127.0.0.1",
     port=8000,
 ).run()
@@ -87,11 +75,38 @@ Server(
 
 `server.app` is the FastAPI app if you want to mount it or pass it to uvicorn yourself.
 
+## Dependencies
+
+Core (always installed) is `pydantic`, `narwhals`, and `pyarrow`. Everything else is an extra. Names match `[project.optional-dependencies]` in `pyproject.toml`.
+
+| extra | pulls in | use |
+| --- | --- | --- |
+| `http` | `httpx`, `python-multipart` | HTTP transport |
+| `client` | `fomo[http]` | [`Client`][fomo.client.client.Client] talking to a running server |
+| `server` | `fastapi`, `python-multipart`, `uvicorn` | `fomo serve` / [`Server`][fomo.server.serve.Server] |
+| `sktime-lite` | `sktime` | registry id `naive` |
+| `sktime` | `sktime` plus Hub deps (`torch`, `transformers`, estimator packages, …) | other registry ids |
+| `pytorch-forecasting` | `pytorch-forecasting` | extra exists; the executor is not implemented yet |
+| `docs` | Material, mkdocstrings, plus `server` / `http` / `sktime-lite` | this documentation site |
+
+Pick extras to match what the process will do:
+
+| you want | install |
+| --- | --- |
+| call a remote server only | `uv sync --extra client` |
+| serve `naive` | `uv sync --extra server --extra sktime-lite` |
+| serve Hub models | `uv sync --extra server --extra sktime` |
+| local server + client + Hub models | `uv sync --all-extras` |
+
+A missing executor extra raises `ImportError` at load time (`pip install 'fomo[{name}]'` in the message — that `pip` line is also showcase until PyPI exists).
+
+Docker bakes extras into the image: `:base` is `server` + `sktime-lite`; `:sktime` adds the `sktime` extra. See [Docker](docker.md).
+
 ## CLI
 
 ```bash
 fomo serve \
-  --load-models naive chronos-2 \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m \
   --host 127.0.0.1 \
   --port 8000 \
   --log-level info
@@ -119,7 +134,6 @@ Default bind is [http://127.0.0.1:8000](http://127.0.0.1:8000):
 
 ```bash
 curl -s http://127.0.0.1:8000/models
-# {"models":[{"id":"naive","executor":"sktime","source":"registry"}]}
 ```
 
 Then [load more models](models.md) or [send a forecast](client.md).

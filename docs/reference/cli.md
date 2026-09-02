@@ -4,7 +4,7 @@
 
 ```bash
 fomo serve \
-  --load-models naive chronos-2 \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m \
   --host 127.0.0.1 \
   --port 8000 \
   --log-level info

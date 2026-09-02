@@ -6,7 +6,7 @@ Nothing is loaded by default. A bare `fomo serve` starts with an empty model lis
 
 Two Docker images are published:
 
-- [`geetu040/fomo:sktime`](https://hub.docker.com/r/geetu040/fomo) — registry models (Chronos, TimesFM, TTM, …)
+- [`geetu040/fomo:sktime`](https://hub.docker.com/r/geetu040/fomo) — registry models (Chronos, TimesFM, TTM, Toto, Mantis, …)
 - [`geetu040/fomo:base`](https://hub.docker.com/r/geetu040/fomo) — `naive` only, for tests and light workflows
 
 The image `CMD` loads `naive` if you pass no extra arguments. That is an image default, not the Python default.
@@ -15,19 +15,20 @@ The image `CMD` loads `naive` if you pass no extra arguments. That is an image d
 
 **Start the server**
 
-Pull the sktime image and load the models you want:
+Pull the sktime image and load a handful of registry ids:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
-Or clone the repo and start from source (`naive` needs no Hub download):
+Or clone the repo and start from source:
 
 ```bash
 git clone git@github.com:sktime/fomo.git && cd fomo
-uv sync --extra server --extra sktime-lite --extra client
-uv run fomo serve --host 127.0.0.1 --port 8000 --load-models naive
+uv sync --all-extras
+uv run fomo serve --host 127.0.0.1 --port 8000 \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
 Once the process is up:
@@ -40,7 +41,7 @@ There is no hosted FoMo API. Every URL is the process you started.
 
 **Forecast**
 
-JSON over HTTP:
+JSON over HTTP (`naive` needs no Hub download; swap `"model"` for any loaded id):
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
@@ -74,26 +75,25 @@ Or the Python client (same package, Arrow on the wire, your table type back):
 ```python
 from fomo.client import Client
 
-with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
-        past={
-            "timestamp": [
-                "2024-01-01",
-                "2024-01-02",
-                "2024-01-03",
-                "2024-01-04",
-                "2024-01-05",
-            ],
-            "sales": [120, 135, 128, 142, 138],
-        },
-        time="timestamp",
-        target=["sales"],
-        fh=3,
-        model="naive",
-    )
-
+client = Client("http://127.0.0.1:8000")
+result = client.forecast(
+    past={
+        "timestamp": [
+            "2024-01-01",
+            "2024-01-02",
+            "2024-01-03",
+            "2024-01-04",
+            "2024-01-05",
+        ],
+        "sales": [120, 135, 128, 142, 138],
+    },
+    time="timestamp",
+    target=["sales"],
+    fh=3,
+    model="timesfm-2.5",
+)
 print(result.predictions)
-# {'timestamp': [...], 'sales': [138.0, 138.0, 138.0]}
+client.close()
 ```
 
 Next: [Overview](overview.md) for how the pieces fit, then the [server](walkthrough/server.md), [models](walkthrough/models.md), and [client](walkthrough/client.md) walkthroughs.

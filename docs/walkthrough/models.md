@@ -24,7 +24,7 @@ These ids are in the registry. Pick them with `--load-models`:
 Each family has more sizes and revisions; the [full catalog](#full-catalog) is below.
 
 ```bash
-fomo serve --load-models naive chronos-2 timesfm-2.5
+fomo serve --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
 First start of a Hub model downloads weights and runs a tiny warmup `fit` / `predict`. Then:
@@ -34,7 +34,10 @@ curl -s http://127.0.0.1:8000/models
 # {"models":[
 #   {"id":"naive","executor":"sktime","source":"registry"},
 #   {"id":"chronos-2","executor":"sktime","source":"registry"},
-#   {"id":"timesfm-2.5","executor":"sktime","source":"registry"}
+#   {"id":"timesfm-2.5","executor":"sktime","source":"registry"},
+#   {"id":"ttm-r3-52-16","executor":"sktime","source":"registry"},
+#   {"id":"toto-2.0-4m","executor":"sktime","source":"registry"},
+#   {"id":"mantis-8m","executor":"sktime","source":"registry"}
 # ]}
 ```
 
@@ -51,11 +54,33 @@ my-models/
 └── custom-model-3.zip
 ```
 
+From source:
+
 ```bash
 fomo serve --models-dir my-models --load-models custom-model-1 custom-model-2
 ```
 
 If `my-models/custom-model-1.zip` exists, that id loads from the zip (`source="directory"`) instead of the registry. Other suffixes raise `ValueError`.
+
+Mount the same directory into Docker and point `--models-dir` at the container path:
+
+```bash
+docker run --rm -p 8000:8000 \
+  -v "$PWD/my-models:/models" \
+  geetu040/fomo:sktime \
+  --models-dir /models \
+  --load-models custom-model-1 custom-model-2
+```
+
+You can mix zip stems with registry ids:
+
+```bash
+docker run --rm --gpus all -p 8000:8000 \
+  -v "$PWD/my-models:/models" \
+  geetu040/fomo:sktime \
+  --models-dir /models \
+  --load-models custom-model-1 naive chronos-2
+```
 
 ## Loading live objects
 
@@ -64,38 +89,44 @@ SDK only. The object must be a sktime `BaseForecaster`:
 ```python
 from fomo.server import Server
 from sktime.forecasting.chronos import ChronosForecaster
+from sktime.forecasting.ttm import TinyTimeMixerForecaster
 
-model = ChronosForecaster(model_path="amazon/chronos-bolt-tiny")
+bolt = ChronosForecaster(model_path="amazon/chronos-bolt-tiny")
+ttm = TinyTimeMixerForecaster(
+    model_path="ibm-granite/granite-timeseries-ttm-r3",
+    revision="52-16-dec-52-r3",
+    fit_strategy="zero-shot",
+)
 
 Server(
     load_models=[
-        ("chronos-bolt-tiny", model),
+        ("chronos-bolt-tiny", bolt),
+        ("ttm-local", ttm),
         "timesfm-2.5",
+        "flowstate",
     ],
     host="127.0.0.1",
     port=8000,
 ).run()
 ```
 
-`source` is `"object"`. Mix registry ids and tuples in the same list.
+`source` is `"object"` for the tuples. Mix registry ids and tuples in the same list.
 
 ## Start a server with some models
 
-For a local walkthrough, `naive` plus two Hub models on the sktime image:
-
 ```bash
 docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive timesfm-2.5 chronos-2
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
-From source (needs the `sktime` extra):
+From source (needs the `sktime` extra, or `--all-extras`):
 
 ```bash
 uv run fomo serve --host 0.0.0.0 --port 8000 \
-  --load-models naive timesfm-2.5 chronos-2
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
-Swap `model` on a [forecast](client.md) between those loaded ids. `naive` repeats a drift forecast and needs no download — use it to check the pipe, then switch to `chronos-2` / `timesfm-2.5`.
+Swap `model` on a [forecast](client.md) between those loaded ids. `naive` is a drift forecast and needs no download — use it to check the pipe, then switch to a Hub id.
 
 ## Full catalog
 
@@ -141,10 +172,70 @@ Ids the server can load. TTM ids are `{revision}-{context}-{horizon}`, with opti
 
 **TTM** (`TinyTimeMixerForecaster`)
 
-- r1: `ttm-r1-512-96`, `ttm-r1-1024-96`
-- r2: `ttm-r2-512-96`, `ttm-r2-512-192`, `ttm-r2-512-336`, `ttm-r2-512-720`, `ttm-r2-1024-96`, `ttm-r2-1024-192`, `ttm-r2-1024-336`, `ttm-r2-1024-720`, `ttm-r2-1536-96`, `ttm-r2-1536-192`, `ttm-r2-1536-336`, `ttm-r2-1536-720`
-- r2.1: `ttm-r2.1-52-16`, `ttm-r2.1-52-16-l1`, `ttm-r2.1-90-30`, `ttm-r2.1-90-30-l1`, `ttm-r2.1-512-48`, `ttm-r2.1-512-48-l1`, `ttm-r2.1-512-96`, `ttm-r2.1-512-96-l1`, `ttm-r2.1-180-60-l1`, `ttm-r2.1-360-60-l1`
-- r3: `ttm-r3-52-16`, `ttm-r3-90-30`, `ttm-r3-156-16`, `ttm-r3-180-60`, `ttm-r3-360-60`, `ttm-r3-512-30`, `ttm-r3-512-48`, `ttm-r3-512-96`, `ttm-r3-512-336`, `ttm-r3-768-48`, `ttm-r3-1024-48`, `ttm-r3-1024-96`, `ttm-r3-1024-720`, `ttm-r3-1536-96`, `ttm-r3-1536-720`, `ttm-r3-2048-96`, `ttm-r3-2048-720`, `ttm-r3-2560-96`, `ttm-r3-2560-720`, `ttm-r3-3072-96`, `ttm-r3-3072-720` — each also has a `-lite` sibling (`ttm-r3-52-16-lite`, …)
+r1:
+
+| id | context | horizon |
+| --- | --- | --- |
+| `ttm-r1-512-96` | 512 | 96 |
+| `ttm-r1-1024-96` | 1024 | 96 |
+
+r2:
+
+| id | context | horizon |
+| --- | --- | --- |
+| `ttm-r2-512-96` | 512 | 96 |
+| `ttm-r2-512-192` | 512 | 192 |
+| `ttm-r2-512-336` | 512 | 336 |
+| `ttm-r2-512-720` | 512 | 720 |
+| `ttm-r2-1024-96` | 1024 | 96 |
+| `ttm-r2-1024-192` | 1024 | 192 |
+| `ttm-r2-1024-336` | 1024 | 336 |
+| `ttm-r2-1024-720` | 1024 | 720 |
+| `ttm-r2-1536-96` | 1536 | 96 |
+| `ttm-r2-1536-192` | 1536 | 192 |
+| `ttm-r2-1536-336` | 1536 | 336 |
+| `ttm-r2-1536-720` | 1536 | 720 |
+
+r2.1 (`-l1` is the L1 checkpoint):
+
+| id | context | horizon | variant |
+| --- | --- | --- | --- |
+| `ttm-r2.1-52-16` | 52 | 16 | |
+| `ttm-r2.1-52-16-l1` | 52 | 16 | L1 |
+| `ttm-r2.1-90-30` | 90 | 30 | |
+| `ttm-r2.1-90-30-l1` | 90 | 30 | L1 |
+| `ttm-r2.1-180-60-l1` | 180 | 60 | L1 |
+| `ttm-r2.1-360-60-l1` | 360 | 60 | L1 |
+| `ttm-r2.1-512-48` | 512 | 48 | |
+| `ttm-r2.1-512-48-l1` | 512 | 48 | L1 |
+| `ttm-r2.1-512-96` | 512 | 96 | |
+| `ttm-r2.1-512-96-l1` | 512 | 96 | L1 |
+
+r3 (each id has a `-lite` sibling):
+
+| id | lite | context | horizon |
+| --- | --- | --- | --- |
+| `ttm-r3-52-16` | `ttm-r3-52-16-lite` | 52 | 16 |
+| `ttm-r3-90-30` | `ttm-r3-90-30-lite` | 90 | 30 |
+| `ttm-r3-156-16` | `ttm-r3-156-16-lite` | 156 | 16 |
+| `ttm-r3-180-60` | `ttm-r3-180-60-lite` | 180 | 60 |
+| `ttm-r3-360-60` | `ttm-r3-360-60-lite` | 360 | 60 |
+| `ttm-r3-512-30` | `ttm-r3-512-30-lite` | 512 | 30 |
+| `ttm-r3-512-48` | `ttm-r3-512-48-lite` | 512 | 48 |
+| `ttm-r3-512-96` | `ttm-r3-512-96-lite` | 512 | 96 |
+| `ttm-r3-512-336` | `ttm-r3-512-336-lite` | 512 | 336 |
+| `ttm-r3-768-48` | `ttm-r3-768-48-lite` | 768 | 48 |
+| `ttm-r3-1024-48` | `ttm-r3-1024-48-lite` | 1024 | 48 |
+| `ttm-r3-1024-96` | `ttm-r3-1024-96-lite` | 1024 | 96 |
+| `ttm-r3-1024-720` | `ttm-r3-1024-720-lite` | 1024 | 720 |
+| `ttm-r3-1536-96` | `ttm-r3-1536-96-lite` | 1536 | 96 |
+| `ttm-r3-1536-720` | `ttm-r3-1536-720-lite` | 1536 | 720 |
+| `ttm-r3-2048-96` | `ttm-r3-2048-96-lite` | 2048 | 96 |
+| `ttm-r3-2048-720` | `ttm-r3-2048-720-lite` | 2048 | 720 |
+| `ttm-r3-2560-96` | `ttm-r3-2560-96-lite` | 2560 | 96 |
+| `ttm-r3-2560-720` | `ttm-r3-2560-720-lite` | 2560 | 720 |
+| `ttm-r3-3072-96` | `ttm-r3-3072-96-lite` | 3072 | 96 |
+| `ttm-r3-3072-720` | `ttm-r3-3072-720-lite` | 3072 | 720 |
 
 **Other**
 

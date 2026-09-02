@@ -1,71 +1,64 @@
 # Client
 
-Same package as the server. JSON over HTTP for any language; [`Client`][fomo.client.client.Client] if you already have a dataframe (Arrow on the wire, your type back).
+Same package as the server. JSON over HTTP for any language; [`Client`][fomo.client.client.Client] if you already have a dataframe (Arrow on the wire, your table type back).
 
 The server must already be running with the `model` id loaded. See [Server](server.md).
 
 ## HTTP
 
-Liveness:
+JSON `POST /forecast` is the curl path. The Python client does **not** post JSON; it posts Arrow to `/forecast/bytes`. Same request fields either way.
+
+| method | path | |
+| --- | --- | --- |
+| `GET` | `/` | [dashboard](dashboard.md) |
+| `GET` | `/health` | liveness, not “models are warm” |
+| `GET` | `/models` | loaded ids + executor + source |
+| `GET` | `/stats` | uptime, RSS, per-model load/warmup/latency |
+| `POST` | `/forecast` | JSON |
+| `POST` | `/forecast/bytes` | Arrow (`Client`) |
+| `GET` | `/docs` | Swagger |
+| `GET` | `/redoc` | ReDoc |
+| `GET` | `/openapi.json` | OpenAPI schema |
+
+Live UIs: dashboard `/`, Swagger `/docs`, ReDoc `/redoc`.
+
+### `GET /health`
+
+Liveness of the process, not “models are warm”.
 
 ```bash
 curl -s http://127.0.0.1:8000/health
 # {"status":"ok"}
 ```
 
-Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+### `GET /models`
 
-JSON `POST /forecast` is the curl path. The Python client does **not** post JSON; it posts Arrow to `/forecast/bytes`. Same request fields either way.
-
-## Python client
-
-Already in the env if you installed extras for the server. On a machine that only calls a remote server:
+Loaded ids only — not the [registry catalog](models.md).
 
 ```bash
-pip install 'fomo[client]'
+curl -s http://127.0.0.1:8000/models
+# {"models":[{"id":"naive","executor":"sktime","source":"registry"}, …]}
 ```
 
-From a clone:
+### `GET /stats`
+
+Uptime, memory probes, and per loaded-id load / warmup / latency.
 
 ```bash
-uv sync --extra client
+curl -s http://127.0.0.1:8000/stats
 ```
 
-```python
-from fomo.client import Client
+### `GET /`
 
-with Client("http://127.0.0.1:8000") as client:
-    client.health()
-    # status='ok'
-    client.models()
+Browser [dashboard](dashboard.md) (`text/html`). Static assets under `/static`.
+
+```bash
+curl -sI http://127.0.0.1:8000/
 ```
 
-`Client.models()` lists loaded ids only.
+### `POST /forecast`
 
-## Request fields
-
-Long tables plus roles, not a 1-d `y` vector. Same fields on JSON and `Client.forecast(...)`.
-
-| field | |
-| --- | --- |
-| `past` | required. one row per timestamp |
-| `fh` | required. steps ahead (`> 0`) |
-| `time` | optional. timestamp column; omitted → first column of `past` |
-| `target` | optional. always becomes a list; omitted → remaining `past` columns |
-| `model` | optional. default `"naive"`; must be loaded |
-| `future` | optional. future timestamps (and unused extra columns) |
-| `static` | optional. one row of static features, broadcast over time |
-| `quantiles` | optional. e.g. `[0.1, 0.5, 0.9]`; estimator must support it |
-
-JSON tables are **column dicts**: `{"col": [values...]}`. A row matrix `{"columns": [...], "data": [[...], ...]}` is also accepted.
-
-pandas, polars, pyarrow, and Narwhals frames work on the Python client.
-
-Panel (`series_id`) is not supported.
-
-## Univariate forecast
-
-curl (JSON):
+JSON body. See [request fields](#request-fields) and [data format](#data-format).
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast \
@@ -78,7 +71,180 @@ curl -s http://127.0.0.1:8000/forecast \
     "time": "timestamp",
     "target": ["sales"],
     "fh": 3,
-    "model": "naive"
+    "model": "flowstate"
+  }'
+```
+
+### `POST /forecast/bytes`
+
+Arrow IPC inside a `FOMO` envelope (`application/vnd.fomo.forecast+arrow`). This is what [`Client`][fomo.client.client.Client] sends. You normally do not build the multipart body by hand.
+
+### OpenAPI
+
+| method | path | |
+| --- | --- | --- |
+| `GET` | `/docs` | Swagger UI |
+| `GET` | `/redoc` | ReDoc |
+| `GET` | `/openapi.json` | OpenAPI schema |
+
+```bash
+curl -s http://127.0.0.1:8000/openapi.json | head
+```
+
+`client.health()` / `.models()` / `.stats()` wrap the three JSON GETs. JSON validation failures are HTTP 422. Coerce or predict failures are HTTP 400 with `{ "detail": { "error", "code": "request_failed", "request_id" } }`. The client raises `RuntimeError` with the `error` message. See [Errors](../reference/errors.md).
+
+## Python client
+
+Already in the env if you `uv sync --all-extras` for the server. On a machine that only calls a remote server, from a clone:
+
+```bash
+uv sync --extra client
+```
+
+FoMo is **not published on PyPI yet**. This is what the install will look like:
+
+```bash
+pip install 'fomo[client]'   # not on PyPI yet
+```
+
+Construct a client, call it, then close the session:
+
+```python
+from fomo.client import Client
+
+client = Client("http://127.0.0.1:8000")
+print(client.health())  # status='ok'
+print(client.models())  # loaded ids only
+print(client.stats())
+client.close()
+```
+
+`with Client(...)` also closes the session for you:
+
+```python
+from fomo.client import Client
+
+with Client("http://127.0.0.1:8000", timeout=120.0) as client:
+    print(client.models())
+```
+
+Default timeout is 60s. Hub models can need longer — pass `timeout=` as above.
+
+## Request fields
+
+Long tables plus roles, not a 1-d `y` vector. Same fields on JSON and `Client.forecast(...)`.
+
+| field | |
+| --- | --- |
+| `past` | required. one row per timestamp |
+| `fh` | required. steps ahead (`> 0`) |
+| `time` | optional. timestamp column; omitted → first column of `past` |
+| `target` | optional. always becomes a list; omitted → remaining `past` columns |
+| `model` | optional. default `"naive"`; must be loaded |
+| `future` | optional. future timestamps (and extra columns; see [covariates](#covariates)) |
+| `static` | optional. one row of static features, broadcast over time |
+| `quantiles` | optional. e.g. `[0.1, 0.5, 0.9]`; estimator must support it |
+
+Panel (`series_id`) is not supported.
+
+## Data format
+
+`past`, `future`, `static`, `predictions`, and `quantiles` accept any of these shapes. JSON typically uses a column dict or a row matrix. The Python client also takes pandas, polars, pyarrow, and Narwhals. **Whatever you pass as `past` is what `predictions` / `quantiles` come back as.**
+
+Snippets below assume a connected client:
+
+```python
+from fomo.client import Client
+
+client = Client("http://127.0.0.1:8000")
+```
+
+**Column dict** (name → list of equal length) — used in the [HTTP](#post-forecast) example above and in [univariate](#univariate-forecast) below.
+
+**Row matrix:**
+
+```python
+past = {
+    "columns": ["timestamp", "sales"],
+    "data": [
+        ["2024-01-01", 120],
+        ["2024-01-02", 135],
+        ["2024-01-03", 128],
+        ["2024-01-04", 142],
+        ["2024-01-05", 138],
+    ],
+}
+```
+
+**pandas** — see [covariates](#covariates).
+
+**polars** — see [quantiles](#quantiles).
+
+**pyarrow:**
+
+```python
+import pyarrow as pa
+
+past = pa.table(
+    {
+        "timestamp": [
+            "2024-01-01",
+            "2024-01-02",
+            "2024-01-03",
+            "2024-01-04",
+            "2024-01-05",
+        ],
+        "sales": [120.0, 135.0, 128.0, 142.0, 138.0],
+    }
+)
+result = client.forecast(
+    past=past, time="timestamp", target=["sales"], fh=3, model="tirex"
+)
+type(result.predictions)  # pyarrow.Table
+```
+
+**Narwhals:**
+
+```python
+import narwhals as nw
+import pandas as pd
+
+past = nw.from_native(
+    pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
+            "sales": [120, 135, 128, 142, 138],
+        }
+    )
+)
+result = client.forecast(
+    past=past, time="timestamp", target=["sales"], fh=3, model="moirai-2"
+)
+# predictions is a Narwhals frame wrapping the same native type you passed in
+```
+
+You can omit `time` and `target` when the first column is time and the rest are targets:
+
+```python
+result = client.forecast(past=past, fh=3, model="naive")
+```
+
+## Univariate forecast
+
+curl (JSON, column dict):
+
+```bash
+curl -s http://127.0.0.1:8000/forecast \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "past": {
+      "timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],
+      "sales": [120, 135, 128, 142, 138]
+    },
+    "time": "timestamp",
+    "target": ["sales"],
+    "fh": 3,
+    "model": "ttm-r3-52-16"
   }'
 ```
 
@@ -89,152 +255,148 @@ curl -s http://127.0.0.1:8000/forecast \
     "sales": [138.0, 138.0, 138.0]
   },
   "quantiles": null,
-  "model": "naive",
+  "model": "ttm-r3-52-16",
   "request_id": "…"
 }
 ```
 
-Same kwargs on the client (dict in → dict out):
+(The numbers above are illustrative for `naive`; Hub models return their own point forecast.)
+
+Same fields on the client, row-matrix in → row-matrix out:
 
 ```python
 from fomo.client import Client
 
-with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
-        past={
-            "timestamp": [
-                "2024-01-01",
-                "2024-01-02",
-                "2024-01-03",
-                "2024-01-04",
-                "2024-01-05",
-            ],
-            "sales": [120, 135, 128, 142, 138],
-        },
-        time="timestamp",
-        target=["sales"],
-        fh=3,
-        model="naive",
-    )
-
+client = Client("http://127.0.0.1:8000")
+result = client.forecast(
+    past={
+        "columns": ["timestamp", "sales"],
+        "data": [
+            ["2024-01-01", 120],
+            ["2024-01-02", 135],
+            ["2024-01-03", 128],
+            ["2024-01-04", 142],
+            ["2024-01-05", 138],
+        ],
+    },
+    time="timestamp",
+    target=["sales"],
+    fh=3,
+    model="toto-2.0-4m",
+)
 print(result.predictions)
-# {'timestamp': [...], 'sales': [138.0, 138.0, 138.0]}
+client.close()
 ```
 
-`naive` is a drift `NaiveForecaster` — that is the pipe. Swap `model` to `chronos-2` / `timesfm-2.5` on a server that loaded those ids.
-
-You can omit `time` and `target` when the first column is time and the rest are targets:
-
-```python
-result = client.forecast(past=past, fh=3, model="naive")
-```
+`naive` is a drift `NaiveForecaster` — that is the pipe with no download. Swap `model` to any loaded id (`chronos-2`, `timesfm-2.5`, `ttm-r3-52-16`, `mantis-8m`, …).
 
 ## Covariates
 
-`static` is one row, broadcast over time as exogenous `X`. `future` is optional; when `static` is set it supplies the future **index** (must include `time`). Extra columns on `future` are not mapped onto sktime `X` today.
+`static` is one row, broadcast over time as exogenous `X`. `future` is optional; when `static` is set it supplies the future **index** (must include `time`). Extra columns on `past` / `future` are accepted on the wire; the current sktime converter does not map them onto `X` — only the first `static` row is broadcast.
+
+pandas in → pandas out. A store-level monthly series with several static attributes and a planned future calendar:
 
 ```python
 import pandas as pd
+from fomo.client import Client
 
 past = pd.DataFrame(
     {
-        "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
-        "sales": [120, 135, 128, 142, 138],
+        "date": pd.date_range("2023-01-01", periods=12, freq="MS"),
+        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
+        "price": [
+            9.99,
+            9.49,
+            9.99,
+            8.99,
+            9.99,
+            8.49,
+            9.99,
+            8.99,
+            9.49,
+            9.99,
+            8.99,
+            9.99,
+        ],
+        "promo": [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
     }
 )
-static = pd.DataFrame({"store_type": ["urban"]})
 future = pd.DataFrame(
     {
-        "timestamp": pd.date_range("2024-01-06", periods=3, freq="D"),
+        "date": pd.date_range("2024-01-01", periods=3, freq="MS"),
+        "price": [8.99, 9.99, 9.49],
+        "promo": [1, 0, 1],
+    }
+)
+static = pd.DataFrame(
+    {
+        "store_type": ["urban"],
+        "region": ["EU-west"],
+        "floor_sqm": [420],
+        "n_skus": [18],
     }
 )
 
+client = Client("http://127.0.0.1:8000", timeout=120.0)
 result = client.forecast(
     past=past,
     future=future,
     static=static,
-    time="timestamp",
+    time="date",
     target=["sales"],
     fh=3,
-    model="naive",
+    model="chronos-2",
 )
+print(type(result.predictions))  # pandas.DataFrame
 print(result.predictions)
+client.close()
 ```
+
+`target` can be a list of several columns if the loaded estimator accepts multivariate `y`.
 
 ## Quantiles
 
 Add `quantiles=[0.1, 0.5, 0.9]`. Columns come back flattened: `{variable}_{alpha}` (often positional `0`, e.g. `0_0.1`). The estimator must implement `predict_quantiles`; otherwise the request fails.
 
-```python
-result = client.forecast(
-    past=past,
-    time="timestamp",
-    target=["sales"],
-    fh=3,
-    quantiles=[0.1, 0.5, 0.9],
-    model="naive",
-)
-print(result.predictions)
-print(result.quantiles)
-```
-
-`predictions` stays the point forecast. `quantiles` is a second table, or `null` / `None` when the field was omitted.
-
-On a Hub model that supports quantiles (`timesfm-2.5`, `flowstate`, …):
-
-```bash
-uv run fomo serve --load-models timesfm-2.5
-```
-
-then the same call with `model="timesfm-2.5"`.
-
-## Frame in, frame out
-
-Whatever you pass as `past` is what `predictions` / `quantiles` come back as.
+polars in → polars out, on a Hub model that supports quantiles:
 
 ```python
-import pandas as pd
+import polars as pl
 from fomo.client import Client
 
-past = pd.DataFrame(
+past = pl.DataFrame(
     {
-        "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
-        "sales": [120, 135, 128, 142, 138],
+        "month": [
+            "2023-01-01",
+            "2023-02-01",
+            "2023-03-01",
+            "2023-04-01",
+            "2023-05-01",
+            "2023-06-01",
+            "2023-07-01",
+            "2023-08-01",
+            "2023-09-01",
+            "2023-10-01",
+            "2023-11-01",
+            "2023-12-01",
+        ],
+        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
     }
 )
 
-with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
-        past=past,
-        time="timestamp",
-        target=["sales"],
-        fh=3,
-        model="naive",
-    )
-
-type(result.predictions)  # pandas.DataFrame
+client = Client("http://127.0.0.1:8000", timeout=120.0)
+result = client.forecast(
+    past=past,
+    time="month",
+    target=["sales"],
+    fh=3,
+    quantiles=[0.1, 0.5, 0.9],
+    model="timesfm-2.5",
+)
+print(type(result.predictions))  # polars.DataFrame
+print(result.predictions)
+print(result.quantiles)
+client.close()
 ```
 
-Polars in → polars out. No extra convert on your side.
-
-Default timeout is 60s. Hub models can need longer:
-
-```python
-Client("http://127.0.0.1:8000", timeout=120.0)
-```
-
-## Other endpoints
-
-| method | path | |
-| --- | --- | --- |
-| `GET` | `/health` | liveness, not “models are warm” |
-| `GET` | `/models` | loaded ids + executor + source |
-| `GET` | `/stats` | uptime, RSS, per-model load/warmup/latency |
-| `POST` | `/forecast` | JSON |
-| `POST` | `/forecast/bytes` | Arrow (`Client`) |
-| `GET` | `/docs` | Swagger |
-| `GET` | `/redoc` | ReDoc |
-
-`client.health()` / `.models()` / `.stats()` wrap the three GETs.
-
-JSON validation failures are HTTP 422. Coerce or predict failures are HTTP 400 with `{ "detail": { "error", "code": "request_failed", "request_id" } }`. The client raises `RuntimeError` with the `error` message. See [Errors](../reference/errors.md).
+`predictions` stays the point forecast. `quantiles` is a second table, or `null` / `None` when the field was omitted. `naive` and `flowstate` are lighter alternatives if you want the same call without a large TimesFM download.

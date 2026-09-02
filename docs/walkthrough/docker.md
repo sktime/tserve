@@ -14,13 +14,6 @@ Both use the same entrypoint: `fomo serve --host 0.0.0.0 --port 8000`. The image
 Registry models (`:sktime`):
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2
-```
-
-GPU (Hub models):
-
-```bash
 docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
   --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
@@ -33,7 +26,30 @@ docker run --rm -p 8000:8000 geetu040/fomo:base
 
 That last command loads `naive` from the image `CMD`. To load a different set, pass `--load-models` explicitly. `:base` cannot load Hub ids — those need `:sktime`.
 
-Map the host port with `-p 8000:8000`. Inside the container the server already binds `0.0.0.0:8000`.
+Map the host port with `-p 8000:8000`. Inside the container the server already binds `0.0.0.0:8000`. `--gpus all` is recommended for Hub models.
+
+## Mount a models directory
+
+Saved sktime `.zip` files on the host can be loaded with `--models-dir` if you bind-mount the folder:
+
+```bash
+docker run --rm -p 8000:8000 \
+  -v "$PWD/my-models:/models" \
+  geetu040/fomo:sktime \
+  --models-dir /models \
+  --load-models custom-model-1 custom-model-2
+```
+
+`$PWD/my-models` is the host directory; `/models` is the path inside the container. Only stems named in `--load-models` are loaded — the directory is not ingested wholesale. Mix zip stems with registry ids if you want both.
+
+First load of a Hub id still downloads weights into the container. Mount a Hugging Face cache if you want them to survive `docker run --rm`:
+
+```bash
+docker run --rm --gpus all -p 8000:8000 \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  geetu040/fomo:sktime \
+  --load-models chronos-2 timesfm-2.5 ttm-r3-52-16
+```
 
 ## Build from this repo
 
@@ -46,10 +62,11 @@ docker build -t fomo:base .
 docker run --rm -p 8000:8000 fomo:base
 
 docker build --build-arg FOMO_EXTRAS=sktime -t fomo:sktime .
-docker run --rm -p 8000:8000 fomo:sktime --load-models naive chronos-2
+docker run --rm --gpus all -p 8000:8000 fomo:sktime \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16
 ```
 
-`FOMO_EXTRAS` is a space-separated list of extras, forwarded as `uv sync --extra …`.
+`FOMO_EXTRAS` is a space-separated list of extras, forwarded as `uv sync --extra …`. Same extras as [server dependencies](server.md#dependencies).
 
 ## Custom image
 
@@ -64,7 +81,7 @@ RUN pip install my-package another-package
 ```bash
 docker build -t my-fomo:custom .
 docker run --rm -p 8000:8000 my-fomo:custom \
-  --load-models naive
+  --load-models naive flowstate
 ```
 
 ## Sidecar
@@ -72,10 +89,8 @@ docker run --rm -p 8000:8000 my-fomo:custom \
 Run FoMo next to an app that only needs the [client](client.md) extra:
 
 ```bash
-docker run --rm --name fomo -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2
+docker run --rm --name fomo --gpus all -p 8000:8000 geetu040/fomo:sktime \
+  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
 ```
 
 From another container on the same network, `Client("http://fomo:8000")` or `curl http://fomo:8000/forecast`.
-
-First load of a Hub id still downloads weights into the container. Mount a Hugging Face cache if you want them to survive `docker run --rm`.
