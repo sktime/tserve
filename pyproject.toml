@@ -82,8 +82,10 @@ docs = [
 fomo = "fomo.cli.main:main"
 
 [project.urls]
-# todo: add homepage once it is ready
-# HomePage = ""
+Homepage = "https://fomo.readthedocs.io"
+Documentation = "https://fomo.readthedocs.io"
+Repository = "https://github.com/sktime/fomo"
+Issues = "https://github.com/sktime/fomo/issues"
 
 [dependency-groups]
 dev = [
