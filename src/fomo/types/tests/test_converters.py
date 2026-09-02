@@ -2,6 +2,8 @@ import narwhals as nw
 import pytest
 
 from fomo.types.converters import (
+    _from_narwhals,
+    _to_narwhals,
     coerce_request,
     coerce_response,
     decode_request,
@@ -212,3 +214,81 @@ def test_unpack_envelope():
 def test_unpack_envelope_rejects(body, match):
     with pytest.raises(ValueError, match=match):
         unpack_envelope(body)
+
+
+_TEMPLATE_COLUMNS = {"timestamp": ["2024-01-01"], "sales": [120.0]}
+
+
+def _column_dict_template():
+    return {"timestamp": ["2024-01-01"], "sales": [120]}
+
+
+def _columns_data_template():
+    return {
+        "columns": ["timestamp", "sales"],
+        "data": [["2024-01-01", 120]],
+    }
+
+
+def _pyarrow_template():
+    pa = pytest.importorskip("pyarrow")
+    return pa.table(_TEMPLATE_COLUMNS)
+
+
+def _narwhals_pyarrow_template():
+    return nw.from_dict(_TEMPLATE_COLUMNS, backend="pyarrow")
+
+
+def _narwhals_pandas_template():
+    pd = pytest.importorskip("pandas")
+    return nw.from_native(pd.DataFrame(_TEMPLATE_COLUMNS))
+
+
+def _pandas_template():
+    pd = pytest.importorskip("pandas")
+    return pd.DataFrame(_TEMPLATE_COLUMNS)
+
+
+def _polars_template():
+    pl = pytest.importorskip("polars")
+    return pl.DataFrame(_TEMPLATE_COLUMNS)
+
+
+@pytest.mark.parametrize(
+    "make_template",
+    [
+        pytest.param(_column_dict_template, id="column_dict"),
+        pytest.param(_columns_data_template, id="columns_data"),
+        pytest.param(_pyarrow_template, id="pyarrow"),
+        pytest.param(_narwhals_pyarrow_template, id="narwhals_pyarrow"),
+        pytest.param(_narwhals_pandas_template, id="narwhals_pandas"),
+        pytest.param(_pandas_template, id="pandas"),
+        pytest.param(_polars_template, id="polars"),
+    ],
+)
+def test_from_narwhals(make_template):
+    template = make_template()
+    out = _from_narwhals(
+        _to_narwhals({"timestamp": ["2024-01-02"], "sales": [120.0]}),
+        template,
+    )
+
+    if isinstance(template, dict):
+        assert type(out) is dict
+        if set(template) == {"columns", "data"}:
+            assert set(out) == {"columns", "data"}
+            assert out["columns"] == template["columns"]
+        else:
+            assert set(out) == set(template)
+            assert "columns" not in out
+        return
+
+    if isinstance(template, nw.DataFrame):
+        assert isinstance(out, nw.DataFrame)
+        assert out.implementation == template.implementation
+        assert list(out.columns) == list(template.columns)
+        return
+
+    assert type(out) is type(template)
+    columns = getattr(out, "column_names", None) or list(out.columns)
+    assert list(columns) == ["timestamp", "sales"]

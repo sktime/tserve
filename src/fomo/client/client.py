@@ -1,21 +1,9 @@
-"""High-level Python client for a FoMo inference server.
+"""Python client for a running FoMo inference server.
 
-FoMo is a time-series foundation-model inference server. ``Client``
-builds a ``ForecastRequest``, runs the *wire* converters in
-``fomo.types.converters``, and sends metadata plus named frame blobs
-through a ``BaseTransport``. Mapping a coerced request onto sktime
-``(y, X, fh)`` is a different layer:
-``fomo.runtime.executors.sktime.converters``.
-
-See Also
---------
-fomo.client.transports.base.BaseTransport
-    Abstract transport ``Client`` injects. Defaults to ``HttpTransport``.
-fomo.types.models.ForecastRequest
-    User-facing forecast fields.
-fomo.types.converters
-    ``coerce_request``, ``encode_request``, ``decode_response``,
-    ``_from_narwhals``.
+Import ``Client`` from ``fomo.client``. Tables keep the type you send
+as ``past`` (pandas, polars, pyarrow, narwhals, or dict). JSON
+``POST /forecast`` is the curl path; this client sends Arrow to
+``POST /forecast/bytes``.
 """
 
 from typing import Any, Self
@@ -40,32 +28,30 @@ from fomo.types.converters import (
 class Client:
     """Call a FoMo inference server from Python.
 
+    Same fields as JSON ``POST /forecast``. Use as a context manager so
+    the HTTP session is closed.
+
     Parameters
     ----------
     url : str
-        Passed to the default ``HttpTransport`` when ``transport`` is
-        omitted. Ignored if ``transport`` is given.
+        Server origin, for example ``"http://127.0.0.1:8000"``.
+        Ignored if ``transport`` is given.
     timeout : float, default 60.0
-        Passed to the default ``HttpTransport`` when ``transport`` is
-        omitted. Ignored if ``transport`` is given.
+        Request timeout in seconds. Ignored if ``transport`` is given.
     transport : BaseTransport or None, default None
-        Optional prebuilt transport. When omitted, constructs
-        ``HttpTransport(url, timeout=timeout)``.
+        Optional prebuilt transport. When omitted, uses HTTP.
 
-    Notes
-    -----
-    ``HttpTransport`` is the default transport.
-
-    See Also
+    Examples
     --------
-    fomo.client.transports.base.BaseTransport
-        Abstract transport type.
-    fomo.client.transports.http.HttpTransport
-        Default HTTP transport.
-    fomo.types.models.ForecastRequest
-        User-facing forecast fields.
-    fomo.types.converters
-        Wire converters used by ``forecast``.
+    >>> from fomo.client import Client
+    >>> with Client("http://127.0.0.1:8000") as client:
+    ...     result = client.forecast(
+    ...         past={"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120, 135]},
+    ...         time="timestamp",
+    ...         target=["sales"],
+    ...         fh=3,
+    ...         model="naive",
+    ...     )
     """
 
     def __init__(
@@ -75,7 +61,7 @@ class Client:
         timeout: float = 60.0,
         transport: BaseTransport | None = None,
     ) -> None:
-        """Construct a client. See ``Client`` for parameters."""
+        """Construct a Client."""
         self._transport = transport or HttpTransport(url, timeout=timeout)
 
     def forecast(
@@ -90,73 +76,42 @@ class Client:
         static: Any = None,
         quantiles: list[float] | None = None,
     ) -> ForecastResponse:
-        """Send a forecast through the transport and restore native frames.
-
-        Builds a ``ForecastRequest``, then runs ``coerce_request`` →
-        ``encode_request`` (JSON metadata + Arrow IPC blobs) →
-        ``BaseTransport.forecast`` → ``decode_response`` →
-        ``_from_narwhals(template=past)`` so returned frames match
-        the caller's native type.
+        """Send a forecast and restore tables to the type of ``past``.
 
         Parameters
         ----------
         past : any
-            Past observations. Native type is the template for returned
-            frames. See ``ForecastRequest`` for accepted shapes.
-        time : str, optional
-            Time-index column name. When omitted, ``coerce_request``
-            uses the first column of ``past``.
-        target : str or list of str, optional
-            Target column names. A string is wrapped as a one-element
-            list. When omitted, ``coerce_request`` infers columns of
-            ``past`` other than ``time`` and ``future``.
+            Past observations (dict, pandas, polars, …). Return type
+            of ``predictions`` matches this.
         fh : int
-            Forecast steps ahead.
+            Forecast steps ahead (``> 0``).
+        time : str, optional
+            Time-index column. When omitted, the first column of
+            ``past`` is used.
+        target : str or list of str, optional
+            Target column names. When omitted, remaining ``past``
+            columns are used.
         model : str, default ``"naive"``
-            Loaded model id, not an executor name.
+            Loaded model id (see ``GET /models``).
         future : any, optional
-            Future rows for known covariates.
+            Future timestamps when using ``static``.
         static : any, optional
-            Per-series static features.
+            One-row static features, broadcast over time.
         quantiles : list of float, optional
-            Quantile alphas when the executor supports them.
+            Quantile alphas, e.g. ``[0.1, 0.5, 0.9]``.
 
         Returns
         -------
         ForecastResponse
-            ``predictions`` and optional ``quantiles`` restored to the
-            native type of ``past``.
+            ``predictions``, optional ``quantiles``, ``model``, and
+            ``request_id``.
 
         Raises
         ------
         ValidationError
-            If ``ForecastRequest`` construction or ``coerce_request``
-            fails (shape, columns, field constraints). Inner
-            validators raise ``ValueError``, which Pydantic wraps.
+            If the request shape or columns are invalid.
         RuntimeError
-            If the transport reports a failed forecast. There is no
-            custom FoMo exception class; ``HealthError`` is a Pydantic
-            model, not raised here.
-        Exception
-            Other transport failures (connection, encoding, decode of
-            the returned blobs). See ``HttpTransport`` for the HTTP
-            error surface.
-
-        See Also
-        --------
-        fomo.types.models.ForecastRequest
-            Full field semantics for past/time/target/fh/
-            model/future/static/quantiles.
-        fomo.types.converters.coerce_request
-            Wire conversion to ``CoercedForecastRequest``.
-        fomo.types.converters.encode_request
-            Split into JSON metadata and Arrow IPC files.
-        fomo.client.transports.base.BaseTransport.forecast
-            Transport call that carries metadata and frame blobs.
-        fomo.client.transports.http.HttpTransport.forecast
-            HTTP default: ``POST /forecast/bytes``.
-        fomo.types.converters.decode_response
-            Rebuild the coerced response from metadata and blobs.
+            If the server returns HTTP >= 400.
         """
         request = ForecastRequest(
             past=past,
@@ -194,57 +149,37 @@ class Client:
         )
 
     def health(self) -> HealthResult:
-        """Return runtime health. Delegates to the transport.
+        """Return ``GET /health`` (liveness).
 
         Returns
         -------
         HealthResult
-            Status payload from the transport.
-
-        Raises
-        ------
-        Exception
-            Transport failures. See ``HttpTransport`` for the HTTP
-            error surface.
+            Currently ``status='ok'``.
         """
         return self._transport.health()
 
     def models(self) -> ModelsResult:
-        """Return loaded models. Delegates to the transport.
-
-        Lists **loaded** models only, not the full registry catalog.
+        """Return ``GET /models`` — loaded ids, not the registry catalog.
 
         Returns
         -------
         ModelsResult
-            Listing from the transport.
-
-        Raises
-        ------
-        Exception
-            Transport failures. See ``HttpTransport`` for the HTTP
-            error surface.
+            Each row has ``id``, ``executor``, and ``source``.
         """
         return self._transport.models()
 
     def stats(self) -> StatsResult:
-        """Return process stats. Delegates to the transport.
+        """Return ``GET /stats`` — uptime, memory, per-model latency.
 
         Returns
         -------
         StatsResult
-            Metrics payload from the transport.
-
-        Raises
-        ------
-        Exception
-            Transport failures. See ``HttpTransport`` for the HTTP
-            error surface.
+            Process and per-loaded-id metrics.
         """
         return self._transport.stats()
 
     def close(self) -> None:
-        """Close the transport. Delegates to ``BaseTransport.close``."""
+        """Close the HTTP session. Called automatically by ``with Client``."""
         self._transport.close()
 
     def __enter__(self) -> Self:

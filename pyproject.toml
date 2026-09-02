@@ -72,13 +72,20 @@ sktime = [
 	"mantis-tsfm>=1.0.0",
 ]
 pytorch-forecasting = ["pytorch-forecasting"]
+docs = [
+	"fomo[server,http,sktime-lite]",
+	"mkdocs-material>=9.6",
+	"mkdocstrings[python]>=0.30",
+]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"
 
 [project.urls]
-# todo: add homepage once it is ready
-# HomePage = ""
+Homepage = "https://fomo.readthedocs.io"
+Documentation = "https://fomo.readthedocs.io"
+Repository = "https://github.com/sktime/fomo"
+Issues = "https://github.com/sktime/fomo/issues"
 
 [dependency-groups]
 dev = [

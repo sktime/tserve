@@ -84,7 +84,7 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
     """Convert a narwhals frame back to the native type of ``template``.
 
     Used by ``Client.forecast`` so ``predictions`` / ``quantiles`` match
-    the caller's ``past`` (pandas, polars, dict, …).
+    the caller's ``past`` (pandas, polars, pyarrow, narwhals, dict, …).
 
     Parameters
     ----------
@@ -93,9 +93,10 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
     template : any
         Original native object. If it is a ``{columns, data}`` dict, the
         result is that row-oriented shape. If it is any other dict, the
-        result is a column dict (name → list). Otherwise the frame is
-        converted with ``to_<implementation>`` of the template's
-        narwhals implementation.
+        result is a column dict (name → list). A narwhals DataFrame is
+        restored as narwhals (same native backend as ``template``).
+        pandas-like, polars, and pyarrow templates use ``to_pandas``,
+        ``to_polars``, and ``to_arrow`` respectively.
 
     Returns
     -------
@@ -104,8 +105,6 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
 
     Raises
     ------
-    AttributeError
-        If the template's implementation has no matching ``to_*`` method.
     Exception
         Narwhals conversion errors for unsupported templates.
     """
@@ -117,12 +116,19 @@ def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
                 "data": [list(row) for row in zip(*as_dict.values(), strict=True)],
             }
         return as_dict
-    native = (
-        template
-        if isinstance(template, nw.DataFrame)
-        else nw.from_native(template, eager_only=True)
-    )
-    return getattr(df, f"to_{native.implementation.value}")()
+
+    if isinstance(template, nw.DataFrame):
+        return nw.from_native(_from_narwhals(df, template.to_native()), eager_only=True)
+
+    impl = nw.from_native(template, eager_only=True).implementation
+    if impl.is_pandas_like():
+        return df.to_pandas()
+    if impl.is_polars():
+        return df.to_polars()
+    if impl.is_pyarrow():
+        return df.to_arrow()
+
+    return df.to_native()
 
 
 def _to_bytes(df: nw.DataFrame) -> bytes:

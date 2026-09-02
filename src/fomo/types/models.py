@@ -41,64 +41,35 @@ from fomo.types._examples import (
 
 
 class ForecastRequest(BaseModel):
-    """User-facing forecast input with native-typed tables.
+    """Forecast input. Same fields on JSON ``POST /forecast`` and ``Client.forecast``.
 
-    This is what JSON ``POST /forecast`` and ``Client.forecast`` accept.
-    Frames may be pandas-like, polars, a pyarrow Table, a narwhals
-    DataFrame, a column dict (name → list), or a row matrix
-    ``{"columns": [...], "data": [[...], ...]}``. Construction only
-    checks table *shape* via ``_check_frame``. ``time`` and ``target``
-    may be omitted or loosely typed; ``coerce_request`` resolves them.
-    Column names are enforced after coercion on ``CoercedForecastRequest``.
+    Tables may be a column dict (name → list), a row matrix
+    ``{"columns": [...], "data": [[...], ...]}``, pandas, polars,
+    pyarrow, or Narwhals.
 
-    ``model`` is a **loaded model id** (registry id, zip stem, or the
-    id passed with an in-process forecaster), not an executor name
-    such as ``"sktime"``.
+    ``model`` is a **loaded** id (see ``GET /models``), not an executor
+    name such as ``"sktime"``.
 
     Attributes
     ----------
     past : any
-        Past observations. Construction only checks table shape.
-        After coercion the frame must include ``time`` and every
-        ``target``.
+        Past observations. After coercion must include ``time`` and
+        every ``target``.
     time : str or None, optional
-        Name of the time-index column in ``past`` / ``future`` /
-        predictions. When omitted, ``coerce_request`` uses the first
-        column of ``past``.
+        Time-index column. When omitted, the first column of ``past``.
     target : str or list of str or None, optional
-        Target column names. A string is wrapped as a one-element
-        list at coerce time. When omitted, ``coerce_request`` infers
-        every ``past`` column other than ``time`` and the columns of
-        ``future``.
+        Target columns. A string becomes a one-element list. When
+        omitted, remaining ``past`` columns (minus ``future`` columns).
     fh : int
-        Number of forecast steps ahead (must be ``> 0``).
+        Forecast steps ahead (must be ``> 0``).
     model : str, default ``"naive"``
-        Id of a model loaded on this server (see ``GET /models``).
+        Loaded model id.
     future : any, optional
-        Future rows for known covariates.
+        Future timestamps when using ``static``.
     static : any, optional
-        Per-series (or single-row) static features. Broadcast over time
-        is an executor concern, not this schema.
+        One-row static features, broadcast over time.
     quantiles : list of float, optional
-        Quantile alphas. When set, executors that support them return a
-        quantile table; column naming is executor-specific.
-
-    Raises
-    ------
-    ValidationError
-        If ``past``, ``future``, or ``static`` is not a supported
-        table shape (or ``None`` for the optional frames); if
-        ``fh <= 0``; or if other field types fail. Inner validators
-        raise ``ValueError``, which Pydantic wraps. Empty ``target``
-        lists and missing inferred targets fail on
-        ``CoercedForecastRequest``, not here.
-
-    See Also
-    --------
-    CoercedForecastRequest
-        Internal narwhals form executors consume.
-    fomo.types.converters.coerce_request
-        Converts this model into ``CoercedForecastRequest``.
+        Quantile alphas, e.g. ``[0.1, 0.5, 0.9]``.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
@@ -134,41 +105,22 @@ class ForecastRequest(BaseModel):
 
 
 class ForecastResponse(BaseModel):
-    """User-facing forecast output with native-typed tables.
+    """Forecast output.
 
-    JSON ``POST /forecast`` returns predictions as a column dict
-    (``DataFrame.to_dict(as_series=False)``). ``Client.forecast`` restores
-    pandas/polars/dict to match the caller's ``past`` type.
-
-    ``request_id`` is assigned by the server routes, not by executors.
+    JSON ``POST /forecast`` returns tables as column dicts.
+    ``Client.forecast`` restores the type of the caller's ``past``.
 
     Attributes
     ----------
-    predictions : any, optional
-        Point-forecast table including the time column. Shape-checked
-        like request frames; may be ``None`` only if omitted (the JSON
-        path always sets it from the executor).
+    predictions : any
+        Point-forecast table, including the time column.
     model : str
-        Model id that produced the forecast (same id as the request).
+        Model id that produced the forecast.
     request_id : str
-        Server-assigned UUID for this call. Used in HTTP 400 bodies when
-        forecast routes fail.
+        Server-assigned UUID for this call.
     quantiles : any, optional
-        Optional quantile table. Column names are executor-specific.
-
-    Raises
-    ------
-    ValidationError
-        If ``predictions`` or ``quantiles`` is not a supported table
-        shape (or ``None``), or if other field types fail. Inner
-        validators raise ``ValueError``, which Pydantic wraps.
-
-    See Also
-    --------
-    CoercedForecastResponse
-        Internal narwhals form produced by executors.
-    fomo.client.client.Client.forecast
-        Restores native frame types from the bytes path.
+        Quantile table when requested; column names are
+        ``{variable}_{alpha}``.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})
@@ -372,9 +324,9 @@ class HealthResult(BaseModel):
     Attributes
     ----------
     status : str
-        Process status string. The live route currently returns ``"ok"``.
+        Currently always ``"ok"``.
     error : HealthError or None
-        Optional nested error. Omitted from JSON when ``None``.
+        Unused on the live route.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": HEALTH_OK})
@@ -384,25 +336,16 @@ class HealthResult(BaseModel):
 
 
 class ModelInfo(BaseModel):
-    """Listing row for one **loaded** model.
-
-    ``GET /models`` returns only models that ``bootstrap`` actually
-    loaded. Registry catalog ids that were never passed to
-    ``--load-models`` / ``load_models`` do not appear here.
-
-    ``id`` is the model id used in forecast requests. ``executor`` is
-    the plugin name (``sktime``, ``pytorch-forecasting``, ``custom``),
-    not the model id.
+    """One **loaded** model (a row of ``GET /models``).
 
     Attributes
     ----------
     id : str
-        Loaded model id (registry key, zip stem, or caller-supplied id).
+        Id used in forecast ``model``.
     executor : {"sktime", "pytorch-forecasting", "custom"}
-        Executor plugin that loaded the artifact.
+        Plugin that loaded the artifact.
     source : {"object", "registry", "directory"}
-        How ``resolve_model`` obtained the artifact: in-process
-        forecaster, ``SKTIME_REGISTRY`` id, or a ``.zip`` path.
+        Registry id, saved ``.zip``, or in-process estimator.
     """
 
     id: str
@@ -416,8 +359,7 @@ class ModelsResult(BaseModel):
     Attributes
     ----------
     models : list of ModelInfo
-        Currently loaded models. Empty if the process started with no
-        ``load_models``.
+        Currently loaded models. Empty if nothing was loaded.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": MODELS_RESULT})
@@ -512,18 +454,14 @@ class ModelStats(BaseModel):
 class StatsResult(BaseModel):
     """Payload for ``GET /stats``.
 
-    Built from ``fomo.logging.stats.Stats.snapshot`` via
-    ``model_validate``.
-
     Attributes
     ----------
     uptime_s : float
-        Seconds since the ``Stats`` instance was created (process
-        bootstrap).
+        Seconds since process start.
     memory : MemoryStats
-        Best-effort RSS and GPU probes; fields may be ``None``.
+        RSS and GPU probes; fields may be ``None``.
     models : dict of str to ModelStats
-        Per **loaded model id** metrics.
+        Per **loaded model id** load, warmup, and latency.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": STATS_RESULT})

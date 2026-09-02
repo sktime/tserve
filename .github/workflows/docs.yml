@@ -1,0 +1,33 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: uv sync --extra docs
+
+      - name: Build
+        run: uv run mkdocs build --strict
