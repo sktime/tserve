@@ -39,7 +39,7 @@ server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
-ptf = ["pytorch-forecasting"]
+pytorch-forecasting = ["pytorch-forecasting"]
 sktime = ["sktime", "skpro"]
 # estimators-general-deps, torch excluded so the extras below can pick an index
 hf = [
