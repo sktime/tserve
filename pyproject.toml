@@ -48,7 +48,7 @@ hf = [
 ]
 # estimators-specific-deps, CPU torch. Every extra repeats "torch": uv reads
 # [tool.uv.sources] per extra named on the command line, so a nested one would
-# fall back to the PyPI (CUDA) wheel.
+# fall back to the default (CUDA) wheel.
 # ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
 hub = ["fomo[hf]", "torch"]
 # Chronos2Forecaster
@@ -78,8 +78,9 @@ toto = ["fomo[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
 mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
 all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
-# same estimators with CUDA torch; the CPU extra is copied, not nested, so
-# only one index is enabled at a time
+# same estimators on the default PyPI torch, which bundles whatever CUDA
+# PyTorch ships for that release; the CPU extra is copied, not nested, so only
+# one index is enabled at a time
 hub-cuda = ["fomo[hf]", "torch"]
 chronos-cuda = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
 kronos-cuda = [
@@ -127,8 +128,8 @@ docs = [
 ]
 
 [tool.uv]
-# a CPU extra and a -cuda extra ask for different torch indexes, so no pair of
-# them can be installed together. uv only takes pairwise conflicts.
+# a CPU extra pins the CPU index and a -cuda extra takes the default one, so no
+# pair of them can be installed together. uv only takes pairwise conflicts.
 conflicts = [
   [{ extra = "hub" }, { extra = "hub-cuda" }],
   [{ extra = "hub" }, { extra = "chronos-cuda" }],
@@ -224,25 +225,11 @@ torch = [
   { index = "pytorch-cpu", extra = "toto" },
   { index = "pytorch-cpu", extra = "mantis" },
   { index = "pytorch-cpu", extra = "all" },
-  { index = "pytorch-cu128", extra = "hub-cuda" },
-  { index = "pytorch-cu128", extra = "chronos-cuda" },
-  { index = "pytorch-cu128", extra = "kronos-cuda" },
-  { index = "pytorch-cu128", extra = "granite-cuda" },
-  { index = "pytorch-cu128", extra = "moirai-cuda" },
-  { index = "pytorch-cu128", extra = "tirex-cuda" },
-  { index = "pytorch-cu128", extra = "toto-cuda" },
-  { index = "pytorch-cu128", extra = "mantis-cuda" },
-  { index = "pytorch-cu128", extra = "all-cuda" },
 ]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-[[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.hatch.build.targets.wheel]
