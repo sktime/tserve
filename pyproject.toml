@@ -34,15 +34,16 @@ dependencies = [
 
 [project.optional-dependencies]
 client = ["fomo[http]"]
-server = ["fastapi", "python-multipart", "uvicorn", "fomo[lite]"]
+server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
-lite = ["sktime"]
+ptf = ["pytorch-forecasting"]
+sktime = ["sktime", "skpro"]
 # estimators-general-deps, torch excluded so the extras below can pick an index
 hf = [
-  "fomo[lite]",
+  "fomo[sktime]",
   "transformers",
   "accelerate>=0.26.0",
 ]
@@ -55,7 +56,7 @@ hub = ["fomo[hf]", "torch"]
 chronos = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
 # KronosForecaster/WindFMForecaster
 kronos = [
-  "fomo[lite]",
+  "fomo[sktime]",
   "einops",
   "huggingface_hub",
   "safetensors",
@@ -84,7 +85,7 @@ all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
 hub-cuda = ["fomo[hf]", "torch"]
 chronos-cuda = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
 kronos-cuda = [
-  "fomo[lite]",
+  "fomo[sktime]",
   "einops",
   "huggingface_hub",
   "safetensors",
@@ -102,7 +103,6 @@ tirex-cuda = ["fomo[hf]", "tirex-ts", "torch"]
 toto-cuda = ["fomo[hf]", "toto-models", "skpro", "torch"]
 mantis-cuda = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
 all-cuda = ["fomo[chronos-cuda,kronos-cuda,granite-cuda,moirai-cuda,tirex-cuda,toto-cuda,mantis-cuda]", "torch"]
-pytorch-forecasting = ["pytorch-forecasting"]
 
 [project.scripts]
 fomo = "fomo.cli.main:main"
@@ -290,7 +290,7 @@ include = ["src"]
 
 [tool.ty.analysis]
 # Optional extras are not installed in the code-quality env (`uv sync --group dev`).
-# http → httpx2; server → fastapi, uvicorn; lite → pandas, sktime.
+# http → httpx2; server → fastapi, uvicorn; sktime → pandas, sktime.
 allowed-unresolved-imports = [
   "httpx2.**",
   "fastapi.**",
