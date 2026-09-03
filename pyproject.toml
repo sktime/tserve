@@ -34,43 +34,73 @@ dependencies = [
 
 [project.optional-dependencies]
 client = ["fomo[http]"]
-server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime-lite]"]
+server = ["fastapi", "python-multipart", "uvicorn", "fomo[lite]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 grpc = ["grpcio"]
 # executors specific dependencies
-sktime-lite = ["sktime"]
-sktime = [
-  "sktime",
-  "skpro",
-  # estimators-general-deps
-  "torch",
+lite = ["sktime"]
+# estimators-general-deps, torch excluded so the extras below can pick an index
+hf = [
+  "fomo[lite]",
   "transformers",
-  "accelerate",
-  "huggingface_hub",
-  "hf-xet",
-  "safetensors",
-  "einops",
-  "tqdm",
-  # estimators-specific-deps
-  # Chronos2Forecaster
-  "chronos-forecasting>=2.0.0",
-  # AuroraForecaster
-  "aurora-model==0.2.0",
-  "torchvision",
-  # MOIRAI/Moirai2/LagLlama
-  "gluonts>=0.14.0",
-  "lightning>=2.0",
-  "hydra-core",
-  # FlowState/PatchTSMixer
-  "granite-tsfm>=0.3.5",
-  # TiRexForecaster
-  "tirex-ts",
-  # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
-  "toto-models",
-  # MantisForecaster
-  "mantis-tsfm>=1.0.0",
+  "accelerate>=0.26.0",
 ]
+# estimators-specific-deps, CPU torch. Every extra repeats "torch": uv reads
+# [tool.uv.sources] per extra named on the command line, so a nested one would
+# fall back to the PyPI (CUDA) wheel.
+# ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
+hub = ["fomo[hf]", "torch"]
+# Chronos2Forecaster
+chronos = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
+# KronosForecaster/WindFMForecaster
+kronos = [
+  "fomo[lite]",
+  "einops",
+  "huggingface_hub",
+  "safetensors",
+  "torch",
+]
+# FlowState/PatchTSMixer
+granite = ["fomo[hf]", "granite-tsfm>=0.3.5", "torch"]
+# MOIRAI/Moirai2/LagLlama
+moirai = [
+  "fomo[hf]",
+  "gluonts>=0.14.0; python_version < '3.14'",
+  "lightning>=2.0; python_version < '3.14'",
+  "hydra-core; python_version < '3.14'",
+  "torch",
+]
+# TiRexForecaster
+tirex = ["fomo[hf]", "tirex-ts", "torch"]
+# Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
+toto = ["fomo[hf]", "toto-models", "skpro", "torch"]
+# MantisForecaster
+mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
+all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+# same estimators with CUDA torch; the CPU extra is copied, not nested, so
+# only one index is enabled at a time
+hub-cuda = ["fomo[hf]", "torch"]
+chronos-cuda = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
+kronos-cuda = [
+  "fomo[lite]",
+  "einops",
+  "huggingface_hub",
+  "safetensors",
+  "torch",
+]
+granite-cuda = ["fomo[hf]", "granite-tsfm>=0.3.5", "torch"]
+moirai-cuda = [
+  "fomo[hf]",
+  "gluonts>=0.14.0; python_version < '3.14'",
+  "lightning>=2.0; python_version < '3.14'",
+  "hydra-core; python_version < '3.14'",
+  "torch",
+]
+tirex-cuda = ["fomo[hf]", "tirex-ts", "torch"]
+toto-cuda = ["fomo[hf]", "toto-models", "skpro", "torch"]
+mantis-cuda = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
+all-cuda = ["fomo[chronos-cuda,kronos-cuda,granite-cuda,moirai-cuda,tirex-cuda,toto-cuda,mantis-cuda]", "torch"]
 pytorch-forecasting = ["pytorch-forecasting"]
 
 [project.scripts]
@@ -96,9 +126,128 @@ docs = [
   "mkdocstrings[python]>=0.30",
 ]
 
+[tool.uv]
+# a CPU extra and a -cuda extra ask for different torch indexes, so no pair of
+# them can be installed together. uv only takes pairwise conflicts.
+conflicts = [
+  [{ extra = "hub" }, { extra = "hub-cuda" }],
+  [{ extra = "hub" }, { extra = "chronos-cuda" }],
+  [{ extra = "hub" }, { extra = "kronos-cuda" }],
+  [{ extra = "hub" }, { extra = "granite-cuda" }],
+  [{ extra = "hub" }, { extra = "moirai-cuda" }],
+  [{ extra = "hub" }, { extra = "tirex-cuda" }],
+  [{ extra = "hub" }, { extra = "toto-cuda" }],
+  [{ extra = "hub" }, { extra = "mantis-cuda" }],
+  [{ extra = "hub" }, { extra = "all-cuda" }],
+  [{ extra = "chronos" }, { extra = "hub-cuda" }],
+  [{ extra = "chronos" }, { extra = "chronos-cuda" }],
+  [{ extra = "chronos" }, { extra = "kronos-cuda" }],
+  [{ extra = "chronos" }, { extra = "granite-cuda" }],
+  [{ extra = "chronos" }, { extra = "moirai-cuda" }],
+  [{ extra = "chronos" }, { extra = "tirex-cuda" }],
+  [{ extra = "chronos" }, { extra = "toto-cuda" }],
+  [{ extra = "chronos" }, { extra = "mantis-cuda" }],
+  [{ extra = "chronos" }, { extra = "all-cuda" }],
+  [{ extra = "kronos" }, { extra = "hub-cuda" }],
+  [{ extra = "kronos" }, { extra = "chronos-cuda" }],
+  [{ extra = "kronos" }, { extra = "kronos-cuda" }],
+  [{ extra = "kronos" }, { extra = "granite-cuda" }],
+  [{ extra = "kronos" }, { extra = "moirai-cuda" }],
+  [{ extra = "kronos" }, { extra = "tirex-cuda" }],
+  [{ extra = "kronos" }, { extra = "toto-cuda" }],
+  [{ extra = "kronos" }, { extra = "mantis-cuda" }],
+  [{ extra = "kronos" }, { extra = "all-cuda" }],
+  [{ extra = "granite" }, { extra = "hub-cuda" }],
+  [{ extra = "granite" }, { extra = "chronos-cuda" }],
+  [{ extra = "granite" }, { extra = "kronos-cuda" }],
+  [{ extra = "granite" }, { extra = "granite-cuda" }],
+  [{ extra = "granite" }, { extra = "moirai-cuda" }],
+  [{ extra = "granite" }, { extra = "tirex-cuda" }],
+  [{ extra = "granite" }, { extra = "toto-cuda" }],
+  [{ extra = "granite" }, { extra = "mantis-cuda" }],
+  [{ extra = "granite" }, { extra = "all-cuda" }],
+  [{ extra = "moirai" }, { extra = "hub-cuda" }],
+  [{ extra = "moirai" }, { extra = "chronos-cuda" }],
+  [{ extra = "moirai" }, { extra = "kronos-cuda" }],
+  [{ extra = "moirai" }, { extra = "granite-cuda" }],
+  [{ extra = "moirai" }, { extra = "moirai-cuda" }],
+  [{ extra = "moirai" }, { extra = "tirex-cuda" }],
+  [{ extra = "moirai" }, { extra = "toto-cuda" }],
+  [{ extra = "moirai" }, { extra = "mantis-cuda" }],
+  [{ extra = "moirai" }, { extra = "all-cuda" }],
+  [{ extra = "tirex" }, { extra = "hub-cuda" }],
+  [{ extra = "tirex" }, { extra = "chronos-cuda" }],
+  [{ extra = "tirex" }, { extra = "kronos-cuda" }],
+  [{ extra = "tirex" }, { extra = "granite-cuda" }],
+  [{ extra = "tirex" }, { extra = "moirai-cuda" }],
+  [{ extra = "tirex" }, { extra = "tirex-cuda" }],
+  [{ extra = "tirex" }, { extra = "toto-cuda" }],
+  [{ extra = "tirex" }, { extra = "mantis-cuda" }],
+  [{ extra = "tirex" }, { extra = "all-cuda" }],
+  [{ extra = "toto" }, { extra = "hub-cuda" }],
+  [{ extra = "toto" }, { extra = "chronos-cuda" }],
+  [{ extra = "toto" }, { extra = "kronos-cuda" }],
+  [{ extra = "toto" }, { extra = "granite-cuda" }],
+  [{ extra = "toto" }, { extra = "moirai-cuda" }],
+  [{ extra = "toto" }, { extra = "tirex-cuda" }],
+  [{ extra = "toto" }, { extra = "toto-cuda" }],
+  [{ extra = "toto" }, { extra = "mantis-cuda" }],
+  [{ extra = "toto" }, { extra = "all-cuda" }],
+  [{ extra = "mantis" }, { extra = "hub-cuda" }],
+  [{ extra = "mantis" }, { extra = "chronos-cuda" }],
+  [{ extra = "mantis" }, { extra = "kronos-cuda" }],
+  [{ extra = "mantis" }, { extra = "granite-cuda" }],
+  [{ extra = "mantis" }, { extra = "moirai-cuda" }],
+  [{ extra = "mantis" }, { extra = "tirex-cuda" }],
+  [{ extra = "mantis" }, { extra = "toto-cuda" }],
+  [{ extra = "mantis" }, { extra = "mantis-cuda" }],
+  [{ extra = "mantis" }, { extra = "all-cuda" }],
+  [{ extra = "all" }, { extra = "hub-cuda" }],
+  [{ extra = "all" }, { extra = "chronos-cuda" }],
+  [{ extra = "all" }, { extra = "kronos-cuda" }],
+  [{ extra = "all" }, { extra = "granite-cuda" }],
+  [{ extra = "all" }, { extra = "moirai-cuda" }],
+  [{ extra = "all" }, { extra = "tirex-cuda" }],
+  [{ extra = "all" }, { extra = "toto-cuda" }],
+  [{ extra = "all" }, { extra = "mantis-cuda" }],
+  [{ extra = "all" }, { extra = "all-cuda" }],
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", extra = "hub" },
+  { index = "pytorch-cpu", extra = "chronos" },
+  { index = "pytorch-cpu", extra = "kronos" },
+  { index = "pytorch-cpu", extra = "granite" },
+  { index = "pytorch-cpu", extra = "moirai" },
+  { index = "pytorch-cpu", extra = "tirex" },
+  { index = "pytorch-cpu", extra = "toto" },
+  { index = "pytorch-cpu", extra = "mantis" },
+  { index = "pytorch-cpu", extra = "all" },
+  { index = "pytorch-cu128", extra = "hub-cuda" },
+  { index = "pytorch-cu128", extra = "chronos-cuda" },
+  { index = "pytorch-cu128", extra = "kronos-cuda" },
+  { index = "pytorch-cu128", extra = "granite-cuda" },
+  { index = "pytorch-cu128", extra = "moirai-cuda" },
+  { index = "pytorch-cu128", extra = "tirex-cuda" },
+  { index = "pytorch-cu128", extra = "toto-cuda" },
+  { index = "pytorch-cu128", extra = "mantis-cuda" },
+  { index = "pytorch-cu128", extra = "all-cuda" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
-# (`uv pip install -e ".[server,sktime]"`) `from fomo.scheduling.scheduler import Scheduler`
+# (`uv pip install -e ".[server,all]"`) `from fomo.scheduling.scheduler import Scheduler`
 # works from anywhere
 packages = ["src/fomo"]
 
@@ -154,7 +303,7 @@ include = ["src"]
 
 [tool.ty.analysis]
 # Optional extras are not installed in the code-quality env (`uv sync --group dev`).
-# http → httpx2; server → fastapi, uvicorn; sktime-lite/sktime → pandas, sktime.
+# http → httpx2; server → fastapi, uvicorn; lite → pandas, sktime.
 allowed-unresolved-imports = [
   "httpx2.**",
   "fastapi.**",
