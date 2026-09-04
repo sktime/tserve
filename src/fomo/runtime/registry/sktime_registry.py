@@ -876,13 +876,15 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # },
     # TimesFM 1.0. Ignored: incompatible dependency pin (`python>=3.10,<3.11`).
     # "timesfm": {"spec": 'TimesFMForecaster(repo_id="google/timesfm-1.0-200m")'},
-    "aurora": {"spec": 'AuroraForecaster(repo_id="DecisionIntelligence/Aurora")'},
+    # Aurora Ignored: needed torchvision which is removed in dependency group refactor
+    # "aurora": {"spec": 'AuroraForecaster(repo_id="DecisionIntelligence/Aurora")'},
     "lagllama": {
         "spec": (
             'LagLlamaForecaster(ckpt_path="time-series-foundation-models/Lag-Llama")'
         )
     },
-    "falconx": {"spec": "FalconXForecaster(license_accepted=True)"},
+    # FalconX Ignored: not an open-source model rather sends API requests
+    # "falconx": {"spec": "FalconXForecaster(license_accepted=True)"},
     # Mantis embeddings + sklearn head. Not ignored but see `context_length`.
     "mantis": {
         "spec": (

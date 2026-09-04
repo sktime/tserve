@@ -13,7 +13,7 @@ style:
 	uv run ruff format $(check_dirs)
 
 docs:
-	uv run --extra docs mkdocs build --strict
+	uv run --group docs mkdocs build --strict
 
 docs-serve:
-	uv run --extra docs mkdocs serve
+	uv run --group docs mkdocs serve

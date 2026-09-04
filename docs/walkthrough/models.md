@@ -17,8 +17,7 @@ These ids are in the registry. Pick them with `--load-models`:
 | `moirai-2` | `Moirai2Forecaster` | `ttm-r3-52-16` | `TinyTimeMixerForecaster` |
 | `timesfm-2.5` | `TimesFM2Forecaster` | `toto-2.0-4m` | `Toto2Forecaster` |
 | `flowstate` | `FlowStateForecaster` | `tirex` | `TiRexForecaster` |
-| `windfm` | `WindFMForecaster` | `aurora` | `AuroraForecaster` |
-| `lagllama` | `LagLlamaForecaster` | `falconx` | `FalconXForecaster` |
+| `windfm` | `WindFMForecaster` | `lagllama` | `LagLlamaForecaster` |
 | `mantis-8m` | `MantisForecaster` | | |
 
 Each family has more sizes and revisions; the [full catalog](#full-catalog) is below.
@@ -241,9 +240,7 @@ r3 (each id has a `-lite` sibling):
 
 | id | estimator |
 | --- | --- |
-| `aurora` | `AuroraForecaster` |
 | `lagllama` | `LagLlamaForecaster` |
-| `falconx` | `FalconXForecaster` |
 | `mantis`, `mantis-8m`, `mantis-plus` | `MantisForecaster` |
 
 FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Asking an id that cannot return quantiles fails the request.

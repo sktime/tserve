@@ -87,7 +87,8 @@ Core (always installed) is `pydantic`, `narwhals`, and `pyarrow`. Everything els
 | `sktime-lite` | `sktime` | registry id `naive` |
 | `sktime` | `sktime` plus Hub deps (`torch`, `transformers`, estimator packages, …) | other registry ids |
 | `pytorch-forecasting` | `pytorch-forecasting` | extra exists; the executor is not implemented yet |
-| `docs` | Material, mkdocstrings, plus `server` / `http` / `sktime-lite` | this documentation site |
+
+This site is not an extra. From a clone, `uv sync --group docs` (Material, mkdocstrings, plus `server` / `http` / `sktime-lite`).
 
 Pick extras to match what the process will do:
 

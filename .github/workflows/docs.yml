@@ -27,7 +27,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install
-        run: uv sync --extra docs
+        run: uv sync --no-dev --group docs
 
       - name: Build
         run: uv run mkdocs build --strict

@@ -33,7 +33,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install
-        run: uv sync --all-extras
+        run: uv sync --extra server --extra client
 
       - name: Run pytest
         run: uv run pytest
