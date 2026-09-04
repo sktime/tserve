@@ -7,6 +7,12 @@
 #   docker compose up granite              # run
 #   docker compose build --push granite    # build and push
 #
+# Select services with profiles
+#   --profile cpu                     all CPU services
+#   --profile cuda                    all CUDA services
+#   --profile granite                 granite and granite-cuda
+#   --profile cpu --profile granite   granite only
+#
 
 name: fomo
 
