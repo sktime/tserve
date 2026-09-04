@@ -14,6 +14,7 @@ import uvicorn
 from fastapi import FastAPI
 from uvicorn.logging import DefaultFormatter
 
+from fomo.logging.utils import paint
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
 
@@ -106,7 +107,16 @@ class Server:
 
     def run(self) -> None:
         """Serve ``self.app`` with uvicorn. Blocks until the process exits."""
-        logging.basicConfig(level=logging.INFO)
+        logger.info(paint("Starting FoMo", "1"))
+        for label, path in (
+            ("Dashboard", "/"),
+            ("Swagger UI", "/docs"),
+            ("ReDoc", "/redoc"),
+        ):
+            logger.info(
+                f"  {paint(f'{label:<11}', '2')} {paint(f'{self.url}{path}', '1;36')}"
+            )
+
         uvicorn.run(
             self.app,
             host=self.host,
