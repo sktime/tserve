@@ -6,14 +6,18 @@ constructs this class and calls ``run``.
 """
 
 import logging
+import sys
 from pathlib import Path
 from typing import Any
 
 import uvicorn
 from fastapi import FastAPI
+from uvicorn.logging import DefaultFormatter
 
 from fomo.runtime.bootstrap import Runtime, bootstrap
 from fomo.server.routes import router
+
+logger = logging.getLogger(__name__)
 
 
 class Server:
@@ -79,6 +83,16 @@ class Server:
                 name = model_path.stem
                 if name in self.load_models:
                     self.load_models[self.load_models.index(name)] = model_path
+
+        # configure before bootstrap, so warmup progress is visible.
+        # uvicorn's formatter makes FoMo lines look like uvicorn's own;
+        # the "fomo" logger only, to keep other libraries' records out.
+        fomo_logger = logging.getLogger("fomo")
+        fomo_logger.setLevel(self.log_level.upper())
+        if not fomo_logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s"))
+            fomo_logger.addHandler(handler)
 
         self.runtime: Runtime = bootstrap(self.load_models)
         self.app = FastAPI(title="FoMo")
