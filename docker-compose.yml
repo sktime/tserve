@@ -22,6 +22,11 @@
 #   HF_TOKEN=hf_... docker compose --profile granite up granite
 #   or put HF_TOKEN=hf_... in a .env next to this file
 #
+# Common useful commands:
+#   docker compose --profile cpu build --push              # build and push all CPU images
+#   docker compose --profile cuda build --push             # build and push all CUDA images
+#   docker compose --profile all build --push              # build and push CPU and CUDA full images
+#
 
 name: fomo
 
