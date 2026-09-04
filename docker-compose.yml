@@ -13,6 +13,11 @@
 #   --profile granite                 granite and granite-cuda
 #   --profile cpu --profile granite   granite only
 #
+# Override image name (default: sktime/fomo:<tag>)
+#   FOMO_IMAGE=ghcr.io/myorg/fomo docker compose --profile cpu build
+#   FOMO_IMAGE=myregistry/fomo docker compose --profile granite push
+#   FOMO_IMAGE=localhost/fomo docker compose --profile granite up granite
+#
 
 name: fomo
 
