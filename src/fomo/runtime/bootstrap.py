@@ -125,14 +125,22 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     plural = "" if total == 1 else "s"
     logger.info(f"Loading {paint(str(total), '1;36')} model{plural}")
 
-    for item in load_models:
+    for position, item in enumerate(load_models, start=1):
         info = resolve_model(item)
         item = item[1] if isinstance(item, tuple) else item
 
         if info.id in models:
             raise ValueError(f"duplicate model id {info.id!r} in load_models")
 
-        logger.info(f"loading model {info.id} via {info.executor}")
+        label = f"{info.id} via {info.executor}"
+        dots = paint("." * max(3, 40 - len(label)), "2")
+        prefix = (
+            f"{paint(f'[{position}/{total}]', '2')} "
+            f"{paint(info.id, '1;36')} via {paint(info.executor, '36')} "
+            f"{dots} "
+        )
+        logger.info(prefix + paint("loading", "33"))
+
         executor = create_executor(info.executor)
 
         started = time.perf_counter()
@@ -143,6 +151,12 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
         executor.warmup()
         warmup_s = time.perf_counter() - started
 
+        total_s = load_s + warmup_s
+        logger.info(
+            f"{prefix}{paint('ready', '32')} in "
+            f"{paint(f'{total_s:.2f}s', '1;32')} "
+            f"{paint(f'(load {load_s:.2f}s · warmup {warmup_s:.2f}s)', '2')}"
+        )
         stats.register(info.id, info.executor, load_s, warmup_s)
 
         models[info.id] = info
