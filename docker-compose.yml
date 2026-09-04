@@ -1,3 +1,7 @@
+# FoMo images: same Dockerfile, different FOMO_EXTRAS.
+# Each service has profiles [cpu|cuda, <name>] so you can select by backend or by model.
+#
+
 name: fomo
 
 x-build: &build
