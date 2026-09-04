@@ -883,7 +883,8 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'LagLlamaForecaster(ckpt_path="time-series-foundation-models/Lag-Llama")'
         )
     },
-    "falconx": {"spec": "FalconXForecaster(license_accepted=True)"},
+    # FalconX Ignored: not an open-source model rather sends API requests
+    # "falconx": {"spec": "FalconXForecaster(license_accepted=True)"},
     # Mantis embeddings + sklearn head. Not ignored but see `context_length`.
     "mantis": {
         "spec": (
