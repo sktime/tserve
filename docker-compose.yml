@@ -26,7 +26,10 @@
 #   docker compose --profile cpu build --push              # build and push all CPU images
 #   docker compose --profile cuda build --push             # build and push all CUDA images
 #   docker compose --profile all build --push              # build and push CPU and CUDA full images
-#
+#   docker compose --profile granite build --push          # granite + granite-cuda
+#   docker compose build --push granite                    # granite
+#   docker compose up granite                              # run granite
+
 
 name: fomo
 
