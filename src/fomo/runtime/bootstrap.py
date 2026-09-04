@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from fomo.logging import Stats
+from fomo.logging.utils import paint
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_model
 from fomo.scheduling.scheduler import Scheduler
@@ -119,6 +120,10 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     stats = Stats()
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
+
+    total = len(load_models)
+    plural = "" if total == 1 else "s"
+    logger.info(f"Loading {paint(str(total), '1;36')} model{plural}")
 
     for item in load_models:
         info = resolve_model(item)
