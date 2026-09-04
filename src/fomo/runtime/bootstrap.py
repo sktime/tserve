@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from fomo.logging import Stats
-from fomo.logging.utils import paint
+from fomo.logging.utils import format_mib, paint
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_model
 from fomo.scheduling.scheduler import Scheduler
