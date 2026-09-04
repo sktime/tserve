@@ -1,0 +1,18 @@
+name: fomo
+
+services:
+  base:
+    command: ["--load-models", "naive"]
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    profiles: [cpu, base]
+    image: ${FOMO_IMAGE:-sktime/fomo}:base
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOMO_EXTRAS: ""
+      tags:
+        - ${FOMO_IMAGE:-sktime/fomo}:base
