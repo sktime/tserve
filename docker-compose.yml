@@ -1,6 +1,12 @@
 # FoMo images: same Dockerfile, different FOMO_EXTRAS.
 # Each service has profiles [cpu|cuda, <name>] so you can select by backend or by model.
 #
+# Build / Push / Run
+#   docker compose build granite           # build
+#   docker compose push granite            # push
+#   docker compose up granite              # run
+#   docker compose build --push granite    # build and push
+#
 
 name: fomo
 
