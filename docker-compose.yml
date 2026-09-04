@@ -16,3 +16,67 @@ services:
         FOMO_EXTRAS: ""
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:base
+
+  hub:
+    command: ["--load-models", "naive", "chronos-bolt-tiny", "timesfm-2.5", "ttm-r3-52-16"]
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    profiles: [cpu, hub]
+    image: ${FOMO_IMAGE:-sktime/fomo}:hub
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOMO_EXTRAS: hub
+      tags:
+        - ${FOMO_IMAGE:-sktime/fomo}:hub
+
+  chronos:
+    command: ["--load-models", "naive", "chronos-2", "chronos-bolt-tiny"]
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    profiles: [cpu, chronos]
+    image: ${FOMO_IMAGE:-sktime/fomo}:chronos
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOMO_EXTRAS: chronos
+      tags:
+        - ${FOMO_IMAGE:-sktime/fomo}:chronos
+
+  kronos:
+    command: ["--load-models", "naive", "kronos", "windfm"]
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    profiles: [cpu, kronos]
+    image: ${FOMO_IMAGE:-sktime/fomo}:kronos
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOMO_EXTRAS: kronos
+      tags:
+        - ${FOMO_IMAGE:-sktime/fomo}:kronos
+
+  granite:
+    command: ["--load-models", "naive", "flowstate", "ttm-r3-52-16"]
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    profiles: [cpu, granite]
+    image: ${FOMO_IMAGE:-sktime/fomo}:granite
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOMO_EXTRAS: granite
+      tags:
+        - ${FOMO_IMAGE:-sktime/fomo}:granite
