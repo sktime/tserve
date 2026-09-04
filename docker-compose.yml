@@ -18,6 +18,10 @@
 #   FOMO_IMAGE=myregistry/fomo docker compose --profile granite push
 #   FOMO_IMAGE=localhost/fomo docker compose --profile granite up granite
 #
+# Optional Hugging Face token (faster Hub downloads; read token is enough):
+#   HF_TOKEN=hf_... docker compose --profile granite up granite
+#   or put HF_TOKEN=hf_... in a .env next to this file
+#
 
 name: fomo
 
