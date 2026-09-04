@@ -162,6 +162,21 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
         models[info.id] = info
         executors[info.id] = executor
 
+    snapshot = stats.snapshot()
+    memory = "".join(
+        f" · {paint(probe, '2')} {paint(format_mib(mib), '36')}"
+        for probe, mib in (
+            ("CPU", snapshot["memory"]["cpu_rss_mb"]),
+            ("GPU", snapshot["memory"]["gpu_mb"]),
+        )
+        if mib
+    )
+    elapsed = f"{snapshot['uptime_s']:.2f}s"
+    logger.info(
+        f"{paint(str(len(models)), '1;36')} model{plural} ready in "
+        f"{paint(elapsed, '1;32')}{memory}\n"
+    )
+
     return Runtime(
         executors=executors,
         scheduler=Scheduler(executors, stats),
