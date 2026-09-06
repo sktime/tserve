@@ -39,7 +39,7 @@ server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
 sktime = ["sktime", "skpro"]
-# estimators-general-deps, torch excluded so CPU vs `--extra cuda` can pick an index
+# estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
 hf = [
   "fomo[sktime]",
   "transformers",
@@ -76,8 +76,8 @@ mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
 all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["fomo[client,server,all]"]
-# pair with any extra above: `uv sync --extra hub --extra cuda`
-cuda = ["torch"]
+# pair with any extra above: `uv sync --extra hub --extra gpu`
+gpu = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
 dev = [
   "pytest",
@@ -105,23 +105,23 @@ Issues = "https://github.com/sktime/fomo/issues"
 # same packages as the extras, so `uv sync --group dev` stays valid
 dev = ["fomo[dev]"]
 docs = ["fomo[docs]"]
-# empty, only exists so the lock can fork CPU vs CUDA torch
+# empty, only exists so the lock can fork CPU vs GPU torch
 cpu-fork = []
 
 [tool.uv]
 # pytorch-cpu also mirrors a few generic wheels at old versions; consider
 # both indexes so those packages still resolve from PyPI.
 index-strategy = "unsafe-best-match"
-# fork the lock: default extras use the CPU index, `--extra cuda` uses PyPI
+# fork the lock: default extras use the CPU index, `--extra gpu` uses PyPI
 conflicts = [
-  [{ extra = "cuda" }, { group = "cpu-fork" }],
+  [{ extra = "gpu" }, { group = "cpu-fork" }],
 ]
 
 [tool.uv.sources]
-# `--extra cuda` takes PyPI torch (whatever CUDA that wheel bundles).
+# `--extra gpu` takes PyPI torch (CUDA on Linux/Windows, MPS on macOS).
 # Without it, the extra CPU index below supplies the +cpu wheel.
 torch = [
-  { index = "pypi", extra = "cuda" },
+  { index = "pypi", extra = "gpu" },
 ]
 
 [[tool.uv.index]]
