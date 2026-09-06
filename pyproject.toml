@@ -73,9 +73,9 @@ tirex = ["fomo[hf]", "tirex-ts", "torch"]
 toto = ["fomo[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
 mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
-all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+full = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
 # for pip (alternate for `uv sync --all-extras`)
-all-extras = ["fomo[client,server,all]"]
+all-extras = ["fomo[client,server,full]"]
 # pair with any extra above: `uv sync --extra hub --extra gpu`
 gpu = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
@@ -142,7 +142,7 @@ artifacts = [
 
 [tool.hatch.build.targets.wheel]
 # src layout: the package lives at src/fomo, so once installed
-# (`pip install -e ".[server,all]"`) `from fomo.scheduling.scheduler import Scheduler`
+# (`pip install -e ".[server,full]"`) `from fomo.scheduling.scheduler import Scheduler`
 # works from anywhere
 packages = ["src/fomo"]
 

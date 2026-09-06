@@ -25,7 +25,7 @@
 # Common useful commands:
 #   docker compose --profile cpu build --push              # build and push all CPU images
 #   docker compose --profile gpu build --push              # build and push all GPU images
-#   docker compose --profile all build --push              # build and push CPU and GPU full images
+#   docker compose --profile full build --push             # build and push CPU and GPU full images
 #   docker compose --profile granite build --push          # granite + granite-gpu
 #   docker compose build --push granite                    # granite
 #   docker compose up granite                              # run granite
@@ -72,7 +72,7 @@ x-cmd-toto: &cmd-toto
 x-cmd-mantis: &cmd-mantis
   command: ["--load-models", "naive", "mantis-8m"]
 
-x-cmd-all: &cmd-all
+x-cmd-full: &cmd-full
   command:
     [
       "--load-models",
@@ -188,16 +188,16 @@ services:
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:mantis
 
-  all:
-    <<: [*cmd-all, *ports, *hf]
-    profiles: [cpu, all]
-    image: ${FOMO_IMAGE:-sktime/fomo}:all
+  full:
+    <<: [*cmd-full, *ports, *hf]
+    profiles: [cpu, full]
+    image: ${FOMO_IMAGE:-sktime/fomo}:full
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: all
+        FOMO_EXTRAS: full
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:all
+        - ${FOMO_IMAGE:-sktime/fomo}:full
 
   hub-gpu:
     <<: [*cmd-hub, *ports, *hf]
@@ -287,13 +287,13 @@ services:
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:mantis-gpu
 
-  all-gpu:
-    <<: [*cmd-all, *ports, *hf]
-    profiles: [gpu, all]
-    image: ${FOMO_IMAGE:-sktime/fomo}:all-gpu
+  full-gpu:
+    <<: [*cmd-full, *ports, *hf]
+    profiles: [gpu, full]
+    image: ${FOMO_IMAGE:-sktime/fomo}:full-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: all gpu
+        FOMO_EXTRAS: full gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:all-gpu
+        - ${FOMO_IMAGE:-sktime/fomo}:full-gpu
