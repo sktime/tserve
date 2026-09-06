@@ -38,7 +38,6 @@ server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
-pytorch-forecasting = ["pytorch-forecasting"]
 sktime = ["sktime", "skpro"]
 # estimators-general-deps, torch excluded so CPU vs `--extra cuda` can pick an index
 hf = [
