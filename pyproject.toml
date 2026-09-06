@@ -74,6 +74,8 @@ toto = ["fomo[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
 mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
 all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+# for pip (alternate for `uv sync --all-extras`)
+all-extras = ["fomo[client,server,all]"]
 # pair with any extra above: `uv sync --extra hub --extra cuda`
 cuda = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
