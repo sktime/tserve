@@ -10,7 +10,7 @@ COPY . .
 # Always `--extra server --extra sktime` so CMD can load naive.
 # Add heavier extras at build time, e.g.
 #   docker build --build-arg FOMO_EXTRAS=hub .
-#   docker build --build-arg FOMO_EXTRAS=chronos-cuda .
+#   docker build --build-arg FOMO_EXTRAS="chronos cuda" .
 #   docker build --build-arg FOMO_EXTRAS=ptf .
 ARG FOMO_EXTRAS=""
 RUN extras="" \

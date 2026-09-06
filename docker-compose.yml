@@ -206,7 +206,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: hub-cuda
+        FOMO_EXTRAS: hub cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:hub-cuda
 
@@ -217,7 +217,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: chronos-cuda
+        FOMO_EXTRAS: chronos cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:chronos-cuda
 
@@ -228,7 +228,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: kronos-cuda
+        FOMO_EXTRAS: kronos cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:kronos-cuda
 
@@ -239,7 +239,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: granite-cuda
+        FOMO_EXTRAS: granite cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:granite-cuda
 
@@ -250,7 +250,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: moirai-cuda
+        FOMO_EXTRAS: moirai cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:moirai-cuda
 
@@ -261,7 +261,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: tirex-cuda
+        FOMO_EXTRAS: tirex cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:tirex-cuda
 
@@ -272,7 +272,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: toto-cuda
+        FOMO_EXTRAS: toto cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:toto-cuda
 
@@ -283,7 +283,7 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: mantis-cuda
+        FOMO_EXTRAS: mantis cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:mantis-cuda
 
@@ -294,6 +294,6 @@ services:
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: all-cuda
+        FOMO_EXTRAS: all cuda
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:all-cuda
