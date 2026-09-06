@@ -11,7 +11,6 @@ COPY . .
 # Add heavier extras at build time, e.g.
 #   docker build --build-arg FOMO_EXTRAS=hub .
 #   docker build --build-arg FOMO_EXTRAS="chronos cuda" .
-#   docker build --build-arg FOMO_EXTRAS=ptf .
 ARG FOMO_EXTRAS=""
 RUN extras="" \
  && for extra in $FOMO_EXTRAS; do extras="$extras --extra $extra"; done \
