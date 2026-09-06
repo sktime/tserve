@@ -76,17 +76,7 @@ mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
 all = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
 # pair with any extra above: `uv sync --extra hub --extra cuda`
 cuda = ["torch"]
-
-[project.scripts]
-fomo = "fomo.cli.main:main"
-
-[project.urls]
-Homepage = "https://fomo.readthedocs.io"
-Documentation = "https://fomo.readthedocs.io"
-Repository = "https://github.com/sktime/fomo"
-Issues = "https://github.com/sktime/fomo/issues"
-
-[dependency-groups]
+# also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
 dev = [
   "pytest",
   "pre-commit>=4",
@@ -99,6 +89,20 @@ docs = [
   "mkdocs-material>=9.6",
   "mkdocstrings[python]>=0.30",
 ]
+
+[project.scripts]
+fomo = "fomo.cli.main:main"
+
+[project.urls]
+Homepage = "https://fomo.readthedocs.io"
+Documentation = "https://fomo.readthedocs.io"
+Repository = "https://github.com/sktime/fomo"
+Issues = "https://github.com/sktime/fomo/issues"
+
+[dependency-groups]
+# same packages as the extras, so `uv sync --group dev` stays valid
+dev = ["fomo[dev]"]
+docs = ["fomo[docs]"]
 # empty, only exists so the lock can fork CPU vs CUDA torch
 cpu-fork = []
 
