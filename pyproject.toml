@@ -37,7 +37,6 @@ client = ["fomo[http]"]
 server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
-grpc = ["grpcio"]
 # executors specific dependencies
 pytorch-forecasting = ["pytorch-forecasting"]
 sktime = ["sktime", "skpro"]
