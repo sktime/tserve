@@ -18,17 +18,15 @@ The image `CMD` loads `naive` if you pass no extra arguments. That is an image d
 Pull the sktime image and load a handful of registry ids:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
 Or clone the repo and start from source:
 
 ```bash
-git clone git@github.com:sktime/fomo.git && cd fomo
-uv sync --all-extras
-uv run fomo serve --host 127.0.0.1 --port 8000 \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+git clone https://github.com/sktime/fomo.git && cd fomo
+uv sync --extra server --extra client --extra hub
+uv run fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
 Once the process is up:
@@ -54,7 +52,7 @@ curl -s http://127.0.0.1:8000/forecast \
     "time": "timestamp",
     "target": ["sales"],
     "fh": 3,
-    "model": "naive"
+    "model": "chronos-bolt-tiny"
   }'
 ```
 
@@ -62,10 +60,10 @@ curl -s http://127.0.0.1:8000/forecast \
 {
   "predictions": {
     "timestamp": ["2024-01-06T00:00:00", "2024-01-07T00:00:00", "2024-01-08T00:00:00"],
-    "sales": [142.5, 147.0, 151.5]
+    "sales": [139.96, 138.93, 138.26]
   },
   "quantiles": null,
-  "model": "naive",
+  "model": "chronos-bolt-tiny",
   "request_id": "…"
 }
 ```
