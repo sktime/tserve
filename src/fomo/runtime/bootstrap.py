@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from fomo.logging import Stats
+from fomo.logging.utils import format_mib, paint
 from fomo.runtime.executors import Executor, create_executor
 from fomo.runtime.registry import resolve_model
 from fomo.scheduling.scheduler import Scheduler
@@ -120,14 +121,26 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
 
-    for item in load_models:
+    total = len(load_models)
+    plural = "" if total == 1 else "s"
+    logger.info(f"Loading {paint(str(total), '1;36')} model{plural}")
+
+    for position, item in enumerate(load_models, start=1):
         info = resolve_model(item)
         item = item[1] if isinstance(item, tuple) else item
 
         if info.id in models:
             raise ValueError(f"duplicate model id {info.id!r} in load_models")
 
-        logger.info(f"loading model {info.id} via {info.executor}")
+        label = f"{info.id} via {info.executor}"
+        dots = paint("." * max(3, 40 - len(label)), "2")
+        prefix = (
+            f"{paint(f'[{position}/{total}]', '2')} "
+            f"{paint(info.id, '1;36')} via {paint(info.executor, '36')} "
+            f"{dots} "
+        )
+        logger.info(prefix + paint("loading", "33"))
+
         executor = create_executor(info.executor)
 
         started = time.perf_counter()
@@ -138,10 +151,31 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
         executor.warmup()
         warmup_s = time.perf_counter() - started
 
+        total_s = load_s + warmup_s
+        logger.info(
+            f"{prefix}{paint('ready', '32')} in "
+            f"{paint(f'{total_s:.2f}s', '1;32')} "
+            f"{paint(f'(load {load_s:.2f}s · warmup {warmup_s:.2f}s)', '2')}"
+        )
         stats.register(info.id, info.executor, load_s, warmup_s)
 
         models[info.id] = info
         executors[info.id] = executor
+
+    snapshot = stats.snapshot()
+    memory = "".join(
+        f" · {paint(probe, '2')} {paint(format_mib(mib), '36')}"
+        for probe, mib in (
+            ("CPU", snapshot["memory"]["cpu_rss_mb"]),
+            ("GPU", snapshot["memory"]["gpu_mb"]),
+        )
+        if mib
+    )
+    elapsed = f"{snapshot['uptime_s']:.2f}s"
+    logger.info(
+        f"{paint(str(len(models)), '1;36')} model{plural} ready in "
+        f"{paint(elapsed, '1;32')}{memory}\n"
+    )
 
     return Runtime(
         executors=executors,
