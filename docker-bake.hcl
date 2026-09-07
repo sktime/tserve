@@ -1,3 +1,23 @@
+# FoMo images: same Dockerfile, different FOMO_EXTRAS.
+# Every tag is linux/amd64 + linux/arm64 (Linux, Mac, Windows Docker Desktop).
+# `--extra gpu` is a torch index choice (PyPI / CUDA / MPS), not an arch pin.
+#
+# First time on a new machine:
+#   docker run --privileged --rm tonistiigi/binfmt --install all
+#   docker buildx create --name fomo --driver docker-container --bootstrap --use
+#
+# Build / Push / Load
+#   docker buildx bake granite                         # build
+#   docker buildx bake --push granite                  # build and push
+#   docker buildx bake --set granite.platform=linux/amd64 --load granite
+#   FOMO_IMAGE=sktime/fomo docker buildx bake --push cpu
+#   FOMO_IMAGE=local/fomo docker buildx bake --load granite
+#
+# Groups:
+#   default  base image
+#   cpu      all CPU images
+#   gpu      all GPU images
+
 variable "FOMO_IMAGE" {
   default = "sktime/fomo"
 }
