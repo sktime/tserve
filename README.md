@@ -113,16 +113,25 @@ Or via Python (install the `client` extra first: `uv sync --extra server --extra
 import httpx2 as httpx
 
 SERVER_URL = "http://127.0.0.1:8000"
-response = httpx.post(f"{SERVER_URL}/forecast", json={
-    "past": {
-        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
-        "sales": [120, 135, 128, 142, 138],
+response = httpx.post(
+    f"{SERVER_URL}/forecast",
+    json={
+        "past": {
+            "timestamp": [
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-03",
+                "2024-01-04",
+                "2024-01-05",
+            ],
+            "sales": [120, 135, 128, 142, 138],
+        },
+        "time": "timestamp",
+        "target": ["sales"],
+        "fh": 3,
+        "model": "naive",
     },
-    "time": "timestamp",
-    "target": ["sales"],
-    "fh": 3,
-    "model": "naive",
-})
+)
 response.raise_for_status()
 print(response.json())
 ```
