@@ -27,23 +27,27 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build image
-        uses: docker/build-push-action@v7
+      - name: Bake base
+        uses: docker/bake-action@v6
+        env:
+          FOMO_IMAGE: fomo
         with:
-          context: .
-          file: ./Dockerfile
-          push: false
+          source: .
+          files: ./docker-bake.hcl
+          targets: base
           load: true
-          tags: fomo:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          provenance: false
+          set: |
+            *.platform=linux/amd64
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
 
-      # Boot the default image and wait until /health returns {"status":"ok"}.
+      # Boot the loaded image and wait until /health returns {"status":"ok"}.
       # Always dump logs and remove the container, including on timeout.
       - name: Health check
         run: |
-          docker run -d --name fomo-ci -p 127.0.0.1:8000:8000 fomo:ci
-          trap 'docker logs fomo-ci; docker rm -f fomo-ci' EXIT
+          docker run -d --name fomo -p 127.0.0.1:8000:8000 fomo:base
+          trap 'docker logs fomo; docker rm -f fomo' EXIT
 
           for _ in $(seq 1 60); do
             if curl -sf http://127.0.0.1:8000/health | jq -e '.status == "ok"' >/dev/null 2>&1; then

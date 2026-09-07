@@ -12,7 +12,7 @@
 .readthedocs.yaml
 
 # Docker (not needed inside the image)
-docker-compose.yml
+docker-bake.hcl
 Dockerfile
 .docker
 .dockerignore
