@@ -29,6 +29,8 @@ jobs:
 
       - name: Bake base
         uses: docker/bake-action@v6
+        env:
+          FOMO_IMAGE: fomo
         with:
           source: .
           files: ./docker-bake.hcl
@@ -39,8 +41,6 @@ jobs:
             *.platform=linux/amd64
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
-          vars: |
-            FOMO_IMAGE=fomo
 
       # Boot the loaded image and wait until /health returns {"status":"ok"}.
       # Always dump logs and remove the container, including on timeout.
