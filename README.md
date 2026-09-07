@@ -76,3 +76,77 @@ client.close()
 Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/) · Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 Some registry ids (`naive` needs no download): `chronos-2`, `timesfm-2.5`, `ttm-r3-52-16`, `toto-2.0-4m`, `mantis-8m`, `kronos`, `moirai-2`, `flowstate`, `tirex`. The full catalog is in the [docs](https://fomo.readthedocs.io).
+
+#### Getting started
+
+Here's a minimal setup to get started fast, from the repo directory:
+
+##### uv
+```bash
+uv sync --extra server
+uv run fomo serve --load-models naive
+```
+
+##### pip
+```bash
+pip install -e '.[server]'
+fomo serve --load-models naive
+```
+
+Then run your request in another terminal, e.g. via curl:
+```bash
+curl -s http://127.0.0.1:8000/forecast \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "past": {
+      "timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],
+      "sales": [120, 135, 128, 142, 138]
+    },
+    "time": "timestamp",
+    "target": ["sales"],
+    "fh": 3,
+    "model": "naive"
+  }'
+```
+Or via Python (install the `client` extra first: `uv sync --extra server --extra client` or `pip install -e '.[server,client]'`):
+```python
+import httpx2 as httpx
+
+SERVER_URL = "http://127.0.0.1:8000"
+response = httpx.post(
+    f"{SERVER_URL}/forecast",
+    json={
+        "past": {
+            "timestamp": [
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-03",
+                "2024-01-04",
+                "2024-01-05",
+            ],
+            "sales": [120, 135, 128, 142, 138],
+        },
+        "time": "timestamp",
+        "target": ["sales"],
+        "fh": 3,
+        "model": "naive",
+    },
+)
+response.raise_for_status()
+print(response.json())
+```
+
+If you want to use foundation models, stop the server and install the additional requirements, e.g. for Chronos:
+
+(uv)
+```bash
+uv sync --extra server --extra chronos
+uv run fomo serve --load-models naive chronos-2
+```
+
+(pip)
+```bash
+pip install -e '.[server,chronos]'
+fomo serve --load-models naive chronos-2
+```
+Then run the request from above using `"model": "chronos-2"`.
