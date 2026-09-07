@@ -1,5 +1,5 @@
 # FoMo images: same Dockerfile, different FOMO_EXTRAS.
-# Each service has profiles [cpu|cuda, <name>] so you can select by backend or by model.
+# Each service has profiles [cpu|gpu, <name>] so you can select by backend or by model.
 #
 # Build / Push / Run
 #   docker compose build granite           # build
@@ -9,8 +9,8 @@
 #
 # Select services with profiles
 #   --profile cpu                     all CPU services
-#   --profile cuda                    all CUDA services
-#   --profile granite                 granite and granite-cuda
+#   --profile gpu                     all GPU services
+#   --profile granite                 granite and granite-gpu
 #   --profile cpu --profile granite   granite only
 #
 # Override image name (default: sktime/fomo:<tag>)
@@ -24,9 +24,9 @@
 #
 # Common useful commands:
 #   docker compose --profile cpu build --push              # build and push all CPU images
-#   docker compose --profile cuda build --push             # build and push all CUDA images
-#   docker compose --profile all build --push              # build and push CPU and CUDA full images
-#   docker compose --profile granite build --push          # granite + granite-cuda
+#   docker compose --profile gpu build --push              # build and push all GPU images
+#   docker compose --profile full build --push             # build and push CPU and GPU full images
+#   docker compose --profile granite build --push          # granite + granite-gpu
 #   docker compose build --push granite                    # granite
 #   docker compose up granite                              # run granite
 
@@ -72,7 +72,7 @@ x-cmd-toto: &cmd-toto
 x-cmd-mantis: &cmd-mantis
   command: ["--load-models", "naive", "mantis-8m"]
 
-x-cmd-all: &cmd-all
+x-cmd-full: &cmd-full
   command:
     [
       "--load-models",
@@ -188,112 +188,112 @@ services:
       tags:
         - ${FOMO_IMAGE:-sktime/fomo}:mantis
 
-  all:
-    <<: [*cmd-all, *ports, *hf]
-    profiles: [cpu, all]
-    image: ${FOMO_IMAGE:-sktime/fomo}:all
+  full:
+    <<: [*cmd-full, *ports, *hf]
+    profiles: [cpu, full]
+    image: ${FOMO_IMAGE:-sktime/fomo}:full
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: all
+        FOMO_EXTRAS: full
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:all
+        - ${FOMO_IMAGE:-sktime/fomo}:full
 
-  hub-cuda:
+  hub-gpu:
     <<: [*cmd-hub, *ports, *hf]
-    profiles: [cuda, hub]
-    image: ${FOMO_IMAGE:-sktime/fomo}:hub-cuda
+    profiles: [gpu, hub]
+    image: ${FOMO_IMAGE:-sktime/fomo}:hub-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: hub-cuda
+        FOMO_EXTRAS: hub gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:hub-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:hub-gpu
 
-  chronos-cuda:
+  chronos-gpu:
     <<: [*cmd-chronos, *ports, *hf]
-    profiles: [cuda, chronos]
-    image: ${FOMO_IMAGE:-sktime/fomo}:chronos-cuda
+    profiles: [gpu, chronos]
+    image: ${FOMO_IMAGE:-sktime/fomo}:chronos-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: chronos-cuda
+        FOMO_EXTRAS: chronos gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:chronos-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:chronos-gpu
 
-  kronos-cuda:
+  kronos-gpu:
     <<: [*cmd-kronos, *ports, *hf]
-    profiles: [cuda, kronos]
-    image: ${FOMO_IMAGE:-sktime/fomo}:kronos-cuda
+    profiles: [gpu, kronos]
+    image: ${FOMO_IMAGE:-sktime/fomo}:kronos-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: kronos-cuda
+        FOMO_EXTRAS: kronos gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:kronos-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:kronos-gpu
 
-  granite-cuda:
+  granite-gpu:
     <<: [*cmd-granite, *ports, *hf]
-    profiles: [cuda, granite]
-    image: ${FOMO_IMAGE:-sktime/fomo}:granite-cuda
+    profiles: [gpu, granite]
+    image: ${FOMO_IMAGE:-sktime/fomo}:granite-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: granite-cuda
+        FOMO_EXTRAS: granite gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:granite-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:granite-gpu
 
-  moirai-cuda:
+  moirai-gpu:
     <<: [*cmd-moirai, *ports, *hf]
-    profiles: [cuda, moirai]
-    image: ${FOMO_IMAGE:-sktime/fomo}:moirai-cuda
+    profiles: [gpu, moirai]
+    image: ${FOMO_IMAGE:-sktime/fomo}:moirai-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: moirai-cuda
+        FOMO_EXTRAS: moirai gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:moirai-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:moirai-gpu
 
-  tirex-cuda:
+  tirex-gpu:
     <<: [*cmd-tirex, *ports, *hf]
-    profiles: [cuda, tirex]
-    image: ${FOMO_IMAGE:-sktime/fomo}:tirex-cuda
+    profiles: [gpu, tirex]
+    image: ${FOMO_IMAGE:-sktime/fomo}:tirex-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: tirex-cuda
+        FOMO_EXTRAS: tirex gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:tirex-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:tirex-gpu
 
-  toto-cuda:
+  toto-gpu:
     <<: [*cmd-toto, *ports, *hf]
-    profiles: [cuda, toto]
-    image: ${FOMO_IMAGE:-sktime/fomo}:toto-cuda
+    profiles: [gpu, toto]
+    image: ${FOMO_IMAGE:-sktime/fomo}:toto-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: toto-cuda
+        FOMO_EXTRAS: toto gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:toto-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:toto-gpu
 
-  mantis-cuda:
+  mantis-gpu:
     <<: [*cmd-mantis, *ports, *hf]
-    profiles: [cuda, mantis]
-    image: ${FOMO_IMAGE:-sktime/fomo}:mantis-cuda
+    profiles: [gpu, mantis]
+    image: ${FOMO_IMAGE:-sktime/fomo}:mantis-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: mantis-cuda
+        FOMO_EXTRAS: mantis gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:mantis-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:mantis-gpu
 
-  all-cuda:
-    <<: [*cmd-all, *ports, *hf]
-    profiles: [cuda, all]
-    image: ${FOMO_IMAGE:-sktime/fomo}:all-cuda
+  full-gpu:
+    <<: [*cmd-full, *ports, *hf]
+    profiles: [gpu, full]
+    image: ${FOMO_IMAGE:-sktime/fomo}:full-gpu
     build:
       <<: *build
       args:
-        FOMO_EXTRAS: all-cuda
+        FOMO_EXTRAS: full gpu
       tags:
-        - ${FOMO_IMAGE:-sktime/fomo}:all-cuda
+        - ${FOMO_IMAGE:-sktime/fomo}:full-gpu
