@@ -113,14 +113,15 @@ validation:
 nav:
   - Home: index.md
   - Overview: overview.md
-  - Walkthrough:
-      - Server: walkthrough/server.md
-      - Models: walkthrough/models.md
-      - Client: walkthrough/client.md
-      - Dashboard: walkthrough/dashboard.md
-      - Docker: walkthrough/docker.md
+  - Server: walkthrough/server.md
+  - Models: walkthrough/models.md
+  - HTTP: walkthrough/http.md
+  - Python: walkthrough/python.md
+  - Dashboard: walkthrough/dashboard.md
+  - Docker: walkthrough/docker.md
   - Reference:
-      - HTTP: reference/http.md
+      - HTTP API: reference/http.md
       - CLI: reference/cli.md
       - Python API: reference/api.md
       - Errors: reference/errors.md
+      - Development: walkthrough/development.md
