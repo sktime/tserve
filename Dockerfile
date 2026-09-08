@@ -14,8 +14,8 @@ COPY . .
 ARG FOMO_EXTRAS=""
 RUN extras="" \
  && for extra in $FOMO_EXTRAS; do extras="$extras --extra $extra"; done \
- && uv sync --no-dev --extra server --extra sktime $extras
+ && uv sync --frozen --no-dev --extra server --extra sktime $extras
 
 EXPOSE 8000
-ENTRYPOINT ["uv", "run", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uv", "run", "--no-sync", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
 CMD ["--load-models", "naive"]
