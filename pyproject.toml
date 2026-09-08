@@ -136,6 +136,10 @@ default = true
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 
+[tool.hatch.metadata]
+# PEP 508 Git URLs in extras (sktime pin) are otherwise rejected by hatchling
+allow-direct-references = true
+
 [tool.hatch.build]
 # repo .gitignore has `*.html`; hatchling would drop the dashboard from
 # pip wheels otherwise (uv editable installs still see the file on disk)
