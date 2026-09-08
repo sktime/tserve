@@ -1,0 +1,93 @@
+# Client
+
+Send forecasts to a FoMo server over HTTP or from Python. Both paths use the
+same request fields and return the same forecast content:
+
+- [HTTP](http.md) sends JSON to `POST /forecast` from any language.
+- [Python](python.md) accepts native tables and sends Arrow to
+  `POST /forecast/bytes`.
+
+FoMo is not a hosted API. The URL points to a server process you started.
+
+## Start a server
+
+For the examples in this section, start the `hub` image with
+`chronos-bolt-tiny` and `timesfm-2.5` loaded:
+
+```bash
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+```
+
+The first start downloads model weights. See [Install and serve](../server/index.md)
+for source installs and server options, or [Docker](../server/docker.md) for image
+tags, GPU support, Hugging Face tokens, and cache volumes.
+
+Check which ids this process loaded:
+
+=== "bash / zsh"
+
+    ```bash
+    curl -s http://127.0.0.1:8000/models
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/models
+    ```
+
+`GET /models` lists loaded ids, not every id in the
+[catalog](../models/catalog.md).
+
+## Data at a glance
+
+A forecast request combines a table with the roles of its columns:
+
+- `past` is the historical table. Time must be a column, alongside one or more
+  target columns.
+- `time` names the time column and `target` names the columns to forecast.
+- `fh` is the number of steps ahead.
+- `model` is an id loaded by this server.
+
+The HTTP endpoint accepts column-oriented and row-oriented JSON. The Python
+client also accepts pandas, polars, pyarrow, and Narwhals tables. See
+[Data specification](data.md) for every field, format, default, and limitation.
+
+## First forecast
+
+This request sends five days of sales and asks `chronos-bolt-tiny` for the next
+three days:
+
+=== "bash / zsh"
+
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
+
+The response contains a `predictions` table, the model id, a request id, and
+optional quantiles. Continue with [HTTP](http.md) for JSON examples or
+[Python](python.md) for native Python tables.
