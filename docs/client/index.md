@@ -37,7 +37,7 @@ Check which ids this process loaded:
     ```
 
 `GET /models` lists loaded ids, not every id in the
-[catalog](../models/catalog.md).
+[catalog](../models/index.md).
 
 ## Data at a glance
 

@@ -196,7 +196,7 @@ Use the JSON status routes to check the process and its loaded models:
     ```
 
 `GET /health` checks process liveness, not whether models are warm.
-`GET /models` lists loaded ids, not the registry [catalog](../models/catalog.md).
+`GET /models` lists loaded ids, not the registry [catalog](../models/index.md).
 
 Point a browser at `/` for the [dashboard](../server/dashboard.md) or `/docs`
 to try the endpoints from Swagger.

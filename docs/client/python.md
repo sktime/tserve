@@ -50,7 +50,7 @@ or newer is required.
     ```
 
 The `client` extra is enough on a machine that only calls a server. Add
-`server` and the required [family extra](../models/index.md#which-extra-image) only
+`server` and the required [family extra](../models/index.md#dependencies) only
 when the same environment also runs the server.
 
 ## Connect
@@ -67,7 +67,7 @@ with Client("http://127.0.0.1:8000", timeout=120.0) as client:
 ```
 
 `models()` reports what this process loaded, not the registry
-[catalog](../models/catalog.md), so it is the quickest way to check which
+[catalog](../models/index.md), so it is the quickest way to check which
 `model` ids a forecast can use.
 
 The default timeout is 60 seconds. Increase it for forecasts that need more

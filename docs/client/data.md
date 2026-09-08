@@ -192,7 +192,7 @@ last row in `past`.
 `model` is a registry id loaded by the running process. It is not an executor
 name. If omitted, it defaults to `naive`; a server that did not load `naive`
 will reject that request. Use `GET /models` to see loaded ids and the
-[catalog](../models/catalog.md) to see available ids.
+[catalog](../models/index.md) to see available ids.
 
 ## Future and static data
 
