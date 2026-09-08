@@ -168,8 +168,7 @@ nav:
       - Models from a directory: server/models-dir.md
       - Dashboard: server/dashboard.md
   - Models:
-      - Load models: models/index.md
-      - Catalog: models/catalog.md
+      - Catalog: models/index.md
   - Client:
       - client/index.md
       - HTTP: client/http.md
