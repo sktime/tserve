@@ -20,13 +20,17 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 ## Quick start
 
-**Start the server**
+### Start the server
+
+**Use Docker**
 
 Pull the `hub` image and load a handful of registry ids: `naive`, `chronos-bolt-tiny`, `ttm-r3-512-30`.
 
 ```bash
 docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
+
+**Build from source**
 
 Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
 
@@ -52,9 +56,7 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-There is no hosted FoMo API. Every URL is the process you started.
-
-## Forecast
+### Forecast
 
 A request is a table plus the roles of its columns:
 
@@ -62,6 +64,8 @@ A request is a table plus the roles of its columns:
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
 - `model` — an id this process loaded (`chronos-bolt-tiny` here; `ttm-r3-512-30` and `naive` are also loaded above)
+
+**From `curl`**
 
 Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on Windows so PowerShell does not use `Invoke-WebRequest`).
 
@@ -109,7 +113,7 @@ Three predicted days come back, plus the id that served them:
 }
 ```
 
-### From Python
+**From `python`**
 
 The client takes the same fields as keywords and sends Arrow instead of JSON. Install the `client` extra:
 
