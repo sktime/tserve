@@ -113,4 +113,40 @@ client.close()
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
 
-Next: [Overview](overview.md) for how the pieces fit, then [server](server/index.md), [models](models/index.md), [HTTP](client/http.md), and [Python](client/python.md).
+## Where to next
+
+<div class="grid cards" markdown>
+
+-   :material-map-outline:{ .lg .middle } **Overview**
+
+    ---
+
+    How transports, canonical frames, and executors fit together.
+
+    [:octicons-arrow-right-24: Architecture](overview.md)
+
+-   :material-server:{ .lg .middle } **Run a server**
+
+    ---
+
+    Install extras, pick a Docker tag, and check the flags.
+
+    [:octicons-arrow-right-24: Install and serve](server/index.md)
+
+-   :material-cube-outline:{ .lg .middle } **Load models**
+
+    ---
+
+    Which registry ids exist and which extra each one needs.
+
+    [:octicons-arrow-right-24: Models](models/index.md)
+
+-   :material-api:{ .lg .middle } **Send forecasts**
+
+    ---
+
+    Request and response shapes over JSON, or the Python client.
+
+    [:octicons-arrow-right-24: HTTP](client/http.md) or [Python](client/python.md)
+
+</div>
