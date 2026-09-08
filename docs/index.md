@@ -22,19 +22,19 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 **Start the server**
 
-Pull the `hub` image and load a handful of registry ids:
+Pull the `hub` image and load a handful of registry ids: `naive`, `chronos-bolt-tiny`, `ttm-r3-512-30`.
 
 ```bash
 docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
-Or clone the repo and start from source. Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
+Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
 
 === "uv"
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
-    uv sync --extra server --extra client --extra hub
+    uv sync --extra server --extra hub
     uv run fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
     ```
 
@@ -42,11 +42,9 @@ Or clone the repo and start from source. Python >= 3.12. The `server` extra is e
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
-    pip install -e ".[server,client,hub]"
+    pip install -e ".[server,hub]"
     fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
     ```
-
-FoMo is **not on PyPI yet**. The `pip` line installs from this clone.
 
 Once the process is up, the terminal prints the URLs:
 
@@ -78,7 +76,19 @@ curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{
 }
 ```
 
-Or the Python client (install the `client` extra; Arrow on the wire, your table type back):
+Or the Python client (Arrow on the wire, your table type back). Install the `client` extra:
+
+=== "uv"
+
+    ```bash
+    uv sync --extra client
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[client]"
+    ```
 
 ```python
 from fomo.client import Client
