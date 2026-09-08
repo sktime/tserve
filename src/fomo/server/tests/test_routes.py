@@ -75,6 +75,8 @@ def test_dashboard():
     assert result.status_code == 200
     assert result.headers["content-type"].startswith("text/html")
     assert "<title>FoMo" in result.text
+    assert 'id="quantiles-toggle"' in result.text
+    assert 'id="quantiles-toggle" checked' not in result.text
 
 
 def test_static_assets():

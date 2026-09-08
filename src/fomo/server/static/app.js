@@ -18,7 +18,7 @@
     time: null,
     targets: [],
     fh: 12,
-    useQuantiles: true,
+    useQuantiles: false,
     quantiles: [0.1, 0.5, 0.9],
     history: null,
     result: null,

@@ -79,11 +79,11 @@
           <div class="field__row">
             <label class="field__label" for="quantiles-toggle">Prediction interval</label>
             <label class="switch switch--sm">
-              <input type="checkbox" id="quantiles-toggle" checked />
+              <input type="checkbox" id="quantiles-toggle" />
               <span class="switch__track"><span class="switch__thumb"></span></span>
             </label>
           </div>
-          <div class="segmented" id="coverage-group" role="group" aria-label="Interval coverage">
+          <div class="segmented is-disabled" id="coverage-group" role="group" aria-label="Interval coverage">
             <button type="button" class="segmented__item" data-q="0.25,0.5,0.75">50%</button>
             <button type="button" class="segmented__item is-active" data-q="0.1,0.5,0.9">80%</button>
             <button type="button" class="segmented__item" data-q="0.05,0.5,0.95">90%</button>

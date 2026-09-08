@@ -8,7 +8,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](
 
 - Pick a **loaded** model (the dropdown is `GET /models`, not the full catalog)
 - Set the forecast horizon (1–96 steps)
-- Optionally request a prediction interval (`quantiles`). The toggle starts **on** (`[0.1, 0.5, 0.9]`); turn it off for estimators that cannot return quantiles (Chronos Bolt)
+- Optionally request a prediction interval (`quantiles`). The toggle starts **off**; turn it on to send `[0.1, 0.5, 0.9]` (or another coverage). Estimators that cannot return quantiles (Chronos Bolt) ignore this when it is on.
 - Use a sample series (daily sales, airline, hourly energy, hourly traffic), paste CSV, or drop a CSV file (parsed in the browser)
 - Choose the time column and target columns
 - Run `POST /forecast` and plot predictions
