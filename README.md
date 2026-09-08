@@ -13,7 +13,7 @@ Nothing is loaded by default: a bare `fomo serve` starts with an empty model lis
 | [`geetu040/fomo:hub`](https://hub.docker.com/r/geetu040/fomo) | TTM, TimesFM 2.x, Chronos Bolt/T5 |
 | [`geetu040/fomo:full`](https://hub.docker.com/r/geetu040/fomo) | every family in the catalog |
 
-Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants: [docs](https://fomo.readthedocs.io/en/latest/walkthrough/docker/).
+Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants: [docs](https://fomo.readthedocs.io/en/latest/server/docker/).
 
 # Quick start
 
