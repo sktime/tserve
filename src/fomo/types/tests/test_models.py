@@ -6,22 +6,22 @@ from pydantic import ValidationError
 
 from fomo.types._checks import _TABLE_SHAPE
 from fomo.types._examples import (
-    FORECAST_REQUEST,
-    FORECAST_RESULT,
     HEALTH_OK,
     HEALTH_UNHEALTHY,
     MODEL_INFO,
     MODELS_RESULT,
+    PREDICT_REQUEST,
+    PREDICT_RESULT,
     STATS_RESULT,
 )
 from fomo.types.models import (
-    CoercedForecastRequest,
-    CoercedForecastResponse,
-    ForecastRequest,
-    ForecastResponse,
+    CoercedPredictRequest,
+    CoercedPredictResponse,
     HealthResult,
     ModelInfo,
     ModelsResult,
+    PredictRequest,
+    PredictResponse,
     StatsResult,
 )
 
@@ -39,7 +39,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return ForecastRequest.model_validate(payload)
+    return PredictRequest.model_validate(payload)
 
 
 def _response(**kwargs):
@@ -49,7 +49,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return ForecastResponse.model_validate(payload)
+    return PredictResponse.model_validate(payload)
 
 
 def _coerced_request(**kwargs):
@@ -61,7 +61,7 @@ def _coerced_request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return CoercedForecastRequest.model_validate(payload)
+    return CoercedPredictRequest.model_validate(payload)
 
 
 def _coerced_response(**kwargs):
@@ -71,14 +71,14 @@ def _coerced_response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return CoercedForecastResponse.model_validate(payload)
+    return CoercedPredictResponse.model_validate(payload)
 
 
 @pytest.mark.parametrize(
     ("example", "model"),
     [
-        (FORECAST_REQUEST, ForecastRequest),
-        (FORECAST_RESULT, ForecastResponse),
+        (PREDICT_REQUEST, PredictRequest),
+        (PREDICT_RESULT, PredictResponse),
         (HEALTH_OK, HealthResult),
         (HEALTH_UNHEALTHY, HealthResult),
         (MODEL_INFO, ModelInfo),
@@ -91,7 +91,7 @@ def test_example_validates_against_model(example, model):
     assert isinstance(parsed, model)
 
 
-def test_forecast_request_keeps_optional_time_and_target_unconverted():
+def test_predict_request_keeps_optional_time_and_target_unconverted():
     request = _request(time=None, target="sales")
 
     assert request.time is None
@@ -160,7 +160,7 @@ def test_forecast_request_keeps_optional_time_and_target_unconverted():
         ),
     ],
 )
-def test_forecast_request_rejects(kwargs, match):
+def test_predict_request_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _request(**kwargs)
 
@@ -180,7 +180,7 @@ def test_forecast_request_rejects(kwargs, match):
         ),
     ],
 )
-def test_forecast_response_rejects(kwargs, match):
+def test_predict_response_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _response(**kwargs)
 

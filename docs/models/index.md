@@ -2,7 +2,7 @@
 
 FoMo ships **110 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
 
-The name in the `model` column is what you pass to `--load-models` and to a forecast request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
+The name in the `model` column is what you pass to `--load-models` and to a predict request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
 
 ## Dependencies
 
@@ -240,4 +240,4 @@ Same Hub repo as r2. `-l1` is the L1 checkpoint.
 
 FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Chronos Bolt cannot return quantiles. `naive` can.
 
-Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [forecast](../client/http.md).
+Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [predict](../client/http.md).

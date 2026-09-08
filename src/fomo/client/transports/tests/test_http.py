@@ -5,7 +5,7 @@ import pytest
 
 from fomo.client.transports.http import HttpTransport
 from fomo.types.converters import coerce_response, encode_response, pack_envelope
-from fomo.types.models import ForecastResponse, HealthResult, ModelsResult, StatsResult
+from fomo.types.models import HealthResult, ModelsResult, PredictResponse, StatsResult
 
 
 def _response(**kwargs):
@@ -15,7 +15,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return ForecastResponse.model_validate(payload)
+    return PredictResponse.model_validate(payload)
 
 
 def _http(ok):
@@ -50,11 +50,11 @@ def test_uses_injected_client():
     assert result == HealthResult(status="ok")
 
 
-def test_forecast():
+def test_predict():
     metadata, files = encode_response(coerce_response(_response()))
     transport, http = _http(_ok(content=pack_envelope(metadata, files)))
 
-    got_metadata, got_files = transport.forecast(
+    got_metadata, got_files = transport.predict(
         {"time": "timestamp", "model": "naive"},
         {"past": b"arrow"},
     )
@@ -62,7 +62,7 @@ def test_forecast():
     http.request.assert_called_once()
     method, path = http.request.call_args.args
     assert method == "POST"
-    assert path == "/forecast/bytes"
+    assert path == "/predict/bytes"
     assert (
         json.loads(http.request.call_args.kwargs["data"]["metadata"])["model"]
         == "naive"

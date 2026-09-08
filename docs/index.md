@@ -2,7 +2,7 @@
 
 # FoMo
 
-Time-series Foundation Models behind one server. Load the models you name, keep them warm, and forecast from `curl` or `python`.
+Time-series Foundation Models behind one server. Load the models you name, keep them warm, and predict from `curl` or `python`.
 { .fomo-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }
@@ -10,11 +10,11 @@ Time-series Foundation Models behind one server. Load the models you name, keep 
 
 </div>
 
-FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers forecast requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/forecast` all belong to that process.
+FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
 The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You name the ids you want; the server loads those and leaves the rest alone.
 
-Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
+Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
@@ -56,7 +56,7 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-### Forecast
+### Predict
 
 A request is a table plus the roles of its columns:
 
@@ -72,7 +72,7 @@ Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on
 === "bash / zsh"
 
     ```bash
-    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -87,7 +87,7 @@ Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -138,7 +138,7 @@ past = {
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="timestamp",
         target=["sales"],
@@ -181,7 +181,7 @@ print(result.predictions)
 
     [:octicons-arrow-right-24: Models](models/index.md)
 
--   :material-api:{ .lg .middle } **Send forecasts**
+-   :material-api:{ .lg .middle } **Send predictions**
 
     ---
 

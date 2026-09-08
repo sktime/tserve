@@ -1,22 +1,22 @@
 # HTTP
 
-Send JSON to `POST /forecast` from any language. The request fields are the
-same as [`Client.forecast(...)`](python.md), but the Python client uses Arrow
+Send JSON to `POST /predict` from any language. The request fields are the
+same as [`Client.predict(...)`](python.md), but the Python client uses Arrow
 instead of this JSON route.
 
 ## Endpoints
 
 | method | path | what it gives you |
 | --- | --- | --- |
-| `POST` | `/forecast` | [JSON forecast](#send-a-forecast) |
-| `POST` | `/forecast/bytes` | [Arrow forecast](#arrow-endpoint), used by the Python client |
+| `POST` | `/predict` | [JSON prediction](#send-a-prediction) |
+| `POST` | `/predict/bytes` | [Arrow prediction](#arrow-endpoint), used by the Python client |
 | `GET` | `/health` | [process liveness](#inspect-the-server) |
 | `GET` | `/models` | [loaded model ids](#inspect-the-server) |
 | `GET` | `/stats` | [uptime, memory, per-model metrics](#inspect-the-server) |
 | `GET` | `/` | browser [dashboard](../server/dashboard.md) |
 | `GET` | `/docs`, `/redoc`, `/openapi.json` | live OpenAPI |
 
-Every route returns JSON except `/forecast/bytes`, which speaks Arrow, and
+Every route returns JSON except `/predict/bytes`, which speaks Arrow, and
 `/`, which serves the dashboard. The
 [HTTP API reference](../reference/http.md) lists the same routes with schema
 links.
@@ -34,7 +34,7 @@ See [Server](../server/index.md) for source installs and server
 options. The URLs below belong to this local process; FoMo does not provide a
 hosted API.
 
-## Send a forecast
+## Send a prediction
 
 `past` is a table, not a 1-d vector. This example sends five days of sales and
 asks for the next three:
@@ -42,7 +42,7 @@ asks for the next three:
 === "bash / zsh"
 
     ```bash
-    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -57,7 +57,7 @@ asks for the next three:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -69,7 +69,7 @@ asks for the next three:
     }'
     ```
 
-`POST /forecast` returns a column-oriented JSON table:
+`POST /predict` returns a column-oriented JSON table:
 
 ```json
 {
@@ -97,7 +97,7 @@ so FoMo uses the first column as time and the other column as the target:
 === "bash / zsh"
 
     ```bash
-    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "columns": ["timestamp", "sales"],
         "data": [
@@ -116,7 +116,7 @@ so FoMo uses the first column as time and the other column as the target:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "columns": ["timestamp", "sales"],
         "data": [
@@ -143,7 +143,7 @@ example uses the loaded `timesfm-2.5` model:
 === "bash / zsh"
 
     ```bash
-    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
         "sales": [120, 135, 128, 142, 150]
@@ -159,7 +159,7 @@ example uses the loaded `timesfm-2.5` model:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
         "sales": [120, 135, 128, 142, 150]
@@ -202,14 +202,14 @@ to try the endpoints from Swagger.
 
 ## Arrow endpoint
 
-`POST /forecast/bytes` accepts multipart metadata and Arrow IPC tables and
+`POST /predict/bytes` accepts multipart metadata and Arrow IPC tables and
 returns a `FOMO` envelope with media type
-`application/vnd.fomo.forecast+arrow`. This is the route used by the
+`application/vnd.fomo.predict+arrow`. This is the route used by the
 [Python client](python.md); you normally do not construct its body yourself.
 
 ## Errors
 
-Forecasting is POST-only. `GET /forecast` returns **405 Method Not Allowed**.
+Prediction is POST-only. `GET /predict` returns **405 Method Not Allowed**.
 Invalid JSON request shapes return **422**. Coercion and prediction failures,
 including an unloaded model id, return **400** with an error message and
 `request_id`.

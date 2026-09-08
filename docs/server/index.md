@@ -1,6 +1,6 @@
 # Server
 
-The server is the process you start. It loads the models you name, keeps them warm, and answers forecast requests. Dashboard, OpenAPI, and `/forecast` all belong to that process.
+The server is the process you start. It loads the models you name, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
 Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which ids exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
@@ -70,7 +70,7 @@ Confirm what loaded:
 curl -s http://127.0.0.1:8000/models
 ```
 
-`GET /health` is liveness, not “models are warm”. Then [forecast](../client/http.md).
+`GET /health` is liveness, not “models are warm”. Then [predict](../client/http.md).
 
 ## In this section
 

@@ -21,7 +21,7 @@ Server(
 ).run()
 ```
 
-The id is what forecast requests send as `model`:
+The id is what predict requests send as `model`:
 
 ```json
 {

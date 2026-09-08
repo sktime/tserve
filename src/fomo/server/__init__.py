@@ -13,7 +13,7 @@ See Also
 fomo.server.serve.Server
     Process wrapper around FastAPI and ``bootstrap``.
 fomo.server.routes
-    ``GET /health``, ``GET /models``, ``GET /stats``, and forecast
+    ``GET /health``, ``GET /models``, ``GET /stats``, and predict
     POST endpoints.
 fomo.cli.main.main
     argparse entry that builds ``Server`` from ``fomo serve`` flags.

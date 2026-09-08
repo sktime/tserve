@@ -2,7 +2,7 @@ import narwhals as nw
 from sktime.forecasting.naive import NaiveForecaster
 
 from fomo.runtime.executors.sktime.executor import SktimeExecutor
-from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
+from fomo.types.models import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
 
 def _df(**columns):
@@ -21,7 +21,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return CoercedForecastRequest.model_validate(payload)
+    return CoercedPredictRequest.model_validate(payload)
 
 
 def test_load():
@@ -69,6 +69,6 @@ def test_predict():
 
     response = executor.predict(_request())
 
-    assert isinstance(response, CoercedForecastResponse)
+    assert isinstance(response, CoercedPredictResponse)
     assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"

@@ -1,10 +1,10 @@
 """Abstract transport used by the FoMo client.
 
-A transport moves encoded forecast payloads and status queries between
+A transport moves encoded predict payloads and status queries between
 ``Client`` and a FoMo runtime. ``HttpTransport`` is the implemented
 subclass. Transports do not coerce frames: ``Client`` runs the wire
 converters and passes metadata plus named frame blobs into
-``forecast``.
+``predict``.
 
 See Also
 --------
@@ -20,24 +20,24 @@ from fomo.types import HealthResult, ModelsResult, StatsResult
 
 
 class BaseTransport(ABC):
-    """Send encoded forecasts and fetch health, models, and stats.
+    """Send encoded predictions and fetch health, models, and stats.
 
-    ``forecast`` takes JSON-serializable metadata and named Arrow IPC
+    ``predict`` takes JSON-serializable metadata and named Arrow IPC
     blobs (``past``, optional ``future`` / ``static``) and returns
     the same pair for the response (``predictions``, optional
     ``quantiles``). ``HttpTransport`` sends them over HTTP.
     """
 
     @abstractmethod
-    def forecast(
+    def predict(
         self, metadata: dict, bytes_encoded: dict[str, bytes]
     ) -> tuple[dict, dict[str, bytes]]:
-        """Send an encoded forecast and return encoded predictions.
+        """Send an encoded predict request and return encoded predictions.
 
         Parameters
         ----------
         metadata : dict
-            JSON-serializable forecast fields (no frames).
+            JSON-serializable predict fields (no frames).
         bytes_encoded : dict of str to bytes
             Named Arrow IPC streams (``past``, optional ``future`` /
             ``static``).

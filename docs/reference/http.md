@@ -8,23 +8,23 @@ publishes its own interactive copy of this page at
 
 | method | path | response |
 | --- | --- | --- |
-| `POST` | `/forecast` | [`ForecastResponse`][fomo.types.models.ForecastResponse] as JSON |
-| `POST` | `/forecast/bytes` | [`FOMO` envelope](#post-forecastbytes) |
+| `POST` | `/predict` | [`PredictResponse`][fomo.types.models.PredictResponse] as JSON |
+| `POST` | `/predict/bytes` | [`FOMO` envelope](#post-predictbytes) |
 | `GET` | `/health` | [`HealthResult`][fomo.types.models.HealthResult] |
 | `GET` | `/models` | [`ModelsResult`][fomo.types.models.ModelsResult] |
 | `GET` | `/stats` | [`StatsResult`][fomo.types.models.StatsResult] |
 | `GET` | `/` | [dashboard](../server/dashboard.md) HTML |
 | `GET` | `/docs`, `/redoc`, `/openapi.json` | OpenAPI |
 
-Forecasting is POST only, so `GET /forecast` is **405**. There is no path
+Prediction is POST only, so `GET /predict` is **405**. There is no path
 prefix, no versioning, and no authentication: the origin is the process you
 started. `/`, `/favicon.ico`, and the dashboard assets under `/static` are
 excluded from the OpenAPI schema.
 
-## POST /forecast
+## POST /predict
 
 `Content-Type: application/json`. The body is
-[`ForecastRequest`][fomo.types.models.ForecastRequest] — `past` and `fh` are
+[`PredictRequest`][fomo.types.models.PredictRequest] — `past` and `fh` are
 required, `model` defaults to `naive` and must be loaded. Field meanings,
 table shapes, and inference rules are in the
 [data specification](../client/data.md).
@@ -34,17 +34,17 @@ unless requested and supported), `model`, and a server-assigned `request_id`.
 
 | status | meaning |
 | --- | --- |
-| 200 | forecast produced |
+| 200 | prediction produced |
 | 400 | body was valid but the request failed (unloaded id, missing column, estimator error) |
-| 422 | body does not match `ForecastRequest` |
+| 422 | body does not match `PredictRequest` |
 
-Bodies for both failures are in [Errors](errors.md#forecast-requests).
+Bodies for both failures are in [Errors](errors.md#predict-requests).
 
-## POST /forecast/bytes
+## POST /predict/bytes
 
 The Arrow route used by [`Client`][fomo.client.client.Client]. It exists so
 tables cross the wire as Arrow IPC instead of JSON numbers; the fields are the
-same as `POST /forecast`.
+same as `POST /predict`.
 
 The request is `multipart/form-data`:
 
@@ -54,7 +54,7 @@ The request is `multipart/form-data`:
 | `past` | file | Arrow IPC stream, `application/vnd.apache.arrow.stream` |
 | `future`, `static` | file | optional Arrow IPC streams; empty bodies are ignored |
 
-The response media type is `application/vnd.fomo.forecast+arrow`, an envelope
+The response media type is `application/vnd.fomo.predict+arrow`, an envelope
 of length-prefixed parts:
 
 ```text
@@ -72,7 +72,7 @@ The part named `response` is JSON metadata (`model`, `request_id`). The
 remaining parts are Arrow IPC streams: `predictions`, plus `quantiles` when
 requested. Missing `metadata` or `past` parts are **422**; anything failing
 after that — unparsable metadata, an unreadable Arrow stream, a failed
-forecast — is **400** with the same body as the JSON route.
+prediction — is **400** with the same body as the JSON route.
 
 ## Status routes
 

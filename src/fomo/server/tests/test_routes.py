@@ -14,7 +14,7 @@ from fomo.types.converters import (
     encode_request,
     unpack_envelope,
 )
-from fomo.types.models import ForecastRequest, ForecastResponse, ModelInfo, ModelsResult
+from fomo.types.models import ModelInfo, ModelsResult, PredictRequest, PredictResponse
 
 
 def _request(**kwargs):
@@ -26,7 +26,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return ForecastRequest.model_validate(payload)
+    return PredictRequest.model_validate(payload)
 
 
 def _response(**kwargs):
@@ -36,7 +36,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return ForecastResponse.model_validate(payload)
+    return PredictResponse.model_validate(payload)
 
 
 def _payload(**kwargs):
@@ -117,9 +117,9 @@ def test_stats():
     assert body["models"]["naive"]["executor"] == "sktime"
 
 
-def test_forecast():
+def test_predict():
     runtime = _runtime()
-    result = _client(runtime).post("/forecast", json=_payload())
+    result = _client(runtime).post("/predict", json=_payload())
 
     assert result.status_code == 200
     body = result.json()
@@ -129,12 +129,12 @@ def test_forecast():
     runtime.scheduler.run.assert_called_once()
 
 
-def test_forecast_bytes():
+def test_predict_bytes():
     runtime = _runtime()
     metadata, files = encode_request(coerce_request(_request()))
 
     result = _client(runtime).post(
-        "/forecast/bytes",
+        "/predict/bytes",
         data={"metadata": json.dumps(metadata)},
         files={
             "past": (
@@ -147,7 +147,7 @@ def test_forecast_bytes():
 
     assert result.status_code == 200
     assert result.headers["content-type"].startswith(
-        "application/vnd.fomo.forecast+arrow"
+        "application/vnd.fomo.predict+arrow"
     )
     decoded = decode_response(*unpack_envelope(result.content))
     assert decoded.model == "naive"
@@ -165,11 +165,11 @@ def test_forecast_bytes():
         pytest.param(TypeError("boom"), id="type_error"),
     ],
 )
-def test_forecast_errors_use_generic_http_exception(exc):
+def test_predict_errors_use_generic_http_exception(exc):
     runtime = _runtime()
     runtime.scheduler.run.side_effect = exc
 
-    result = _client(runtime).post("/forecast", json=_payload())
+    result = _client(runtime).post("/predict", json=_payload())
 
     assert result.status_code == 400
     detail = result.json()["detail"]

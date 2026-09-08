@@ -1,10 +1,10 @@
-"""Route a coerced forecast to the executor for its loaded model id.
+"""Route a coerced prediction to the executor for its loaded model id.
 
 See Also
 --------
 Scheduler
     Public class in this module.
-fomo.types.models.CoercedForecastRequest
+fomo.types.models.CoercedPredictRequest
     Request type passed through to ``Executor.predict``.
 """
 
@@ -12,11 +12,11 @@ import time
 
 from fomo.logging import Stats
 from fomo.runtime.executors import Executor
-from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
+from fomo.types.models import CoercedPredictRequest, CoercedPredictResponse
 
 
 class Scheduler:
-    """Dispatch a coerced forecast to a loaded executor.
+    """Dispatch a coerced prediction to a loaded executor.
 
     FoMo is a time-series foundation-model inference server. The
     scheduler sits between HTTP routes and ``Executor.predict``. It
@@ -26,7 +26,7 @@ class Scheduler:
 
     The predict call is timed with ``time.perf_counter``. ``stats.record``
     always runs in a ``finally`` block, so failed calls still get
-    latency. The return value is the ``CoercedForecastResponse`` from
+    latency. The return value is the ``CoercedPredictResponse`` from
     ``executor.predict``. Executors only see coerced requests; this
     class does not convert frames (wire converters vs sktime
     converters live elsewhere).
@@ -45,9 +45,9 @@ class Scheduler:
 
     See Also
     --------
-    fomo.types.models.CoercedForecastRequest
+    fomo.types.models.CoercedPredictRequest
         Internal request; do not construct a user-facing
-        ``ForecastRequest`` here.
+        ``PredictRequest`` here.
     fomo.logging.stats.Stats
         ``record`` target; ``GET /stats`` uses ``snapshot``.
     """
@@ -57,7 +57,7 @@ class Scheduler:
         self._executors = executors
         self._stats = stats
 
-    def run(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
+    def run(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
         """Look up the loaded model, predict, and record latency.
 
         Lookup uses ``request.model`` as a key in the executors dict.
@@ -68,13 +68,13 @@ class Scheduler:
 
         Parameters
         ----------
-        request : CoercedForecastRequest
-            Coerced forecast input. Executors only see this form, not
-            a user-facing ``ForecastRequest``.
+        request : CoercedPredictRequest
+            Coerced predict input. Executors only see this form, not
+            a user-facing ``PredictRequest``.
 
         Returns
         -------
-        CoercedForecastResponse
+        CoercedPredictResponse
             Value returned by ``executor.predict``.
 
         Raises

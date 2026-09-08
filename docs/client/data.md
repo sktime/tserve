@@ -1,6 +1,6 @@
 # Data specification
 
-HTTP and the Python client share one forecast contract. Only the transport
+HTTP and the Python client share one predict contract. Only the transport
 changes: JSON embeds tables in the request, while the Python client converts
 them to Arrow.
 
@@ -67,7 +67,7 @@ in JSON and Python.
 
 ### Python tables
 
-[`Client.forecast(...)`][fomo.client.client.Client.forecast] also accepts
+[`Client.predict(...)`][fomo.client.client.Client.predict] also accepts
 pandas, polars, pyarrow, and Narwhals tables:
 
 === "pandas"
@@ -126,7 +126,7 @@ pandas, polars, pyarrow, and Narwhals tables:
     )
     ```
 
-These native frames are Python inputs. JSON `POST /forecast` uses one of the
+These native frames are Python inputs. JSON `POST /predict` uses one of the
 two dictionary shapes above.
 
 ## Column roles
@@ -184,7 +184,7 @@ FoMo then uses:
 Specify `target` explicitly when a table contains columns that should not be
 forecast.
 
-## Forecast horizon and model
+## Prediction horizon and model
 
 `fh` is a relative horizon. `fh: 3` requests the next three steps after the
 last row in `past`.
@@ -248,7 +248,7 @@ positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Response
 
-Every successful forecast returns:
+Every successful prediction returns:
 
 ```json
 {
@@ -266,7 +266,7 @@ Every successful forecast returns:
 - `quantiles` is a second table when requested and supported; otherwise it is
   `null` over JSON and `None` in Python.
 - `model` is the id that served the request.
-- `request_id` identifies this call and is also included in forecast error
+- `request_id` identifies this call and is also included in predict error
   responses.
 
 JSON responses always use column-oriented dictionaries. The Python client

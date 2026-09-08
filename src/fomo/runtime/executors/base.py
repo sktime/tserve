@@ -1,12 +1,12 @@
 """Abstract executor contract used by bootstrap and the scheduler.
 
 Implementations load one model artifact, warmup it, and ``predict`` from
-a ``CoercedForecastRequest``. They do not accept user-facing
-``ForecastRequest``.
+a ``CoercedPredictRequest``. They do not accept user-facing
+``PredictRequest``.
 
 See Also
 --------
-fomo.types.models.CoercedForecastRequest
+fomo.types.models.CoercedPredictRequest
     Field semantics for ``predict``.
 fomo.runtime.executors.plugins.register
     Attach a concrete subclass to an executor name.
@@ -15,11 +15,11 @@ fomo.runtime.executors.plugins.register
 from abc import ABC, abstractmethod
 from typing import Any
 
-from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
+from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
 
 class Executor(ABC):
-    """Load, warmup, and forecast for one loaded model.
+    """Load, warmup, and predict for one loaded model.
 
     Bootstrap calls ``load`` then ``warmup`` once per selected model.
     The scheduler calls ``predict`` per request.
@@ -47,18 +47,18 @@ class Executor(ABC):
         ...
 
     @abstractmethod
-    def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
-        """Produce a coerced forecast for a loaded model.
+    def predict(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
+        """Produce a coerced prediction for a loaded model.
 
         Parameters
         ----------
-        request : CoercedForecastRequest
-            Internal forecast input. See
-            ``fomo.types.models.CoercedForecastRequest`` for fields.
+        request : CoercedPredictRequest
+            Internal predict input. See
+            ``fomo.types.models.CoercedPredictRequest`` for fields.
 
         Returns
         -------
-        CoercedForecastResponse
+        CoercedPredictResponse
             Point predictions and optional quantiles as narwhals frames.
         """
         ...

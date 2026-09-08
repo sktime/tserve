@@ -1,10 +1,10 @@
-"""Wire and coerced forecast models shared by the client, server, and runtime.
+"""Wire and coerced predict models shared by the client, server, and runtime.
 
-FoMo splits every forecast into two representations. User-facing models
-(``ForecastRequest``, ``ForecastResponse``) accept native frames — pandas,
+FoMo splits every prediction into two representations. User-facing models
+(``PredictRequest``, ``PredictResponse``) accept native frames — pandas,
 polars, pyarrow, narwhals, a column dict, or a ``{columns, data}`` row
-matrix. Internal models (``CoercedForecastRequest``,
-``CoercedForecastResponse``) hold narwhals frames plus column contracts.
+matrix. Internal models (``CoercedPredictRequest``,
+``CoercedPredictResponse``) hold narwhals frames plus column contracts.
 Executors and the scheduler only see the coerced form.
 
 This package is the shared vocabulary for that contract. Frame checking
@@ -22,25 +22,25 @@ fomo.types.converters
 """
 
 from fomo.types.models import (
-    CoercedForecastRequest,
-    CoercedForecastResponse,
-    ForecastRequest,
-    ForecastResponse,
+    CoercedPredictRequest,
+    CoercedPredictResponse,
     HealthError,
     HealthResult,
     ModelInfo,
     ModelsResult,
+    PredictRequest,
+    PredictResponse,
     StatsResult,
 )
 
 __all__ = [
-    "CoercedForecastRequest",
-    "CoercedForecastResponse",
-    "ForecastRequest",
-    "ForecastResponse",
+    "CoercedPredictRequest",
+    "CoercedPredictResponse",
     "HealthError",
     "HealthResult",
     "ModelInfo",
     "ModelsResult",
+    "PredictRequest",
+    "PredictResponse",
     "StatsResult",
 ]

@@ -3,8 +3,8 @@
 [![Documentation Status](https://readthedocs.org/projects/fomo/badge/?version=latest)](https://fomo.readthedocs.io/en/latest/?badge=latest)
 
 FoMo is a local inference server for time-series foundation models. Start the
-process, load named registry ids once, keep them warm, and forecast through
-`POST /forecast`, the Python client, or the browser dashboard. The process also
+process, load named registry ids once, keep them warm, and predict through
+`POST /predict`, the Python client, or the browser dashboard. The process also
 serves its own OpenAPI documentation. FoMo does not provide a hosted API.
 
 - [Documentation](https://fomo.readthedocs.io)
@@ -62,9 +62,9 @@ The `server` extra alone is enough for `naive`. Do not install `client` on a
 server-only machine. See [Server](https://fomo.readthedocs.io/en/latest/server/)
 for family extras, GPU installs, and Python-based server setup.
 
-## Forecast
+## Predict
 
-A forecast request describes a table and the roles of its columns:
+A predict request describes a table and the roles of its columns:
 
 - `past` is the historical table: one row per timestamp, with time, target,
   and optional feature columns. Time must be a column, not a pandas index.
@@ -87,7 +87,7 @@ The JSON after `-d` stays on one line for copy-paste reliability.
 **macOS / Linux**
 
 ```bash
-curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
 **Windows PowerShell**
@@ -95,10 +95,10 @@ curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
 Use `curl.exe` so PowerShell does not substitute `Invoke-WebRequest`.
 
 ```powershell
-curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
-`POST /forecast` returns column-oriented JSON containing `predictions`,
+`POST /predict` returns column-oriented JSON containing `predictions`,
 `quantiles`, `model`, and `request_id`.
 
 ### Python
@@ -134,7 +134,7 @@ past = {
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="timestamp",
         target=["sales"],
@@ -146,7 +146,7 @@ print(result.predictions)
 ```
 
 The client accepts dictionaries, pandas, polars, pyarrow, and Narwhals tables,
-posts Arrow to `/forecast/bytes`, and restores results to the input table type.
+posts Arrow to `/predict/bytes`, and restores results to the input table type.
 See the [Python guide](https://fomo.readthedocs.io/en/latest/client/python/).
 
 ## Choose and load models
@@ -213,9 +213,9 @@ and [live estimator objects](https://fomo.readthedocs.io/en/latest/server/live-o
 
 ## HTTP and Python clients
 
-Use JSON `POST /forecast` from any language. The Python `Client` sends the same
-fields as Arrow to `POST /forecast/bytes`. Forecasting is POST-only:
-`GET /forecast` returns 405 Method Not Allowed.
+Use JSON `POST /predict` from any language. The Python `Client` sends the same
+fields as Arrow to `POST /predict/bytes`. Prediction is POST-only:
+`GET /predict` returns 405 Method Not Allowed.
 
 Every URL in this README belongs to the FoMo process you started; there is no
 hosted FoMo endpoint. See the [HTTP guide](https://fomo.readthedocs.io/en/latest/client/http/)

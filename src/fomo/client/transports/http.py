@@ -1,4 +1,4 @@
-"""httpx transport for FoMo status routes and ``POST /forecast/bytes``.
+"""httpx transport for FoMo status routes and ``POST /predict/bytes``.
 
 FoMo is a time-series foundation-model inference server. This module
 implements the only concrete ``BaseTransport`` today.
@@ -17,7 +17,7 @@ _ARROW_STREAM = "application/vnd.apache.arrow.stream"
 
 
 class HttpTransport(BaseTransport):
-    """httpx transport for FoMo JSON status routes and ``/forecast/bytes``.
+    """httpx transport for FoMo JSON status routes and ``/predict/bytes``.
 
     Parameters
     ----------
@@ -34,8 +34,8 @@ class HttpTransport(BaseTransport):
 
     Notes
     -----
-    ``forecast`` always ``POST``s to ``/forecast/bytes``. There is no
-    JSON ``POST /forecast`` path in this transport.
+    ``predict`` always ``POST``s to ``/predict/bytes``. There is no
+    JSON ``POST /predict`` path in this transport.
 
     HTTP status >= 400 raises ``RuntimeError``. There is no custom
     FoMo exception class. ``HealthError`` is a Pydantic model nested
@@ -46,7 +46,7 @@ class HttpTransport(BaseTransport):
     fomo.client.transports.base.BaseTransport
         Abstract class this transport inherits.
     fomo.types.converters.unpack_envelope
-        Parses the ``application/vnd.fomo.forecast+arrow`` body.
+        Parses the ``application/vnd.fomo.predict+arrow`` body.
     """
 
     def __init__(
@@ -61,21 +61,21 @@ class HttpTransport(BaseTransport):
             base_url=base_url.rstrip("/"), timeout=timeout
         )
 
-    def forecast(
+    def predict(
         self, metadata: dict, bytes_encoded: dict[str, bytes]
     ) -> tuple[dict, dict[str, bytes]]:
-        """POST encoded frames to ``/forecast/bytes`` and unpack the envelope.
+        """POST encoded frames to ``/predict/bytes`` and unpack the envelope.
 
         Sends form field ``metadata`` as JSON and each Arrow IPC blob
         as a multipart file with content type
         ``application/vnd.apache.arrow.stream``. The server responds
-        with ``application/vnd.fomo.forecast+arrow``, which this
+        with ``application/vnd.fomo.predict+arrow``, which this
         method unpacks via ``unpack_envelope``.
 
         Parameters
         ----------
         metadata : dict
-            JSON-serializable forecast fields from ``encode_request``.
+            JSON-serializable predict fields from ``encode_request``.
         bytes_encoded : dict of str to bytes
             Named Arrow IPC streams (``past``, optional ``future`` /
             ``static``).
@@ -109,7 +109,7 @@ class HttpTransport(BaseTransport):
         """
         response = self._request(
             "POST",
-            "/forecast/bytes",
+            "/predict/bytes",
             data={"metadata": json.dumps(metadata)},
             files={
                 name: (name, blob, _ARROW_STREAM)
@@ -200,7 +200,7 @@ class HttpTransport(BaseTransport):
         RuntimeError
             On HTTP status >= 400. If the body is JSON, uses
             ``detail["error"]`` when ``detail`` is a dict (the server
-            wraps forecast failures as ``HTTPException`` 400
+            wraps predict failures as ``HTTPException`` 400
             ``{error, code: "request_failed", request_id}``). Otherwise
             the raised message is ``str(detail)`` or the raw text body.
         httpx.RequestError

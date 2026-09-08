@@ -4,13 +4,13 @@ FoMo defines no exception types of its own. The server answers with HTTP
 status codes, and the Python side raises built-ins plus Pydantic
 `ValidationError`.
 
-## Forecast requests
+## Predict requests
 
 | status | when |
 | --- | --- |
-| **422** | the body does not match [`ForecastRequest`][fomo.types.models.ForecastRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
+| **422** | the body does not match [`PredictRequest`][fomo.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
 | **400** | the body was accepted but the request failed: the `model` id is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
-| **405** | wrong method, such as `GET /forecast` |
+| **405** | wrong method, such as `GET /predict` |
 
 The split is where the failure happens. **422** is FastAPI rejecting the
 JSON body before the handler runs, so the body is the usual FastAPI list of
@@ -31,12 +31,12 @@ An id that is missing from `GET /models` is 400, not 404. Missing columns read
 Estimator failures keep the message the estimator raised, so a series shorter
 than a model's context length surfaces here too.
 
-`POST /forecast/bytes` behaves the same way, with 422 reserved for a missing
+`POST /predict/bytes` behaves the same way, with 422 reserved for a missing
 `metadata` field or `past` file.
 
-A **404** with `{"detail": "Not Found"}` is not a forecast error: that path
+A **404** with `{"detail": "Not Found"}` is not a predict error: that path
 does not exist on this process. Check the URL, the port, and that you are
-posting to `/forecast` — there is no version prefix.
+posting to `/predict` — there is no version prefix.
 
 ## Python client
 

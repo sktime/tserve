@@ -37,8 +37,8 @@
     <rect x="926" y="92" width="70" height="26" rx="13" fill="#FFFFFF" stroke="#D6D3D1"/>
     <text x="961" y="110" text-anchor="middle" fill="#1C1917">pyarrow</text>
   </g>
-  <text x="720" y="140" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1C1917">ForecastRequest (Any)</text>
-  <text x="1340" y="140" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1C1917">ForecastResponse (Any)</text>
+  <text x="720" y="140" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1C1917">PredictRequest (Any)</text>
+  <text x="1340" y="140" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1C1917">PredictResponse (Any)</text>
 
   <!-- down arrow: request -->
   <line x1="200" y1="158" x2="200" y2="186" stroke="#44403C" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -56,14 +56,14 @@
   <!-- JSON -->
   <rect x="60" y="230" width="400" height="108" rx="10" fill="#FFFFFF" stroke="#93C5FD"/>
   <text x="80" y="256" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="650" fill="#1C1917">JSON  ·  REST</text>
-  <text x="80" y="278" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1D4ED8">POST /forecast</text>
+  <text x="80" y="278" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1D4ED8">POST /predict</text>
   <text x="80" y="300" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#44403C">curl, any HTTP client</text>
   <text x="80" y="320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#78716C">coerce on the server</text>
 
   <!-- Arrow IPC -->
   <rect x="480" y="230" width="400" height="108" rx="10" fill="#FFFFFF" stroke="#93C5FD"/>
   <text x="500" y="256" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="650" fill="#1C1917">Arrow IPC  ·  Python client</text>
-  <text x="500" y="278" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1D4ED8">POST /forecast/bytes</text>
+  <text x="500" y="278" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#1D4ED8">POST /predict/bytes</text>
   <text x="500" y="300" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#44403C">fomo.client.Client</text>
   <text x="500" y="320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#78716C">coerce on the client, bytes on the wire</text>
 
@@ -77,14 +77,14 @@
   <!-- canonical bar -->
   <rect x="60" y="350" width="1280" height="36" rx="8" fill="#FFFBEB" stroke="#FCD34D"/>
   <text x="80" y="373" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#92400E">canonical  ·</text>
-  <text x="168" y="373" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1C1917">CoercedForecastRequest  (Narwhals DataFrame)</text>
+  <text x="168" y="373" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1C1917">CoercedPredictRequest  (Narwhals DataFrame)</text>
   <text x="1320" y="373" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#78716C">history / future / static</text>
 
   <!-- down to scheduler -->
   <line x1="200" y1="400" x2="200" y2="426" stroke="#44403C" stroke-width="1.5" marker-end="url(#arrow)"/>
   <text x="212" y="418" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#44403C">2  schedule</text>
   <line x1="1200" y1="426" x2="1200" y2="400" stroke="#57534E" stroke-width="1.5" marker-end="url(#arrow-back)"/>
-  <text x="1188" y="418" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#57534E">CoercedForecastResponse  3</text>
+  <text x="1188" y="418" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#57534E">CoercedPredictResponse  3</text>
 
   <!-- ========== SCHEDULER ========== -->
   <rect x="40" y="430" width="1320" height="72" rx="12" fill="#ECFDF5" stroke="#A7F3D0"/>

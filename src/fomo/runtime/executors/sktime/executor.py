@@ -10,9 +10,9 @@ already-valid sktime indexes are left unchanged.
 See Also
 --------
 fomo.runtime.executors.sktime.converters.from_request
-    Maps ``CoercedForecastRequest`` onto ``y``, ``X``, ``X_future``,
+    Maps ``CoercedPredictRequest`` onto ``y``, ``X``, ``X_future``,
     ``fh``.
-fomo.types.models.CoercedForecastRequest
+fomo.types.models.CoercedPredictRequest
     Field semantics for ``predict``.
 """
 
@@ -24,7 +24,7 @@ from fomo.runtime.executors.base import Executor
 from fomo.runtime.executors.plugins import register
 from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
-from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
+from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
 
 @register("sktime")
@@ -93,7 +93,7 @@ class SktimeExecutor(Executor):
         self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
         self._forecaster.predict()
 
-    def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
+    def predict(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
         """Fit on the request, predict, optionally predict quantiles.
 
         Calls ``from_request``, then ``fit(y, X, fh)``, then
@@ -104,20 +104,20 @@ class SktimeExecutor(Executor):
 
         Parameters
         ----------
-        request : CoercedForecastRequest
+        request : CoercedPredictRequest
             Internal forecast input. See
-            ``fomo.types.models.CoercedForecastRequest``.
+            ``fomo.types.models.CoercedPredictRequest``.
 
         Returns
         -------
-        CoercedForecastResponse
+        CoercedPredictResponse
             Point predictions and optional flattened quantile table.
 
         Raises
         ------
         ValidationError
             If ``to_response`` cannot construct
-            ``CoercedForecastResponse`` (empty prediction tables).
+            ``CoercedPredictResponse`` (empty prediction tables).
         Exception
             Errors from the wrapped sktime ``fit`` / ``predict`` /
             ``predict_quantiles`` call.
@@ -132,7 +132,7 @@ class SktimeExecutor(Executor):
                 alpha=quantiles, X=X_future, fh=fh
             )
 
-        response: CoercedForecastResponse = to_response(
+        response: CoercedPredictResponse = to_response(
             pred, request, quantiles=pred_quantiles
         )
         return response

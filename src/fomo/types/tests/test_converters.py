@@ -14,10 +14,10 @@ from fomo.types.converters import (
     unpack_envelope,
 )
 from fomo.types.models import (
-    CoercedForecastRequest,
-    CoercedForecastResponse,
-    ForecastRequest,
-    ForecastResponse,
+    CoercedPredictRequest,
+    CoercedPredictResponse,
+    PredictRequest,
+    PredictResponse,
 )
 
 
@@ -30,7 +30,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return ForecastRequest.model_validate(payload)
+    return PredictRequest.model_validate(payload)
 
 
 def _response(**kwargs):
@@ -40,7 +40,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return ForecastResponse.model_validate(payload)
+    return PredictResponse.model_validate(payload)
 
 
 @pytest.mark.parametrize(
@@ -70,7 +70,7 @@ def test_coerce_request(past):
 
     coerced = coerce_request(request)
 
-    assert isinstance(coerced, CoercedForecastRequest)
+    assert isinstance(coerced, CoercedPredictRequest)
     assert isinstance(coerced.past, nw.DataFrame)
     assert coerced.future is None
     assert coerced.static is None
@@ -138,7 +138,7 @@ def test_encode_request():
 def test_decode_request():
     decoded = decode_request(*encode_request(coerce_request(_request())))
 
-    assert isinstance(decoded, CoercedForecastRequest)
+    assert isinstance(decoded, CoercedPredictRequest)
     assert isinstance(decoded.past, nw.DataFrame)
     assert decoded.future is None
     assert decoded.model == "naive"
@@ -152,7 +152,7 @@ def test_coerce_response():
 
     coerced = coerce_response(response)
 
-    assert isinstance(coerced, CoercedForecastResponse)
+    assert isinstance(coerced, CoercedPredictResponse)
     assert isinstance(coerced.predictions, nw.DataFrame)
     assert isinstance(coerced.quantiles, nw.DataFrame)
     assert response.predictions is original_predictions
@@ -170,7 +170,7 @@ def test_encode_response():
 def test_decode_response():
     decoded = decode_response(*encode_response(coerce_response(_response())))
 
-    assert isinstance(decoded, CoercedForecastResponse)
+    assert isinstance(decoded, CoercedPredictResponse)
     assert isinstance(decoded.predictions, nw.DataFrame)
     assert decoded.quantiles is None
     assert decoded.request_id == "req-1"
@@ -198,15 +198,15 @@ def test_unpack_envelope():
 @pytest.mark.parametrize(
     ("body", "match"),
     [
-        pytest.param(b"short", "invalid forecast envelope: truncated", id="too_short"),
+        pytest.param(b"short", "invalid predict envelope: truncated", id="too_short"),
         pytest.param(
             b"XXXX\x01\x00\x00\x00\x00",
-            "invalid forecast envelope: expected FOMO magic bytes",
+            "invalid predict envelope: expected FOMO magic bytes",
             id="bad_magic",
         ),
         pytest.param(
             b"FOMO\x02\x00\x00\x00\x00",
-            "invalid forecast envelope: unsupported version 2",
+            "invalid predict envelope: unsupported version 2",
             id="bad_version",
         ),
     ],

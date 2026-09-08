@@ -5,8 +5,8 @@ It does not move frames across the wire — that is
 ``fomo.types.converters``: native frames ↔ narwhals
 ↔ Arrow IPC ↔ FOMO envelope.
 
-Executors only see ``CoercedForecastRequest`` /
-``CoercedForecastResponse``. Field semantics live on those models.
+Executors only see ``CoercedPredictRequest`` /
+``CoercedPredictResponse``. Field semantics live on those models.
 
 Notes
 -----
@@ -18,7 +18,7 @@ overwrites after predict).
 
 See Also
 --------
-fomo.types.models.CoercedForecastRequest
+fomo.types.models.CoercedPredictRequest
     Field semantics for the coerced payload.
 fomo.types.converters
     Wire converters, not this module.
@@ -31,11 +31,11 @@ import pandas as pd
 from sktime.forecasting.base import ForecastingHorizon
 from sktime.utils.validation.series import is_in_valid_index_types
 
-from fomo.types import CoercedForecastRequest, CoercedForecastResponse
+from fomo.types import CoercedPredictRequest, CoercedPredictResponse
 
 
 def from_request(
-    request: CoercedForecastRequest,
+    request: CoercedPredictRequest,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame | None,
@@ -54,9 +54,9 @@ def from_request(
 
     Parameters
     ----------
-    request : CoercedForecastRequest
+    request : CoercedPredictRequest
         Internal forecast input. See
-        ``fomo.types.models.CoercedForecastRequest`` for fields.
+        ``fomo.types.models.CoercedPredictRequest`` for fields.
 
     Returns
     -------
@@ -75,7 +75,7 @@ def from_request(
 
     See Also
     --------
-    fomo.types.models.CoercedForecastRequest
+    fomo.types.models.CoercedPredictRequest
         Column contracts for the coerced payload.
     """
     past = _indexed(request.past, request)
@@ -98,10 +98,10 @@ def from_request(
 
 def to_response(
     preds: pd.DataFrame,
-    request: CoercedForecastRequest,
+    request: CoercedPredictRequest,
     quantiles: pd.DataFrame | None = None,
-) -> CoercedForecastResponse:
-    """Turn sktime predictions into a ``CoercedForecastResponse``.
+) -> CoercedPredictResponse:
+    """Turn sktime predictions into a ``CoercedPredictResponse``.
 
     Quantile columns are flattened to ``{var}_{alpha}`` before the
     time index is restored as a column. ``request_id`` is ``""``;
@@ -112,7 +112,7 @@ def to_response(
     ----------
     preds : pandas.DataFrame
         Point forecasts from ``predict``, time on the index.
-    request : CoercedForecastRequest
+    request : CoercedPredictRequest
         Supplies the time column name and ``model`` id.
     quantiles : pandas.DataFrame, optional
         Optional ``predict_quantiles`` result with a
@@ -120,7 +120,7 @@ def to_response(
 
     Returns
     -------
-    CoercedForecastResponse
+    CoercedPredictResponse
         Narwhals ``predictions`` (and ``quantiles`` when provided),
         ``model=request.model``, ``request_id=""``.
 
@@ -128,14 +128,14 @@ def to_response(
     ------
     ValidationError
         If ``predictions`` (or a provided quantile table) has no
-        columns when constructing ``CoercedForecastResponse``.
+        columns when constructing ``CoercedPredictResponse``.
     """
     predictions = _as_table(preds, request)
     quantile_table = (
         None if quantiles is None else _as_table(_flatten(quantiles), request)
     )
 
-    return CoercedForecastResponse(
+    return CoercedPredictResponse(
         predictions=predictions,
         quantiles=quantile_table,
         model=request.model,
@@ -143,7 +143,7 @@ def to_response(
     )
 
 
-def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.DataFrame:
+def _indexed(table: nw.DataFrame[Any], request: CoercedPredictRequest) -> pd.DataFrame:
     """Set the time column as the index, converting JSON strings if needed.
 
     Indexes already valid for sktime (datetime, period, timedelta,
@@ -154,7 +154,7 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.Da
     ----------
     table : narwhals.DataFrame
         Past or future table.
-    request : CoercedForecastRequest
+    request : CoercedPredictRequest
         Supplies the time column name.
 
     Returns
@@ -168,12 +168,12 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedForecastRequest) -> pd.Da
     return frame
 
 
-def _static(request: CoercedForecastRequest) -> dict[str, Any]:
+def _static(request: CoercedPredictRequest) -> dict[str, Any]:
     """Read the first static row as values to broadcast over time.
 
     Parameters
     ----------
-    request : CoercedForecastRequest
+    request : CoercedPredictRequest
         Uses ``static`` when present.
 
     Returns
@@ -188,16 +188,14 @@ def _static(request: CoercedForecastRequest) -> dict[str, Any]:
     return static.to_pandas().iloc[0].to_dict()
 
 
-def _as_table(
-    frame: pd.DataFrame, request: CoercedForecastRequest
-) -> nw.DataFrame[Any]:
+def _as_table(frame: pd.DataFrame, request: CoercedPredictRequest) -> nw.DataFrame[Any]:
     """Move the time index back into a column and wrap as narwhals.
 
     Parameters
     ----------
     frame : pandas.DataFrame
         Predictions (or flattened quantiles) with a time index.
-    request : CoercedForecastRequest
+    request : CoercedPredictRequest
         ``time`` becomes the name of the restored index column.
 
     Returns

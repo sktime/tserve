@@ -1,17 +1,17 @@
 """Validate user-facing frame values before they are coerced to narwhals.
 
-``ForecastRequest`` and ``ForecastResponse`` accept several native table
+``PredictRequest`` and ``PredictResponse`` accept several native table
 shapes. These helpers reject values that are none of those shapes, so
 coercion in ``fomo.types.converters`` can assume a pandas-like, polars,
 pyarrow, narwhals, column-dict, or ``{columns, data}`` payload.
 
 Column *presence* (time, target, known-future, …) is checked later on
-``CoercedForecastRequest``, after frames are narwhals. This module does
-not interpret forecast semantics and does not mention sktime.
+``CoercedPredictRequest``, after frames are narwhals. This module does
+not interpret prediction semantics and does not mention sktime.
 
 See Also
 --------
-fomo.types.models.ForecastRequest
+fomo.types.models.PredictRequest
     Construction runs ``_check_frame`` on ``past``, ``future``, and
     ``static``.
 fomo.types.converters._to_narwhals
@@ -172,8 +172,8 @@ def _require_columns(
 ) -> None:
     """Require named columns to exist on a coerced narwhals frame.
 
-    Used by ``CoercedForecastRequest`` after wire conversion, not by
-    user-facing ``ForecastRequest`` (which only checks table *shape*).
+    Used by ``CoercedPredictRequest`` after wire conversion, not by
+    user-facing ``PredictRequest`` (which only checks table *shape*).
 
     Parameters
     ----------

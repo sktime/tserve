@@ -2,7 +2,7 @@
 
 Executor names (``sktime``, ``pytorch-forecasting``, ``custom``) are not
 registry model ids (``naive``, ``chronos-2``, …). Executors only see
-``CoercedForecastRequest`` / ``CoercedForecastResponse``.
+``CoercedPredictRequest`` / ``CoercedPredictResponse``.
 
 See Also
 --------

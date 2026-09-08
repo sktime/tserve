@@ -2,7 +2,7 @@ import narwhals as nw
 import pandas as pd
 
 from fomo.runtime.executors.sktime.converters import from_request, to_response
-from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
+from fomo.types.models import CoercedPredictRequest, CoercedPredictResponse
 
 
 def _df(**columns):
@@ -18,7 +18,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return CoercedForecastRequest.model_validate(payload)
+    return CoercedPredictRequest.model_validate(payload)
 
 
 def test_from_request():
@@ -53,7 +53,7 @@ def test_to_response():
 
     response = to_response(preds, _request())
 
-    assert isinstance(response, CoercedForecastResponse)
+    assert isinstance(response, CoercedPredictResponse)
     assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"
     assert response.quantiles is None
