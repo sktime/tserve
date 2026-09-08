@@ -2,20 +2,23 @@
 
 The running server serves a browser console at `GET /`. It talks only to the JSON endpoints (`/health`, `/models`, `/stats`, `POST /forecast`). It does not use `/forecast/bytes`.
 
-Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](server.md).
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](server.md). The process prints this URL on startup.
 
 ## What you can do
 
 - Pick a **loaded** model (the dropdown is `GET /models`, not the full catalog)
-- Set the forecast horizon
-- Optionally request a prediction interval (`quantiles`)
-- Use a sample series, paste CSV, or drop a CSV file (parsed in the browser)
+- Set the forecast horizon (1–96 steps)
+- Optionally request a prediction interval (`quantiles`). The toggle starts **on** (`[0.1, 0.5, 0.9]`); turn it off for estimators that cannot return quantiles (Chronos Bolt)
+- Use a sample series (daily sales, airline, hourly energy, hourly traffic), paste CSV, or drop a CSV file (parsed in the browser)
 - Choose the time column and target columns
 - Run `POST /forecast` and plot predictions
+- Download the forecast as CSV
 
 Health and stats cards on the right poll `GET /health` and `GET /stats`. Toggle **Live** to refresh every 5 seconds.
 
 If the model list is empty, the process started without `--load-models` (or the image `CMD` was replaced with an empty list). Load an id and refresh.
+
+There is no authentication and no hosted FoMo API — these URLs are the process you started.
 
 ## Live OpenAPI
 
@@ -29,4 +32,4 @@ Same origin, generated from the FastAPI app:
 
 Use Swagger to try `POST /forecast` from the browser. The dashboard is the friendlier console; Swagger is the contract.
 
-Static assets live under `/static` (`index.html`, CSS, JS, favicon). There is no authentication and no hosted FoMo API — these URLs are the process you started.
+Static assets live under `/static` (`index.html`, CSS, JS, favicon).

@@ -14,25 +14,14 @@ Routes on the running [`Server`][fomo.server.serve.Server]. Live OpenAPI is the 
 | `GET` | `/redoc` | ReDoc |
 | `GET` | `/openapi.json` | OpenAPI schema |
 
-`GET /health` is not “models are warm”. `GET /models` is not the registry catalog.
+`GET /health` is not “models are warm”. `GET /models` is not the registry catalog. `GET /forecast` is HTTP 405; the forecast routes are POST only.
 
 ## JSON `POST /forecast`
 
-`Content-Type: application/json`. Fields: [Client](../walkthrough/client.md#request-fields).
+`Content-Type: application/json`. Fields: [HTTP](../walkthrough/http.md#request-fields).
 
 ```bash
-curl -s http://127.0.0.1:8000/forecast \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "past": {
-      "timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],
-      "sales": [120, 135, 128, 142, 138]
-    },
-    "time": "timestamp",
-    "target": ["sales"],
-    "fh": 3,
-    "model": "timesfm-2.5"
-  }'
+curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'
 ```
 
 Invalid bodies are **422**. Coerce or predict failures are **400** — see [Errors](errors.md).

@@ -3,11 +3,7 @@
 `fomo` has one subcommand, `serve`. It constructs [`Server`][fomo.server.serve.Server] and calls `run`. Returns `0` on a normal exit and on `KeyboardInterrupt`.
 
 ```bash
-fomo serve \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m \
-  --host 127.0.0.1 \
-  --port 8000 \
-  --log-level info
+fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 --port 8000 --log-level info
 ```
 
 | flag | default | |

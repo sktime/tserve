@@ -4,7 +4,24 @@ The registry is the list of ids the server *can* load. Nothing in it is loaded u
 
 Do not invent ids. Forecast `model` must be a loaded id, not an executor name (`sktime`) and not a catalog id this process never loaded.
 
-`naive` is `NaiveForecaster` — no Hub download. Every other id pulls a Hugging Face (or equivalent) checkpoint on first load. That needs the `sktime` extra, or the [`geetu040/fomo:sktime`](docker.md) image.
+`naive` is `NaiveForecaster` — no Hub download. Every other id pulls a Hugging Face (or equivalent) checkpoint on first load. That needs the matching [family extra](server.md#dependencies), or a [Docker tag](docker.md) that already baked it in.
+
+## Which extra / image?
+
+| extra / image tag | estimator families | example ids |
+| --- | --- | --- |
+| `server` / `:base` | `NaiveForecaster` | `naive` |
+| `hub` / `:hub` | Chronos Bolt/T5, TTM, TimesFM 2.x | `chronos-bolt-tiny`, `ttm-r3-512-30`, `timesfm-2.5` |
+| `chronos` / `:chronos` | Chronos-2 | `chronos-2`, `chronos-2-small` |
+| `kronos` / `:kronos` | Kronos, WindFM | `kronos`, `windfm` |
+| `granite` / `:granite` | FlowState | `flowstate`, `flowstate-granite` |
+| `moirai` / `:moirai` | Moirai, Lag-Llama | `moirai-2`, `lagllama` |
+| `tirex` / `:tirex` | TiRex | `tirex` |
+| `toto` / `:toto` | Toto-2 | `toto-2.0-4m` |
+| `mantis` / `:mantis` | Mantis | `mantis-8m` |
+| `full` / `:full` | all of the above | |
+
+`kronos` is layered on `base`, not on `hub`. First Hub download is faster with `HF_TOKEN` set (a read token is enough). Mount `~/.cache/huggingface` in Docker so weights persist — see [Docker](docker.md#hugging-face-token-and-cache).
 
 ## Loading registered models
 
@@ -23,24 +40,32 @@ These ids are in the registry. Pick them with `--load-models`:
 Each family has more sizes and revisions; the [full catalog](#full-catalog) is below.
 
 ```bash
-fomo serve --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
 First start of a Hub model downloads weights and runs a tiny warmup `fit` / `predict`. Then:
 
 ```bash
 curl -s http://127.0.0.1:8000/models
-# {"models":[
-#   {"id":"naive","executor":"sktime","source":"registry"},
-#   {"id":"chronos-2","executor":"sktime","source":"registry"},
-#   {"id":"timesfm-2.5","executor":"sktime","source":"registry"},
-#   {"id":"ttm-r3-52-16","executor":"sktime","source":"registry"},
-#   {"id":"toto-2.0-4m","executor":"sktime","source":"registry"},
-#   {"id":"mantis-8m","executor":"sktime","source":"registry"}
-# ]}
+```
+
+```json
+{
+  "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
+    {"id": "chronos-bolt-tiny", "executor": "sktime", "source": "registry"},
+    {"id": "ttm-r3-512-30", "executor": "sktime", "source": "registry"}
+  ]
+}
 ```
 
 `source` is `registry`, `directory`, or `object`. Duplicate ids raise `ValueError` before a second load.
+
+Asking for an id that is not loaded is HTTP 400:
+
+```text
+model 'timesfm-2.5' is not loaded on this server (loaded: 'chronos-bolt-tiny', 'naive', 'ttm-r3-512-30')
+```
 
 ## Loading models from a directory
 
@@ -64,21 +89,13 @@ If `my-models/custom-model-1.zip` exists, that id loads from the zip (`source="d
 Mount the same directory into Docker and point `--models-dir` at the container path:
 
 ```bash
-docker run --rm -p 8000:8000 \
-  -v "$PWD/my-models:/models" \
-  geetu040/fomo:sktime \
-  --models-dir /models \
-  --load-models custom-model-1 custom-model-2
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 custom-model-2
 ```
 
 You can mix zip stems with registry ids:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 \
-  -v "$PWD/my-models:/models" \
-  geetu040/fomo:sktime \
-  --models-dir /models \
-  --load-models custom-model-1 naive chronos-2
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 naive chronos-bolt-tiny
 ```
 
 ## Loading live objects
@@ -101,8 +118,7 @@ Server(
     load_models=[
         ("chronos-bolt-tiny", bolt),
         ("ttm-local", ttm),
-        "timesfm-2.5",
-        "flowstate",
+        "naive",
     ],
     host="127.0.0.1",
     port=8000,
@@ -114,18 +130,18 @@ Server(
 ## Start a server with some models
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
-From source (needs the `sktime` extra, or `--all-extras`):
+From source (needs the `hub` extra, or another family extra that includes those ids):
 
 ```bash
-uv run fomo serve --host 0.0.0.0 --port 8000 \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+uv run fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
-Swap `model` on a [forecast](client.md) between those loaded ids. `naive` is a drift forecast and needs no download — use it to check the pipe, then switch to a Hub id.
+Swap `model` on a [forecast](http.md) between those loaded ids. `naive` is a drift forecast and needs no download — use it to check the pipe, then switch to a Hub id.
+
+Some ids need a longer history than a 5-row toy series. `mantis-8m` requires more observations than its `context_length` (127).
 
 ## Full catalog
 
@@ -243,4 +259,4 @@ r3 (each id has a `-lite` sibling):
 | `lagllama` | `LagLlamaForecaster` |
 | `mantis`, `mantis-8m`, `mantis-plus` | `MantisForecaster` |
 
-FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Asking an id that cannot return quantiles fails the request.
+FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Asking an id that cannot return quantiles fails the request (`ChronosForecaster` / Chronos Bolt does not). `naive` does.
