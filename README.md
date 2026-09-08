@@ -9,42 +9,44 @@ Nothing is loaded by default: a bare `fomo serve` starts with an empty model lis
 
 | image | use |
 | --- | --- |
-| [`geetu040/fomo:sktime`](https://hub.docker.com/r/geetu040/fomo) | registry models (Chronos, TimesFM, TTM, Toto, Mantis, …) |
-| [`geetu040/fomo:base`](https://hub.docker.com/r/geetu040/fomo) | `naive` only; tests and light workflows |
+| [`geetu040/fomo:base`](https://hub.docker.com/r/geetu040/fomo) | `naive` only |
+| [`geetu040/fomo:hub`](https://hub.docker.com/r/geetu040/fomo) | TTM, TimesFM 2.x, Chronos Bolt/T5 |
+| [`geetu040/fomo:full`](https://hub.docker.com/r/geetu040/fomo) | every family in the catalog |
+
+Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants: [docs](https://fomo.readthedocs.io/en/latest/server/docker/).
 
 # Quick start
 
 **Start the server**
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:sktime \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
-or from source:
+Or from this repo (Python >= 3.12). FoMo is not on PyPI yet.
+
+uv:
 
 ```bash
-git clone git@github.com:sktime/fomo.git && cd fomo
-uv sync --all-extras
-uv run fomo serve --host 127.0.0.1 --port 8000 \
-  --load-models naive chronos-2 timesfm-2.5 ttm-r3-52-16 toto-2.0-4m mantis-8m
+git clone https://github.com/sktime/fomo.git && cd fomo
+uv sync --extra server --extra client --extra hub
+uv run fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
+```
+
+pip:
+
+```bash
+git clone https://github.com/sktime/fomo.git && cd fomo
+pip install -e ".[server,client,hub]"
+fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
 **Forecast**
 
+`POST /forecast` (GET returns 405). `past` is a table: one row per timestamp, with a time column and target columns.
+
 ```bash
-curl -s http://127.0.0.1:8000/forecast \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "past": {
-      "timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],
-      "sales": [120, 135, 128, 142, 138]
-    },
-    "time": "timestamp",
-    "target": ["sales"],
-    "fh": 3,
-    "model": "naive"
-  }'
+curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'
 ```
 
 ```python
@@ -65,88 +67,50 @@ result = client.forecast(
     time="timestamp",
     target=["sales"],
     fh=3,
-    model="timesfm-2.5",
+    model="chronos-bolt-tiny",
 )
 print(result.predictions)
 client.close()
-# {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
-#  'sales': [135.89…, 136.19…, 136.59…]}
 ```
 
 Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/) · Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Some registry ids (`naive` needs no download): `chronos-2`, `timesfm-2.5`, `ttm-r3-52-16`, `toto-2.0-4m`, `mantis-8m`, `kronos`, `moirai-2`, `flowstate`, `tirex`. The full catalog is in the [docs](https://fomo.readthedocs.io).
+# Getting started (naive only)
 
-#### Getting started
+Minimal install from the repo directory. `naive` needs no Hugging Face download.
 
-Here's a minimal setup to get started fast, from the repo directory:
+uv:
 
-##### uv
 ```bash
 uv sync --extra server
 uv run fomo serve --load-models naive
 ```
 
-##### pip
+pip:
+
 ```bash
-pip install -e '.[server]'
+pip install -e ".[server]"
 fomo serve --load-models naive
 ```
 
-Then run your request in another terminal, e.g. via curl:
+Then in another terminal:
+
 ```bash
-curl -s http://127.0.0.1:8000/forecast \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "past": {
-      "timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],
-      "sales": [120, 135, 128, 142, 138]
-    },
-    "time": "timestamp",
-    "target": ["sales"],
-    "fh": 3,
-    "model": "naive"
-  }'
-```
-Or via Python (install the `client` extra first: `uv sync --extra server --extra client` or `pip install -e '.[server,client]'`):
-```python
-import httpx2 as httpx
-
-SERVER_URL = "http://127.0.0.1:8000"
-response = httpx.post(
-    f"{SERVER_URL}/forecast",
-    json={
-        "past": {
-            "timestamp": [
-                "2024-01-01",
-                "2024-01-02",
-                "2024-01-03",
-                "2024-01-04",
-                "2024-01-05",
-            ],
-            "sales": [120, 135, 128, 142, 138],
-        },
-        "time": "timestamp",
-        "target": ["sales"],
-        "fh": 3,
-        "model": "naive",
-    },
-)
-response.raise_for_status()
-print(response.json())
+curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "naive"}'
 ```
 
-If you want to use foundation models, stop the server and install the additional requirements, e.g. for Chronos:
+For the Python client, also install the `client` extra (`uv sync --extra server --extra client` or `pip install -e ".[server,client]"`).
 
-(uv)
+To load foundation models, stop the server and add the matching extra, for example Chronos-2. Then use `"model": "chronos-2"` in the request above.
+
 ```bash
 uv sync --extra server --extra chronos
 uv run fomo serve --load-models naive chronos-2
 ```
 
-(pip)
 ```bash
-pip install -e '.[server,chronos]'
+pip install -e ".[server,chronos]"
 fomo serve --load-models naive chronos-2
 ```
-Then run the request from above using `"model": "chronos-2"`.
+
+Set `HF_TOKEN` if Hugging Face rate-limits unauthenticated downloads. The extras table and full catalog are in the [docs](https://fomo.readthedocs.io).
