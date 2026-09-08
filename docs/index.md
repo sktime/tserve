@@ -1,4 +1,15 @@
-# Getting started
+<div class="fomo-hero" markdown>
+
+# FoMo
+
+Time-series foundation models behind one HTTP server. Load the models you name,
+keep them warm, and forecast from `curl` or Python.
+{ .fomo-hero__tagline }
+
+[Quick start](#quick-start){ .md-button .md-button--primary }
+[How it fits together](overview.md){ .md-button }
+
+</div>
 
 FoMo is a time-series foundation-model inference server. Load selected models once, keep them warm, and forecast over HTTP or the Python client. It is not a training library.
 
