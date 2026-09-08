@@ -5,7 +5,7 @@
 process stops.
 
 ```bash
-fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+fomo serve --load-models chronos-bolt timesfm-2.5
 ```
 
 A walkthrough with the startup output is on

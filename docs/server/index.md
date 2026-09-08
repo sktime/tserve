@@ -1,6 +1,6 @@
 # Server
 
-The server is the process you start. It loads the models you name, keeps them warm, and answers forecast requests. Dashboard, OpenAPI, and `/forecast` all belong to that process.
+The server is the process you start. It loads the models you name, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
 Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which ids exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
@@ -11,7 +11,7 @@ Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models
 The `hub` image can load both models used throughout the client guides. Arguments replace the image `CMD`, which otherwise loads `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
@@ -25,7 +25,7 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+    uv run fomo serve --load-models chronos-bolt timesfm-2.5
     ```
 
 === "pip"
@@ -33,7 +33,7 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+    fomo serve --load-models chronos-bolt timesfm-2.5
     ```
 
 CLI flags, `Server`, and `server.app`: [From source](source.md).
@@ -70,7 +70,7 @@ Confirm what loaded:
 curl -s http://127.0.0.1:8000/models
 ```
 
-`GET /health` is liveness, not “models are warm”. Then [forecast](../client/http.md).
+`GET /health` is liveness, not “models are warm”. Then [predict](../client/http.md).
 
 ## In this section
 

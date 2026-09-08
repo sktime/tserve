@@ -3,11 +3,11 @@
 FoMo is a time-series foundation-model inference server. Models load
 once at process start. This package is that start path: resolve a
 catalog id, zip, or in-process forecaster; construct an executor; load;
-warmup; register stats. Forecast dispatch lives in ``fomo.scheduling``,
+warmup; register stats. Predict dispatch lives in ``fomo.scheduling``,
 not here.
 
-Executors only see ``CoercedForecastRequest`` /
-``CoercedForecastResponse``. Two conversion layers:
+Executors only see ``CoercedPredictRequest`` /
+``CoercedPredictResponse``. Two conversion layers:
 
 * Wire converters (``fomo.types.converters``): native frames ↔
   narwhals ↔ Arrow IPC ↔ FOMO envelope.

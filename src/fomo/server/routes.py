@@ -1,20 +1,20 @@
-"""HTTP routes for health, listing, stats, and forecast.
+"""HTTP routes for health, listing, stats, and predict.
 
-Mounted on the FastAPI app by ``Server``. Forecast handlers use *wire*
+Mounted on the FastAPI app by ``Server``. Predict handlers use *wire*
 converters in ``fomo.types.converters`` (``coerce_request``,
 ``decode_request``, ``encode_response``, ``pack_envelope``), not the
 sktime *converters* in ``fomo.runtime.executors.sktime.converters``.
 
 ``GET /`` serves the browser dashboard from ``fomo/server/static``,
 which is also mounted at ``/static``. It drives the JSON endpoints only
-(``/health``, ``/models``, ``/stats``, ``POST /forecast``).
+(``/health``, ``/models``, ``/stats``, ``POST /predict``).
 
 ``request.model`` is a loaded model id. ``request_id`` is assigned in
-these handlers: the JSON path puts a UUID on ``ForecastResponse``
+these handlers: the JSON path puts a UUID on ``PredictResponse``
 directly; the bytes path overwrites
-``CoercedForecastResponse.request_id`` after predict (sktime
+``CoercedPredictResponse.request_id`` after predict (sktime
 ``to_response`` sets ``""``). FoMo has no custom exception types;
-forecast failures become ``HTTPException`` 400.
+predict failures become ``HTTPException`` 400.
 """
 
 import json
@@ -27,10 +27,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from fomo.types import (
-    ForecastRequest,
-    ForecastResponse,
     HealthResult,
     ModelsResult,
+    PredictRequest,
+    PredictResponse,
     StatsResult,
 )
 from fomo.types.converters import (
@@ -40,8 +40,8 @@ from fomo.types.converters import (
     pack_envelope,
 )
 
-_ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.forecast+arrow"
-"""Media type for ``POST /forecast/bytes`` envelope bodies."""
+_ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.predict+arrow"
+"""Media type for ``POST /predict/bytes`` envelope bodies."""
 
 
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -50,7 +50,7 @@ _STATIC_DIR = Path(__file__).parent / "static"
 
 router = APIRouter()
 """FastAPI router included by ``Server`` (dashboard, health, models, stats,
-forecast)."""
+predict)."""
 
 
 router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
@@ -63,7 +63,7 @@ def dashboard() -> FileResponse:
 
     Returns ``static/index.html``; the page then calls the JSON
     endpoints (``GET /health``, ``GET /models``, ``GET /stats``,
-    ``POST /forecast``) from the browser. ``POST /forecast/bytes`` is
+    ``POST /predict``) from the browser. ``POST /predict/bytes`` is
     not used by the dashboard.
 
     Returns
@@ -171,32 +171,32 @@ def stats(request: Request) -> StatsResult:
     return StatsResult.model_validate(request.app.state.runtime.stats.snapshot())
 
 
-@router.post("/forecast", response_model=ForecastResponse)
-def forecast(request: ForecastRequest, http_request: Request) -> ForecastResponse:
-    """Run a JSON ``POST /forecast``.
+@router.post("/predict", response_model=PredictResponse)
+def predict(request: PredictRequest, http_request: Request) -> PredictResponse:
+    """Run a JSON ``POST /predict``.
 
     Assigns a UUID ``request_id``, coerces the body with
     ``coerce_request``, then ``scheduler.run``. On success, returns
-    ``ForecastResponse`` with ``predictions`` (and ``quantiles`` when
+    ``PredictResponse`` with ``predictions`` (and ``quantiles`` when
     present) as ``to_dict(as_series=False)``, ``model`` from the
     executor response, and the UUID. Handler failures (coerce or
     predict) become ``HTTPException`` 400 with ``detail``
     ``{error: str(exc), code: "request_failed", request_id}``. Invalid
-    JSON bodies that fail ``ForecastRequest`` validation are rejected
+    JSON bodies that fail ``PredictRequest`` validation are rejected
     by FastAPI as 422 before this handler runs.
 
     ``request.model`` is a loaded model id, not an executor name.
 
     Parameters
     ----------
-    request : ForecastRequest
+    request : PredictRequest
         JSON body. See that class for fields.
     http_request : fastapi.Request
         Used to read ``app.state.runtime.scheduler``.
 
     Returns
     -------
-    ForecastResponse
+    PredictResponse
         Column-dict tables plus ``model`` and ``request_id``.
 
     Raises
@@ -208,11 +208,11 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
 
     See Also
     --------
-    ForecastRequest
+    PredictRequest
         JSON body schema.
     fomo.types.converters.coerce_request
-        Wire conversion to ``CoercedForecastRequest``.
-    forecast_bytes
+        Wire conversion to ``CoercedPredictRequest``.
+    predict_bytes
         Multipart / Arrow envelope variant.
     """
     request_id = str(uuid.uuid4())
@@ -231,7 +231,7 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
             },
         ) from exc
 
-    return ForecastResponse(
+    return PredictResponse(
         predictions=response.predictions.to_dict(as_series=False),
         model=response.model,
         request_id=request_id,
@@ -243,15 +243,15 @@ def forecast(request: ForecastRequest, http_request: Request) -> ForecastRespons
     )
 
 
-@router.post("/forecast/bytes")
-async def forecast_bytes(
+@router.post("/predict/bytes")
+async def predict_bytes(
     http_request: Request,
     metadata: Annotated[str, Form()],
     past: Annotated[UploadFile, File()],
     future: Annotated[UploadFile | None, File()] = None,
     static: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
-    """Run a multipart ``POST /forecast/bytes``.
+    """Run a multipart ``POST /predict/bytes``.
 
     Form field ``metadata`` is a JSON string; file ``past`` is
     required; ``future`` and ``static`` are optional. Empty file bodies
@@ -262,15 +262,15 @@ async def forecast_bytes(
     ``scheduler.run``. Sets ``response.request_id`` to a UUID (sktime
     ``to_response`` leaves ``""``), then ``encode_response`` and
     ``pack_envelope``. Media type is
-    ``application/vnd.fomo.forecast+arrow``. Failures use the same
-    HTTP 400 wrapping as ``forecast``.
+    ``application/vnd.fomo.predict+arrow``. Failures use the same
+    HTTP 400 wrapping as ``predict``.
 
     Parameters
     ----------
     http_request : fastapi.Request
         Used to read ``app.state.runtime.scheduler``.
     metadata : str
-        JSON object of scalar forecast fields (multipart ``metadata``).
+        JSON object of scalar predict fields (multipart ``metadata``).
     past : fastapi.UploadFile
         Required past-frame bytes.
     future : fastapi.UploadFile, optional
@@ -282,7 +282,7 @@ async def forecast_bytes(
     -------
     fastapi.Response
         Packed ``FOMO`` envelope with media type
-        ``application/vnd.fomo.forecast+arrow``.
+        ``application/vnd.fomo.predict+arrow``.
 
     Raises
     ------
@@ -291,16 +291,16 @@ async def forecast_bytes(
 
     See Also
     --------
-    ForecastRequest
+    PredictRequest
         Field semantics split across metadata vs files.
     fomo.types.converters.decode_request
-        Rebuilds ``CoercedForecastRequest`` from metadata + Arrow.
+        Rebuilds ``CoercedPredictRequest`` from metadata + Arrow.
     fomo.types.converters.encode_response
         Splits the coerced response into metadata and files.
     fomo.types.converters.pack_envelope
         Binary envelope written as the response body.
-    forecast
-        JSON variant that assigns ``request_id`` on ``ForecastResponse``.
+    predict
+        JSON variant that assigns ``request_id`` on ``PredictResponse``.
     """
     files = {"past": await past.read()}
     if future is not None:

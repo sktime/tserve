@@ -55,7 +55,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         )
     },
     # Chronos-Bolt.
-    "chronos-bolt-tiny": {
+    "chronos-bolt": {
         "spec": (
             'ChronosForecaster(model_path="amazon/chronos-bolt-tiny", '
             'config={"device_map": "auto"})'
@@ -80,7 +80,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         )
     },
     # Original Chronos (T5).
-    "chronos-t5-tiny": {
+    "chronos-t5": {
         "spec": (
             'ChronosForecaster(model_path="amazon/chronos-t5-tiny", '
             'config={"device_map": "auto"})'
@@ -133,7 +133,16 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "moirai-2": {
         "spec": 'Moirai2Forecaster(checkpoint_path="Salesforce/moirai-2.0-R-small")'
     },
+    # TTM.
+    "ttm": {"spec": 'TinyTimeMixerForecaster(fit_strategy="zero-shot")'},
     # TTM r1.
+    "ttm-r1": {
+        "spec": (
+            "TinyTimeMixerForecaster("
+            'model_path="ibm-granite/granite-timeseries-ttm-r1", '
+            'fit_strategy="zero-shot")'
+        )
+    },
     "ttm-r1-512-96": {
         "spec": (
             "TinyTimeMixerForecaster("
@@ -149,6 +158,13 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         )
     },
     # TTM r2.
+    "ttm-r2": {
+        "spec": (
+            "TinyTimeMixerForecaster("
+            'model_path="ibm-granite/granite-timeseries-ttm-r2", '
+            'fit_strategy="zero-shot")'
+        )
+    },
     "ttm-r2-512-96": {
         "spec": (
             "TinyTimeMixerForecaster("
@@ -233,7 +249,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'revision="1536-720-r2", fit_strategy="zero-shot")'
         )
     },
-    # TTM r2.1.
+    # TTM r2.1. Same Hub repo as r2, selected by revision.
     "ttm-r2.1-52-16": {
         "spec": (
             "TinyTimeMixerForecaster("
@@ -305,6 +321,13 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         )
     },
     # TTM r3.
+    "ttm-r3": {
+        "spec": (
+            "TinyTimeMixerForecaster("
+            'model_path="ibm-granite/granite-timeseries-ttm-r3", '
+            'fit_strategy="zero-shot")'
+        )
+    },
     "ttm-r3-52-16": {
         "spec": (
             "TinyTimeMixerForecaster("

@@ -11,7 +11,7 @@ Import from `fomo.client`. Needs the `client` extra.
     options:
       heading_level: 3
       members:
-        - forecast
+        - predict
         - health
         - models
         - stats
@@ -29,18 +29,18 @@ models you load.
         - run
         - url
 
-## Forecast request and response
+## Predict request and response
 
-`ForecastRequest` is both the JSON body of `POST /forecast` and the keyword
-signature of `Client.forecast`. Table formats and column rules are in the
+`PredictRequest` is both the JSON body of `POST /predict` and the keyword
+signature of `Client.predict`. Table formats and column rules are in the
 [data specification](../client/data.md).
 
-::: fomo.types.models.ForecastRequest
+::: fomo.types.models.PredictRequest
     options:
       heading_level: 3
       members: false
 
-::: fomo.types.models.ForecastResponse
+::: fomo.types.models.PredictResponse
     options:
       heading_level: 3
       members: false

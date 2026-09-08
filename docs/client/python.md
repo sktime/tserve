@@ -1,30 +1,30 @@
 # Python
 
-[`Client`][fomo.client.client.Client] sends forecasts to a running FoMo
+[`Client`][fomo.client.client.Client] sends predictions to a running FoMo
 server. It accepts native Python tables, converts them to Arrow, and posts to
-`/forecast/bytes`.
+`/predict/bytes`.
 
 ## Methods
 
 | call | what it gives you |
 | --- | --- |
 | `Client(url, timeout=60.0)` | [a client bound to one server](#connect) |
-| `client.forecast(past=..., fh=...)` | [a forecast](#send-a-forecast) as a `ForecastResponse` |
+| `client.predict(past=..., fh=...)` | [a prediction](#send-a-prediction) as a `PredictResponse` |
 | `client.health()` | process liveness |
 | `client.models()` | loaded model ids |
 | `client.stats()` | uptime, memory, per-model metrics |
 | `client.close()` | closes the HTTP session |
 
-`forecast` returns `predictions`, `quantiles`, `model`, and `request_id`. Full
+`predict` returns `predictions`, `quantiles`, `model`, and `request_id`. Full
 signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The examples use `chronos-bolt-tiny` for point forecasts and `timesfm-2.5`
+The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
 for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -68,14 +68,14 @@ with Client("http://127.0.0.1:8000", timeout=120.0) as client:
 
 `models()` reports what this process loaded, not the registry
 [catalog](../models/index.md), so it is the quickest way to check which
-`model` ids a forecast can use.
+`model` ids a prediction can use.
 
 The default timeout is 60 seconds. Increase it for forecasts that need more
 time.
 
-## Send a forecast
+## Send a prediction
 
-The method takes the same fields as JSON `POST /forecast`. This example sends
+The method takes the same fields as JSON `POST /predict`. This example sends
 five days of sales and requests the next three:
 
 ```python
@@ -93,12 +93,12 @@ past = {
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)
@@ -141,12 +141,12 @@ examples send the same data in four native formats.
     )
 
     with Client("http://127.0.0.1:8000") as client:
-        result = client.forecast(
+        result = client.predict(
             past=past,
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # pandas.DataFrame
@@ -172,12 +172,12 @@ examples send the same data in four native formats.
     )
 
     with Client("http://127.0.0.1:8000") as client:
-        result = client.forecast(
+        result = client.predict(
             past=past,
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # polars.DataFrame
@@ -203,12 +203,12 @@ examples send the same data in four native formats.
     )
 
     with Client("http://127.0.0.1:8000") as client:
-        result = client.forecast(
+        result = client.predict(
             past=past,
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # pyarrow.Table
@@ -232,12 +232,12 @@ examples send the same data in four native formats.
     )
 
     with Client("http://127.0.0.1:8000") as client:
-        result = client.forecast(
+        result = client.predict(
             past=past,
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # narwhals.DataFrame
@@ -260,12 +260,12 @@ past = past.rename(columns={"Period": "timestamp"})
 past["timestamp"] = past["timestamp"].astype(str)
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="timestamp",
         target=["passengers"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)
@@ -298,7 +298,7 @@ future = pd.DataFrame({"month": pd.date_range("2024-06-01", periods=3, freq="MS"
 static = pd.DataFrame({"store_type": ["urban"], "region": ["EU-west"]})
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         future=future,
         static=static,
@@ -334,7 +334,7 @@ past = {
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="month",
         target=["sales"],

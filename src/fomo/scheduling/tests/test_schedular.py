@@ -5,7 +5,7 @@ import pytest
 
 from fomo.logging.stats import Stats
 from fomo.scheduling.scheduler import Scheduler
-from fomo.types.models import CoercedForecastRequest, CoercedForecastResponse
+from fomo.types.models import CoercedPredictRequest, CoercedPredictResponse
 
 
 def _df(**columns):
@@ -21,7 +21,7 @@ def _request(**kwargs):
         "model": "naive",
     }
     payload.update(kwargs)
-    return CoercedForecastRequest.model_validate(payload)
+    return CoercedPredictRequest.model_validate(payload)
 
 
 def _response(**kwargs):
@@ -31,7 +31,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return CoercedForecastResponse.model_validate(payload)
+    return CoercedPredictResponse.model_validate(payload)
 
 
 def test_run():

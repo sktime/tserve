@@ -12,10 +12,10 @@ from fomo.types.converters import (
     encode_response,
 )
 from fomo.types.models import (
-    ForecastRequest,
-    ForecastResponse,
     HealthResult,
     ModelsResult,
+    PredictRequest,
+    PredictResponse,
     StatsResult,
 )
 
@@ -39,7 +39,7 @@ def _response(**kwargs):
         "request_id": "req-1",
     }
     payload.update(kwargs)
-    return ForecastResponse.model_validate(payload)
+    return PredictResponse.model_validate(payload)
 
 
 _transport = MagicMock()
@@ -67,15 +67,15 @@ client = Client("http://example", transport=cast(BaseTransport, _transport))
         ),
     ],
 )
-def test_forecast(past):
+def test_predict(past):
     _transport.reset_mock()
     payload = _request(past=past)
-    encoded = encode_request(coerce_request(ForecastRequest.model_validate(payload)))
-    _transport.forecast.return_value = encode_response(coerce_response(_response()))
+    encoded = encode_request(coerce_request(PredictRequest.model_validate(payload)))
+    _transport.predict.return_value = encode_response(coerce_response(_response()))
 
-    result = client.forecast(**payload)
+    result = client.predict(**payload)
 
-    assert isinstance(result, ForecastResponse)
+    assert isinstance(result, PredictResponse)
     assert isinstance(result.predictions, dict)
     if set(past) == {"columns", "data"}:
         assert set(result.predictions) == {"columns", "data"}
@@ -85,7 +85,7 @@ def test_forecast(past):
         assert "columns" not in result.predictions
     assert result.model == "naive"
     assert result.request_id == "req-1"
-    _transport.forecast.assert_called_once_with(*encoded)
+    _transport.predict.assert_called_once_with(*encoded)
 
 
 def test_health():

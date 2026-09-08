@@ -17,9 +17,17 @@ permissions:
 
 jobs:
   build:
-    name: build image
-    runs-on: ubuntu-latest
+    name: build image (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux/amd64
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -38,9 +46,9 @@ jobs:
           load: true
           provenance: false
           set: |
-            *.platform=linux/amd64
-            *.cache-from=type=gha
-            *.cache-to=type=gha,mode=max
+            *.platform=${{ matrix.platform }}
+            *.cache-from=type=gha,scope=${{ matrix.platform }}
+            *.cache-to=type=gha,mode=max,scope=${{ matrix.platform }}
 
       # Boot the loaded image and wait until /health returns {"status":"ok"}.
       # Always dump logs and remove the container, including on timeout.

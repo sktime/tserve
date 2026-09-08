@@ -14,7 +14,7 @@ from typing import Any
 
 from fomo.runtime.executors.base import Executor
 from fomo.runtime.executors.plugins import register
-from fomo.types import CoercedForecastRequest, CoercedForecastResponse, ModelInfo
+from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
 
 @register("pytorch-forecasting")
@@ -50,17 +50,17 @@ class PytorchForecastingExecutor(Executor):
         """
         raise NotImplementedError("pytorch-forecasting executor is not implemented yet")
 
-    def predict(self, request: CoercedForecastRequest) -> CoercedForecastResponse:
+    def predict(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
         """Raise ``NotImplementedError`` (executor is not implemented).
 
         Parameters
         ----------
-        request : CoercedForecastRequest
+        request : CoercedPredictRequest
             Unused except ``request.model`` in the error message.
 
         Returns
         -------
-        CoercedForecastResponse
+        CoercedPredictResponse
             Never returns; declared to match ``Executor.predict``.
 
         Raises

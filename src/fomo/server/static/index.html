@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>FoMo · Forecast Console</title>
+<title>FoMo · Predict Console</title>
 <meta name="description" content="FoMo — time-series foundation model inference server console." />
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 <link rel="stylesheet" href="/static/styles.css" />
@@ -50,8 +50,8 @@
   <aside class="col col--controls">
     <section class="panel panel--controls">
       <header class="panel__head">
-        <h2 class="panel__title">Forecast request</h2>
-        <code class="tag tag--verb">POST /forecast</code>
+        <h2 class="panel__title">Predict request</h2>
+        <code class="tag tag--verb">POST /predict</code>
       </header>
 
       <div class="panel__body stack">
@@ -67,7 +67,7 @@
 
         <div class="field">
           <div class="field__row">
-            <label class="field__label" for="fh-range">Forecast horizon</label>
+            <label class="field__label" for="fh-range">Prediction horizon</label>
             <output class="field__value" id="fh-value">12</output>
           </div>
           <input type="range" id="fh-range" class="range" min="1" max="96" step="1" value="12" />
@@ -79,11 +79,11 @@
           <div class="field__row">
             <label class="field__label" for="quantiles-toggle">Prediction interval</label>
             <label class="switch switch--sm">
-              <input type="checkbox" id="quantiles-toggle" checked />
+              <input type="checkbox" id="quantiles-toggle" />
               <span class="switch__track"><span class="switch__thumb"></span></span>
             </label>
           </div>
-          <div class="segmented" id="coverage-group" role="group" aria-label="Interval coverage">
+          <div class="segmented is-disabled" id="coverage-group" role="group" aria-label="Interval coverage">
             <button type="button" class="segmented__item" data-q="0.25,0.5,0.75">50%</button>
             <button type="button" class="segmented__item is-active" data-q="0.1,0.5,0.9">80%</button>
             <button type="button" class="segmented__item" data-q="0.05,0.5,0.95">90%</button>
@@ -152,7 +152,7 @@
 
         <button id="run-btn" class="btn btn--primary btn--block btn--lg" type="button">
           <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M5 3.5l14 8.5-14 8.5z"/></svg>
-          <span class="btn__label">Run forecast</span>
+          <span class="btn__label">Run prediction</span>
         </button>
 
         <div id="error-box" class="alert" hidden>
@@ -176,7 +176,7 @@
     <section class="panel panel--chart">
       <header class="panel__head">
         <div>
-          <h2 class="panel__title">Forecast</h2>
+          <h2 class="panel__title">Prediction</h2>
           <p class="panel__sub" id="chart-sub">run a request to plot predictions</p>
         </div>
         <div class="panel__head-actions">
@@ -190,10 +190,10 @@
       <div class="chart" id="chart">
         <div class="chart__empty" id="chart-empty">
           <svg viewBox="0 0 24 24" class="chart__empty-icon" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l3.5-4.5 3 3L20 6"/></svg>
-          <p>No forecast yet</p>
+          <p>No prediction yet</p>
           <span>Pick a model and horizon, then run the request.</span>
         </div>
-        <svg class="chart__svg" id="chart-svg" role="img" aria-label="Forecast chart"></svg>
+        <svg class="chart__svg" id="chart-svg" role="img" aria-label="Prediction chart"></svg>
         <div class="chart__tooltip" id="chart-tooltip" hidden></div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-"""OpenAPI / JSON-schema examples for Pydantic forecast and status models.
+"""OpenAPI / JSON-schema examples for Pydantic predict and status models.
 
 These dicts are attached via ``model_config.json_schema_extra`` on the
 public models in ``fomo.types.models``. They illustrate the JSON wire
@@ -7,7 +7,7 @@ objects. They are not executed as tests and are not a runtime contract
 beyond documentation.
 """
 
-FORECAST_REQUEST = {
+PREDICT_REQUEST = {
     "time": "timestamp",
     "target": ["sales"],
     "past": {
@@ -25,7 +25,7 @@ FORECAST_REQUEST = {
     "model": "naive",
 }
 
-FORECAST_RESULT = {
+PREDICT_RESULT = {
     "predictions": {
         "columns": ["timestamp", "sales"],
         "data": [

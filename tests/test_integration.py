@@ -69,8 +69,8 @@ def test_context_manager():
         extra.health()
 
 
-def test_forecast():
-    result = client.forecast(
+def test_predict():
+    result = client.predict(
         past=PAST,
         future={
             "timestamp": ["2024-01-06", "2024-01-07", "2024-01-08"],
@@ -91,9 +91,9 @@ def test_forecast():
     assert len(result.quantiles["timestamp"]) == 3
 
 
-def test_forecast_unknown_model():
+def test_predict_unknown_model():
     with pytest.raises(RuntimeError, match="chronos-2"):
-        client.forecast(
+        client.predict(
             past=PAST,
             time="timestamp",
             target=["sales"],

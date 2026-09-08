@@ -2,8 +2,8 @@
 
 Import ``Client`` from ``fomo.client``. Tables keep the type you send
 as ``past`` (pandas, polars, pyarrow, narwhals, or dict). JSON
-``POST /forecast`` is the curl path; this client sends Arrow to
-``POST /forecast/bytes``.
+``POST /predict`` is the curl path; this client sends Arrow to
+``POST /predict/bytes``.
 """
 
 from typing import Any, Self
@@ -11,10 +11,10 @@ from typing import Any, Self
 from fomo.client.transports.base import BaseTransport
 from fomo.client.transports.http import HttpTransport
 from fomo.types import (
-    ForecastRequest,
-    ForecastResponse,
     HealthResult,
     ModelsResult,
+    PredictRequest,
+    PredictResponse,
     StatsResult,
 )
 from fomo.types.converters import (
@@ -45,7 +45,7 @@ class Client:
     --------
     >>> from fomo.client import Client
     >>> with Client("http://127.0.0.1:8000") as client:
-    ...     result = client.forecast(
+    ...     result = client.predict(
     ...         past={"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120, 135]},
     ...         time="timestamp",
     ...         target=["sales"],
@@ -56,11 +56,11 @@ class Client:
     See Also
     --------
     [Python client](../client/python.md)
-        Install, connect, forecast, and use native table types.
+        Install, connect, predict, and use native table types.
     [Install and serve](../server/index.md)
         Start the local server this client calls.
     [HTTP API](../client/http.md)
-        Send the same forecast fields as JSON instead of Arrow.
+        Send the same predict fields as JSON instead of Arrow.
     """
 
     def __init__(
@@ -73,7 +73,7 @@ class Client:
         """Construct a Client."""
         self._transport = transport or HttpTransport(url, timeout=timeout)
 
-    def forecast(
+    def predict(
         self,
         *,
         past: Any,
@@ -84,8 +84,8 @@ class Client:
         future: Any = None,
         static: Any = None,
         quantiles: list[float] | None = None,
-    ) -> ForecastResponse:
-        """Send a forecast and restore tables to the type of ``past``.
+    ) -> PredictResponse:
+        """Send a prediction and restore tables to the type of ``past``.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class Client:
             Past observations (dict, pandas, polars, …). Return type
             of ``predictions`` matches this.
         fh : int
-            Forecast steps ahead (``> 0``).
+            Prediction steps ahead (``> 0``).
         time : str, optional
             Time-index column. When omitted, the first column of
             ``past`` is used.
@@ -111,7 +111,7 @@ class Client:
 
         Returns
         -------
-        ForecastResponse
+        PredictResponse
             ``predictions``, optional ``quantiles``, ``model``, and
             ``request_id``.
 
@@ -124,8 +124,8 @@ class Client:
 
         Notes
         -----
-        This method sends Arrow tables to ``POST /forecast/bytes``.
-        JSON clients use ``POST /forecast``.
+        This method sends Arrow tables to ``POST /predict/bytes``.
+        JSON clients use ``POST /predict``.
 
         See Also
         --------
@@ -136,7 +136,7 @@ class Client:
         [Errors](../reference/errors.md)
             Local validation, transport, and server failures.
         """
-        request = ForecastRequest(
+        request = PredictRequest(
             past=past,
             time=time,
             target=target,
@@ -151,7 +151,7 @@ class Client:
         # 1. encode request to json + bytes
         req_metadata, req_bytes_encoded = encode_request(coerced)
         # 2. send request to transport
-        res_metadata, res_bytes_encoded = self._transport.forecast(
+        res_metadata, res_bytes_encoded = self._transport.predict(
             req_metadata, req_bytes_encoded
         )
         # 3. decode response to json + bytes
@@ -164,7 +164,7 @@ class Client:
             else None
         )
 
-        return ForecastResponse(
+        return PredictResponse(
             predictions=predictions,
             model=response.model,
             request_id=response.request_id,

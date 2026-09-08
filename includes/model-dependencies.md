@@ -5,7 +5,7 @@ Pick the smallest extra (or image tag) that **adds** the family you want. Extra 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
 | `server` | [`:base`](https://hub.docker.com/r/geetu040/fomo/tags?name=base) | — | Naive | 1 | `naive` |
-| `hub` | [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 77 | `chronos-bolt-tiny` |
+| `hub` | [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
 | `chronos` | [`:chronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
 | `kronos` | [`:kronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
 | `granite` | [`:granite`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite) | [`:granite-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite-gpu) | FlowState | 2 | `flowstate` |
@@ -13,4 +13,4 @@ Pick the smallest extra (or image tag) that **adds** the family you want. Extra 
 | `tirex` | [`:tirex`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex) | [`:tirex-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex-gpu) | TiRex | 2 | `tirex` |
 | `toto` | [`:toto`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
 | `mantis` | [`:mantis`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
-| `full` | [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) | all of the above | 106 | `naive` |
+| `full` | [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) | all of the above | 110 | `naive` |

@@ -1,4 +1,4 @@
-"""Pydantic schemas for forecast requests, responses, and server status.
+"""Pydantic schemas for predict requests, responses, and server status.
 
 User-facing models accept flexible native frames. Coerced models hold
 narwhals DataFrames and enforce column contracts. Health, model listing,
@@ -19,10 +19,10 @@ Panel (multi-series) input is not supported. The sktime converter
 See Also
 --------
 fomo.types.converters
-    Turn ``ForecastRequest`` into ``CoercedForecastRequest`` and pack
+    Turn ``PredictRequest`` into ``CoercedPredictRequest`` and pack
     frames as Arrow IPC for the bytes path.
 fomo.types._checks
-    Shape checks run when constructing user-facing forecast models.
+    Shape checks run when constructing user-facing predict models.
 """
 
 from typing import Any, Literal, Self
@@ -32,16 +32,16 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from fomo.types._checks import _check_frame, _require_columns
 from fomo.types._examples import (
-    FORECAST_REQUEST,
-    FORECAST_RESULT,
     HEALTH_OK,
     MODELS_RESULT,
+    PREDICT_REQUEST,
+    PREDICT_RESULT,
     STATS_RESULT,
 )
 
 
-class ForecastRequest(BaseModel):
-    """Forecast input. Same fields on JSON ``POST /forecast`` and ``Client.forecast``.
+class PredictRequest(BaseModel):
+    """Predict input. Same fields on JSON ``POST /predict`` and ``Client.predict``.
 
     Tables may be a column dict (name → list), a row matrix
     ``{"columns": [...], "data": [[...], ...]}``, pandas, polars,
@@ -61,7 +61,7 @@ class ForecastRequest(BaseModel):
         Target columns. A string becomes a one-element list. When
         omitted, remaining ``past`` columns (minus ``future`` columns).
     fh : int
-        Forecast steps ahead (must be ``> 0``).
+        Prediction steps ahead (must be ``> 0``).
     model : str, default ``"naive"``
         Loaded model id.
     future : any, optional
@@ -79,13 +79,13 @@ class ForecastRequest(BaseModel):
     --------
     [Data specification](../client/data.md)
         Table formats, column roles, and inference rules.
-    [HTTP forecast route](../reference/http.md#post-forecast)
+    [HTTP predict route](../reference/http.md#post-predict)
         JSON request behavior and status codes.
     [Python client](../client/python.md)
-        Arrow transport through ``Client.forecast``.
+        Arrow transport through ``Client.predict``.
     """
 
-    model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
+    model_config = ConfigDict(json_schema_extra={"example": PREDICT_REQUEST})
 
     past: Any
     time: str | None = None
@@ -102,7 +102,7 @@ class ForecastRequest(BaseModel):
 
         Returns
         -------
-        ForecastRequest
+        PredictRequest
             ``self`` after ``past``, ``future``, and ``static`` pass
             ``_check_frame``.
 
@@ -117,11 +117,11 @@ class ForecastRequest(BaseModel):
         return self
 
 
-class ForecastResponse(BaseModel):
-    """Forecast output.
+class PredictResponse(BaseModel):
+    """Predict output.
 
-    JSON ``POST /forecast`` returns tables as column dicts.
-    ``Client.forecast`` restores the type of the caller's ``past``.
+    JSON ``POST /predict`` returns tables as column dicts.
+    ``Client.predict`` restores the type of the caller's ``past``.
 
     Attributes
     ----------
@@ -139,13 +139,13 @@ class ForecastResponse(BaseModel):
     --------
     [Data specification](../client/data.md#response)
         JSON and native-table response behavior.
-    [HTTP forecast route](../reference/http.md#post-forecast)
+    [HTTP predict route](../reference/http.md#post-predict)
         JSON response and failure statuses.
-    [Python client](../client/python.md#send-a-forecast)
-        Access the result returned by ``Client.forecast``.
+    [Python client](../client/python.md#send-a-prediction)
+        Access the result returned by ``Client.predict``.
     """
 
-    model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})
+    model_config = ConfigDict(json_schema_extra={"example": PREDICT_RESULT})
 
     predictions: Any = None
     model: str
@@ -158,7 +158,7 @@ class ForecastResponse(BaseModel):
 
         Returns
         -------
-        ForecastResponse
+        PredictResponse
             ``self`` after shape checks.
 
         Raises
@@ -171,11 +171,11 @@ class ForecastResponse(BaseModel):
         return self
 
 
-class CoercedForecastRequest(BaseModel):
-    """Internal forecast input: narwhals frames plus column contracts.
+class CoercedPredictRequest(BaseModel):
+    """Internal predict input: narwhals frames plus column contracts.
 
     Executors, the scheduler, and the bytes decode path operate on this
-    model. User code should build ``ForecastRequest`` and call
+    model. User code should build ``PredictRequest`` and call
     ``coerce_request`` rather than constructing this directly, except in
     tests.
 
@@ -193,7 +193,7 @@ class CoercedForecastRequest(BaseModel):
     target : list of str
         Target column names (``min_length=1``). Always a list.
     fh : int
-        Forecast steps (``> 0``).
+        Prediction steps (``> 0``).
     model : str, default ``"naive"``
         Loaded model id used by ``Scheduler.run`` to pick an executor.
     future : narwhals.DataFrame or None
@@ -213,7 +213,7 @@ class CoercedForecastRequest(BaseModel):
 
     See Also
     --------
-    ForecastRequest
+    PredictRequest
         User-facing dual of this model.
     fomo.runtime.executors.sktime.converters.from_request
         Maps this model onto sktime ``y``, ``X``, ``fh`` (sktime only).
@@ -236,7 +236,7 @@ class CoercedForecastRequest(BaseModel):
 
         Returns
         -------
-        CoercedForecastRequest
+        CoercedPredictRequest
             ``self`` after column checks.
 
         Raises
@@ -253,16 +253,16 @@ class CoercedForecastRequest(BaseModel):
         return self
 
 
-class CoercedForecastResponse(BaseModel):
-    """Internal forecast output: narwhals prediction tables.
+class CoercedPredictResponse(BaseModel):
+    """Internal predict output: narwhals prediction tables.
 
-    Executors return this. JSON ``POST /forecast`` converts tables with
+    Executors return this. JSON ``POST /predict`` converts tables with
     ``to_dict(as_series=False)``. The bytes path encodes them as Arrow
     IPC inside a ``FOMO`` envelope.
 
     ``request_id`` may be ``""`` from the sktime converter; server
     routes overwrite it with a UUID on the bytes path, and the JSON path
-    builds a new ``ForecastResponse`` with a fresh id.
+    builds a new ``PredictResponse`` with a fresh id.
 
     Attributes
     ----------
@@ -286,7 +286,7 @@ class CoercedForecastResponse(BaseModel):
 
     See Also
     --------
-    ForecastResponse
+    PredictResponse
         User-facing dual of this model.
     fomo.types.converters.encode_response
         Splits metadata vs Arrow blobs for the bytes path.
@@ -305,7 +305,7 @@ class CoercedForecastResponse(BaseModel):
 
         Returns
         -------
-        CoercedForecastResponse
+        CoercedPredictResponse
             ``self`` after column checks.
 
         Raises
@@ -375,7 +375,7 @@ class ModelInfo(BaseModel):
     Attributes
     ----------
     id : str
-        Id used in forecast ``model``.
+        Id used in predict ``model``.
     executor : {"sktime", "pytorch-forecasting", "custom"}
         Plugin that loaded the artifact.
     source : {"object", "registry", "directory"}

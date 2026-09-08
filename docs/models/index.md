@@ -1,8 +1,8 @@
 # Catalog
 
-FoMo ships **106 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
+FoMo ships **110 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
 
-The name in the `model` column is what you pass to `--load-models` and to a forecast request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
+The name in the `model` column is what you pass to `--load-models` and to a predict request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
 
 ## Dependencies
 
@@ -34,7 +34,7 @@ Install extras from a clone on [From source](../server/source.md#dependencies). 
 
 | model | checkpoint |
 | --- | --- |
-| `chronos-bolt-tiny` | [amazon/chronos-bolt-tiny](https://huggingface.co/amazon/chronos-bolt-tiny) |
+| `chronos-bolt` | [amazon/chronos-bolt-tiny](https://huggingface.co/amazon/chronos-bolt-tiny) |
 | `chronos-bolt-mini` | [amazon/chronos-bolt-mini](https://huggingface.co/amazon/chronos-bolt-mini) |
 | `chronos-bolt-small` | [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) |
 | `chronos-bolt-base` | [amazon/chronos-bolt-base](https://huggingface.co/amazon/chronos-bolt-base) |
@@ -45,7 +45,7 @@ Install extras from a clone on [From source](../server/source.md#dependencies). 
 
 | model | checkpoint |
 | --- | --- |
-| `chronos-t5-tiny` | [amazon/chronos-t5-tiny](https://huggingface.co/amazon/chronos-t5-tiny) |
+| `chronos-t5` | [amazon/chronos-t5-tiny](https://huggingface.co/amazon/chronos-t5-tiny) |
 | `chronos-t5-mini` | [amazon/chronos-t5-mini](https://huggingface.co/amazon/chronos-t5-mini) |
 | `chronos-t5-small` | [amazon/chronos-t5-small](https://huggingface.co/amazon/chronos-t5-small) |
 | `chronos-t5-base` | [amazon/chronos-t5-base](https://huggingface.co/amazon/chronos-t5-base) |
@@ -53,7 +53,20 @@ Install extras from a clone on [From source](../server/source.md#dependencies). 
 
 ## TTM
 
-`TinyTimeMixerForecaster`. Extra `hub`. Names are `{revision}-{context}-{horizon}`, with optional `-lite` or `-l1`.
+`TinyTimeMixerForecaster`. Extra `hub`. Every id below pins a Hub repo and a
+revision, named `{revision}-{context}-{horizon}` with optional `-lite` or
+`-l1` — except the four short ids, which leave the revision (and for `ttm`
+also the repo) at the forecaster default, so the context and horizon are
+whatever that default branch ships.
+
+### defaults
+
+| model | repo | revision |
+| --- | --- | --- |
+| `ttm` | forecaster default (`ibm/TTM`) | forecaster default (`main`) |
+| `ttm-r1` | [ibm-granite/granite-timeseries-ttm-r1](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r1) | forecaster default (`main`) |
+| `ttm-r2` | [ibm-granite/granite-timeseries-ttm-r2](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2) | forecaster default (`main`) |
+| `ttm-r3` | [ibm-granite/granite-timeseries-ttm-r3](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r3) | forecaster default (`main`) |
 
 ### r1
 
@@ -227,4 +240,4 @@ Same Hub repo as r2. `-l1` is the L1 checkpoint.
 
 FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Chronos Bolt cannot return quantiles. `naive` can.
 
-Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [forecast](../client/http.md).
+Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [predict](../client/http.md).

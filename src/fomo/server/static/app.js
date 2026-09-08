@@ -1,5 +1,5 @@
-/* FoMo forecast console — vanilla JS, no build step, no external deps.
-   Endpoints used: GET /health, GET /models, GET /stats, POST /forecast. */
+/* FoMo predict console — vanilla JS, no build step, no external deps.
+   Endpoints used: GET /health, GET /models, GET /stats, POST /predict. */
 
 (() => {
   'use strict';
@@ -18,7 +18,7 @@
     time: null,
     targets: [],
     fh: 12,
-    useQuantiles: true,
+    useQuantiles: false,
     quantiles: [0.1, 0.5, 0.9],
     history: null,
     result: null,
@@ -458,7 +458,7 @@
     $('#run-btn').disabled = !ready;
   }
 
-  /* ── POST /forecast ─────────────────────────────────────────────── */
+  /* ── POST /predict ──────────────────────────────────────────────── */
 
   function buildRequestBody() {
     const cols = [state.time, ...state.targets];
@@ -477,17 +477,17 @@
     return body;
   }
 
-  async function runForecast() {
+  async function runPredict() {
     const btn = $('#run-btn');
     const model = $('#model-select').value;
     if (!model) return;
 
     btn.classList.add('is-busy');
-    $('.btn__label', btn).textContent = 'Forecasting…';
+    $('.btn__label', btn).textContent = 'Predicting…';
     hideError();
 
     try {
-      const { body, ms } = await api('/forecast', {
+      const { body, ms } = await api('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildRequestBody()),
@@ -501,15 +501,15 @@
       $('#download-btn').disabled = false;
       renderChart();
       renderTable();
-      log(`POST /forecast ${model} fh=${state.fh}`, { ms });
+      log(`POST /predict ${model} fh=${state.fh}`, { ms });
       refreshStats();
     } catch (e) {
       showError(e);
-      log(`POST /forecast failed — ${e.message}`, { error: true });
+      log(`POST /predict failed — ${e.message}`, { error: true });
       refreshStats();
     } finally {
       btn.classList.remove('is-busy');
-      $('.btn__label', btn).textContent = 'Run forecast';
+      $('.btn__label', btn).textContent = 'Run prediction';
     }
   }
 
@@ -660,11 +660,11 @@
       p.push(`<text class="axis-text" x="${x.toFixed(1)}" y="${m.top + ih + 15}" text-anchor="${anchor}">${esc(shortTime(shaped.times[i]))}</text>`);
     }
 
-    // forecast split marker
+    // prediction split marker
     if (nPast > 0 && nPast < nAll) {
       const sx = X(nPast - 1).toFixed(1);
       p.push(`<line class="split-line" x1="${sx}" y1="${m.top}" x2="${sx}" y2="${m.top + ih}"/>`);
-      p.push(`<text class="split-text" x="${Number(sx) + 6}" y="${m.top + 9}">FORECAST</text>`);
+      p.push(`<text class="split-text" x="${Number(sx) + 6}" y="${m.top + 9}">PREDICTION</text>`);
     }
 
     const path = (pts) => pts.map((pt, i) => `${i ? 'L' : 'M'}${pt[0].toFixed(1)} ${pt[1].toFixed(1)}`).join(' ');
@@ -690,7 +690,7 @@
         p.push(`<path d="${path(hp)}" fill="none" stroke="${s.color}" stroke-width="1.9" stroke-opacity="0.55" stroke-linejoin="round" stroke-linecap="round"/>`);
       }
 
-      // forecast (anchored to the last observation)
+      // prediction (anchored to the last observation)
       const fp = [];
       if (isNum(s.past[nPast - 1])) fp.push([X(nPast - 1), Y(s.past[nPast - 1])]);
       s.future.forEach((v, i) => { if (isNum(v)) fp.push([X(nPast + i), Y(v)]); });
@@ -840,7 +840,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fomo-forecast-${res.model}-${String(res.request_id).slice(0, 8)}.csv`;
+    a.download = `fomo-predict-${res.model}-${String(res.request_id).slice(0, 8)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     log('downloaded predictions.csv');
@@ -940,7 +940,7 @@
       updateRunState();
     });
 
-    $('#run-btn').addEventListener('click', runForecast);
+    $('#run-btn').addEventListener('click', runPredict);
     $('#download-btn').addEventListener('click', downloadCSV);
     $('#clear-log').addEventListener('click', () => { state.log = []; renderLog(); });
 
@@ -969,7 +969,7 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runForecast(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runPredict(); }
     });
 
     let raf = null;

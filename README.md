@@ -3,8 +3,8 @@
 [![Documentation Status](https://readthedocs.org/projects/fomo/badge/?version=latest)](https://fomo.readthedocs.io/en/latest/?badge=latest)
 
 FoMo is a local inference server for time-series foundation models. Start the
-process, load named registry ids once, keep them warm, and forecast through
-`POST /forecast`, the Python client, or the browser dashboard. The process also
+process, load named registry ids once, keep them warm, and predict through
+`POST /predict`, the Python client, or the browser dashboard. The process also
 serves its own OpenAPI documentation. FoMo does not provide a hosted API.
 
 - [Documentation](https://fomo.readthedocs.io)
@@ -19,7 +19,7 @@ The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
 TimesFM 2.x. This command loads two registry ids:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
@@ -46,7 +46,7 @@ PowerShell.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 uv sync --extra server --extra hub
-uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+uv run fomo serve --load-models chronos-bolt timesfm-2.5
 ```
 
 **pip**
@@ -55,16 +55,16 @@ uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
-fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+fomo serve --load-models chronos-bolt timesfm-2.5
 ```
 
 The `server` extra alone is enough for `naive`. Do not install `client` on a
 server-only machine. See [Server](https://fomo.readthedocs.io/en/latest/server/)
 for family extras, GPU installs, and Python-based server setup.
 
-## Forecast
+## Predict
 
-A forecast request describes a table and the roles of its columns:
+A predict request describes a table and the roles of its columns:
 
 - `past` is the historical table: one row per timestamp, with time, target,
   and optional feature columns. Time must be a column, not a pandas index.
@@ -81,13 +81,13 @@ limitations.
 
 ### curl
 
-This sends five days of sales and asks `chronos-bolt-tiny` for the next three.
+This sends five days of sales and asks `chronos-bolt` for the next three.
 The JSON after `-d` stays on one line for copy-paste reliability.
 
 **macOS / Linux**
 
 ```bash
-curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt-tiny"}'
+curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
 **Windows PowerShell**
@@ -95,10 +95,10 @@ curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
 Use `curl.exe` so PowerShell does not substitute `Invoke-WebRequest`.
 
 ```powershell
-curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt-tiny"}'
+curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
-`POST /forecast` returns column-oriented JSON containing `predictions`,
+`POST /predict` returns column-oriented JSON containing `predictions`,
 `quantiles`, `model`, and `request_id`.
 
 ### Python
@@ -134,19 +134,19 @@ past = {
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.forecast(
+    result = client.predict(
         past=past,
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)
 ```
 
 The client accepts dictionaries, pandas, polars, pyarrow, and Narwhals tables,
-posts Arrow to `/forecast/bytes`, and restores results to the input table type.
+posts Arrow to `/predict/bytes`, and restores results to the input table type.
 See the [Python guide](https://fomo.readthedocs.io/en/latest/client/python/).
 
 ## Choose and load models
@@ -178,7 +178,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt timesfm-2.5
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -186,13 +186,13 @@ it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use
 `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt-tiny
+docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 The [Docker guide](https://fomo.readthedocs.io/en/latest/server/docker/) covers
@@ -213,9 +213,9 @@ and [live estimator objects](https://fomo.readthedocs.io/en/latest/server/live-o
 
 ## HTTP and Python clients
 
-Use JSON `POST /forecast` from any language. The Python `Client` sends the same
-fields as Arrow to `POST /forecast/bytes`. Forecasting is POST-only:
-`GET /forecast` returns 405 Method Not Allowed.
+Use JSON `POST /predict` from any language. The Python `Client` sends the same
+fields as Arrow to `POST /predict/bytes`. Prediction is POST-only:
+`GET /predict` returns 405 Method Not Allowed.
 
 Every URL in this README belongs to the FoMo process you started; there is no
 hosted FoMo endpoint. See the [HTTP guide](https://fomo.readthedocs.io/en/latest/client/http/)

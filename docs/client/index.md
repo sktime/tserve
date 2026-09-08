@@ -1,21 +1,21 @@
 # Client
 
-Send forecasts to a FoMo server over HTTP or from Python. Both paths use the
-same request fields and return the same forecast content:
+Send predictions to a FoMo server over HTTP or from Python. Both paths use the
+same request fields and return the same prediction content:
 
-- [HTTP](http.md) sends JSON to `POST /forecast` from any language.
+- [HTTP](http.md) sends JSON to `POST /predict` from any language.
 - [Python](python.md) accepts native tables and sends Arrow to
-  `POST /forecast/bytes`.
+  `POST /predict/bytes`.
 
 FoMo is not a hosted API. The URL points to a server process you started.
 
 ## Start a server
 
 For the examples in this section, start the `hub` image with
-`chronos-bolt-tiny` and `timesfm-2.5` loaded:
+`chronos-bolt` and `timesfm-2.5` loaded:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 The first start downloads model weights. See [Server](../server/index.md)
@@ -41,7 +41,7 @@ Check which ids this process loaded:
 
 ## Data at a glance
 
-A forecast request combines a table with the roles of its columns:
+A predict request combines a table with the roles of its columns:
 
 - `past` is the historical table. Time must be a column, alongside one or more
   target columns.
@@ -53,15 +53,15 @@ The HTTP endpoint accepts column-oriented and row-oriented JSON. The Python
 client also accepts pandas, polars, pyarrow, and Narwhals tables. See
 [Data specification](data.md) for every field, format, default, and limitation.
 
-## First forecast
+## First prediction
 
-This request sends five days of sales and asks `chronos-bolt-tiny` for the next
+This request sends five days of sales and asks `chronos-bolt` for the next
 three days:
 
 === "bash / zsh"
 
     ```bash
-    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -69,14 +69,14 @@ three days:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
       "past": {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
         "sales": [120, 135, 128, 142, 138]
@@ -84,7 +84,7 @@ three days:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
@@ -100,7 +100,7 @@ optional quantiles. Continue with [HTTP](http.md) for JSON examples or
 
     ---
 
-    Send JSON to `POST /forecast` from any language. Covers every route.
+    Send JSON to `POST /predict` from any language. Covers every route.
 
     [:octicons-arrow-right-24: HTTP](http.md)
 
