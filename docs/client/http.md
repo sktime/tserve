@@ -30,7 +30,7 @@ for quantiles:
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-See [Install and serve](../server/index.md) for source installs and server
+See [Server](../server/index.md) for source installs and server
 options. The URLs below belong to this local process; FoMo does not provide a
 hosted API.
 
@@ -172,8 +172,7 @@ example uses the loaded `timesfm-2.5` model:
     }'
     ```
 
-The quantile columns are named `sales_0.1`, `sales_0.5`, and `sales_0.9`.
-See [Quantiles](data.md#quantiles) for the response shape and model limitation.
+`timesfm-2.5` currently names those columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`. See [Quantiles](data.md#quantiles) for the response shape and model limitation.
 
 ## Inspect the server
 

@@ -82,7 +82,7 @@ uv repeats `--extra`. pip takes one extras list. After uv, run `uv run fomo serv
 
 --8<-- "includes/model-dependencies.md"
 
-All 100 supported models are on the [catalog](../models/index.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
+All 106 supported models are on the [catalog](../models/index.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
 
 ## GPU
 

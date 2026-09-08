@@ -1,6 +1,6 @@
 # Catalog
 
-FoMo ships **100 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
+FoMo ships **106 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
 
 The name in the `model` column is what you pass to `--load-models` and to a forecast request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
 

@@ -30,9 +30,17 @@ my-models/
 
 Point `--models-dir` at the directory, then name the file stems in `--load-models`:
 
-```bash
-uv run fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt-tiny
-```
+=== "uv"
+
+    ```bash
+    uv run fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt-tiny
+    ```
+
+=== "pip"
+
+    ```bash
+    fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt-tiny
+    ```
 
 In Docker, mount the directory and use the container path:
 

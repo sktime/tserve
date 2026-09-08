@@ -40,3 +40,9 @@ In Docker the entrypoint is already `fomo serve --host 0.0.0.0 --port 8000`,
 and the image `CMD` is `--load-models naive`. Arguments after the image name
 replace that `CMD`, so every flag here works there too — see
 [Docker](../server/docker.md).
+
+## Python entry point
+
+::: fomo.cli.main.main
+    options:
+      heading_level: 3

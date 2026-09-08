@@ -242,8 +242,9 @@ supports the levels above; Chronos Bolt does not. FoMo forwards the values to
 the estimator, which may apply additional validation.
 
 Point forecasts remain in `predictions`. Quantile forecasts are returned as a
-second table whose columns use `{target}_{level}`, for example `sales_0.1`,
-`sales_0.5`, and `sales_0.9`.
+second table. Many estimators name those columns `{target}_{level}`
+(`sales_0.1`, `sales_0.5`, `sales_0.9`); `timesfm-2.5` currently uses a
+positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Response
 

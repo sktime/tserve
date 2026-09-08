@@ -18,7 +18,7 @@ For the examples in this section, start the `hub` image with
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-The first start downloads model weights. See [Install and serve](../server/index.md)
+The first start downloads model weights. See [Server](../server/index.md)
 for source installs and server options, or [Docker](../server/docker.md) for image
 tags, GPU support, Hugging Face tokens, and cache volumes.
 
@@ -91,3 +91,33 @@ three days:
 The response contains a `predictions` table, the model id, a request id, and
 optional quantiles. Continue with [HTTP](http.md) for JSON examples or
 [Python](python.md) for native Python tables.
+
+## In this section
+
+<div class="grid cards" markdown>
+
+-   :material-api:{ .lg .middle } **HTTP**
+
+    ---
+
+    Send JSON to `POST /forecast` from any language. Covers every route.
+
+    [:octicons-arrow-right-24: HTTP](http.md)
+
+-   :material-language-python:{ .lg .middle } **Python**
+
+    ---
+
+    Pass native tables to [`Client`][fomo.client.client.Client]. It posts Arrow.
+
+    [:octicons-arrow-right-24: Python](python.md)
+
+-   :material-table-column:{ .lg .middle } **Data specification**
+
+    ---
+
+    Request fields, table formats, column inference, and response shape.
+
+    [:octicons-arrow-right-24: Data specification](data.md)
+
+</div>

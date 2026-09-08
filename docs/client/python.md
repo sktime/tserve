@@ -27,7 +27,7 @@ for quantiles:
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-See [Install and serve](../server/index.md) for source installs and server
+See [Server](../server/index.md) for source installs and server
 options. The client URL points to this process, not a hosted FoMo API.
 
 ## Install
@@ -347,8 +347,7 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. `quantiles` contains columns such as
-`sales_0.1`, `sales_0.5`, and `sales_0.9`.
+`predictions` remains the point forecast. `timesfm-2.5` currently names quantile columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`.
 
 ## Handle errors
 

@@ -38,6 +38,26 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
 
 CLI flags, `Server`, and `server.app`: [From source](source.md).
 
+**Load a different family**
+
+The commands above load `hub` ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md), read the extra and image tag listed with its family, then install that extra and name the id in `--load-models`. `moirai-2` sits in the `moirai` extra:
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server --extra moirai
+    uv run fomo serve --load-models moirai-2
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server,moirai]"
+    fomo serve --load-models moirai-2
+    ```
+
+In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same id, as in [Choose which models to load](docker.md#choose-which-models-to-load).
+
 Once the process is up, the terminal prints the URLs:
 
 - Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)

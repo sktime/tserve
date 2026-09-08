@@ -8,7 +8,7 @@ Images ship Python, the FoMo package, and one set of model dependencies. The tag
 docker pull geetu040/fomo:hub
 ```
 
-`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags (`chronos`, `granite`, `kronos`, `moirai`, `tirex`, `toto`, `mantis`) each add one more stack, `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
+`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`) include Hub plus one more stack. `kronos` sits on `base`, not `hub`. `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
 
 Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
 
@@ -32,9 +32,21 @@ The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:
 
 ## Choose which models to load
 
-Ids must belong to the families baked into the tag: `chronos-bolt-tiny` and `timesfm-2.5` need `:hub` or `:full`, while `chronos-2` needs `:chronos`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
+Ids must belong to the families baked into the tag. `chronos-bolt-tiny` and `timesfm-2.5` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
 
-`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 100 supported models are on the [catalog](../models/index.md).
+`:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
+
+```bash
+docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+```
+
+When the ids span more than one family, `:full` is the tag that carries all of them:
+
+```bash
+docker run --rm -p 8000:8000 geetu040/fomo:full --load-models moirai-2 tirex
+```
+
+`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 106 supported models are on the [catalog](../models/index.md).
 
 ## Hugging Face token
 
