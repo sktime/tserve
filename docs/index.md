@@ -63,26 +63,37 @@ A request is a table plus the roles of its columns:
 - `fh` — how many steps ahead
 - `model` — an id this process loaded (`chronos-bolt-tiny` here; `ttm-r3-512-30` and `naive` are also loaded above)
 
-Five days of sales, three days ahead. Save the body as `request.json`:
+Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on Windows so PowerShell does not use `Invoke-WebRequest`).
 
-```json
-{
-  "past": {
-    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
-    "sales": [120, 135, 128, 142, 138]
-  },
-  "time": "timestamp",
-  "target": ["sales"],
-  "fh": 3,
-  "model": "chronos-bolt-tiny"
-}
-```
+=== "bash / zsh"
 
-Then post the file. Reading the body from a file keeps this one line on every shell — inline JSON needs different quoting in `bash`, PowerShell, and `cmd`:
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
-```bash
-curl -s -X POST http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d @request.json
-```
+=== "PowerShell"
+
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
 Three predicted days come back, plus the id that served them:
 
