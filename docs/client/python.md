@@ -186,7 +186,11 @@ past["timestamp"] = past["timestamp"].astype(str)
 
 with Client("http://127.0.0.1:8000") as client:
     result = client.forecast(
-        past=past, time="timestamp", target=["passengers"], fh=3, model="chronos-bolt-tiny"
+        past=past,
+        time="timestamp",
+        target=["passengers"],
+        fh=3,
+        model="chronos-bolt-tiny",
     )
     print(result.predictions)
 ```
