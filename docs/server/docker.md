@@ -110,6 +110,15 @@ The dashboard is part of the app, so there is nothing extra to enable; the `-p` 
 
 ## Build an image yourself
 
+The build context is the repository, so start from a clone:
+
+```bash
+git clone https://github.com/sktime/fomo.git
+cd fomo
+```
+
+### One image with `docker build`
+
 The [Dockerfile](https://github.com/sktime/fomo/blob/main/Dockerfile) always installs `--extra server --extra sktime`; `FOMO_EXTRAS` adds the heavier ones:
 
 ```bash
@@ -122,10 +131,46 @@ Several extras go in one quoted argument:
 docker build --build-arg FOMO_EXTRAS="chronos gpu" -t fomo:chronos-gpu .
 ```
 
-`docker-bake.hcl` holds the published matrix — one target per tag, plus `cpu` and `gpu` groups. `FOMO_IMAGE` sets the image name:
+This builds for the architecture of the machine you are on and leaves the image in the local store, which is all you need to run it locally:
+
+```bash
+docker run --rm -p 8000:8000 fomo:hub --load-models chronos-bolt
+```
+
+### Set up buildx
+
+The published tags are multi-platform (`linux/amd64` and `linux/arm64`), and the matrix that produces them is driven by [Buildx](https://docs.docker.com/build/), Docker's extended build client. Reproducing those images needs it; a plain `docker build` cannot emit more than one architecture.
+
+Buildx ships with Docker Desktop and with the `docker-buildx-plugin` package on Docker Engine. Check that it is there:
+
+```bash
+docker buildx version
+```
+
+If the command is missing, follow the [Buildx installation guide](https://github.com/docker/buildx#installing). Two more one-time steps per machine: register QEMU emulators so a foreign architecture can be built at all, and create a `docker-container` builder, since the default `docker` driver builds one platform at a time.
+
+```bash
+docker run --privileged --rm tonistiigi/binfmt --install all
+docker buildx create --name fomo --driver docker-container --bootstrap --use
+```
+
+`--use` makes it the active builder; `docker buildx ls` shows the builders you have and `docker buildx use default` switches back. Background on the drivers and on cross-architecture builds is in the Docker docs on [builders](https://docs.docker.com/build/builders/) and [multi-platform builds](https://docs.docker.com/build/building/multi-platform/).
+
+### The published matrix with `docker buildx bake`
+
+[`docker-bake.hcl`](https://github.com/sktime/fomo/blob/main/docker-bake.hcl) holds the published matrix — one target per tag (`base`, `hub`, the family tags, `full`, and every `*-gpu` variant), plus `cpu` and `gpu` groups that build all of them. `FOMO_IMAGE` sets the image name and defaults to `sktime/fomo`.
+
+Bake targets are multi-platform by default, and a multi-platform result cannot land in the local image store, so it has to be pushed to a registry:
+
+```bash
+FOMO_IMAGE=local/fomo docker buildx bake --push hub
+FOMO_IMAGE=local/fomo docker buildx bake --push cpu
+```
+
+To keep an image on the machine instead, pin a single platform and `--load` it:
 
 ```bash
 FOMO_IMAGE=local/fomo docker buildx bake --set hub.platform=linux/amd64 --load hub
 ```
 
-Bake targets are multi-platform by default, so a plain `docker buildx bake hub` needs a container builder (and `--push`, since multi-platform results cannot land in the local image store). Details are in [Development](../reference/development.md#docker-images).
+Release builds and the rest of the contributor workflow are in [Development](../reference/development.md#docker-images).

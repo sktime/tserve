@@ -85,7 +85,8 @@ FOMO_IMAGE=local/fomo docker buildx bake --set hub.platform=linux/amd64 --load h
 
 Targets are `linux/amd64` plus `linux/arm64`, so a plain multi-platform bake
 needs a container builder and `--push`; pin one platform to `--load` into the
-local image store instead. Building single images by hand is on
+local image store instead. Setting that builder up once per machine, and
+building single images by hand, is on
 [Docker](../server/docker.md#build-an-image-yourself).
 
 ## Layout
