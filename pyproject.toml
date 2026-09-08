@@ -38,7 +38,10 @@ server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
-sktime = ["sktime", "skpro"]
+sktime = [
+  "sktime @ git+https://github.com/sktime/sktime.git@80d868d398b62858bd46248b02eb256cdce41d45",
+  "skpro",
+]
 # estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
 hf = [
   "fomo[sktime]",
@@ -132,6 +135,10 @@ default = true
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
+
+[tool.hatch.metadata]
+# PEP 508 Git URLs in extras (sktime pin) are otherwise rejected by hatchling
+allow-direct-references = true
 
 [tool.hatch.build]
 # repo .gitignore has `*.html`; hatchling would drop the dashboard from

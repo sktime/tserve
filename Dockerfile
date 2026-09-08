@@ -2,7 +2,7 @@ FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .
@@ -17,5 +17,5 @@ RUN extras="" \
  && uv sync --no-dev --extra server --extra sktime $extras
 
 EXPOSE 8000
-ENTRYPOINT ["uv", "run", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uv", "run", "--no-sync", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
 CMD ["--load-models", "naive"]
