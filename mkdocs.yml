@@ -37,10 +37,10 @@ theme:
     - content.tabs.link
     - navigation.expand
     - navigation.footer
-    - navigation.indexes
     - navigation.instant
     - navigation.sections
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
     - search.highlight
@@ -111,17 +111,22 @@ validation:
   anchors: warn
 
 nav:
-  - Home: index.md
-  - Overview: overview.md
-  - Server: walkthrough/server.md
-  - Models: walkthrough/models.md
-  - HTTP: walkthrough/http.md
-  - Python: walkthrough/python.md
-  - Dashboard: walkthrough/dashboard.md
-  - Docker: walkthrough/docker.md
+  - Home:
+      - Getting started: index.md
+      - Overview: overview.md
+  - Server:
+      - Install and serve: server/index.md
+      - Docker: server/docker.md
+      - Dashboard: server/dashboard.md
+  - Models:
+      - Load models: models/index.md
+      - Catalog: models/catalog.md
+  - Client:
+      - HTTP: client/http.md
+      - Python: client/python.md
   - Reference:
       - HTTP API: reference/http.md
       - CLI: reference/cli.md
       - Python API: reference/api.md
       - Errors: reference/errors.md
-      - Development: walkthrough/development.md
+      - Development: reference/development.md
