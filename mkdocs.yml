@@ -11,6 +11,7 @@ copyright: Copyright &copy; FoMo authors
 
 theme:
   name: material
+  logo: assets/favicon.svg
   favicon: assets/favicon.svg
   palette:
     - media: "(prefers-color-scheme)"
@@ -35,7 +36,6 @@ theme:
     text: Roboto
     code: Roboto Mono
   icon:
-    logo: material/chart-timeline-variant-shimmer
     repo: fontawesome/brands/github
     edit: material/pencil
     view: material/eye
