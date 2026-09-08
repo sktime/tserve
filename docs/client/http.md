@@ -2,11 +2,11 @@
 
 JSON `POST /forecast` is the language-agnostic path. The [Python client](python.md) does **not** post JSON; it posts Arrow to `/forecast/bytes`. The request fields are the same either way.
 
-The server must already be running with the `model` id loaded. See [Server](server.md).
+The server must already be running with the `model` id loaded. See [Server](../server/index.md).
 
 | method | path | |
 | --- | --- | --- |
-| `GET` | `/` | [dashboard](dashboard.md) |
+| `GET` | `/` | [dashboard](../server/dashboard.md) |
 | `GET` | `/health` | liveness, not “models are warm” |
 | `GET` | `/models` | loaded ids + executor + source |
 | `GET` | `/stats` | uptime, RSS, per-model load/warmup/latency |
@@ -34,7 +34,7 @@ curl -s http://127.0.0.1:8000/health
 
 ## `GET /models`
 
-Loaded ids only — not the [registry catalog](models.md).
+Loaded ids only — not the [registry catalog](../models/catalog.md).
 
 ```bash
 curl -s http://127.0.0.1:8000/models
@@ -54,7 +54,7 @@ curl -s http://127.0.0.1:8000/stats
 
 ## `GET /`
 
-Browser [dashboard](dashboard.md) (`text/html`). Static assets under `/static`.
+Browser [dashboard](../server/dashboard.md) (`text/html`). Static assets under `/static`.
 
 ```bash
 curl -s -D - -o /dev/null http://127.0.0.1:8000/

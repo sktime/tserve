@@ -146,4 +146,4 @@ Startup logs print the bind URLs. Default bind is [http://127.0.0.1:8000](http:/
 curl -s http://127.0.0.1:8000/models
 ```
 
-Then [load more models](models.md) or [send a forecast](http.md).
+Then [load more models](../models/index.md) or [send a forecast](../client/http.md).

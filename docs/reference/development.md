@@ -49,7 +49,7 @@ FOMO_IMAGE=geetu040/fomo docker buildx bake --push hub
 FOMO_IMAGE=fomo docker buildx bake --set base.platform=linux/amd64 --load base
 ```
 
-See [Docker](docker.md#build-from-this-repo).
+See [Docker](../server/docker.md#build-from-this-repo).
 
 ## Layout
 

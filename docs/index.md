@@ -1,8 +1,8 @@
-# FoMo
+# Getting started
 
 FoMo is a time-series foundation-model inference server. Load selected models once, keep them warm, and forecast over HTTP or the Python client. It is not a training library.
 
-Nothing is loaded by default. A bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models`. `GET /models` lists only what this process loaded, not the full [catalog](walkthrough/models.md).
+Nothing is loaded by default. A bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models`. `GET /models` lists only what this process loaded, not the full [catalog](models/catalog.md).
 
 Images are split by model family so you do not pull every estimator extra. The image `CMD` loads `naive` if you pass no extra arguments. That is an image default, not the Python default.
 
@@ -12,9 +12,9 @@ Images are split by model family so you do not pull every estimator extra. The i
 | [`geetu040/fomo:hub`](https://hub.docker.com/r/geetu040/fomo) | `base` + TTM + TimesFM 2.x + Chronos Bolt/T5 |
 | [`geetu040/fomo:full`](https://hub.docker.com/r/geetu040/fomo) | every family in the catalog |
 
-Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants are listed on the [Docker](walkthrough/docker.md) page.
+Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants are listed on the [Docker](server/docker.md) page.
 
-# Quick start
+## Quick start
 
 **Start the server**
 
@@ -24,7 +24,7 @@ Pull the `hub` image and load a handful of registry ids:
 docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
 ```
 
-Or clone the repo and start from source. Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](walkthrough/server.md#dependencies) for Hub models.
+Or clone the repo and start from source. Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
 
 === "uv"
 
@@ -52,7 +52,7 @@ Once the process is up, the terminal prints the URLs:
 
 There is no hosted FoMo API. Every URL is the process you started.
 
-**Forecast**
+## Forecast
 
 `POST /forecast` (a GET returns HTTP 405). `past` is a **table**: one row per timestamp, with a time column and one or more target columns — not a 1-d vector and not a pandas index.
 
@@ -102,4 +102,4 @@ client.close()
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
 
-Next: [Overview](overview.md) for how the pieces fit, then [server](walkthrough/server.md), [models](walkthrough/models.md), [HTTP](walkthrough/http.md), and [Python](walkthrough/python.md).
+Next: [Overview](overview.md) for how the pieces fit, then [server](server/index.md), [models](models/index.md), [HTTP](client/http.md), and [Python](client/python.md).

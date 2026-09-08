@@ -89,7 +89,7 @@ docker build --build-arg FOMO_EXTRAS=hub -t fomo:hub .
 docker build --build-arg FOMO_EXTRAS="hub gpu" -t fomo:hub-gpu .
 ```
 
-`FOMO_EXTRAS` is a space-separated list of extras, forwarded as `uv sync --extra …`. Same extras as [server dependencies](server.md#dependencies).
+`FOMO_EXTRAS` is a space-separated list of extras, forwarded as `uv sync --extra …`. Same extras as [server dependencies](index.md#dependencies).
 
 Push the published namespace (default bake image is `sktime/fomo`; override to match Docker Hub):
 
@@ -125,7 +125,7 @@ docker run --rm -p 8000:8000 my-fomo:custom --load-models naive chronos-bolt-tin
 
 ## Sidecar
 
-Run FoMo next to an app that only needs the [Python client](python.md) extra:
+Run FoMo next to an app that only needs the [Python client](../client/python.md) extra:
 
 ```bash
 docker run --rm --name fomo -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30

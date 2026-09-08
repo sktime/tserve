@@ -51,7 +51,7 @@ Default timeout is 60s. Hub models can need longer — pass `timeout=` as above.
 
 Same fields as [HTTP request fields](http.md#request-fields). **Whatever you pass as `past` is what `predictions` / `quantiles` come back as.**
 
-Examples below use `chronos-bolt-tiny`, matching the [server](server.md) walkthrough (`--load-models naive chronos-bolt-tiny ttm-r3-512-30`). Swap `model` for any other loaded id.
+Examples below use `chronos-bolt-tiny`, matching the [server](../server/index.md) walkthrough (`--load-models naive chronos-bolt-tiny ttm-r3-512-30`). Swap `model` for any other loaded id.
 
 ```python
 from fomo.client import Client

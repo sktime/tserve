@@ -14,15 +14,15 @@ Walk top to bottom. Three seams:
 
 | you want | where |
 | --- | --- |
-| Browser console | [Dashboard](walkthrough/dashboard.md) at `GET /` |
-| JSON forecasts | `POST /forecast` — [HTTP](walkthrough/http.md) |
-| Python forecasts | [`Client`][fomo.client.client.Client] — [Python](walkthrough/python.md) |
+| Browser console | [Dashboard](server/dashboard.md) at `GET /` |
+| JSON forecasts | `POST /forecast` — [HTTP](client/http.md) |
+| Python forecasts | [`Client`][fomo.client.client.Client] — [Python](client/python.md) |
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded ids | `GET /models` |
 
-The [registry](walkthrough/models.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id.
+The [catalog](models/catalog.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id. See [Load models](models/index.md).
 
-Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](walkthrough/docker.md).
+Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md).
 
 ## Request shape
 
@@ -37,12 +37,12 @@ A forecast is tables plus column roles, not a 1-d `y` vector. The same fields go
 | `future`, `static` | optional covariate tables |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |
 
-Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see [data format](walkthrough/http.md#data-format). Time must be a **column**. A pandas `DatetimeIndex` or an sktime Series is not enough; call `reset_index()` first.
+Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see [data format](client/http.md#data-format). Time must be a **column**. A pandas `DatetimeIndex` or an sktime Series is not enough; call `reset_index()` first.
 
 Panel (multi-series) and hierarchical input are not supported.
 
 ## Next
 
-1. [Start a server](walkthrough/server.md) (including [dependencies](walkthrough/server.md#dependencies))
-2. [Load models](walkthrough/models.md)
-3. [Send forecasts](walkthrough/http.md) over HTTP or from [Python](walkthrough/python.md)
+1. [Start a server](server/index.md) (including [dependencies](server/index.md#dependencies))
+2. [Load models](models/index.md)
+3. [Send forecasts](client/http.md) over HTTP or from [Python](client/python.md)

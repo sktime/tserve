@@ -2,7 +2,7 @@
 
 The running server serves a browser console at `GET /`. It talks only to the JSON endpoints (`/health`, `/models`, `/stats`, `POST /forecast`). It does not use `/forecast/bytes`.
 
-Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](server.md). The process prints this URL on startup.
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](index.md). The process prints this URL on startup.
 
 ## What you can do
 

@@ -2,9 +2,13 @@
 
 `fomo` has one subcommand, `serve`. It constructs [`Server`][fomo.server.serve.Server] and calls `run`. Returns `0` on a normal exit and on `KeyboardInterrupt`.
 
+## Usage
+
 ```bash
 fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 --port 8000 --log-level info
 ```
+
+## Flags
 
 | flag | default | |
 | --- | --- | --- |
@@ -20,4 +24,4 @@ fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 
 fomo serve --help
 ```
 
-Walkthrough: [Server](../walkthrough/server.md).
+Walkthrough: [Server](../server/index.md).
