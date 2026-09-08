@@ -20,11 +20,11 @@ signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The examples use `chronos-bolt-tiny` for point forecasts and `timesfm-2.5`
+The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
 for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -98,7 +98,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)
@@ -146,7 +146,7 @@ examples send the same data in four native formats.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # pandas.DataFrame
@@ -177,7 +177,7 @@ examples send the same data in four native formats.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # polars.DataFrame
@@ -208,7 +208,7 @@ examples send the same data in four native formats.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # pyarrow.Table
@@ -237,7 +237,7 @@ examples send the same data in four native formats.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt-tiny",
+            model="chronos-bolt",
         )
 
     print(type(result.predictions))  # narwhals.DataFrame
@@ -265,7 +265,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["passengers"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)

@@ -171,7 +171,7 @@ You may omit `time` and `target`:
     "sales": [120, 135, 128]
   },
   "fh": 3,
-  "model": "chronos-bolt-tiny"
+  "model": "chronos-bolt"
 }
 ```
 
@@ -257,7 +257,7 @@ Every successful forecast returns:
     "sales": [139.96]
   },
   "quantiles": null,
-  "model": "chronos-bolt-tiny",
+  "model": "chronos-bolt",
   "request_id": "…"
 }
 ```

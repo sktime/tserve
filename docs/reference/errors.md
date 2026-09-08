@@ -19,7 +19,7 @@ field errors. **400** is the handler wrapping everything after that:
 ```json
 {
   "detail": {
-    "error": "model 'chronos-2' is not loaded on this server (loaded: 'chronos-bolt-tiny', 'timesfm-2.5')",
+    "error": "model 'chronos-2' is not loaded on this server (loaded: 'chronos-bolt', 'timesfm-2.5')",
     "code": "request_failed",
     "request_id": "…"
   }

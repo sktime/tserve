@@ -23,11 +23,11 @@ links.
 
 ## Start a server
 
-The examples use `chronos-bolt-tiny` for point forecasts and `timesfm-2.5`
+The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
 for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -50,7 +50,7 @@ asks for the next three:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
@@ -65,7 +65,7 @@ asks for the next three:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
@@ -82,7 +82,7 @@ asks for the next three:
     "sales": [139.96, 138.93, 138.26]
   },
   "quantiles": null,
-  "model": "chronos-bolt-tiny",
+  "model": "chronos-bolt",
   "request_id": "…"
 }
 ```
@@ -109,7 +109,7 @@ so FoMo uses the first column as time and the other column as the target:
         ]
       },
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
@@ -128,7 +128,7 @@ so FoMo uses the first column as time and the other column as the target:
         ]
       },
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 

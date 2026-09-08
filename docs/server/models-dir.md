@@ -33,29 +33,29 @@ Point `--models-dir` at the directory, then name the file stems in `--load-model
 === "uv"
 
     ```bash
-    uv run fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt-tiny
+    uv run fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt-tiny
+    fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt
     ```
 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 chronos-bolt-tiny
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 chronos-bolt
 ```
 
-Either way `custom-model-1` is served from the zip and `chronos-bolt-tiny`
+Either way `custom-model-1` is served from the zip and `chronos-bolt`
 from the registry, and `GET /models` labels them apart:
 
 ```json
 {
   "models": [
     {"id": "custom-model-1", "executor": "sktime", "source": "directory"},
-    {"id": "chronos-bolt-tiny", "executor": "sktime", "source": "registry"}
+    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]
 }
 ```
@@ -77,7 +77,7 @@ from fomo.server import Server
 
 Server(
     models_dir="my-models",
-    load_models=["custom-model-1", "chronos-bolt-tiny"],
+    load_models=["custom-model-1", "chronos-bolt"],
     host="127.0.0.1",
     port=8000,
 ).run()

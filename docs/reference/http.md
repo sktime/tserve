@@ -86,7 +86,7 @@ is unused.
 ```json
 {
   "models": [
-    {"id": "chronos-bolt-tiny", "executor": "sktime", "source": "registry"}
+    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]
 }
 ```
@@ -101,7 +101,7 @@ estimator). `executor` is the plugin that loaded it, today always `sktime`.
   "uptime_s": 3600.5,
   "memory": {"cpu_rss_mb": 512.25, "gpu_mb": 1024.0},
   "models": {
-    "chronos-bolt-tiny": {
+    "chronos-bolt": {
       "executor": "sktime",
       "load_s": 1.24,
       "warmup_s": 0.31,

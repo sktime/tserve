@@ -12,10 +12,10 @@ FoMo is not a hosted API. The URL points to a server process you started.
 ## Start a server
 
 For the examples in this section, start the `hub` image with
-`chronos-bolt-tiny` and `timesfm-2.5` loaded:
+`chronos-bolt` and `timesfm-2.5` loaded:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 The first start downloads model weights. See [Server](../server/index.md)
@@ -55,7 +55,7 @@ client also accepts pandas, polars, pyarrow, and Narwhals tables. See
 
 ## First forecast
 
-This request sends five days of sales and asks `chronos-bolt-tiny` for the next
+This request sends five days of sales and asks `chronos-bolt` for the next
 three days:
 
 === "bash / zsh"
@@ -69,7 +69,7 @@ three days:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
@@ -84,7 +84,7 @@ three days:
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt-tiny"
+      "model": "chronos-bolt"
     }'
     ```
 
