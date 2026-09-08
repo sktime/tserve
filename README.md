@@ -19,7 +19,7 @@ The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
 TimesFM 2.x. This command loads two registry ids:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
@@ -46,7 +46,7 @@ PowerShell.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 uv sync --extra server --extra hub
-uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+uv run fomo serve --load-models chronos-bolt timesfm-2.5
 ```
 
 **pip**
@@ -55,7 +55,7 @@ uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
-fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+fomo serve --load-models chronos-bolt timesfm-2.5
 ```
 
 The `server` extra alone is enough for `naive`. Do not install `client` on a
@@ -81,13 +81,13 @@ limitations.
 
 ### curl
 
-This sends five days of sales and asks `chronos-bolt-tiny` for the next three.
+This sends five days of sales and asks `chronos-bolt` for the next three.
 The JSON after `-d` stays on one line for copy-paste reliability.
 
 **macOS / Linux**
 
 ```bash
-curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt-tiny"}'
+curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
 **Windows PowerShell**
@@ -95,7 +95,7 @@ curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
 Use `curl.exe` so PowerShell does not substitute `Invoke-WebRequest`.
 
 ```powershell
-curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt-tiny"}'
+curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
 ```
 
 `POST /forecast` returns column-oriented JSON containing `predictions`,
@@ -139,7 +139,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt-tiny",
+        model="chronos-bolt",
     )
 
 print(result.predictions)
@@ -178,7 +178,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt timesfm-2.5
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -186,13 +186,13 @@ it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use
 `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt-tiny
+docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 The [Docker guide](https://fomo.readthedocs.io/en/latest/server/docker/) covers
