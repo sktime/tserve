@@ -1,6 +1,7 @@
 site_name: FoMo
 site_description: Time series foundation model inference server
 site_url: https://fomo.readthedocs.io
+site_author: FoMo authors
 
 repo_name: sktime/fomo
 repo_url: https://github.com/sktime/fomo
@@ -10,42 +11,70 @@ copyright: Copyright &copy; FoMo authors
 
 theme:
   name: material
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
-        icon: material/brightness-auto
+        icon: material/link
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: indigo
       accent: indigo
       toggle:
-        icon: material/brightness-7
+        icon: material/toggle-switch
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
-        icon: material/brightness-4
+        icon: material/toggle-switch-off
         name: Switch to system preference
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
   features:
     - content.action.edit
     - content.action.view
     - content.code.annotate
     - content.code.copy
     - content.tabs.link
-    - navigation.expand
+    - content.tooltips
     - navigation.footer
+    - navigation.indexes
     - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - navigation.sections
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
     - search.highlight
+    - search.share
     - search.suggest
     - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sktime/fomo
+      name: FoMo on GitHub
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/geetu040/fomo
+      name: FoMo images on Docker Hub
+    - icon: material/bug
+      link: https://github.com/sktime/fomo/issues
+      name: Report an issue
 
 plugins:
   - search
@@ -79,8 +108,10 @@ plugins:
 watch:
   - src
   - docs
+  - includes
 
 markdown_extensions:
+  - abbr
   - admonition
   - attr_list
   - def_list
@@ -89,6 +120,8 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+  - pymdownx.betterem
+  - pymdownx.caret
   - pymdownx.details
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
@@ -98,9 +131,22 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.superfences
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - pymdownx.tasklist:
       custom_checkbox: true
 

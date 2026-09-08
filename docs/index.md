@@ -1,4 +1,15 @@
-# Getting started
+<div class="fomo-hero" markdown>
+
+# FoMo
+
+Time-series foundation models behind one HTTP server. Load the models you name,
+keep them warm, and forecast from `curl` or Python.
+{ .fomo-hero__tagline }
+
+[Quick start](#quick-start){ .md-button .md-button--primary }
+[How it fits together](overview.md){ .md-button }
+
+</div>
 
 FoMo is a time-series foundation-model inference server. Load selected models once, keep them warm, and forecast over HTTP or the Python client. It is not a training library.
 
@@ -102,4 +113,40 @@ client.close()
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
 
-Next: [Overview](overview.md) for how the pieces fit, then [server](server/index.md), [models](models/index.md), [HTTP](client/http.md), and [Python](client/python.md).
+## Where to next
+
+<div class="grid cards" markdown>
+
+-   :material-map-outline:{ .lg .middle } **Overview**
+
+    ---
+
+    How transports, canonical frames, and executors fit together.
+
+    [:octicons-arrow-right-24: Architecture](overview.md)
+
+-   :material-server:{ .lg .middle } **Run a server**
+
+    ---
+
+    Install extras, pick a Docker tag, and check the flags.
+
+    [:octicons-arrow-right-24: Install and serve](server/index.md)
+
+-   :material-cube-outline:{ .lg .middle } **Load models**
+
+    ---
+
+    Which registry ids exist and which extra each one needs.
+
+    [:octicons-arrow-right-24: Models](models/index.md)
+
+-   :material-api:{ .lg .middle } **Send forecasts**
+
+    ---
+
+    Request and response shapes over JSON, or the Python client.
+
+    [:octicons-arrow-right-24: HTTP](client/http.md) or [Python](client/python.md)
+
+</div>
