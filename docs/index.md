@@ -56,13 +56,35 @@ There is no hosted FoMo API. Every URL is the process you started.
 
 ## Forecast
 
-`POST /forecast` (a GET returns HTTP 405). `past` is a **table**: one row per timestamp, with a time column and one or more target columns — not a 1-d vector and not a pandas index.
+A request is a table plus the roles of its columns:
 
-`"model"` must be one of the ids this process loaded (`chronos-bolt-tiny` below; `ttm-r3-512-30` and `naive` also work).
+- `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
+- `time`, `target` — which column holds timestamps, and which ones to forecast
+- `fh` — how many steps ahead
+- `model` — an id this process loaded (`chronos-bolt-tiny` here; `ttm-r3-512-30` and `naive` are also loaded above)
+
+Five days of sales, three days ahead. Save the body as `request.json`:
+
+```json
+{
+  "past": {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138]
+  },
+  "time": "timestamp",
+  "target": ["sales"],
+  "fh": 3,
+  "model": "chronos-bolt-tiny"
+}
+```
+
+Then post the file. Reading the body from a file keeps this one line on every shell — inline JSON needs different quoting in `bash`, PowerShell, and `cmd`:
 
 ```bash
-curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'
+curl -s -X POST http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d @request.json
 ```
+
+Three predicted days come back, plus the id that served them:
 
 ```json
 {
@@ -76,7 +98,9 @@ curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{
 }
 ```
 
-Or the Python client (Arrow on the wire, your table type back). Install the `client` extra:
+### From Python
+
+The client takes the same fields as keywords and sends Arrow instead of JSON. Install the `client` extra:
 
 === "uv"
 
@@ -93,28 +117,26 @@ Or the Python client (Arrow on the wire, your table type back). Install the `cli
 ```python
 from fomo.client import Client
 
-client = Client("http://127.0.0.1:8000")
-result = client.forecast(
-    past={
-        "timestamp": [
-            "2024-01-01",
-            "2024-01-02",
-            "2024-01-03",
-            "2024-01-04",
-            "2024-01-05",
-        ],
-        "sales": [120, 135, 128, 142, 138],
-    },
-    time="timestamp",
-    target=["sales"],
-    fh=3,
-    model="chronos-bolt-tiny",
-)
+past = {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138],
+}
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        past=past,
+        time="timestamp",
+        target=["sales"],
+        fh=3,
+        model="chronos-bolt-tiny",
+    )
+
 print(result.predictions)
-client.close()
 # {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
+
+`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md).
 
 ## Where to next
 
