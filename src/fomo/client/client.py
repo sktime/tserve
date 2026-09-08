@@ -28,8 +28,8 @@ from fomo.types.converters import (
 class Client:
     """Call a FoMo inference server from Python.
 
-    Same fields as JSON ``POST /forecast``. Use as a context manager so
-    the HTTP session is closed.
+    The client connects to a local FoMo server. Use it as a context
+    manager so the HTTP session is closed.
 
     Parameters
     ----------
@@ -52,6 +52,15 @@ class Client:
     ...         fh=3,
     ...         model="naive",
     ...     )
+
+    See Also
+    --------
+    [Python client](../client/python.md)
+        Install, connect, forecast, and use native table types.
+    [Install and serve](../server/index.md)
+        Start the local server this client calls.
+    [HTTP API](../client/http.md)
+        Send the same forecast fields as JSON instead of Arrow.
     """
 
     def __init__(
@@ -112,6 +121,20 @@ class Client:
             If the request shape or columns are invalid.
         RuntimeError
             If the server returns HTTP >= 400.
+
+        Notes
+        -----
+        This method sends Arrow tables to ``POST /forecast/bytes``.
+        JSON clients use ``POST /forecast``.
+
+        See Also
+        --------
+        [Data specification](../client/data.md)
+            Table formats, column roles, inference, and response fields.
+        [Models catalog](../models/index.md)
+            Available model ids and their dependencies.
+        [Errors](../reference/errors.md)
+            Local validation, transport, and server failures.
         """
         request = ForecastRequest(
             past=past,
@@ -155,6 +178,11 @@ class Client:
         -------
         HealthResult
             Currently ``status='ok'``.
+
+        See Also
+        --------
+        [HTTP status routes](../reference/http.md#status-routes)
+            Route behavior and response examples.
         """
         return self._transport.health()
 
@@ -165,6 +193,13 @@ class Client:
         -------
         ModelsResult
             Each row has ``id``, ``executor``, and ``source``.
+
+        See Also
+        --------
+        [Models catalog](../models/index.md)
+            Model ids the server can load.
+        [HTTP status routes](../reference/http.md#status-routes)
+            Loaded-model response semantics.
         """
         return self._transport.models()
 
@@ -175,11 +210,24 @@ class Client:
         -------
         StatsResult
             Process and per-loaded-id metrics.
+
+        See Also
+        --------
+        [HTTP status routes](../reference/http.md#status-routes)
+            Stats response fields and example.
         """
         return self._transport.stats()
 
     def close(self) -> None:
-        """Close the HTTP session. Called automatically by ``with Client``."""
+        """Close the HTTP session.
+
+        Called automatically when a ``with Client(...)`` block exits.
+
+        See Also
+        --------
+        [Python client](../client/python.md#connect)
+            Context-manager usage.
+        """
         self._transport.close()
 
     def __enter__(self) -> Self:

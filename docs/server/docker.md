@@ -1,134 +1,131 @@
 # Docker
 
-Published images live at [`geetu040/fomo`](https://hub.docker.com/r/geetu040/fomo). Each tag is the same [`Dockerfile`](https://github.com/sktime/fomo/blob/main/Dockerfile) with a different `FOMO_EXTRAS` set. Tags are multi-arch (`linux/amd64` and `linux/arm64`) so Linux, macOS, and Windows Docker Desktop can pull them.
+Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process can load; the arguments decide which ids it actually loads.
 
-Both the CPU and GPU images use the same entrypoint: `fomo serve --host 0.0.0.0 --port 8000`. The image `CMD` is `--load-models naive`. Extra `docker run` arguments **replace** that `CMD`.
-
-| tag | extras | families it can load |
-| --- | --- | --- |
-| `base` | `server` + `sktime` | `NaiveForecaster` |
-| `hub` | `base` + `hub` | TTM, TimesFM 2.x, Chronos Bolt/T5 |
-| `chronos` | `hub` + `chronos` | Chronos-2 |
-| `granite` | `hub` + `granite` | FlowState |
-| `moirai` | `hub` + `moirai` | Moirai, Lag-Llama |
-| `tirex` | `hub` + `tirex` | TiRex |
-| `toto` | `hub` + `toto` | Toto-2 |
-| `mantis` | `hub` + `mantis` | Mantis |
-| `kronos` | `base` + `kronos` | Kronos, WindFM (not the `hub` stack) |
-| `full` | all family extras | every catalog family |
-| `hub-gpu`, `chronos-gpu`, …, `full-gpu` | same extras + `gpu` | same families, CUDA/MPS torch |
-
-There is no `base-gpu`. `kronos` does not include the `hub` extra.
-
-## Run a published image
-
-Hub models (CPU):
+## Pull an image
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
+docker pull geetu040/fomo:hub
 ```
 
-Baseline only (`:base` loads `naive` from the image `CMD`):
+`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`) include Hub plus one more stack. `kronos` sits on `base`, not `hub`. `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
+
+Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
+
+## Run the server
+
+The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so every [CLI](../reference/cli.md) flag works here: `--load-models`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line).
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:base
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-GPU (needs the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)):
+The image `CMD` is `--load-models naive`. Replacing it is how you pick ids; omitting arguments serves `naive` — that default belongs to the image, not to a bare `fomo serve`.
+
+Leave the container port at 8000 and remap the host side if that port is taken:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models naive chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 9000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny
 ```
 
-`:base` cannot load Hub ids — those need `:hub` or a family/`full` tag. Map the host port with `-p 8000:8000`. Inside the container the server already binds `0.0.0.0:8000`.
+The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (or `9000` in the example above). `docker run` without `--rm` keeps the stopped container around, which is worth it when you want `docker logs` after a crash.
 
-## Hugging Face token and cache
+## Choose which models to load
 
-First load of a Hub id downloads weights into the container. Unauthenticated Hub traffic is rate-limited; the process logs a warning if `HF_TOKEN` is unset. A read token is enough:
+Ids must belong to the families baked into the tag. `chronos-bolt-tiny` and `timesfm-2.5` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
+
+`:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
 ```
 
-Mount the host Hugging Face cache so checkpoints survive `docker run --rm`:
+When the ids span more than one family, `:full` is the tag that carries all of them:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 8000:8000 geetu040/fomo:full --load-models moirai-2 tirex
 ```
 
-## Mount a models directory
+`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 106 supported models are on the [catalog](../models/index.md).
 
-Saved sktime `.zip` files on the host can be loaded with `--models-dir` if you bind-mount the folder:
+## Hugging Face token
+
+Unauthenticated Hugging Face downloads are rate-limited. A read token avoids that; `-e HF_TOKEN` forwards the value from your own environment:
+
+=== "bash / zsh"
+
+    ```bash
+    export HF_TOKEN=hf_your_token
+    docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt-tiny
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    $env:HF_TOKEN = "hf_your_token"
+    docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt-tiny
+    ```
+
+## Keep weights between runs
+
+The container caches checkpoints in `/root/.cache/huggingface`, which disappears with the container. Mount your host cache so a restart reuses the download:
+
+=== "bash / zsh"
+
+    ```bash
+    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+    ```
+
+A named volume works too (`-v fomo-hf:/root/.cache/huggingface`) if you would rather not share the host cache.
+
+## GPU images
+
+The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They need an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host, and `--gpus all` on the command:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 custom-model-2
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-`$PWD/my-models` is the host directory; `/models` is the path inside the container. Only stems named in `--load-models` are loaded — the directory is not ingested wholesale. Mix zip stems with registry ids if you want both.
+That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md#gpu).
 
-## Build from this repo
+## Models from a directory
 
-[`docker-bake.hcl`](https://github.com/sktime/fomo/blob/main/docker-bake.hcl) is the build matrix. The Dockerfile always installs `server` and `sktime`. Bake adds family extras.
+Mount the directory and point `--models-dir` at the container path:
 
 ```bash
-git clone https://github.com/sktime/fomo.git && cd fomo
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 chronos-bolt-tiny
 ```
 
-Load a single tag into the local daemon (one platform):
+Only stems you also name in `--load-models` are loaded from disk — the rules are on [Models from a directory](models-dir.md).
+
+## Dashboard
+
+The dashboard is part of the app, so there is nothing extra to enable; the `-p` mapping is what makes it reachable. Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/), and see [Dashboard](dashboard.md) for what it can do.
+
+## Build an image yourself
+
+The [Dockerfile](https://github.com/sktime/fomo/blob/main/Dockerfile) always installs `--extra server --extra sktime`; `FOMO_EXTRAS` adds the heavier ones:
 
 ```bash
-FOMO_IMAGE=fomo docker buildx bake --set base.platform=linux/amd64 --load base
-docker run --rm -p 8000:8000 fomo:base
-```
-
-Or a plain `docker build` (same `FOMO_EXTRAS` knob):
-
-```bash
-docker build -t fomo:base .
 docker build --build-arg FOMO_EXTRAS=hub -t fomo:hub .
-docker build --build-arg FOMO_EXTRAS="hub gpu" -t fomo:hub-gpu .
 ```
 
-`FOMO_EXTRAS` is a space-separated list of extras, forwarded as `uv sync --extra …`. Same extras as [server dependencies](index.md#dependencies).
-
-Push the published namespace (default bake image is `sktime/fomo`; override to match Docker Hub):
+Several extras go in one quoted argument:
 
 ```bash
-FOMO_IMAGE=geetu040/fomo docker buildx bake --push hub
-FOMO_IMAGE=geetu040/fomo docker buildx bake --push cpu
-FOMO_IMAGE=geetu040/fomo docker buildx bake --push gpu
+docker build --build-arg FOMO_EXTRAS="chronos gpu" -t fomo:chronos-gpu .
 ```
 
-Groups: `default` → `base`; `cpu` → every CPU tag; `gpu` → every `*-gpu` tag.
-
-First time on a new machine, install binfmt and a buildx builder before a multi-arch bake:
+`docker-bake.hcl` holds the published matrix — one target per tag, plus `cpu` and `gpu` groups. `FOMO_IMAGE` sets the image name:
 
 ```bash
-docker run --privileged --rm tonistiigi/binfmt --install all
-docker buildx create --name fomo --driver docker-container --bootstrap --use
+FOMO_IMAGE=local/fomo docker buildx bake --set hub.platform=linux/amd64 --load hub
 ```
 
-## Custom image
-
-Add Python deps on top of a published image:
-
-```dockerfile
-FROM geetu040/fomo:hub
-
-RUN pip install my-package another-package
-```
-
-```bash
-docker build -t my-fomo:custom .
-docker run --rm -p 8000:8000 my-fomo:custom --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
-
-## Sidecar
-
-Run FoMo next to an app that only needs the [Python client](../client/python.md) extra:
-
-```bash
-docker run --rm --name fomo -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
-
-From another container on the same network, `Client("http://fomo:8000")` or `curl http://fomo:8000/forecast`.
+Bake targets are multi-platform by default, so a plain `docker buildx bake hub` needs a container builder (and `--push`, since multi-platform results cannot land in the local image store). Details are in [Development](../reference/development.md#docker-images).

@@ -78,6 +78,14 @@ def main(argv: list[str] | None = None) -> int:
     fomo.server.serve.Server
         Constructed from ``--load-models``, ``--models-dir``,
         ``--host``, ``--port``, and ``--log-level``.
+    [Install and serve](../server/index.md)
+        Install server and model-family dependencies.
+    [Models catalog](../models/index.md)
+        Registry ids accepted by ``--load-models``.
+    [Docker](../server/docker.md)
+        Container entrypoint and default ``--load-models naive`` CMD.
+    [Startup errors](../reference/errors.md#startup)
+        Failures that occur before uvicorn binds the port.
     """
     parser = _build_parser()
     args = parser.parse_args(argv)

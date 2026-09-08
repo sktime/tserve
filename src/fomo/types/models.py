@@ -70,6 +70,19 @@ class ForecastRequest(BaseModel):
         One-row static features, broadcast over time.
     quantiles : list of float, optional
         Quantile alphas, e.g. ``[0.1, 0.5, 0.9]``.
+
+    Notes
+    -----
+    ``past`` is a table, and ``time`` names one of its columns.
+
+    See Also
+    --------
+    [Data specification](../client/data.md)
+        Table formats, column roles, and inference rules.
+    [HTTP forecast route](../reference/http.md#post-forecast)
+        JSON request behavior and status codes.
+    [Python client](../client/python.md)
+        Arrow transport through ``Client.forecast``.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_REQUEST})
@@ -121,6 +134,15 @@ class ForecastResponse(BaseModel):
     quantiles : any, optional
         Quantile table when requested; column names are
         ``{variable}_{alpha}``.
+
+    See Also
+    --------
+    [Data specification](../client/data.md#response)
+        JSON and native-table response behavior.
+    [HTTP forecast route](../reference/http.md#post-forecast)
+        JSON response and failure statuses.
+    [Python client](../client/python.md#send-a-forecast)
+        Access the result returned by ``Client.forecast``.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": FORECAST_RESULT})
@@ -312,6 +334,13 @@ class HealthError(BaseModel):
         Machine-readable error code (example: ``MODEL_NOT_LOADED``).
     message : str
         Human-readable explanation.
+
+    See Also
+    --------
+    [Errors](../reference/errors.md)
+        HTTP statuses and Python exceptions.
+    [HTTP status routes](../reference/http.md#status-routes)
+        Current health-route behavior.
     """
 
     code: str
@@ -327,6 +356,11 @@ class HealthResult(BaseModel):
         Currently always ``"ok"``.
     error : HealthError or None
         Unused on the live route.
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Health semantics and response shape.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": HEALTH_OK})
@@ -346,6 +380,13 @@ class ModelInfo(BaseModel):
         Plugin that loaded the artifact.
     source : {"object", "registry", "directory"}
         Registry id, saved ``.zip``, or in-process estimator.
+
+    See Also
+    --------
+    [Models catalog](../models/index.md)
+        Registry ids the server can load.
+    [HTTP status routes](../reference/http.md#status-routes)
+        Loaded-model listing and source values.
     """
 
     id: str
@@ -360,6 +401,13 @@ class ModelsResult(BaseModel):
     ----------
     models : list of ModelInfo
         Currently loaded models. Empty if nothing was loaded.
+
+    See Also
+    --------
+    [Models catalog](../models/index.md)
+        Available registry ids; this result contains only loaded ids.
+    [HTTP status routes](../reference/http.md#status-routes)
+        ``GET /models`` response behavior.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": MODELS_RESULT})
@@ -377,6 +425,11 @@ class MemoryStats(BaseModel):
     gpu_mb : float or None
         CUDA memory allocated across devices in MiB, or ``None`` if
         torch/CUDA is unavailable.
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Full ``GET /stats`` response.
     """
 
     cpu_rss_mb: float | None = None
@@ -398,6 +451,11 @@ class LatencySummary(BaseModel):
         Minimum recorded duration, or ``None`` when ``count`` is 0.
     slowest : float or None
         Maximum recorded duration, or ``None`` when ``count`` is 0.
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Full ``GET /stats`` response.
     """
 
     count: int
@@ -418,6 +476,11 @@ class RequestCounts(BaseModel):
         Predict calls that returned without raising.
     failed : int
         Predict calls that raised (still counted in latency).
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Full ``GET /stats`` response.
     """
 
     total: int
@@ -442,6 +505,11 @@ class ModelStats(BaseModel):
         Success/failure counts from ``Scheduler.run``.
     latency_s : LatencySummary
         Predict-call wall times, including failed calls.
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Full ``GET /stats`` response.
     """
 
     executor: str | None = None
@@ -462,6 +530,11 @@ class StatsResult(BaseModel):
         RSS and GPU probes; fields may be ``None``.
     models : dict of str to ModelStats
         Per **loaded model id** load, warmup, and latency.
+
+    See Also
+    --------
+    [HTTP status routes](../reference/http.md#status-routes)
+        Stats semantics and response example.
     """
 
     model_config = ConfigDict(json_schema_extra={"example": STATS_RESULT})

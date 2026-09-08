@@ -1,77 +1,84 @@
 # HTTP
 
-JSON `POST /forecast` is the language-agnostic path. The [Python client](python.md) does **not** post JSON; it posts Arrow to `/forecast/bytes`. The request fields are the same either way.
+Send JSON to `POST /forecast` from any language. The request fields are the
+same as [`Client.forecast(...)`](python.md), but the Python client uses Arrow
+instead of this JSON route.
 
-The server must already be running with the `model` id loaded. See [Server](../server/index.md).
+## Endpoints
 
-| method | path | |
+| method | path | what it gives you |
 | --- | --- | --- |
-| `GET` | `/` | [dashboard](../server/dashboard.md) |
-| `GET` | `/health` | liveness, not “models are warm” |
-| `GET` | `/models` | loaded ids + executor + source |
-| `GET` | `/stats` | uptime, RSS, per-model load/warmup/latency |
-| `POST` | `/forecast` | JSON |
-| `POST` | `/forecast/bytes` | Arrow (`Client`) |
-| `GET` | `/docs` | Swagger |
-| `GET` | `/redoc` | ReDoc |
-| `GET` | `/openapi.json` | OpenAPI schema |
+| `POST` | `/forecast` | [JSON forecast](#send-a-forecast) |
+| `POST` | `/forecast/bytes` | [Arrow forecast](#arrow-endpoint), used by the Python client |
+| `GET` | `/health` | [process liveness](#inspect-the-server) |
+| `GET` | `/models` | [loaded model ids](#inspect-the-server) |
+| `GET` | `/stats` | [uptime, memory, per-model metrics](#inspect-the-server) |
+| `GET` | `/` | browser [dashboard](../server/dashboard.md) |
+| `GET` | `/docs`, `/redoc`, `/openapi.json` | live OpenAPI |
 
-`GET /forecast` is **405 Method Not Allowed**. The body must be a POST.
+Every route returns JSON except `/forecast/bytes`, which speaks Arrow, and
+`/`, which serves the dashboard. The
+[HTTP API reference](../reference/http.md) lists the same routes with schema
+links.
 
-Live UIs: dashboard `/`, Swagger `/docs`, ReDoc `/redoc`.
+## Start a server
 
-## `GET /health`
-
-Liveness of the process, not “models are warm”.
-
-```bash
-curl -s http://127.0.0.1:8000/health
-```
-
-```json
-{"status":"ok"}
-```
-
-## `GET /models`
-
-Loaded ids only — not the [registry catalog](../models/catalog.md).
+The examples use `chronos-bolt-tiny` for point forecasts and `timesfm-2.5`
+for quantiles:
 
 ```bash
-curl -s http://127.0.0.1:8000/models
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-```json
-{"models":[{"id":"naive","executor":"sktime","source":"registry"},{"id":"chronos-bolt-tiny","executor":"sktime","source":"registry"},{"id":"ttm-r3-512-30","executor":"sktime","source":"registry"}]}
-```
+See [Server](../server/index.md) for source installs and server
+options. The URLs below belong to this local process; FoMo does not provide a
+hosted API.
 
-## `GET /stats`
+## Send a forecast
 
-Uptime, memory probes, and per loaded-id load / warmup / latency.
+`past` is a table, not a 1-d vector. This example sends five days of sales and
+asks for the next three:
 
-```bash
-curl -s http://127.0.0.1:8000/stats
-```
+=== "bash / zsh"
 
-## `GET /`
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
-Browser [dashboard](../server/dashboard.md) (`text/html`). Static assets under `/static`.
+=== "PowerShell"
 
-```bash
-curl -s -D - -o /dev/null http://127.0.0.1:8000/
-```
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
-## `POST /forecast`
-
-JSON body. See [request fields](#request-fields) and [data format](#data-format).
-
-```bash
-curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'
-```
+`POST /forecast` returns a column-oriented JSON table:
 
 ```json
 {
   "predictions": {
-    "timestamp": ["2024-01-06T00:00:00", "2024-01-07T00:00:00", "2024-01-08T00:00:00"],
+    "timestamp": [
+      "2024-01-06T00:00:00",
+      "2024-01-07T00:00:00",
+      "2024-01-08T00:00:00"
+    ],
     "sales": [139.96, 138.93, 138.26]
   },
   "quantiles": null,
@@ -80,94 +87,132 @@ curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{
 }
 ```
 
-Swap `model` to any other loaded id (`ttm-r3-512-30`, `naive`, …).
+See [Data specification](data.md) for every request and response field.
 
-## `POST /forecast/bytes`
+## Use row-oriented JSON
 
-Arrow IPC inside a `FOMO` envelope (`application/vnd.fomo.forecast+arrow`). This is what [`Client`][fomo.client.client.Client] sends. You normally do not build the multipart body by hand.
+Tables can also use `columns` and `data`. Here `time` and `target` are omitted,
+so FoMo uses the first column as time and the other column as the target:
 
-## OpenAPI
+=== "bash / zsh"
 
-| method | path | |
-| --- | --- | --- |
-| `GET` | `/docs` | Swagger UI |
-| `GET` | `/redoc` | ReDoc |
-| `GET` | `/openapi.json` | OpenAPI schema |
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "columns": ["timestamp", "sales"],
+        "data": [
+          ["2024-01-01", 120],
+          ["2024-01-02", 135],
+          ["2024-01-03", 128],
+          ["2024-01-04", 142],
+          ["2024-01-05", 138]
+        ]
+      },
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
-```bash
-curl -s http://127.0.0.1:8000/openapi.json | head
-```
+=== "PowerShell"
 
-JSON validation failures are HTTP 422. Coerce or predict failures are HTTP 400 with `{ "detail": { "error", "code": "request_failed", "request_id" } }`. See [Errors](../reference/errors.md).
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "columns": ["timestamp", "sales"],
+        "data": [
+          ["2024-01-01", 120],
+          ["2024-01-02", 135],
+          ["2024-01-03", 128],
+          ["2024-01-04", 142],
+          ["2024-01-05", 138]
+        ]
+      },
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
 
-## Request fields
+The response is still column-oriented JSON. HTTP does not preserve the
+row-oriented request shape.
 
-Long tables plus roles, not a 1-d `y` vector. Same fields on JSON and `Client.forecast(...)`.
+## Request quantiles
 
-| field | |
-| --- | --- |
-| `past` | **required.** Historical observations as a table: one row per timestamp. Must include a time column and at least one numeric target column. This is not a Series and not “just the y values”. |
-| `fh` | **required.** Steps ahead (`> 0`) |
-| `time` | optional. Name of the timestamp column in `past`. Omitted → first column of `past` |
-| `target` | optional. Target column name(s). A string becomes a one-element list. Omitted → remaining `past` columns |
-| `model` | optional. Default `"naive"`; must already be loaded (`GET /models`) |
-| `future` | optional. Future timestamps (and extra columns; see [covariates](python.md#covariates)) |
-| `static` | optional. One row of static features, broadcast over time |
-| `quantiles` | optional. e.g. `[0.1, 0.5, 0.9]`; the estimator must implement `predict_quantiles` |
+Quantiles are a second result table. The estimator must support them, so this
+example uses the loaded `timesfm-2.5` model:
 
-Panel (`series_id`) and hierarchical frames are not supported. Time must be a column — if your pandas object uses a `DatetimeIndex`, call `reset_index()` first. See [Python](python.md#sktime-and-indexed-frames).
+=== "bash / zsh"
 
-## Data format
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
+        "sales": [120, 135, 128, 142, 150]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "timesfm-2.5",
+      "quantiles": [0.1, 0.5, 0.9]
+    }'
+    ```
 
-`past`, `future`, `static`, `predictions`, and `quantiles` accept any of these shapes. JSON typically uses a column dict or a row matrix.
+=== "PowerShell"
 
-**Column dict** (name → list of equal length) — used in the [POST](#post-forecast) example above.
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
+        "sales": [120, 135, 128, 142, 150]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "timesfm-2.5",
+      "quantiles": [0.1, 0.5, 0.9]
+    }'
+    ```
 
-**Row matrix:**
+`timesfm-2.5` currently names those columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`. See [Quantiles](data.md#quantiles) for the response shape and model limitation.
 
-```json
-{
-  "past": {
-    "columns": ["timestamp", "sales"],
-    "data": [
-      ["2024-01-01", 120],
-      ["2024-01-02", 135],
-      ["2024-01-03", 128],
-      ["2024-01-04", 142],
-      ["2024-01-05", 138]
-    ]
-  },
-  "time": "timestamp",
-  "target": ["sales"],
-  "fh": 3,
-  "model": "chronos-bolt-tiny"
-}
-```
+## Inspect the server
 
-You can omit `time` and `target` when the first column is time and the rest are targets.
+Use the JSON status routes to check the process and its loaded models:
 
-## Univariate forecast
+=== "bash / zsh"
 
-One target column. The curl example under [POST /forecast](#post-forecast) is the whole contract.
+    ```bash
+    curl -s http://127.0.0.1:8000/health
+    curl -s http://127.0.0.1:8000/models
+    curl -s http://127.0.0.1:8000/stats
+    ```
 
-`target` can be a list of several columns if the loaded estimator accepts multivariate `y`. Extra columns on `past` that are not `time` or `target` are ignored unless you omit `target` (then they become targets).
+=== "PowerShell"
 
-## Errors you will hit
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/health
+    curl.exe -s http://127.0.0.1:8000/models
+    curl.exe -s http://127.0.0.1:8000/stats
+    ```
 
-| status | meaning |
-| --- | --- |
-| **405** | `GET /forecast` — use POST |
-| **422** | body failed [`ForecastRequest`][fomo.types.models.ForecastRequest] (missing `past` / `fh`, `fh <= 0`, bad table shape) |
-| **400** | coerce or predict failed (id not loaded, missing columns, estimator error) |
+`GET /health` checks process liveness, not whether models are warm.
+`GET /models` lists loaded ids, not the registry [catalog](../models/index.md).
 
-A 400 for an unknown id looks like:
+Point a browser at `/` for the [dashboard](../server/dashboard.md) or `/docs`
+to try the endpoints from Swagger.
 
-```json
-{
-  "detail": {
-    "error": "model 'timesfm-2.5' is not loaded on this server (loaded: 'chronos-bolt-tiny', 'naive', 'ttm-r3-512-30')",
-    "code": "request_failed",
-    "request_id": "…"
-  }
-}
-```
+## Arrow endpoint
+
+`POST /forecast/bytes` accepts multipart metadata and Arrow IPC tables and
+returns a `FOMO` envelope with media type
+`application/vnd.fomo.forecast+arrow`. This is the route used by the
+[Python client](python.md); you normally do not construct its body yourself.
+
+## Errors
+
+Forecasting is POST-only. `GET /forecast` returns **405 Method Not Allowed**.
+Invalid JSON request shapes return **422**. Coercion and prediction failures,
+including an unloaded model id, return **400** with an error message and
+`request_id`.
+
+See [Errors](../reference/errors.md) for response bodies and Python
+exceptions.

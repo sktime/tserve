@@ -1,184 +1,259 @@
 # Python
 
-[`Client`][fomo.client.client.Client] talks to a running server. It coerces locally and posts Arrow to `/forecast/bytes`. JSON `POST /forecast` is documented under [HTTP](http.md); the fields are the same.
+[`Client`][fomo.client.client.Client] sends forecasts to a running FoMo
+server. It accepts native Python tables, converts them to Arrow, and posts to
+`/forecast/bytes`.
+
+## Methods
+
+| call | what it gives you |
+| --- | --- |
+| `Client(url, timeout=60.0)` | [a client bound to one server](#connect) |
+| `client.forecast(past=..., fh=...)` | [a forecast](#send-a-forecast) as a `ForecastResponse` |
+| `client.health()` | process liveness |
+| `client.models()` | loaded model ids |
+| `client.stats()` | uptime, memory, per-model metrics |
+| `client.close()` | closes the HTTP session |
+
+`forecast` returns `predictions`, `quantiles`, `model`, and `request_id`. Full
+signatures are in the [Python API reference](../reference/api.md).
+
+## Start a server
+
+The examples use `chronos-bolt-tiny` for point forecasts and `timesfm-2.5`
+for quantiles:
+
+```bash
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
+```
+
+See [Server](../server/index.md) for source installs and server
+options. The client URL points to this process, not a hosted FoMo API.
 
 ## Install
 
-On a machine that only calls a remote server, from a clone (FoMo is **not on PyPI yet**):
+FoMo is not on PyPI yet. Install the `client` extra from a clone. Python 3.12
+or newer is required.
 
 === "uv"
 
     ```bash
+    git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra client
     ```
 
 === "pip"
 
     ```bash
+    git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[client]"
     ```
 
-If you already installed the server extras in the same environment, add `client` as well (`uv sync --extra server --extra client` or `pip install -e ".[server,client]"`). The `client` extra pulls `httpx2`.
+The `client` extra is enough on a machine that only calls a server. Add
+`server` and the required [family extra](../models/index.md#dependencies) only
+when the same environment also runs the server.
 
 ## Connect
 
-Construct a client, call it, then close the session:
-
-```python
-from fomo.client import Client
-
-client = Client("http://127.0.0.1:8000")
-print(client.health())  # status='ok' error=None
-print(client.models())  # loaded ids only
-print(client.stats())
-client.close()
-```
-
-`with Client(...)` also closes the session for you:
+Use the client as a context manager so its HTTP session is closed:
 
 ```python
 from fomo.client import Client
 
 with Client("http://127.0.0.1:8000", timeout=120.0) as client:
+    print(client.health())
     print(client.models())
+    print(client.stats())
 ```
 
-Default timeout is 60s. Hub models can need longer — pass `timeout=` as above.
+`models()` reports what this process loaded, not the registry
+[catalog](../models/index.md), so it is the quickest way to check which
+`model` ids a forecast can use.
 
-`client.health()` / `.models()` / `.stats()` wrap the three JSON GETs. HTTP status >= 400 becomes `RuntimeError` with the server `error` message. Connection and timeout errors are `httpx.RequestError`. See [Errors](../reference/errors.md).
+The default timeout is 60 seconds. Increase it for forecasts that need more
+time.
 
-## Forecast
+## Send a forecast
 
-Same fields as [HTTP request fields](http.md#request-fields). **Whatever you pass as `past` is what `predictions` / `quantiles` come back as.**
-
-Examples below use `chronos-bolt-tiny`, matching the [server](../server/index.md) walkthrough (`--load-models naive chronos-bolt-tiny ttm-r3-512-30`). Swap `model` for any other loaded id.
+The method takes the same fields as JSON `POST /forecast`. This example sends
+five days of sales and requests the next three:
 
 ```python
 from fomo.client import Client
 
-client = Client("http://127.0.0.1:8000")
-result = client.forecast(
-    past={
-        "timestamp": [
-            "2024-01-01",
-            "2024-01-02",
-            "2024-01-03",
-            "2024-01-04",
-            "2024-01-05",
-        ],
-        "sales": [120, 135, 128, 142, 138],
-    },
-    time="timestamp",
-    target=["sales"],
-    fh=3,
-    model="chronos-bolt-tiny",
-)
+past = {
+    "timestamp": [
+        "2024-01-01",
+        "2024-01-02",
+        "2024-01-03",
+        "2024-01-04",
+        "2024-01-05",
+    ],
+    "sales": [120, 135, 128, 142, 138],
+}
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        past=past,
+        time="timestamp",
+        target=["sales"],
+        fh=3,
+        model="chronos-bolt-tiny",
+    )
+
 print(result.predictions)
-client.close()
-# {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
-#  'sales': [139.96…, 138.93…, 138.26…]}
+print(result.model)
+print(result.request_id)
 ```
 
-Row-matrix in → row-matrix out:
+`result.predictions` is a column dictionary because `past` was one:
 
 ```python
-from fomo.client import Client
-
-client = Client("http://127.0.0.1:8000")
-result = client.forecast(
-    past={
-        "columns": ["timestamp", "sales"],
-        "data": [
-            ["2024-01-01", 120],
-            ["2024-01-02", 135],
-            ["2024-01-03", 128],
-            ["2024-01-04", 142],
-            ["2024-01-05", 138],
-        ],
-    },
-    time="timestamp",
-    target=["sales"],
-    fh=3,
-    model="chronos-bolt-tiny",
-)
-print(result.predictions)
-client.close()
-# {'columns': ['timestamp', 'sales'],
-#  'data': [[Timestamp('2024-01-06 00:00:00'), 139.96…], …]}
+{
+    "timestamp": [
+        Timestamp("2024-01-06 00:00:00"),
+        Timestamp("2024-01-07 00:00:00"),
+        Timestamp("2024-01-08 00:00:00"),
+    ],
+    "sales": [139.96, 138.93, 138.26],
+}
 ```
 
-You can omit `time` and `target` when the first column is time and the rest are targets:
+See [Data specification](data.md) for all fields, inference rules, and table
+constraints.
 
-```python
-result = client.forecast(past=past, fh=3, model="chronos-bolt-tiny")
-```
+## Use native tables
 
-## Data format
+`predictions` and `quantiles` use the same table type as `past`. The following
+examples send the same data in four native formats.
 
-JSON shapes are in [HTTP](http.md#data-format). The Python client also takes pandas, polars, pyarrow, and Narwhals.
+=== "pandas"
 
-Snippets below assume a connected client:
+    ```python
+    import pandas as pd
+    from fomo.client import Client
 
-```python
-from fomo.client import Client
-
-client = Client("http://127.0.0.1:8000")
-```
-
-**pandas** — see [covariates](#covariates) and [sktime](#sktime-and-indexed-frames).
-
-**polars** — see [quantiles](#quantiles). Requires `pip install polars` (the `polars` package, not a FoMo extra).
-
-**pyarrow** Table:
-
-```python
-import pyarrow as pa
-
-past = pa.table(
-    {
-        "timestamp": [
-            "2024-01-01",
-            "2024-01-02",
-            "2024-01-03",
-            "2024-01-04",
-            "2024-01-05",
-        ],
-        "sales": [120.0, 135.0, 128.0, 142.0, 138.0],
-    }
-)
-result = client.forecast(
-    past=past, time="timestamp", target=["sales"], fh=3, model="chronos-bolt-tiny"
-)
-type(result.predictions)  # pyarrow.Table
-```
-
-**Narwhals** (stays Narwhals, same backend as `past`):
-
-```python
-import narwhals as nw
-import pandas as pd
-
-past = nw.from_native(
-    pd.DataFrame(
+    past = pd.DataFrame(
         {
             "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
             "sales": [120, 135, 128, 142, 138],
         }
     )
-)
-result = client.forecast(
-    past=past, time="timestamp", target=["sales"], fh=3, model="chronos-bolt-tiny"
-)
-type(result.predictions)  # narwhals.DataFrame
-```
 
-## sktime and indexed frames
+    with Client("http://127.0.0.1:8000") as client:
+        result = client.forecast(
+            past=past,
+            time="timestamp",
+            target=["sales"],
+            fh=3,
+            model="chronos-bolt-tiny",
+        )
 
-FoMo does not read a pandas/sktime index as the time axis. Time must be a **column**. `load_airline()` is a Series with a `PeriodIndex`; passing it (or `to_frame()` without `reset_index()`) fails because there is no time column and inferred `target` is empty.
+    print(type(result.predictions))  # pandas.DataFrame
+    ```
+
+=== "polars"
+
+    ```python
+    import polars as pl
+    from fomo.client import Client
+
+    past = pl.DataFrame(
+        {
+            "timestamp": [
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-03",
+                "2024-01-04",
+                "2024-01-05",
+            ],
+            "sales": [120, 135, 128, 142, 138],
+        }
+    )
+
+    with Client("http://127.0.0.1:8000") as client:
+        result = client.forecast(
+            past=past,
+            time="timestamp",
+            target=["sales"],
+            fh=3,
+            model="chronos-bolt-tiny",
+        )
+
+    print(type(result.predictions))  # polars.DataFrame
+    ```
+
+=== "pyarrow"
+
+    ```python
+    import pyarrow as pa
+    from fomo.client import Client
+
+    past = pa.table(
+        {
+            "timestamp": [
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-03",
+                "2024-01-04",
+                "2024-01-05",
+            ],
+            "sales": [120, 135, 128, 142, 138],
+        }
+    )
+
+    with Client("http://127.0.0.1:8000") as client:
+        result = client.forecast(
+            past=past,
+            time="timestamp",
+            target=["sales"],
+            fh=3,
+            model="chronos-bolt-tiny",
+        )
+
+    print(type(result.predictions))  # pyarrow.Table
+    ```
+
+=== "Narwhals"
+
+    ```python
+    import narwhals as nw
+    import pandas as pd
+    from fomo.client import Client
+
+    past = nw.from_native(
+        pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2024-01-01", periods=5, freq="D"),
+                "sales": [120, 135, 128, 142, 138],
+            }
+        ),
+        eager_only=True,
+    )
+
+    with Client("http://127.0.0.1:8000") as client:
+        result = client.forecast(
+            past=past,
+            time="timestamp",
+            target=["sales"],
+            fh=3,
+            model="chronos-bolt-tiny",
+        )
+
+    print(type(result.predictions))  # narwhals.DataFrame
+    ```
+
+pandas and polars are not installed by the `client` extra. Install either
+package separately if you use it. pyarrow and Narwhals are core FoMo
+dependencies.
+
+## Use an indexed pandas frame
+
+Time must be a column. Reset a pandas or sktime index before forecasting:
 
 ```python
-from sktime.datasets import load_airline
 from fomo.client import Client
+from sktime.datasets import load_airline
 
 past = load_airline().to_frame("passengers").reset_index()
 past = past.rename(columns={"Period": "timestamp"})
@@ -192,16 +267,22 @@ with Client("http://127.0.0.1:8000") as client:
         fh=3,
         model="chronos-bolt-tiny",
     )
-    print(result.predictions)
+
+print(result.predictions)
 ```
 
-Panel and hierarchical sktime mtypes are not supported.
+Panel and hierarchical sktime data are not supported.
 
-## Covariates
+## Request static data
 
-`static` is one row, broadcast over time as exogenous `X`. `future` is optional; when `static` is set it supplies the future **index** (must include `time`). Extra columns on `past` / `future` are accepted on the wire; the current sktime converter does not map them onto `X` — only the first `static` row is broadcast.
+Static values are supplied as a one-row table. A `future` table can provide
+the timestamps for the requested horizon. This example needs `chronos-2`,
+which supports covariates. Stop the starter server and restart with the
+`chronos` image:
 
-pandas in → pandas out:
+```bash
+docker run --rm -p 8000:8000 geetu040/fomo:chronos --load-models chronos-2
+```
 
 ```python
 import pandas as pd
@@ -209,103 +290,69 @@ from fomo.client import Client
 
 past = pd.DataFrame(
     {
-        "date": pd.date_range("2023-01-01", periods=12, freq="MS"),
-        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
-        "price": [
-            9.99,
-            9.49,
-            9.99,
-            8.99,
-            9.99,
-            8.49,
-            9.99,
-            8.99,
-            9.49,
-            9.99,
-            8.99,
-            9.99,
-        ],
-        "promo": [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+        "month": pd.date_range("2024-01-01", periods=5, freq="MS"),
+        "sales": [120, 135, 128, 142, 150],
     }
 )
-future = pd.DataFrame(
-    {
-        "date": pd.date_range("2024-01-01", periods=3, freq="MS"),
-        "price": [8.99, 9.99, 9.49],
-        "promo": [1, 0, 1],
-    }
-)
-static = pd.DataFrame(
-    {
-        "store_type": ["urban"],
-        "region": ["EU-west"],
-        "floor_sqm": [420],
-        "n_skus": [18],
-    }
-)
+future = pd.DataFrame({"month": pd.date_range("2024-06-01", periods=3, freq="MS")})
+static = pd.DataFrame({"store_type": ["urban"], "region": ["EU-west"]})
 
-client = Client("http://127.0.0.1:8000", timeout=120.0)
-result = client.forecast(
-    past=past,
-    future=future,
-    static=static,
-    time="date",
-    target=["sales"],
-    fh=3,
-    model="chronos-bolt-tiny",
-)
-print(type(result.predictions))  # pandas.DataFrame
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        past=past,
+        future=future,
+        static=static,
+        time="month",
+        target=["sales"],
+        fh=3,
+        model="chronos-2",
+    )
+
 print(result.predictions)
-client.close()
 ```
 
-`target` can be a list of several columns if the loaded estimator accepts multivariate `y`.
+See [Future and static data](data.md#future-and-static-data) for the current
+executor behavior, including the limitation on time-varying covariates.
 
-## Quantiles
+## Request quantiles
 
-Add `quantiles=[0.1, 0.5, 0.9]`. Columns come back flattened: `{variable}_{alpha}` (for `naive`, `sales_0.1`, `sales_0.5`, `sales_0.9`). The estimator must implement `predict_quantiles`; Chronos Bolt (`chronos-bolt-tiny`) does not and the request fails, so this example uses loaded `naive`.
-
-polars in → polars out. Install polars yourself (`pip install polars`); it is not a FoMo extra.
+Add `quantiles` when the loaded estimator supports quantile prediction. This
+example uses `timesfm-2.5`; Chronos Bolt does not support quantiles:
 
 ```python
-import polars as pl
 from fomo.client import Client
 
-past = pl.DataFrame(
-    {
-        "month": [
-            "2023-01-01",
-            "2023-02-01",
-            "2023-03-01",
-            "2023-04-01",
-            "2023-05-01",
-            "2023-06-01",
-            "2023-07-01",
-            "2023-08-01",
-            "2023-09-01",
-            "2023-10-01",
-            "2023-11-01",
-            "2023-12-01",
-        ],
-        "sales": [120, 135, 128, 142, 150, 161, 155, 168, 173, 181, 195, 210],
-    }
-)
+past = {
+    "month": [
+        "2024-01-01",
+        "2024-02-01",
+        "2024-03-01",
+        "2024-04-01",
+        "2024-05-01",
+    ],
+    "sales": [120, 135, 128, 142, 150],
+}
 
-client = Client("http://127.0.0.1:8000", timeout=120.0)
-result = client.forecast(
-    past=past,
-    time="month",
-    target=["sales"],
-    fh=3,
-    quantiles=[0.1, 0.5, 0.9],
-    model="naive",
-)
-print(type(result.predictions))  # polars.DataFrame
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        past=past,
+        time="month",
+        target=["sales"],
+        fh=3,
+        model="timesfm-2.5",
+        quantiles=[0.1, 0.5, 0.9],
+    )
+
 print(result.predictions)
 print(result.quantiles)
-client.close()
-# predictions: month / sales ≈ 218.18, 226.36, 234.55
-# quantiles columns: month, sales_0.1, sales_0.5, sales_0.9
 ```
 
-`predictions` stays the point forecast. `quantiles` is a second table, or `null` / `None` when the field was omitted.
+`predictions` remains the point forecast. `timesfm-2.5` currently names quantile columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`.
+
+## Handle errors
+
+Local request validation can raise Pydantic `ValidationError` before any HTTP
+call. Server responses with status 400 or higher become `RuntimeError`.
+Connection and timeout failures are `httpx.RequestError`.
+
+See [Errors](../reference/errors.md) for the messages each case produces.

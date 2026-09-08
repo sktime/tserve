@@ -2,8 +2,7 @@
 
 # FoMo
 
-Time-series foundation models behind one HTTP server. Load the models you name,
-keep them warm, and forecast from `curl` or Python.
+Time-series Foundation Models behind one server. Load the models you name, keep them warm, and forecast from `curl` or `python`.
 { .fomo-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }
@@ -11,49 +10,45 @@ keep them warm, and forecast from `curl` or Python.
 
 </div>
 
-FoMo is a time-series foundation-model inference server. Load selected models once, keep them warm, and forecast over HTTP or the Python client. It is not a training library.
+FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers forecast requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/forecast` all belong to that process.
 
-Nothing is loaded by default. A bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models`. `GET /models` lists only what this process loaded, not the full [catalog](models/catalog.md).
+The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You name the ids you want; the server loads those and leaves the rest alone.
 
-Images are split by model family so you do not pull every estimator extra. The image `CMD` loads `naive` if you pass no extra arguments. That is an image default, not the Python default.
+Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
 
-| tag | loads |
-| --- | --- |
-| [`geetu040/fomo:base`](https://hub.docker.com/r/geetu040/fomo) | `naive` only |
-| [`geetu040/fomo:hub`](https://hub.docker.com/r/geetu040/fomo) | `base` + TTM + TimesFM 2.x + Chronos Bolt/T5 |
-| [`geetu040/fomo:full`](https://hub.docker.com/r/geetu040/fomo) | every family in the catalog |
-
-Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants are listed on the [Docker](server/docker.md) page.
+Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
 ## Quick start
 
-**Start the server**
+### Start the server
 
-Pull the `hub` image and load a handful of registry ids:
+**Use Docker**
+
+Pull the `hub` image and load two registry ids: `chronos-bolt-tiny` and `timesfm-2.5`.
 
 ```bash
-docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-Or clone the repo and start from source. Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
+**Build from source**
+
+Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
 
 === "uv"
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
-    uv sync --extra server --extra client --extra hub
-    uv run fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    uv sync --extra server --extra hub
+    uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
 
 === "pip"
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
-    pip install -e ".[server,client,hub]"
-    fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    pip install -e ".[server,hub]"
+    fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
-
-FoMo is **not on PyPI yet**. The `pip` line installs from this clone.
 
 Once the process is up, the terminal prints the URLs:
 
@@ -61,17 +56,50 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-There is no hosted FoMo API. Every URL is the process you started.
+### Forecast
 
-## Forecast
+A request is a table plus the roles of its columns:
 
-`POST /forecast` (a GET returns HTTP 405). `past` is a **table**: one row per timestamp, with a time column and one or more target columns — not a 1-d vector and not a pandas index.
+- `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
+- `time`, `target` — which column holds timestamps, and which ones to forecast
+- `fh` — how many steps ahead
+- `model` — an id this process loaded (`chronos-bolt-tiny` here; `timesfm-2.5` is also loaded above)
 
-`"model"` must be one of the ids this process loaded (`chronos-bolt-tiny` below; `ttm-r3-512-30` and `naive` also work).
+**From `curl`**
 
-```bash
-curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'
-```
+Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on Windows so PowerShell does not use `Invoke-WebRequest`).
+
+=== "bash / zsh"
+
+    ```bash
+    curl -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    curl.exe -s http://127.0.0.1:8000/forecast -H "Content-Type: application/json" -d '{
+      "past": {
+        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+        "sales": [120, 135, 128, 142, 138]
+      },
+      "time": "timestamp",
+      "target": ["sales"],
+      "fh": 3,
+      "model": "chronos-bolt-tiny"
+    }'
+    ```
+
+Three predicted days come back, plus the id that served them:
 
 ```json
 {
@@ -85,33 +113,45 @@ curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{
 }
 ```
 
-Or the Python client (install the `client` extra; Arrow on the wire, your table type back):
+**From `python`**
+
+The client takes the same fields as keywords and sends Arrow instead of JSON. Install the `client` extra:
+
+=== "uv"
+
+    ```bash
+    uv sync --extra client
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[client]"
+    ```
 
 ```python
 from fomo.client import Client
 
-client = Client("http://127.0.0.1:8000")
-result = client.forecast(
-    past={
-        "timestamp": [
-            "2024-01-01",
-            "2024-01-02",
-            "2024-01-03",
-            "2024-01-04",
-            "2024-01-05",
-        ],
-        "sales": [120, 135, 128, 142, 138],
-    },
-    time="timestamp",
-    target=["sales"],
-    fh=3,
-    model="chronos-bolt-tiny",
-)
+past = {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138],
+}
+
+with Client("http://127.0.0.1:8000") as client:
+    result = client.forecast(
+        past=past,
+        time="timestamp",
+        target=["sales"],
+        fh=3,
+        model="chronos-bolt-tiny",
+    )
+
 print(result.predictions)
-client.close()
 # {'timestamp': [Timestamp('2024-01-06 00:00:00'), …],
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
+
+`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md).
 
 ## Where to next
 
@@ -133,7 +173,7 @@ client.close()
 
     [:octicons-arrow-right-24: Install and serve](server/index.md)
 
--   :material-cube-outline:{ .lg .middle } **Load models**
+-   :material-cube-outline:{ .lg .middle } **Catalog**
 
     ---
 

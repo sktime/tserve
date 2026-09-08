@@ -59,6 +59,22 @@ class Server:
     --------
     >>> from fomo.server import Server
     >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
+
+    Notes
+    -----
+    Omitting ``load_models`` loads nothing. The Docker image separately
+    supplies ``--load-models naive`` through its default ``CMD``.
+
+    See Also
+    --------
+    [Install and serve](../server/index.md)
+        Installation, startup options, and server URLs.
+    [Docker](../server/docker.md)
+        Image defaults, tags, and container arguments.
+    [Models catalog](../models/index.md)
+        Registry ids and required family extras.
+    [Dashboard](../server/dashboard.md)
+        Browser interface served by ``app`` at ``GET /``.
     """
 
     def __init__(
@@ -102,11 +118,29 @@ class Server:
 
     @property
     def url(self) -> str:
-        """Return ``http://{host}:{port}``."""
+        """Return ``http://{host}:{port}``.
+
+        See Also
+        --------
+        [Install and serve](../server/index.md)
+            Bind addresses, ports, and published routes.
+        """
         return f"http://{self.host}:{self.port}"
 
     def run(self) -> None:
-        """Serve ``self.app`` with uvicorn. Blocks until the process exits."""
+        """Serve ``self.app`` with uvicorn.
+
+        Blocks until the process exits.
+
+        See Also
+        --------
+        [From source](../server/source.md)
+            Run the server from Python or ``fomo serve``.
+        [HTTP API](../reference/http.md)
+            Routes exposed by the running app.
+        [Dashboard](../server/dashboard.md)
+            Browser interface at ``GET /``.
+        """
         logger.info(paint("Starting FoMo", "1"))
         for label, path in (
             ("Dashboard", "/"),

@@ -20,9 +20,9 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded ids | `GET /models` |
 
-The [catalog](models/catalog.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id. See [Load models](models/index.md).
+The [catalog](models/index.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id.
 
-Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md).
+Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies).
 
 ## Request shape
 
@@ -32,17 +32,18 @@ A forecast is tables plus column roles, not a 1-d `y` vector. The same fields go
 | --- | --- |
 | `past` | required. historical table: one row per timestamp, with a time column and target values |
 | `fh` | required. steps ahead (`> 0`) |
-| `time`, `target` | optional. omitted → first column of `past`, remaining columns as targets |
+| `time`, `target` | optional. omitted → first `past` column as time; remaining columns not present in `future` as targets |
 | `model` | optional. default `"naive"` — still must be loaded |
-| `future`, `static` | optional covariate tables |
+| `future` | optional future timestamps |
+| `static` | optional one-row static values |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |
 
-Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see [data format](client/http.md#data-format). Time must be a **column**. A pandas `DatetimeIndex` or an sktime Series is not enough; call `reset_index()` first.
+Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see the [data specification](client/data.md). Time must be a **column**. A pandas `DatetimeIndex` or an sktime Series is not enough; call `reset_index()` first.
 
 Panel (multi-series) and hierarchical input are not supported.
 
 ## Next
 
-1. [Start a server](server/index.md) (including [dependencies](server/index.md#dependencies))
-2. [Load models](models/index.md)
-3. [Send forecasts](client/http.md) over HTTP or from [Python](client/python.md)
+1. [Start a server](server/index.md) (extras and tags: [Dependencies](models/index.md#dependencies))
+2. [Catalog](models/index.md)
+3. [Send forecasts](client/index.md) over HTTP or from Python

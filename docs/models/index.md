@@ -1,146 +1,230 @@
-# Load models
+# Catalog
 
-The registry is the list of ids the server *can* load. Nothing in it is loaded until `--load-models` / `load_models` selects it. `GET /models` is the loaded list, not the [catalog](catalog.md).
+FoMo ships **106 supported models**, pre-registered and ready to serve under the names below. That is the list this process *can* load. Nothing is loaded until `--load-models` / `load_models` names it. `GET /models` is the loaded list, not this page. How to start a process is on [Server](../server/index.md).
 
-Do not invent ids. Forecast `model` must be a loaded id, not an executor name (`sktime`) and not a catalog id this process never loaded.
+The name in the `model` column is what you pass to `--load-models` and to a forecast request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
 
-`naive` is `NaiveForecaster` — no Hub download. Every other id pulls a Hugging Face (or equivalent) checkpoint on first load. That needs the matching [family extra](../server/index.md#dependencies), or a [Docker tag](../server/docker.md) that already baked it in.
+## Dependencies
 
-## Which extra / image?
+--8<-- "includes/model-dependencies.md"
 
-| extra / image tag | estimator families | example ids |
+Install extras from a clone on [From source](../server/source.md#dependencies). Image tags, token, and cache: [Docker](../server/docker.md).
+
+## Baseline
+
+`NaiveForecaster`. Extra `server`, image [`:base`](https://hub.docker.com/r/geetu040/fomo/tags?name=base). Drift strategy, no weights.
+
+| model | checkpoint |
+| --- | --- |
+| `naive` | — |
+
+## Chronos-2
+
+`Chronos2Forecaster`. Extra `chronos`, images [`:chronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos) / [`:chronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos-gpu).
+
+| model | checkpoint |
+| --- | --- |
+| `chronos-2` | [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) |
+| `chronos-2-small` | [autogluon/chronos-2-small](https://huggingface.co/autogluon/chronos-2-small) |
+| `chronos-2-synth` | [autogluon/chronos-2-synth](https://huggingface.co/autogluon/chronos-2-synth) |
+
+## Chronos Bolt
+
+`ChronosForecaster`. Extra `hub`, images [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) / [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu). Does not implement `predict_quantiles`.
+
+| model | checkpoint |
+| --- | --- |
+| `chronos-bolt-tiny` | [amazon/chronos-bolt-tiny](https://huggingface.co/amazon/chronos-bolt-tiny) |
+| `chronos-bolt-mini` | [amazon/chronos-bolt-mini](https://huggingface.co/amazon/chronos-bolt-mini) |
+| `chronos-bolt-small` | [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) |
+| `chronos-bolt-base` | [amazon/chronos-bolt-base](https://huggingface.co/amazon/chronos-bolt-base) |
+
+## Chronos T5
+
+`ChronosForecaster`. Same extra and images as Chronos Bolt.
+
+| model | checkpoint |
+| --- | --- |
+| `chronos-t5-tiny` | [amazon/chronos-t5-tiny](https://huggingface.co/amazon/chronos-t5-tiny) |
+| `chronos-t5-mini` | [amazon/chronos-t5-mini](https://huggingface.co/amazon/chronos-t5-mini) |
+| `chronos-t5-small` | [amazon/chronos-t5-small](https://huggingface.co/amazon/chronos-t5-small) |
+| `chronos-t5-base` | [amazon/chronos-t5-base](https://huggingface.co/amazon/chronos-t5-base) |
+| `chronos-t5-large` | [amazon/chronos-t5-large](https://huggingface.co/amazon/chronos-t5-large) |
+
+## TTM
+
+`TinyTimeMixerForecaster`. Extra `hub`. Names are `{revision}-{context}-{horizon}`, with optional `-lite` or `-l1`.
+
+### r1
+
+[ibm-granite/granite-timeseries-ttm-r1](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r1)
+
+| model | context | horizon |
 | --- | --- | --- |
-| `server` / `:base` | `NaiveForecaster` | `naive` |
-| `hub` / `:hub` | Chronos Bolt/T5, TTM, TimesFM 2.x | `chronos-bolt-tiny`, `ttm-r3-512-30`, `timesfm-2.5` |
-| `chronos` / `:chronos` | Chronos-2 | `chronos-2`, `chronos-2-small` |
-| `kronos` / `:kronos` | Kronos, WindFM | `kronos`, `windfm` |
-| `granite` / `:granite` | FlowState | `flowstate`, `flowstate-granite` |
-| `moirai` / `:moirai` | Moirai, Lag-Llama | `moirai-2`, `lagllama` |
-| `tirex` / `:tirex` | TiRex | `tirex` |
-| `toto` / `:toto` | Toto-2 | `toto-2.0-4m` |
-| `mantis` / `:mantis` | Mantis | `mantis-8m` |
-| `full` / `:full` | all of the above | |
+| `ttm-r1-512-96` | 512 | 96 |
+| `ttm-r1-1024-96` | 1024 | 96 |
 
-`kronos` is layered on `base`, not on `hub`. First Hub download is faster with `HF_TOKEN` set (a read token is enough). Mount `~/.cache/huggingface` in Docker so weights persist — see [Docker](../server/docker.md#hugging-face-token-and-cache).
+### r2
 
-## Loading registered models
+[ibm-granite/granite-timeseries-ttm-r2](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2)
 
-These ids are in the registry. Pick them with `--load-models`:
+| model | context | horizon |
+| --- | --- | --- |
+| `ttm-r2-512-96` | 512 | 96 |
+| `ttm-r2-512-192` | 512 | 192 |
+| `ttm-r2-512-336` | 512 | 336 |
+| `ttm-r2-512-720` | 512 | 720 |
+| `ttm-r2-1024-96` | 1024 | 96 |
+| `ttm-r2-1024-192` | 1024 | 192 |
+| `ttm-r2-1024-336` | 1024 | 336 |
+| `ttm-r2-1024-720` | 1024 | 720 |
+| `ttm-r2-1536-96` | 1536 | 96 |
+| `ttm-r2-1536-192` | 1536 | 192 |
+| `ttm-r2-1536-336` | 1536 | 336 |
+| `ttm-r2-1536-720` | 1536 | 720 |
 
-| id | estimator | id | estimator |
+### r2.1
+
+Same Hub repo as r2. `-l1` is the L1 checkpoint.
+
+| model | context | horizon | variant |
 | --- | --- | --- | --- |
-| `naive` | `NaiveForecaster` | `chronos-2` | `Chronos2Forecaster` |
-| `chronos-bolt-tiny` | `ChronosForecaster` | `kronos` | `KronosForecaster` |
-| `moirai-2` | `Moirai2Forecaster` | `ttm-r3-52-16` | `TinyTimeMixerForecaster` |
-| `timesfm-2.5` | `TimesFM2Forecaster` | `toto-2.0-4m` | `Toto2Forecaster` |
-| `flowstate` | `FlowStateForecaster` | `tirex` | `TiRexForecaster` |
-| `windfm` | `WindFMForecaster` | `lagllama` | `LagLlamaForecaster` |
-| `mantis-8m` | `MantisForecaster` | | |
+| `ttm-r2.1-52-16` | 52 | 16 | |
+| `ttm-r2.1-52-16-l1` | 52 | 16 | L1 |
+| `ttm-r2.1-90-30` | 90 | 30 | |
+| `ttm-r2.1-90-30-l1` | 90 | 30 | L1 |
+| `ttm-r2.1-180-60-l1` | 180 | 60 | L1 |
+| `ttm-r2.1-360-60-l1` | 360 | 60 | L1 |
+| `ttm-r2.1-512-48` | 512 | 48 | |
+| `ttm-r2.1-512-48-l1` | 512 | 48 | L1 |
+| `ttm-r2.1-512-96` | 512 | 96 | |
+| `ttm-r2.1-512-96-l1` | 512 | 96 | L1 |
 
-Each family has more sizes and revisions; the [full catalog](catalog.md) lists every id.
+### r3
 
-```bash
-fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
+[ibm-granite/granite-timeseries-ttm-r3](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r3). Each model has a `-lite` sibling.
 
-First start of a Hub model downloads weights and runs a tiny warmup `fit` / `predict`. Then:
+| model | lite | context | horizon |
+| --- | --- | --- | --- |
+| `ttm-r3-52-16` | `ttm-r3-52-16-lite` | 52 | 16 |
+| `ttm-r3-90-30` | `ttm-r3-90-30-lite` | 90 | 30 |
+| `ttm-r3-156-16` | `ttm-r3-156-16-lite` | 156 | 16 |
+| `ttm-r3-180-60` | `ttm-r3-180-60-lite` | 180 | 60 |
+| `ttm-r3-360-60` | `ttm-r3-360-60-lite` | 360 | 60 |
+| `ttm-r3-512-30` | `ttm-r3-512-30-lite` | 512 | 30 |
+| `ttm-r3-512-48` | `ttm-r3-512-48-lite` | 512 | 48 |
+| `ttm-r3-512-96` | `ttm-r3-512-96-lite` | 512 | 96 |
+| `ttm-r3-512-336` | `ttm-r3-512-336-lite` | 512 | 336 |
+| `ttm-r3-768-48` | `ttm-r3-768-48-lite` | 768 | 48 |
+| `ttm-r3-1024-48` | `ttm-r3-1024-48-lite` | 1024 | 48 |
+| `ttm-r3-1024-96` | `ttm-r3-1024-96-lite` | 1024 | 96 |
+| `ttm-r3-1024-720` | `ttm-r3-1024-720-lite` | 1024 | 720 |
+| `ttm-r3-1536-96` | `ttm-r3-1536-96-lite` | 1536 | 96 |
+| `ttm-r3-1536-720` | `ttm-r3-1536-720-lite` | 1536 | 720 |
+| `ttm-r3-2048-96` | `ttm-r3-2048-96-lite` | 2048 | 96 |
+| `ttm-r3-2048-720` | `ttm-r3-2048-720-lite` | 2048 | 720 |
+| `ttm-r3-2560-96` | `ttm-r3-2560-96-lite` | 2560 | 96 |
+| `ttm-r3-2560-720` | `ttm-r3-2560-720-lite` | 2560 | 720 |
+| `ttm-r3-3072-96` | `ttm-r3-3072-96-lite` | 3072 | 96 |
+| `ttm-r3-3072-720` | `ttm-r3-3072-720-lite` | 3072 | 720 |
 
-```bash
-curl -s http://127.0.0.1:8000/models
-```
+## TimesFM
 
-```json
-{
-  "models": [
-    {"id": "naive", "executor": "sktime", "source": "registry"},
-    {"id": "chronos-bolt-tiny", "executor": "sktime", "source": "registry"},
-    {"id": "ttm-r3-512-30", "executor": "sktime", "source": "registry"}
-  ]
-}
-```
+`TimesFM2Forecaster`. Extra `hub`.
 
-`source` is `registry`, `directory`, or `object`. Duplicate ids raise `ValueError` before a second load.
+| model | checkpoint |
+| --- | --- |
+| `timesfm-2.5` | [google/timesfm-2.5-200m-transformers](https://huggingface.co/google/timesfm-2.5-200m-transformers) |
+| `timesfm-2` | [google/timesfm-2.0-500m-pytorch](https://huggingface.co/google/timesfm-2.0-500m-pytorch) |
 
-Asking for an id that is not loaded is HTTP 400:
+## Kronos
 
-```text
-model 'timesfm-2.5' is not loaded on this server (loaded: 'chronos-bolt-tiny', 'naive', 'ttm-r3-512-30')
-```
+`KronosForecaster`. Extra `kronos`, images [`:kronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos) / [`:kronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos-gpu). The tokenizer is part of the model, not a separate entry.
 
-## Loading models from a directory
+| model | checkpoint |
+| --- | --- |
+| `kronos` | [NeoQuasar/Kronos-small](https://huggingface.co/NeoQuasar/Kronos-small) |
+| `kronos-mini` | [NeoQuasar/Kronos-mini](https://huggingface.co/NeoQuasar/Kronos-mini) |
+| `kronos-base` | [NeoQuasar/Kronos-base](https://huggingface.co/NeoQuasar/Kronos-base) |
 
-Saved sktime **`.zip`** files (not `.pkl`). `--models-dir` does not auto-load the directory. Only stems already named in `--load-models` are rewritten to paths.
+## WindFM
 
-```
-my-models/
-├── custom-model-1.zip
-├── custom-model-2.zip
-└── custom-model-3.zip
-```
+`WindFMForecaster`. Same extra and images as Kronos.
 
-From source:
+| model | checkpoint |
+| --- | --- |
+| `windfm` | [NeoQuasar/WindFM](https://huggingface.co/NeoQuasar/WindFM) |
+| `windfm-robust` | [NeoQuasar/WindFM-robust](https://huggingface.co/NeoQuasar/WindFM-robust) |
 
-```bash
-fomo serve --models-dir my-models --load-models custom-model-1 custom-model-2
-```
+## Moirai 2
 
-If `my-models/custom-model-1.zip` exists, that id loads from the zip (`source="directory"`) instead of the registry. Other suffixes raise `ValueError`.
+`Moirai2Forecaster`. Extra `moirai`, images [`:moirai`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai) / [`:moirai-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai-gpu).
 
-Mount the same directory into Docker and point `--models-dir` at the container path:
+| model | checkpoint |
+| --- | --- |
+| `moirai-2` | [Salesforce/moirai-2.0-R-small](https://huggingface.co/Salesforce/moirai-2.0-R-small) |
 
-```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 custom-model-2
-```
+## Moirai 1.x
 
-You can mix zip stems with registry ids:
+`MOIRAIForecaster`. Same extra and images as Moirai 2.
 
-```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 naive chronos-bolt-tiny
-```
+| model | checkpoint |
+| --- | --- |
+| `moirai-1.0-r-small` | [Salesforce/moirai-1.0-R-small](https://huggingface.co/Salesforce/moirai-1.0-R-small) |
+| `moirai-1.0-r-base` | [Salesforce/moirai-1.0-R-base](https://huggingface.co/Salesforce/moirai-1.0-R-base) |
+| `moirai-1.0-r-large` | [Salesforce/moirai-1.0-R-large](https://huggingface.co/Salesforce/moirai-1.0-R-large) |
+| `moirai-1.1-r-small` | [Salesforce/moirai-1.1-R-small](https://huggingface.co/Salesforce/moirai-1.1-R-small) |
+| `moirai-1.1-r-base` | [Salesforce/moirai-1.1-R-base](https://huggingface.co/Salesforce/moirai-1.1-R-base) |
+| `moirai-1.1-r-large` | [Salesforce/moirai-1.1-R-large](https://huggingface.co/Salesforce/moirai-1.1-R-large) |
 
-## Loading live objects
+## Lag-Llama
 
-SDK only. The object must be a sktime `BaseForecaster`:
+`LagLlamaForecaster`. Same extra and images as Moirai.
 
-```python
-from fomo.server import Server
-from sktime.forecasting.chronos import ChronosForecaster
-from sktime.forecasting.ttm import TinyTimeMixerForecaster
+| model | checkpoint |
+| --- | --- |
+| `lagllama` | [time-series-foundation-models/Lag-Llama](https://huggingface.co/time-series-foundation-models/Lag-Llama) |
 
-bolt = ChronosForecaster(model_path="amazon/chronos-bolt-tiny")
-ttm = TinyTimeMixerForecaster(
-    model_path="ibm-granite/granite-timeseries-ttm-r3",
-    revision="52-16-dec-52-r3",
-    fit_strategy="zero-shot",
-)
+## FlowState
 
-Server(
-    load_models=[
-        ("chronos-bolt-tiny", bolt),
-        ("ttm-local", ttm),
-        "naive",
-    ],
-    host="127.0.0.1",
-    port=8000,
-).run()
-```
+`FlowStateForecaster`. Extra `granite`, images [`:granite`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite) / [`:granite-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite-gpu). Revision is pinned to `r1.1`.
 
-`source` is `"object"` for the tuples. Mix registry ids and tuples in the same list.
+| model | checkpoint |
+| --- | --- |
+| `flowstate` | [ibm-research/flowstate](https://huggingface.co/ibm-research/flowstate) |
+| `flowstate-granite` | [ibm-granite/granite-timeseries-flowstate-r1](https://huggingface.co/ibm-granite/granite-timeseries-flowstate-r1) |
 
-## Start a server with some models
+## TiRex
 
-```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
+`TiRexForecaster`. Extra `tirex`, images [`:tirex`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex) / [`:tirex-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex-gpu). The registry sets `license_accepted=True`.
 
-From source (needs the `hub` extra, or another family extra that includes those ids):
+| model | checkpoint |
+| --- | --- |
+| `tirex` | [NX-AI/TiRex](https://huggingface.co/NX-AI/TiRex) |
+| `tirex-1.1-gifteval` | [NX-AI/TiRex-1.1-gifteval](https://huggingface.co/NX-AI/TiRex-1.1-gifteval) |
 
-```bash
-uv run fomo serve --host 0.0.0.0 --port 8000 --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
+## Toto-2
 
-Swap `model` on a [forecast](../client/http.md) between those loaded ids. `naive` is a drift forecast and needs no download — use it to check the pipe, then switch to a Hub id.
+`Toto2Forecaster`. Extra `toto`, images [`:toto`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto) / [`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu).
 
-Some ids need a longer history than a 5-row toy series. `mantis-8m` requires more observations than its `context_length` (127).
+| model | checkpoint |
+| --- | --- |
+| `toto-2.0-4m` | [Datadog/Toto-2.0-4m](https://huggingface.co/Datadog/Toto-2.0-4m) |
+| `toto-2.0-22m` | [Datadog/Toto-2.0-22m](https://huggingface.co/Datadog/Toto-2.0-22m) |
+| `toto-2.0-313m` | [Datadog/Toto-2.0-313m](https://huggingface.co/Datadog/Toto-2.0-313m) |
+| `toto-2.0-1b` | [Datadog/Toto-2.0-1B](https://huggingface.co/Datadog/Toto-2.0-1B) |
+| `toto-2.0-2.5b` | [Datadog/Toto-2.0-2.5B](https://huggingface.co/Datadog/Toto-2.0-2.5B) |
 
-The [catalog](catalog.md) lists every registry id.
+## Mantis
+
+`MantisForecaster`. Extra `mantis`, images [`:mantis`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis) / [`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu). `context_length` is 127; history must be longer than that.
+
+| model | checkpoint |
+| --- | --- |
+| `mantis` | [paris-noah/MantisV2](https://huggingface.co/paris-noah/MantisV2) |
+| `mantis-8m` | [paris-noah/Mantis-8M](https://huggingface.co/paris-noah/Mantis-8M) |
+| `mantis-plus` | [paris-noah/MantisPlus](https://huggingface.co/paris-noah/MantisPlus) |
+
+FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Chronos Bolt cannot return quantiles. `naive` can.
+
+Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [forecast](../client/http.md).
