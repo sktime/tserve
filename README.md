@@ -169,7 +169,7 @@ Images are published as:
 - `base` for `naive`;
 - `hub` for the shared Chronos Bolt/T5, TTM, and TimesFM stack;
 - family tags such as `chronos`, `granite`, `kronos`, `moirai`, `tirex`,
-  `toto`, and `mantis`;
+  `toto`, and `mantis` (`kronos` sits on `base`, not `hub`);
 - `full` for every family;
 - matching `*-gpu` variants for every family tag and `full`.
 
@@ -243,6 +243,7 @@ and stats, and download results.
 - [Model catalog and dependencies](https://fomo.readthedocs.io/en/latest/models/)
 - [HTTP client](https://fomo.readthedocs.io/en/latest/client/http/)
 - [Python client](https://fomo.readthedocs.io/en/latest/client/python/)
+- [Data specification](https://fomo.readthedocs.io/en/latest/client/data/)
 - [HTTP API reference](https://fomo.readthedocs.io/en/latest/reference/http/)
 - [CLI reference](https://fomo.readthedocs.io/en/latest/reference/cli/)
 - [Python API reference](https://fomo.readthedocs.io/en/latest/reference/api/)
@@ -255,4 +256,4 @@ See the [development guide](https://fomo.readthedocs.io/en/latest/reference/deve
 for setup, checks, tests, documentation, and image builds. Issues are tracked
 on [GitHub](https://github.com/sktime/fomo/issues).
 
-FoMo is licensed under the [MIT License](LICENSE).
+FoMo is licensed under the BSD 3-Clause License. See [LICENSE](LICENSE).
