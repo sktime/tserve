@@ -11,7 +11,7 @@ authors = [
 ]
 description = "A Time Series Foundation Model Inference Server"
 readme = {file = "README.md", content-type = "text/markdown"}
-license = "MIT"
+license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 keywords = ["time series", "forecasting", "foundation models", "inference"]
 classifiers = [
