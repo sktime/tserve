@@ -1,4 +1,4 @@
-# HTTP
+# HTTP API
 
 Routes on the running [`Server`][fomo.server.serve.Server]. Live OpenAPI is the interactive source of truth: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
@@ -18,7 +18,8 @@ Routes on the running [`Server`][fomo.server.serve.Server]. Live OpenAPI is the 
 
 ## JSON `POST /forecast`
 
-`Content-Type: application/json`. Fields: [HTTP](../client/http.md#request-fields).
+`Content-Type: application/json`. See the
+[data specification](../client/data.md) for request and response fields.
 
 ```bash
 curl -s http://127.0.0.1:8000/forecast -H 'Content-Type: application/json' -d '{"past": {"timestamp": ["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"], "sales": [120, 135, 128, 142, 138]}, "time": "timestamp", "target": ["sales"], "fh": 3, "model": "chronos-bolt-tiny"}'

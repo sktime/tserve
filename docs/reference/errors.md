@@ -17,7 +17,7 @@ An id that is not in `GET /models` is 400, not 404, for example:
 ```json
 {
   "detail": {
-    "error": "model 'timesfm-2.5' is not loaded on this server (loaded: 'naive')",
+    "error": "model 'chronos-2' is not loaded on this server (loaded: 'chronos-bolt-tiny', 'timesfm-2.5')",
     "code": "request_failed",
     "request_id": "…"
   }

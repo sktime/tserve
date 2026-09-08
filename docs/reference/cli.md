@@ -5,7 +5,7 @@
 ## Usage
 
 ```bash
-fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 --port 8000 --log-level info
+fomo serve --load-models chronos-bolt-tiny timesfm-2.5 --host 127.0.0.1 --port 8000 --log-level info
 ```
 
 ## Flags
@@ -24,4 +24,4 @@ fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 
 fomo serve --help
 ```
 
-Walkthrough: [Server](../server/index.md).
+Walkthrough: [running from source](../server/source.md).

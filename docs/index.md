@@ -14,7 +14,7 @@ FoMo is a process you start, not a hosted API. It loads time-series foundation m
 
 The [catalog](models/catalog.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You [name the ids you want](models/index.md); the server loads those and leaves the rest alone.
 
-Start it [from source](server/index.md) or from a [Docker image](models/index.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
+Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
@@ -24,22 +24,22 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 **Use Docker**
 
-Pull the `hub` image and load a handful of registry ids: `naive`, `chronos-bolt-tiny`, `ttm-r3-512-30`.
+Pull the `hub` image and load two registry ids: `chronos-bolt-tiny` and `timesfm-2.5`.
 
 ```bash
-docker run -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
 **Build from source**
 
-Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](server/index.md#dependencies) for Hub models.
+Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#which-extra-image) for Hub models.
 
 === "uv"
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
 
 === "pip"
@@ -47,7 +47,7 @@ Or clone the repo and start from source. The `server` extra is enough for `naive
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
 
 Once the process is up, the terminal prints the URLs:
@@ -63,7 +63,7 @@ A request is a table plus the roles of its columns:
 - `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
-- `model` — an id this process loaded (`chronos-bolt-tiny` here; `ttm-r3-512-30` and `naive` are also loaded above)
+- `model` — an id this process loaded (`chronos-bolt-tiny` here; `timesfm-2.5` is also loaded above)
 
 **From `curl`**
 
