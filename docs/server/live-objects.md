@@ -1,0 +1,63 @@
+# Live objects
+
+Registry ids cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][fomo.server.serve.Server]. This is Python-only: `--load-models` takes names, so a live object has no CLI equivalent.
+
+```python
+from fomo.server import Server
+from sktime.forecasting.chronos import ChronosForecaster
+
+bolt = ChronosForecaster(
+    model_path="amazon/chronos-bolt-mini",
+    config={"device_map": "auto"},
+)
+
+Server(
+    load_models=[
+        "chronos-bolt-tiny",
+        ("bolt-mini-local", bolt),
+    ],
+    host="127.0.0.1",
+    port=8000,
+).run()
+```
+
+The id is what forecast requests send as `model`:
+
+```json
+{
+  "models": [
+    {"id": "chronos-bolt-tiny", "executor": "sktime", "source": "registry"},
+    {"id": "bolt-mini-local", "executor": "sktime", "source": "object"}
+  ]
+}
+```
+
+## Rules
+
+- The object must be an sktime `BaseForecaster`. Anything else raises `TypeError` naming the id and the type you passed.
+- Ids must be unique across the whole list. A collision — including with a registry id — raises `ValueError` before the second load.
+- Registry ids, live objects, and [saved models](models-dir.md) mix freely in one `load_models` list.
+- The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#which-extra-image) declare.
+
+## Configured Hub estimators
+
+The same mechanism serves a checkpoint or revision the registry does not name:
+
+```python
+from fomo.server import Server
+from sktime.forecasting.ttm import TinyTimeMixerForecaster
+
+ttm = TinyTimeMixerForecaster(
+    model_path="ibm-granite/granite-timeseries-ttm-r3",
+    revision="52-16-dec-52-r3",
+    fit_strategy="zero-shot",
+)
+
+Server(
+    load_models=["chronos-bolt-tiny", ("ttm-local", ttm)],
+    host="127.0.0.1",
+    port=8000,
+).run()
+```
+
+Each object is loaded and warmed up like any other model, so startup pays the same download and warmup cost once. [Load models](../models/index.md) is the model-side view of the same list.

@@ -1,39 +1,31 @@
 # Server
 
-Load selected models once. Forecasts go to those loaded ids only.
+The server is the process you start. It loads the models you name, keeps them warm, and answers forecast requests. Dashboard, OpenAPI, and `/forecast` all belong to that process.
 
-The CLI `fomo serve` constructs [`Server`][fomo.server.serve.Server] and calls `run`. Flags are in the [CLI reference](../reference/cli.md).
+Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models` lists what this process loaded, not the [catalog](../models/catalog.md). Which ids exist, and which extra or image tag each one needs, is on [Load models](../models/index.md).
 
-## Setting up
+## Quick start
 
-### Docker image
+**Docker**
 
-Pick a [family tag](../models/index.md) that contains the extras you need. Extra `docker run` arguments replace the image `CMD` (which otherwise loads `naive`):
-
-```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
-```
-
-`geetu040/fomo:base` is the same entrypoint with only `naive` available. GPU tags (`hub-gpu`, `full-gpu`, …) need the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) and `--gpus all`.
-
-The image `ENTRYPOINT` already includes `--host 0.0.0.0 --port 8000`. Map the port with `-p 8000:8000`.
-
-Hub checkpoints download on first load. Unauthenticated Hugging Face requests are rate-limited; pass a read token:
+The `hub` image can load both models used throughout the client guides. Arguments replace the image `CMD`, which otherwise loads `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-### From source
+Token, cache volume, GPU, and tags: [Docker](docker.md).
 
-Python >= 3.12. Clone over HTTPS. Use [uv](https://docs.astral.sh/uv/) or pip; FoMo is **not published on PyPI yet**.
+**From source**
+
+Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match the `hub` image; swap them when you load other families.
 
 === "uv"
 
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --host 127.0.0.1 --port 8000 --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
 
 === "pip"
@@ -41,109 +33,67 @@ Python >= 3.12. Clone over HTTPS. Use [uv](https://docs.astral.sh/uv/) or pip; F
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --host 127.0.0.1 --port 8000 --load-models naive chronos-bolt-tiny ttm-r3-512-30
+    fomo serve --load-models chronos-bolt-tiny timesfm-2.5
     ```
 
-`--extra server` (or `pip install -e ".[server]"`) is enough for `naive`. Add a family extra to match the ids you will load — see [Dependencies](#dependencies). Also install `--extra client` / `.[client]` on machines that call the server with [`Client`][fomo.client.client.Client].
+CLI flags, `Server`, and `server.app`: [From source](source.md).
 
-### Server class
-
-Same process, no CLI:
-
-```python
-from fomo.server import Server
-
-server = Server(
-    load_models=["naive", "chronos-bolt-tiny", "ttm-r3-512-30"],
-    host="127.0.0.1",
-    port=8000,
-)
-print(server.url)  # http://127.0.0.1:8000
-server.run()
-```
-
-Omitting `load_models` starts empty, same as a bare `fomo serve`. You can mix registry ids and live objects:
-
-```python
-from fomo.server import Server
-from sktime.forecasting.naive import NaiveForecaster
-
-Server(
-    load_models=["chronos-bolt-tiny", "ttm-r3-512-30", ("naive", NaiveForecaster())],
-    host="127.0.0.1",
-    port=8000,
-).run()
-```
-
-`server.app` is the FastAPI app if you want to mount it or pass it to uvicorn yourself.
-
-## Dependencies
-
-Core (always installed) is `pydantic`, `narwhals`, and `pyarrow`. Everything else is an extra. Names match `[project.optional-dependencies]` in `pyproject.toml`.
-
-| extra | pulls in | use |
-| --- | --- | --- |
-| `http` | `httpx2`, `python-multipart` | HTTP transport |
-| `client` | `fomo[http]` | [`Client`][fomo.client.client.Client] talking to a running server |
-| `server` | FastAPI, uvicorn, `fomo[sktime]` | `fomo serve` / [`Server`][fomo.server.serve.Server], including `naive` |
-| `sktime` | `sktime`, `skpro` | pulled in by `server` |
-| `hf` | `fomo[sktime]`, `transformers`, `accelerate` | shared Hub stack |
-| `hub` | `fomo[hf]`, `torch` | Chronos Bolt/T5, TTM, TimesFM 2.x |
-| `chronos` | `fomo[hf]`, `chronos-forecasting`, `torch` | Chronos-2 |
-| `kronos` | `fomo[sktime]`, tokenizer deps, `torch` | Kronos, WindFM |
-| `granite` | `fomo[hf]`, `granite-tsfm`, `torch` | FlowState |
-| `moirai` | `fomo[hf]`, gluonts/lightning/hydra, `torch` | Moirai, Lag-Llama |
-| `tirex` | `fomo[hf]`, `tirex-ts`, `torch` | TiRex |
-| `toto` | `fomo[hf]`, `toto-models`, `torch` | Toto-2 |
-| `mantis` | `fomo[hf]`, `mantis-tsfm`, `torch` | Mantis |
-| `full` | the family extras above | every catalog family |
-| `all-extras` | `client` + `server` + `full` | pip stand-in for `uv sync --all-extras` |
-| `gpu` | `torch` from PyPI (CUDA / MPS) | pair with a family extra; default lock uses CPU torch |
-
-This site is not an extra. From a clone, `uv sync --group docs` (or `pip install -e ".[docs]"`).
-
-Pick extras to match what the process will do:
-
-| you want | uv | pip (from this clone) |
-| --- | --- | --- |
-| call a remote server only | `uv sync --extra client` | `pip install -e ".[client]"` |
-| serve `naive` | `uv sync --extra server` | `pip install -e ".[server]"` |
-| serve TTM / TimesFM / Chronos Bolt | `uv sync --extra server --extra hub` | `pip install -e ".[server,hub]"` |
-| serve Chronos-2 | `uv sync --extra server --extra chronos` | `pip install -e ".[server,chronos]"` |
-| GPU torch (uv) | add `--extra gpu` | use the `gpu` extra; uv's lock picks the CUDA/MPS index |
-
-A missing executor extra raises `ImportError` at load time (`pip install 'fomo[{name}]'` in the message — that `pip` line is showcase until PyPI exists). A missing *family* extra typically fails later, when `sktime.registry.craft` cannot import the estimator.
-
-Docker bakes extras into the image: `:base` is `server` + `sktime`; `:hub` adds `hub`; `:full` adds `full`. See [Load models](../models/index.md).
-
-## CLI
-
-```bash
-fomo serve --load-models naive chronos-bolt-tiny ttm-r3-512-30 --host 127.0.0.1 --port 8000 --log-level info
-```
-
-| flag | default | |
-| --- | --- | --- |
-| `--load-models` | none | registry ids to load |
-| `--models-dir` | none | rewrite matching `.zip` stems already named in `--load-models` |
-| `--host` | `127.0.0.1` | use `0.0.0.0` in Docker |
-| `--port` | `8000` | |
-| `--log-level` | `info` | uvicorn log level |
-
-`--load-models` takes names only. `(id, estimator)` pairs are SDK-only. Unknown registry ids fail during construction, before uvicorn starts. `KeyboardInterrupt` exits 0.
-
-## After start
-
-Startup logs print the bind URLs. Default bind is [http://127.0.0.1:8000](http://127.0.0.1:8000):
+Once the process is up, the terminal prints the URLs:
 
 - Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-`GET /health` is liveness, not “models are warm”. Confirm what loaded:
+Confirm what loaded:
 
 ```bash
 curl -s http://127.0.0.1:8000/models
 ```
 
-Then [load more models](../models/index.md) or [send a forecast](../client/http.md).
+`GET /health` is liveness, not “models are warm”. Then [forecast](../client/http.md).
+
+## In this section
+
+<div class="grid cards" markdown>
+
+-   :material-docker:{ .lg .middle } **Docker**
+
+    ---
+
+    Pull a tag, mount the Hub cache, pass a token, or build the image yourself.
+
+    [:octicons-arrow-right-24: Docker](docker.md)
+
+-   :material-console:{ .lg .middle } **From source**
+
+    ---
+
+    Install from a clone, then `fomo serve` or [`Server`][fomo.server.serve.Server].
+
+    [:octicons-arrow-right-24: From source](source.md)
+
+-   :material-code-braces:{ .lg .middle } **Live objects**
+
+    ---
+
+    Serve an estimator you configured in Python. CLI cannot do this.
+
+    [:octicons-arrow-right-24: Live objects](live-objects.md)
+
+-   :material-folder-zip-outline:{ .lg .middle } **Models from a directory**
+
+    ---
+
+    Load sktime `.zip` files by stem. Mix them with registry ids.
+
+    [:octicons-arrow-right-24: Models from a directory](models-dir.md)
+
+-   :material-monitor-dashboard:{ .lg .middle } **Dashboard**
+
+    ---
+
+    Browser console at `GET /`. It talks to the JSON endpoints of this process.
+
+    [:octicons-arrow-right-24: Dashboard](dashboard.md)
+
+</div>
