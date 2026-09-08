@@ -162,7 +162,6 @@ nav:
       - Overview: overview.md
   - Server:
       - Install and serve: server/index.md
-      - Docker: server/docker.md
       - Dashboard: server/dashboard.md
   - Models:
       - Load models: models/index.md

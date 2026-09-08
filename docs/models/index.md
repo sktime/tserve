@@ -4,7 +4,7 @@ The registry is the list of ids the server *can* load. Nothing in it is loaded u
 
 Do not invent ids. Forecast `model` must be a loaded id, not an executor name (`sktime`) and not a catalog id this process never loaded.
 
-`naive` is `NaiveForecaster` — no Hub download. Every other id pulls a Hugging Face (or equivalent) checkpoint on first load. That needs the matching [family extra](../server/index.md#dependencies), or a [Docker tag](../server/docker.md) that already baked it in.
+`naive` is `NaiveForecaster` — no Hub download. Every other id pulls a Hugging Face (or equivalent) checkpoint on first load. That needs the matching [family extra](../server/index.md#dependencies), or a Docker tag that already baked it in.
 
 ## Which extra / image?
 
@@ -21,7 +21,7 @@ Do not invent ids. Forecast `model` must be a loaded id, not an executor name (`
 | `mantis` / `:mantis` | Mantis | `mantis-8m` |
 | `full` / `:full` | all of the above | |
 
-`kronos` is layered on `base`, not on `hub`. First Hub download is faster with `HF_TOKEN` set (a read token is enough). Mount `~/.cache/huggingface` in Docker so weights persist — see [Docker](../server/docker.md#hugging-face-token-and-cache).
+`kronos` is layered on `base`, not on `hub`. First Hub download is faster with `HF_TOKEN` set (a read token is enough). Mount `~/.cache/huggingface` in Docker so weights persist.
 
 ## Loading registered models
 

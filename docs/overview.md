@@ -22,7 +22,7 @@ Walk top to bottom. Three seams:
 
 The [catalog](models/catalog.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id. See [Load models](models/index.md).
 
-Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md).
+Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](models/index.md).
 
 ## Request shape
 

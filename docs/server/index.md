@@ -8,7 +8,7 @@ The CLI `fomo serve` constructs [`Server`][fomo.server.serve.Server] and calls `
 
 ### Docker image
 
-Pick a [family tag](docker.md) that contains the extras you need. Extra `docker run` arguments replace the image `CMD` (which otherwise loads `naive`):
+Pick a [family tag](../models/index.md) that contains the extras you need. Extra `docker run` arguments replace the image `CMD` (which otherwise loads `naive`):
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt-tiny ttm-r3-512-30
@@ -114,7 +114,7 @@ Pick extras to match what the process will do:
 
 A missing executor extra raises `ImportError` at load time (`pip install 'fomo[{name}]'` in the message — that `pip` line is showcase until PyPI exists). A missing *family* extra typically fails later, when `sktime.registry.craft` cannot import the estimator.
 
-Docker bakes extras into the image: `:base` is `server` + `sktime`; `:hub` adds `hub`; `:full` adds `full`. See [Docker](docker.md).
+Docker bakes extras into the image: `:base` is `server` + `sktime`; `:hub` adds `hub`; `:full` adds `full`. See [Load models](../models/index.md).
 
 ## CLI
 

@@ -14,7 +14,7 @@ FoMo is a process you start, not a hosted API. It loads time-series foundation m
 
 The [catalog](models/catalog.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You [name the ids you want](models/index.md); the server loads those and leaves the rest alone.
 
-Start it [from source](server/index.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
+Start it [from source](server/index.md) or from a [Docker image](models/index.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
