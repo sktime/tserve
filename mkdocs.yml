@@ -171,8 +171,10 @@ nav:
       - Load models: models/index.md
       - Catalog: models/catalog.md
   - Client:
+      - client/index.md
       - HTTP: client/http.md
       - Python: client/python.md
+      - Data specification: client/data.md
   - Reference:
       - HTTP API: reference/http.md
       - CLI: reference/cli.md
