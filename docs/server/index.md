@@ -2,7 +2,7 @@
 
 The server is the process you start. It loads the models you name, keeps them warm, and answers forecast requests. Dashboard, OpenAPI, and `/forecast` all belong to that process.
 
-Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models` lists what this process loaded, not the [catalog](../models/catalog.md). Which ids exist, and which extra or image tag each one needs, is on [Load models](../models/index.md).
+Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which ids exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
 ## Quick start
 

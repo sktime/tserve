@@ -37,7 +37,7 @@ The id is what forecast requests send as `model`:
 - The object must be an sktime `BaseForecaster`. Anything else raises `TypeError` naming the id and the type you passed.
 - Ids must be unique across the whole list. A collision — including with a registry id — raises `ValueError` before the second load.
 - Registry ids, live objects, and [saved models](models-dir.md) mix freely in one `load_models` list.
-- The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#which-extra-image) declare.
+- The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#dependencies) declare.
 
 ## Configured Hub estimators
 
@@ -60,4 +60,4 @@ Server(
 ).run()
 ```
 
-Each object is loaded and warmed up like any other model, so startup pays the same download and warmup cost once. [Load models](../models/index.md) is the model-side view of the same list.
+Each object is loaded and warmed up like any other model, so startup pays the same download and warmup cost once. Registry ids and extras are on the [catalog](../models/index.md).

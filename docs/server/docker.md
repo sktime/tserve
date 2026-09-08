@@ -8,19 +8,21 @@ Images ship Python, the FoMo package, and one set of model dependencies. The tag
 docker pull geetu040/fomo:hub
 ```
 
-`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags (`chronos`, `granite`, `kronos`, `moirai`, `tirex`, `toto`, `mantis`) each add one more stack, `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on [Load models](../models/index.md).
+`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags (`chronos`, `granite`, `kronos`, `moirai`, `tirex`, `toto`, `mantis`) each add one more stack, `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
 
 Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
 
 ## Run the server
 
+The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so every [CLI](../reference/cli.md) flag works here: `--load-models`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line).
+
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-Anything after the image name replaces the image `CMD`, which is `--load-models naive`. So `docker run --rm -p 8000:8000 geetu040/fomo:hub` serves `naive` — that default belongs to the image, not to `fomo serve`.
+The image `CMD` is `--load-models naive`. Replacing it is how you pick ids; omitting arguments serves `naive` — that default belongs to the image, not to a bare `fomo serve`.
 
-The `ENTRYPOINT` already passes `--host 0.0.0.0 --port 8000`. Leave the container port alone and remap the host side if 8000 is taken:
+Leave the container port at 8000 and remap the host side if that port is taken:
 
 ```bash
 docker run --rm -p 9000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny
@@ -32,7 +34,7 @@ The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:
 
 Ids must belong to the families baked into the tag: `chronos-bolt-tiny` and `timesfm-2.5` need `:hub` or `:full`, while `chronos-2` needs `:chronos`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
 
-`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. Start with [Load models](../models/index.md), and see the [catalog](../models/catalog.md) for every id.
+`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 100 supported models are on the [catalog](../models/index.md).
 
 ## Hugging Face token
 
@@ -78,7 +80,7 @@ The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They ne
 docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt-tiny timesfm-2.5
 ```
 
-That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md) with the `gpu` extra, which resolves to MPS-capable torch.
+That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md#gpu).
 
 ## Models from a directory
 

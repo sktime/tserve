@@ -18,15 +18,118 @@ Python >= 3.12, and a clone over HTTPS. FoMo is **not on PyPI yet**, so installs
     pip install -e ".[server,hub]"
     ```
 
-`server` is enough to serve `naive`. Each model family is its own extra — `hub` above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Pick the ones matching the ids you plan to load; extras and tags are on [Load models](../models/index.md#which-extra-image).
+`server` is enough to serve `naive`. The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
+
+## Dependencies
+
+uv repeats `--extra`. pip takes one extras list. After uv, run `uv run fomo serve …`. After pip, with the venv on `PATH`, run `fomo serve …`.
+
+**Naive**
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server]"
+    ```
+
+**Hub**
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server --extra hub
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server,hub]"
+    ```
+
+**Chronos-2**
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server --extra chronos
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server,chronos]"
+    ```
+
+**All families** (`full` is the union extra, not `all-extras`. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag.)
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server --extra full
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server,full]"
+    ```
+
+--8<-- "includes/model-dependencies.md"
+
+All 100 supported models are on the [catalog](../models/index.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
+
+## GPU
+
+Family extras pull `torch`. Which wheel you get depends on the installer.
+
+**uv** defaults to the CPU index. Add `--extra gpu` for the PyPI wheel: CUDA on Linux and Windows, MPS on Apple silicon. Pair it with the family extras you need.
+
+=== "uv"
+
+    ```bash
+    uv sync --extra server --extra hub --extra gpu
+    ```
+
+**pip** ignores the `gpu` extra. A normal install already uses GPU torch from PyPI (CUDA, or MPS on macOS). Do not add `gpu` to the extras list; it does nothing.
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[server,hub]"
+    ```
+
+For **CPU torch with pip**, install torch from the CPU index first, then FoMo as usual. If pip later replaces it with a CUDA wheel, run the torch line again.
+
+=== "pip"
+
+    ```bash
+    pip install torch --index-url https://download.pytorch.org/whl/cpu
+    pip install -e ".[server,hub]"
+    ```
+
+Swap `hub` for any other family extra from [Dependencies](#dependencies). Containers use `*-gpu` tags instead: [Docker](docker.md#gpu-images).
 
 ## Serve from the command line
 
-```bash
-uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
-```
+=== "uv"
 
-Without uv, drop the prefix and call `fomo serve` directly. Startup prints the URLs it binds:
+    ```bash
+    uv run fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+    ```
+
+=== "pip"
+
+    ```bash
+    fomo serve --load-models chronos-bolt-tiny timesfm-2.5
+    ```
+
+Startup prints the URLs it binds:
 
 ```text
 Starting FoMo

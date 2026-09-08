@@ -58,7 +58,7 @@ from the registry, and `GET /models` labels them apart:
 - A name that matches no file falls through to the registry, and fails there if it is not a registry id.
 - Other suffixes raise `ValueError`; a saved `.pkl` is not accepted.
 - The directory itself has to exist.
-- Dependencies are your problem: a saved TTM still needs the `hub` [extra](../models/index.md#which-extra-image) in the environment doing the loading.
+- Dependencies are your problem: a saved TTM still needs the `hub` [extra](../models/index.md#dependencies) in the environment doing the loading.
 
 ## From Python
 
