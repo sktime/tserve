@@ -12,7 +12,7 @@ Time-series Foundation Models behind one server. Load the models you name, keep 
 
 FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers forecast requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/forecast` all belong to that process.
 
-The [catalog](models/catalog.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You [name the ids you want](models/index.md); the server loads those and leaves the rest alone.
+The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You name the ids you want; the server loads those and leaves the rest alone.
 
 Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
 
@@ -32,7 +32,7 @@ docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt-tiny t
 
 **Build from source**
 
-Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#which-extra-image) for Hub models.
+Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
 
 === "uv"
 
@@ -173,7 +173,7 @@ print(result.predictions)
 
     [:octicons-arrow-right-24: Install and serve](server/index.md)
 
--   :material-cube-outline:{ .lg .middle } **Load models**
+-   :material-cube-outline:{ .lg .middle } **Catalog**
 
     ---
 

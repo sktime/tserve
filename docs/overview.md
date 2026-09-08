@@ -20,9 +20,9 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded ids | `GET /models` |
 
-The [catalog](models/catalog.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id. See [Load models](models/index.md).
+The [catalog](models/index.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Forecast `model` must be a loaded id.
 
-Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md).
+Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies).
 
 ## Request shape
 
@@ -44,6 +44,6 @@ Panel (multi-series) and hierarchical input are not supported.
 
 ## Next
 
-1. [Start a server](server/index.md) (extras and tags: [Load models](models/index.md#which-extra-image))
-2. [Load models](models/index.md)
+1. [Start a server](server/index.md) (extras and tags: [Dependencies](models/index.md#dependencies))
+2. [Catalog](models/index.md)
 3. [Send forecasts](client/index.md) over HTTP or from Python
