@@ -10,19 +10,13 @@ Time-series Foundation Models behind one server. Load the models you name, keep 
 
 </div>
 
-FoMo is a time-series foundation-model inference server. Load selected models once, keep them warm, and forecast over HTTP or the Python client. It is not a training library.
+FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers forecast requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/forecast` all belong to that process.
 
-Nothing is loaded by default. A bare `fomo serve` starts with an empty model list. Name registry ids with `--load-models`. `GET /models` lists only what this process loaded, not the full [catalog](models/catalog.md).
+The [catalog](models/catalog.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You [name the ids you want](models/index.md); the server loads those and leaves the rest alone.
 
-Images are split by model family so you do not pull every estimator extra. The image `CMD` loads `naive` if you pass no extra arguments. That is an image default, not the Python default.
+Start it [from source](server/index.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then forecast over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots forecasts and shows what is loaded.
 
-| tag | loads |
-| --- | --- |
-| [`geetu040/fomo:base`](https://hub.docker.com/r/geetu040/fomo) | `naive` only |
-| [`geetu040/fomo:hub`](https://hub.docker.com/r/geetu040/fomo) | `base` + TTM + TimesFM 2.x + Chronos Bolt/T5 |
-| [`geetu040/fomo:full`](https://hub.docker.com/r/geetu040/fomo) | every family in the catalog |
-
-Family tags (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `kronos`) and `*-gpu` variants are listed on the [Docker](server/docker.md) page.
+Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
 ## Quick start
 
