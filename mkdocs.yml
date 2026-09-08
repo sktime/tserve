@@ -161,7 +161,11 @@ nav:
       - Getting started: index.md
       - Overview: overview.md
   - Server:
-      - Install and serve: server/index.md
+      - server/index.md
+      - Docker: server/docker.md
+      - From source: server/source.md
+      - Live objects: server/live-objects.md
+      - Models from a directory: server/models-dir.md
       - Dashboard: server/dashboard.md
   - Models:
       - Load models: models/index.md
