@@ -112,13 +112,13 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run fomo serve --load-models chronos-bolt timesfm-2.5
+    uv run fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --load-models chronos-bolt timesfm-2.5
+    fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 Startup prints the URLs it binds:
@@ -140,7 +140,7 @@ Starting FoMo
 from fomo.server import Server
 
 server = Server(
-    load_models=["chronos-bolt", "timesfm-2.5"],
+    load_models=["chronos-bolt", "ttm-r3"],
     host="127.0.0.1",
     port=8000,
 )
