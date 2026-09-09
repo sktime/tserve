@@ -1,5 +1,8 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from fomo import __version__
 from fomo.cli.main import main
 
 
@@ -49,3 +52,11 @@ def test_main_forwards_flags():
         port=9000,
         log_level="debug",
     )
+
+
+def test_main_version(capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        main(["--version"])
+
+    assert excinfo.value.code == 0
+    assert capsys.readouterr().out.strip() == f"fomo {__version__}"
