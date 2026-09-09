@@ -50,6 +50,8 @@ Or clone the repo and start from source. The `server` extra is enough for `naive
     fomo serve --load-models chronos-bolt timesfm-2.5
     ```
 
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
+
 Once the process is up, the terminal prints the URLs:
 
 - Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
