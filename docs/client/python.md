@@ -20,11 +20,12 @@ signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
-for quantiles:
+The examples use `chronos-bolt` and `ttm-r3` for point forecasts.
+Quantile examples use `naive`; Chronos Bolt and TTM do not support
+quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt ttm-r3
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -317,7 +318,7 @@ executor behavior, including the limitation on time-varying covariates.
 ## Request quantiles
 
 Add `quantiles` when the loaded estimator supports quantile prediction. This
-example uses `timesfm-2.5`; Chronos Bolt does not support quantiles:
+example uses `naive`; Chronos Bolt and TTM do not support quantiles:
 
 ```python
 from fomo.client import Client
@@ -339,7 +340,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="timesfm-2.5",
+        model="naive",
         quantiles=[0.1, 0.5, 0.9],
     )
 
@@ -347,12 +348,13 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. `timesfm-2.5` currently names quantile columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`.
+`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). Some, such as `timesfm-2.5`, currently use a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Handle errors
 
 Local request validation can raise Pydantic `ValidationError` before any HTTP
 call. Server responses with status 400 or higher become `RuntimeError`.
-Connection and timeout failures are `httpx.RequestError`.
+Connection and timeout failures are `fomo.client.TransportError` (do not
+catch `httpx.RequestError` — FoMo vendors `httpx2`).
 
 See [Errors](../reference/errors.md) for the messages each case produces.
