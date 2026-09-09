@@ -7,3 +7,12 @@ dispatch lives under ``fomo.scheduling``. Import ``Client`` from
 ``fomo.client`` and ``Server`` from ``fomo.server`` — this package
 does not re-export them.
 """
+
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("fomo")
+except PackageNotFoundError:  # running from a source tree, not installed
+    __version__ = "0.0.0"
+
+__all__ = ["__version__"]
