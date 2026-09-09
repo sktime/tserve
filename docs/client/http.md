@@ -23,8 +23,9 @@ links.
 
 ## Start a server
 
-The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
-for quantiles:
+The point forecast examples use `chronos-bolt`. Quantile examples use
+`timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt
+does not:
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
@@ -137,8 +138,8 @@ row-oriented request shape.
 
 ## Request quantiles
 
-Quantiles are a second result table. The estimator must support them, so this
-example uses the loaded `timesfm-2.5` model:
+Quantiles are a second result table. The estimator must support quantile
+prediction, so this example uses the loaded `timesfm-2.5` model:
 
 === "bash / zsh"
 
@@ -172,7 +173,10 @@ example uses the loaded `timesfm-2.5` model:
     }'
     ```
 
-`timesfm-2.5` currently names those columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`. See [Quantiles](data.md#quantiles) for the response shape and model limitation.
+Many estimators name those columns `{target}_{level}` (`sales_0.1`,
+`sales_0.5`, `sales_0.9`). `timesfm-2.5` currently uses a positional prefix
+(`0_0.1`, `0_0.5`, `0_0.9`). See [Quantiles](data.md#quantiles) for the
+response shape and model limitation.
 
 ## Inspect the server
 

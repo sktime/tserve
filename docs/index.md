@@ -24,10 +24,10 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 **Use Docker**
 
-Pull the `hub` image and load two registry ids: `chronos-bolt` and `timesfm-2.5`.
+Pull the `hub` image and load two registry ids: `chronos-bolt` and `ttm-r3`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
 **Build from source**
@@ -39,7 +39,7 @@ Or clone the repo and start from source. The `server` extra is enough for `naive
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt timesfm-2.5
+    uv run fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -47,7 +47,7 @@ Or clone the repo and start from source. The `server` extra is enough for `naive
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt timesfm-2.5
+    fomo serve --load-models chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
@@ -65,7 +65,7 @@ A request is a table plus the roles of its columns:
 - `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
-- `model` — an id this process loaded (`chronos-bolt` here; `timesfm-2.5` is also loaded above)
+- `model` — an id this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
 
 **From `curl`**
 
