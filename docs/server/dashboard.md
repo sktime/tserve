@@ -8,7 +8,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](
 
 - Pick a **loaded** model (the dropdown is `GET /models`, not the full catalog)
 - Set the prediction horizon (1–96 steps)
-- Optionally request a prediction interval (`quantiles`). The toggle starts **off**; turn it on to send `[0.1, 0.5, 0.9]` (or another coverage). The estimator must support quantile prediction; `timesfm-2.5` does. Incompatible families (Chronos-2, Chronos Bolt and T5, TTM, Kronos, Moirai, TiRex, and Mantis) reject the request with a 400 — leave the toggle off for those models. The dashboard slider is 1–96 steps; some models (Chronos Bolt) support a shorter horizon (64).
+- Optionally request a prediction interval (`quantiles`) if the model supports it.
 - Use a sample series (daily sales, airline, hourly energy, hourly traffic), paste CSV, or drop a CSV file (parsed in the browser)
 - Choose the time column and target columns
 - Run `POST /predict` and plot predictions
