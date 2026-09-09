@@ -18,6 +18,8 @@ Python >= 3.12, and a clone over HTTPS. FoMo is **not on PyPI yet**, so installs
     pip install -e ".[server,hub]"
     ```
 
+    The `gpu` extra does not work with pip. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](#gpu).
+
 `server` is enough to serve `naive`. The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
 
 ## Dependencies
@@ -90,28 +92,18 @@ Family extras pull `torch`. Which wheel you get depends on the installer.
 
 **uv** defaults to the CPU index. Add `--extra gpu` for the PyPI wheel: CUDA on Linux and Windows, MPS on Apple silicon. Pair it with the family extras you need.
 
-=== "uv"
+```bash
+uv sync --extra server --extra hub --extra gpu
+```
 
-    ```bash
-    uv sync --extra server --extra hub --extra gpu
-    ```
+**pip** does not honor the `gpu` extra. `pip install -e ".[server,hub,gpu]"` is the same as without `gpu`. A normal pip install always takes CUDA torch from PyPI (MPS on macOS).
 
-**pip** ignores the `gpu` extra. A normal install already uses GPU torch from PyPI (CUDA, or MPS on macOS). Do not add `gpu` to the extras list; it does nothing.
+To **force CPU torch with pip**, install torch from the CPU index first, then FoMo. If a later `pip install` replaces that wheel with CUDA, run the torch line again.
 
-=== "pip"
-
-    ```bash
-    pip install -e ".[server,hub]"
-    ```
-
-For **CPU torch with pip**, install torch from the CPU index first, then FoMo as usual. If pip later replaces it with a CUDA wheel, run the torch line again.
-
-=== "pip"
-
-    ```bash
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
-    pip install -e ".[server,hub]"
-    ```
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -e ".[server,hub]"
+```
 
 Swap `hub` for any other family extra from [Dependencies](#dependencies). Containers use `*-gpu` tags instead: [Docker](docker.md#gpu-images).
 
@@ -120,13 +112,13 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run fomo serve --load-models chronos-bolt timesfm-2.5
+    uv run fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --load-models chronos-bolt timesfm-2.5
+    fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 Startup prints the URLs it binds:
@@ -148,7 +140,7 @@ Starting FoMo
 from fomo.server import Server
 
 server = Server(
-    load_models=["chronos-bolt", "timesfm-2.5"],
+    load_models=["chronos-bolt", "ttm-r3"],
     host="127.0.0.1",
     port=8000,
 )

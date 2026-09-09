@@ -12,7 +12,7 @@ FoMo is not a hosted API. The URL points to a server process you started.
 ## Start a server
 
 For the examples in this section, start the `hub` image with
-`chronos-bolt` and `timesfm-2.5` loaded:
+`chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5

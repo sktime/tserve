@@ -11,7 +11,7 @@ Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models
 The `hub` image can load both models used throughout the client guides. Arguments replace the image `CMD`, which otherwise loads `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
@@ -25,7 +25,7 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt timesfm-2.5
+    uv run fomo serve --load-models chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -33,8 +33,10 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt timesfm-2.5
+    fomo serve --load-models chronos-bolt ttm-r3
     ```
+
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
 
 CLI flags, `Server`, and `server.app`: [From source](source.md).
 

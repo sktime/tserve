@@ -20,8 +20,9 @@ signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The examples use `chronos-bolt` for point forecasts and `timesfm-2.5`
-for quantiles:
+The point forecast examples use `chronos-bolt`. Quantile examples use
+`timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt
+does not:
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
@@ -317,7 +318,8 @@ executor behavior, including the limitation on time-varying covariates.
 ## Request quantiles
 
 Add `quantiles` when the loaded estimator supports quantile prediction. This
-example uses `timesfm-2.5`; Chronos Bolt does not support quantiles:
+example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not
+support quantiles:
 
 ```python
 from fomo.client import Client
@@ -347,12 +349,16 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. `timesfm-2.5` currently names quantile columns `0_0.1`, `0_0.5`, and `0_0.9`. Estimators that follow `{target}_{level}` use names such as `sales_0.1`.
+`predictions` remains the point forecast. Many estimators name quantile columns
+`{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`).
+`timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`,
+`0_0.9`).
 
 ## Handle errors
 
 Local request validation can raise Pydantic `ValidationError` before any HTTP
 call. Server responses with status 400 or higher become `RuntimeError`.
-Connection and timeout failures are `httpx.RequestError`.
+Connection and timeout failures are `fomo.client.TransportError` (do not
+catch `httpx.RequestError` — FoMo vendors `httpx2`).
 
 See [Errors](../reference/errors.md) for the messages each case produces.

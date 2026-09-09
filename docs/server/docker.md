@@ -17,7 +17,7 @@ Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on mac
 The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so every [CLI](../reference/cli.md) flag works here: `--load-models`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line).
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
 The image `CMD` is `--load-models naive`. Replacing it is how you pick ids; omitting arguments serves `naive` — that default belongs to the image, not to a bare `fomo serve`.
@@ -32,7 +32,7 @@ The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:
 
 ## Choose which models to load
 
-Ids must belong to the families baked into the tag. `chronos-bolt` and `timesfm-2.5` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
+Ids must belong to the families baked into the tag. `chronos-bolt` and `ttm-r3` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
 
 `:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
 
@@ -73,13 +73,13 @@ The container caches checkpoints in `/root/.cache/huggingface`, which disappears
 === "bash / zsh"
 
     ```bash
-    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt ttm-r3
     ```
 
 === "PowerShell"
 
     ```powershell
-    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" geetu040/fomo:hub --load-models chronos-bolt ttm-r3
     ```
 
 A named volume works too (`-v fomo-hf:/root/.cache/huggingface`) if you would rather not share the host cache.
@@ -89,7 +89,7 @@ A named volume works too (`-v fomo-hf:/root/.cache/huggingface`) if you would ra
 The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They need an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host, and `--gpus all` on the command:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt timesfm-2.5
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt ttm-r3
 ```
 
 That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md#gpu).
