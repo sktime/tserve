@@ -6,6 +6,8 @@ normal exit and on ``KeyboardInterrupt``.
 
 import argparse
 
+from fomo import __version__
+
 
 def _build_parser() -> argparse.ArgumentParser:
     """Build the ``fomo`` parser with a required ``serve`` subcommand.
@@ -21,6 +23,11 @@ def _build_parser() -> argparse.ArgumentParser:
         Parser with ``prog="fomo"`` and required dest ``command``.
     """
     parser = argparse.ArgumentParser(prog="fomo")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"fomo {__version__}",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     serve = sub.add_parser("serve", help="run the inference server")
