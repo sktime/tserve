@@ -85,6 +85,9 @@ A predict request describes a table and the roles of its columns:
 - `model` is an id already loaded by this server.
 - `future`, `static`, and `quantiles` are optional.
 
+`quantiles` requires an estimator that supports quantile prediction, such as
+`timesfm-2.5`; `ttm-r3` does not.
+
 `past` is not a one-dimensional vector. See the
 [data specification](https://fomo.readthedocs.io/en/latest/client/data/) for
 supported table shapes, inference rules, static data, quantiles, and current
