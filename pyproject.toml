@@ -68,6 +68,7 @@ moirai = [
   "gluonts>=0.14.0; python_version < '3.14'",
   "lightning>=2.0; python_version < '3.14'",
   "hydra-core; python_version < '3.14'",
+  "einops",
   "torch",
 ]
 # TiRexForecaster

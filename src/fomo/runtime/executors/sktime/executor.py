@@ -26,6 +26,16 @@ from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
+MISSING_DEPS_MESSAGE = (
+    "Model {model!r} could not be loaded: its sktime forecaster needs soft "
+    "dependencies that are missing from, or incompatible with, this "
+    "environment.\n\nOriginal error: {error}\n\nInstall the dependency extra "
+    'that covers this model, e.g. `pip install "fomo[<extra>]"` or '
+    "`uv sync --extra <extra>`, then load it again. The catalog lists the "
+    "extra (and matching Docker tag) for every model id: "
+    "https://fomo.readthedocs.io/en/latest/models/"
+)
+
 
 @register("sktime")
 class SktimeExecutor(Executor):
@@ -52,6 +62,11 @@ class SktimeExecutor(Executor):
         * ``object``: use ``model`` as the forecaster.
         * ``directory``: ``sktime.base.load(model)`` (saved ``.zip`` path).
 
+        The forecaster is checked against the environment with
+        ``sktime.utils.dependencies._check_estimator_deps``, so an
+        ``object`` or ``directory`` forecaster that constructs fine but
+        cannot run here is rejected at load time too.
+
         Parameters
         ----------
         info : ModelInfo
@@ -66,24 +81,40 @@ class SktimeExecutor(Executor):
         KeyError
             If ``source`` is ``registry`` and ``model`` is not a key of
             ``SKTIME_REGISTRY``.
+        ModuleNotFoundError
+            If the forecaster needs soft dependencies this environment
+            does not satisfy. Re-raised from the underlying sktime error
+            with ``MISSING_DEPS_MESSAGE``, pointing at the catalog extra.
         Exception
-            Errors from ``sktime.registry.craft`` or
+            Other errors from ``sktime.registry.craft`` or
             ``sktime.base.load``.
         """
+        from sktime.utils.dependencies import _check_estimator_deps
+
         self._info = info
 
-        if info.source == "registry":
-            from sktime.registry import craft
+        try:
+            if info.source == "registry":
+                from sktime.registry import craft
 
-            self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+                self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
 
-        if info.source == "object":
-            self._forecaster = model
+            if info.source == "object":
+                self._forecaster = model
 
-        if info.source == "directory":
-            from sktime.base import load
+            if info.source == "directory":
+                from sktime.base import load
 
-            self._forecaster = load(model)
+                self._forecaster = load(model)
+
+            # craft/load can succeed while the forecaster's soft deps are
+            # absent, so check the built forecaster as well.
+            _check_estimator_deps(self._forecaster)
+
+        except ModuleNotFoundError as error:
+            raise ModuleNotFoundError(
+                MISSING_DEPS_MESSAGE.format(model=info.id, error=error)
+            ) from error
 
     def warmup(self) -> None:
         """Fit a dummy 3-row ``y`` and ``predict`` with ``fh=[1]``.
