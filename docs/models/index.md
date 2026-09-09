@@ -30,7 +30,7 @@ Install extras from a clone on [From source](../server/source.md#dependencies). 
 
 ## Chronos Bolt
 
-`ChronosForecaster`. Extra `hub`, images [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) / [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu). Does not implement `predict_quantiles`.
+`ChronosForecaster`. Extra `hub`, images [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) / [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu). Does not support quantile prediction.
 
 | model | checkpoint |
 | --- | --- |
@@ -41,7 +41,8 @@ Install extras from a clone on [From source](../server/source.md#dependencies). 
 
 ## Chronos T5
 
-`ChronosForecaster`. Same extra and images as Chronos Bolt.
+`ChronosForecaster`. Same extra and images as Chronos Bolt. Does not support
+quantile prediction.
 
 | model | checkpoint |
 | --- | --- |
@@ -143,7 +144,8 @@ Same Hub repo as r2. `-l1` is the L1 checkpoint.
 
 ## TimesFM
 
-`TimesFM2Forecaster`. Extra `hub`.
+`TimesFM2Forecaster`. Extra `hub`. Supports quantile prediction for levels
+available in the checkpoint configuration.
 
 | model | checkpoint |
 | --- | --- |
@@ -238,6 +240,9 @@ Same Hub repo as r2. `-l1` is the L1 checkpoint.
 | `mantis-8m` | [paris-noah/Mantis-8M](https://huggingface.co/paris-noah/Mantis-8M) |
 | `mantis-plus` | [paris-noah/MantisPlus](https://huggingface.co/paris-noah/MantisPlus) |
 
-FoMo does not ship a capability matrix. Quantile support is the estimator's `predict_quantiles`; there is no FoMo flag. Chronos Bolt cannot return quantiles. `naive` can.
+FoMo reads quantile support from the estimator; there is no FoMo capability
+flag. The quantile-capable registry families are Naive, TimesFM 2.x, WindFM,
+Lag-Llama, FlowState, and Toto-2. Chronos-2, Chronos Bolt, Chronos T5, TTM,
+Kronos, Moirai 1.x and 2, TiRex, and Mantis cannot return quantiles.
 
 Load any of these models from [Docker](../server/docker.md) or [from source](../server/source.md), then [predict](../client/http.md).
