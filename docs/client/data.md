@@ -233,13 +233,14 @@ Request quantile levels with a list:
 
 ```json
 {
+  "model": "timesfm-2.5",
   "quantiles": [0.1, 0.5, 0.9]
 }
 ```
 
-The loaded estimator must implement quantile prediction. `naive`
-supports the levels above; Chronos Bolt and TTM do not. FoMo forwards the
-values to the estimator, which may apply additional validation.
+The loaded estimator must support quantile prediction. `timesfm-2.5` supports
+the levels above; Chronos Bolt and TTM do not. FoMo forwards the values to the
+estimator, which may apply additional validation.
 
 Point forecasts remain in `predictions`. Quantile forecasts are returned as a
 second table. Many estimators name those columns `{target}_{level}`

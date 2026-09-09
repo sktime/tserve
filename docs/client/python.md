@@ -20,12 +20,12 @@ signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The examples use `chronos-bolt` and `ttm-r3` for point forecasts.
-Quantile examples use `naive`; Chronos Bolt and TTM do not support
-quantiles:
+The point forecast examples use `chronos-bolt`. Quantile examples use
+`timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt
+does not:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models naive chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -318,7 +318,8 @@ executor behavior, including the limitation on time-varying covariates.
 ## Request quantiles
 
 Add `quantiles` when the loaded estimator supports quantile prediction. This
-example uses `naive`; Chronos Bolt and TTM do not support quantiles:
+example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not
+support quantiles:
 
 ```python
 from fomo.client import Client
@@ -340,7 +341,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="naive",
+        model="timesfm-2.5",
         quantiles=[0.1, 0.5, 0.9],
     )
 
@@ -348,7 +349,10 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). Some, such as `timesfm-2.5`, currently use a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
+`predictions` remains the point forecast. Many estimators name quantile columns
+`{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`).
+`timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`,
+`0_0.9`).
 
 ## Handle errors
 
