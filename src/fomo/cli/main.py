@@ -15,7 +15,8 @@ def _build_parser() -> argparse.ArgumentParser:
     ``serve`` flags: ``--load-models`` (``nargs="+"``, default ``[]``),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
-    ``--port`` (default 8000), ``--log-level`` (default ``info``).
+    ``--port`` (default 8000), ``--log-level`` (default ``info``;
+    ``debug``, ``info``, ``warning``, ``error``, or ``critical``).
 
     Returns
     -------
@@ -46,7 +47,13 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
-    serve.add_argument("--log-level", default="info", dest="log_level")
+    serve.add_argument(
+        "--log-level",
+        default="info",
+        dest="log_level",
+        choices=["debug", "info", "warning", "error", "critical"],
+        help="FoMo and uvicorn verbosity (default: info)",
+    )
     return parser
 
 
