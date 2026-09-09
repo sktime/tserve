@@ -36,6 +36,8 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     fomo serve --load-models chronos-bolt timesfm-2.5
     ```
 
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
+
 CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
