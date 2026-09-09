@@ -19,7 +19,7 @@ The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
 TimesFM 2.x. This command loads two registry ids:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
@@ -46,7 +46,7 @@ PowerShell.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 uv sync --extra server --extra hub
-uv run fomo serve --load-models chronos-bolt timesfm-2.5
+uv run fomo serve --load-models chronos-bolt ttm-r3
 ```
 
 **pip**
@@ -58,7 +58,7 @@ torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
-fomo serve --load-models chronos-bolt timesfm-2.5
+fomo serve --load-models chronos-bolt ttm-r3
 ```
 
 To force a CPU wheel, install torch from the CPU index first, then FoMo. If
@@ -189,7 +189,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt timesfm-2.5
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt ttm-r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -203,7 +203,7 @@ docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
 The [Docker guide](https://fomo.readthedocs.io/en/latest/server/docker/) covers
