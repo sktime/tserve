@@ -51,11 +51,22 @@ uv run fomo serve --load-models chronos-bolt timesfm-2.5
 
 **pip**
 
+The `gpu` extra does not work with pip. Family extras already install CUDA
+torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
+
 ```bash
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
 fomo serve --load-models chronos-bolt timesfm-2.5
+```
+
+To force a CPU wheel, install torch from the CPU index first, then FoMo. If
+pip later replaces it with CUDA, run the torch line again.
+
+```bash
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e ".[server,hub]"
 ```
 
 The `server` extra alone is enough for `naive`. Do not install `client` on a
