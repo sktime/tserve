@@ -1,14 +1,17 @@
+import numpy as np
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
 from fomo.client import Client
 from fomo.client.transports.http import HttpTransport
+from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.server import Server
 from fomo.types import HealthResult, ModelInfo, StatsResult
 
 
-def create_client():
-    server = Server(load_models=["naive"])
+def create_client(load_models=None):
+    server = Server(load_models=load_models or ["naive"])
     app = server.app
     httpx_client = TestClient(app)
     client = Client(
@@ -100,3 +103,85 @@ def test_predict_unknown_model():
             fh=3,
             model="chronos-2",
         )
+
+
+def test_predict_parity_sktime():
+    from sktime.datasets import load_airline
+    from sktime.registry import craft
+    from sktime.split import temporal_train_test_split
+
+    model = "naive"
+    fh = 3
+    y = load_airline()
+    y_train, _ = temporal_train_test_split(y, test_size=fh)
+
+    sktime_pred = (
+        craft(SKTIME_REGISTRY[model]["spec"])
+        .fit(y_train, fh=list(range(1, fh + 1)))
+        .predict()
+    )
+
+    past = y_train.to_frame().reset_index()
+    time = past.columns[0]
+    past[time] = past[time].dt.to_timestamp()
+
+    result = client.predict(
+        past=past,
+        time=time,
+        target=[y_train.name],
+        fh=fh,
+        model=model,
+    )
+
+    assert result.model == model
+    assert result.request_id
+    np.testing.assert_allclose(
+        result.predictions[y_train.name].to_numpy(),
+        sktime_pred.to_numpy().reshape(-1),
+        rtol=1e-5,
+        atol=1e-4,
+    )
+
+
+def test_predict_parity_sktime_exog():
+    pytest.importorskip("transformers")
+    pytest.importorskip("torch")
+
+    from sktime.datasets import load_longley
+    from sktime.registry import craft
+    from sktime.split import temporal_train_test_split
+
+    model = "ttm-r3"
+    fh = 2
+    y, X = load_longley()
+    y_train, _, X_train, X_future = temporal_train_test_split(y, X, test_size=fh)
+
+    sktime_pred = (
+        craft(SKTIME_REGISTRY[model]["spec"])
+        .fit(y_train, X=X_train, fh=list(range(1, fh + 1)))
+        .predict(X=X_future)
+    )
+
+    past = pd.concat([y_train.to_frame(), X_train], axis=1).reset_index()
+    future = X_future.reset_index()
+    past["Period"] = past["Period"].dt.to_timestamp()
+    future["Period"] = future["Period"].dt.to_timestamp()
+
+    ttm_client = create_client(load_models=[model])
+    result = ttm_client.predict(
+        past=past,
+        future=future,
+        time="Period",
+        target=["TOTEMP"],
+        fh=fh,
+        model=model,
+    )
+
+    assert result.model == model
+    assert result.request_id
+    np.testing.assert_allclose(
+        result.predictions["TOTEMP"].to_numpy(),
+        sktime_pred.to_numpy().reshape(-1),
+        rtol=1e-5,
+        atol=1e-4,
+    )
