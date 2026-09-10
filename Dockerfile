@@ -1,6 +1,6 @@
 # we avoid using python3.13-bookworm-slim here
 # see https://github.com/sktime/fomo/issues/92
-FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 
 WORKDIR /app
 
@@ -31,6 +31,18 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-editable \
         $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
 
+# Runtime image: no uv, no git, no source tree. `--no-editable` baked fomo
+# into the venv, so only `.venv` is copied. Python path must match the builder.
+FROM python:3.13-slim-trixie
+
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+
+ENV PATH="/app/.venv/bin:$PATH"
+
 EXPOSE 8000
-ENTRYPOINT ["uv", "run", "--no-sync", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
 CMD ["--load-models", "naive"]
