@@ -14,7 +14,11 @@ COPY . .
 #   docker build --build-arg FOMO_EXTRAS=hub .
 #   docker build --build-arg FOMO_EXTRAS="chronos gpu" .
 ARG FOMO_EXTRAS=""
-RUN uv sync --no-dev $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
+# The cache mount keeps uv's wheels out of the image (several GB on a GPU sync)
+# while still reusing them across rebuilds. printf repeats its format once per
+# extra, turning `chronos gpu` into `--extra chronos --extra gpu`.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --no-dev $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
 
 EXPOSE 8000
 ENTRYPOINT ["uv", "run", "--no-sync", "fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
