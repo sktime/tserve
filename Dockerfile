@@ -4,6 +4,11 @@ FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 
 WORKDIR /app
 
+# Cache mount lives on another filesystem, so copy instead of hardlinking.
+# The final image uses this same interpreter path (see runtime stage).
+ENV UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=0
+
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
     && rm -rf /var/lib/apt/lists/*
 
