@@ -1,4 +1,6 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+# we avoid using python3.13-bookworm-slim here
+# see https://github.com/sktime/fomo/issues/92
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 
 WORKDIR /app
 
