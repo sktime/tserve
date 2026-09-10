@@ -105,6 +105,44 @@ def test_predict_unknown_model():
         )
 
 
+def test_predict_parity_sktime():
+    from sktime.datasets import load_airline
+    from sktime.registry import craft
+    from sktime.split import temporal_train_test_split
+
+    model = "naive"
+    fh = 3
+    y = load_airline()
+    y_train, _ = temporal_train_test_split(y, test_size=fh)
+
+    sktime_pred = (
+        craft(SKTIME_REGISTRY[model]["spec"])
+        .fit(y_train, fh=list(range(1, fh + 1)))
+        .predict()
+    )
+
+    past = y_train.to_frame().reset_index()
+    time = past.columns[0]
+    past[time] = past[time].dt.to_timestamp()
+
+    result = client.predict(
+        past=past,
+        time=time,
+        target=[y_train.name],
+        fh=fh,
+        model=model,
+    )
+
+    assert result.model == model
+    assert result.request_id
+    np.testing.assert_allclose(
+        result.predictions[y_train.name].to_numpy(),
+        sktime_pred.to_numpy().reshape(-1),
+        rtol=1e-5,
+        atol=1e-4,
+    )
+
+
 def test_predict_parity_sktime_exog():
     pytest.importorskip("transformers")
     pytest.importorskip("torch")
