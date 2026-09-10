@@ -105,7 +105,7 @@ def test_predict_unknown_model():
         )
 
 
-def test_predict_sktime_parity():
+def test_predict_parity_sktime_exog():
     pytest.importorskip("transformers")
     pytest.importorskip("torch")
 
