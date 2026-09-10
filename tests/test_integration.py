@@ -10,8 +10,8 @@ from fomo.server import Server
 from fomo.types import HealthResult, ModelInfo, StatsResult
 
 
-def create_client(load_models=["naive"]):
-    server = Server(load_models=load_models)
+def create_client(load_models=None):
+    server = Server(load_models=load_models or ["naive"])
     app = server.app
     httpx_client = TestClient(app)
     client = Client(
