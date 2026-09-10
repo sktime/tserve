@@ -5,7 +5,8 @@ FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 WORKDIR /app
 
 # Cache mount lives on another filesystem, so copy instead of hardlinking.
-# The final image uses this same interpreter path (see runtime stage).
+# UV_PYTHON_DOWNLOADS=0 uses the image Python so the venv shebang still
+# works after we copy it onto python:3.13-slim-trixie.
 # uv's HTTP read timeout is 30s by default; a full bake saturates the network
 # and large wheels (torch, CUDA) then fail.
 ENV UV_LINK_MODE=copy \
