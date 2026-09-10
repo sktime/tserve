@@ -6,8 +6,12 @@ WORKDIR /app
 
 # Cache mount lives on another filesystem, so copy instead of hardlinking.
 # The final image uses this same interpreter path (see runtime stage).
+# uv's HTTP read timeout is 30s by default; a full bake saturates the network
+# and large wheels (torch, CUDA) then fail.
 ENV UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=0
+    UV_PYTHON_DOWNLOADS=0 \
+    UV_HTTP_TIMEOUT=300 \
+    UV_HTTP_RETRIES=10
 
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
     && rm -rf /var/lib/apt/lists/*
