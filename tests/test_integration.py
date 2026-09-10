@@ -7,10 +7,10 @@ from fomo.server import Server
 from fomo.types import HealthResult, ModelInfo, StatsResult
 
 
-def create_client():
-    server = Server(load_models=["naive"])
+def create_client(load_models=["naive"], timeout=None):
+    server = Server(load_models=load_models)
     app = server.app
-    httpx_client = TestClient(app)
+    httpx_client = TestClient(app, timeout=timeout)
     client = Client(
         server.url,
         transport=HttpTransport(server.url, httpx_client=httpx_client),
