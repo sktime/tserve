@@ -20,10 +20,7 @@ ARG FOMO_EXTRAS=""
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
-# `--frozen` / `--locked`.
-# The cache mount keeps uv's wheels out of the image (several GB on a GPU sync)
-# while still reusing them across rebuilds. printf repeats its format once per
-# extra, turning `chronos gpu` into `--extra chronos --extra gpu`.
+# `--frozen` / `--locked`. printf repeats `--extra` once per remaining word.
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-install-project \
