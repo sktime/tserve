@@ -23,12 +23,12 @@ ARG FOMO_EXTRAS=""
 # `--frozen` / `--locked`. printf repeats `--extra` once per remaining word.
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev --no-install-project \
+    uv sync --no-dev --no-install-project --no-editable \
         $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev \
+    uv sync --no-dev --no-editable \
         $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
 
 EXPOSE 8000
