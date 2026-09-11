@@ -73,12 +73,26 @@ def _to_narwhals(
     """
     if isinstance(df, nw.DataFrame):
         return df
+
     if isinstance(df, dict):
-        if set(df.keys()) == {"data", "columns"}:
-            rows = [dict(zip(df["columns"], row, strict=True)) for row in df["data"]]
-            return nw.from_dicts(rows, backend="pyarrow")
-        else:
+        try:
+            if set(df.keys()) == {"data", "columns"}:
+                rows = [
+                    dict(zip(df["columns"], row, strict=True))
+                    for row in df["data"]
+                ]
+                return nw.from_dicts(rows, backend="pyarrow")
+
             return nw.from_dict(df, backend="pyarrow")
+
+        except pa.ArrowInvalid as error:
+            raise ValueError(
+                f"{name} has a column FoMo could not convert to a single Arrow type.\n\n"
+                f"Original error: {error}\n\nEvery value in a column must share one type. "
+                'Mixed types (e.g. 1 and "2"), or nested objects and lists in a cell, '
+                "cannot be stored; use null for missing values."
+            ) from error
+
     # IntoFrame includes lazy frames; narwhals overloads don't match after
     # the dict branch, but eager_only=True is the documented conversion.
     return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
