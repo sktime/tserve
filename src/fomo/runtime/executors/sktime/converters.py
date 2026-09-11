@@ -69,9 +69,17 @@ def from_request(
     X_future : pandas.DataFrame or None
         Future exogenous with the same columns as ``X``, or ``None``.
     fh : sktime.forecasting.base.ForecastingHorizon
-        Relative horizon ``range(1, request.fh + 1)``.
+        Relative horizon ``range(1, request.fh + 1)``, with ``freq``
+        set from the ``past`` time index.
     quantiles : list of float or None
         ``request.quantiles``, forwarded unchanged.
+
+    Raises
+    ------
+    ValueError
+        If a time column is unusable (``_indexed``), a datetime index
+        has no inferrable spacing (``_freq``), or ``static`` is present
+        but empty (``_static``).
 
     See Also
     --------
