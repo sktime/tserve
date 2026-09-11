@@ -44,6 +44,15 @@ _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.predict+arrow"
 """Media type for ``POST /predict/bytes`` envelope bodies."""
 
 
+BAD_METADATA_MESSAGE = (
+    "the multipart 'metadata' field is not valid JSON.\n\nOriginal error: "
+    "{error}\n\nSend it as a JSON object of the non-frame predict fields, "
+    'e.g. metadata={{"fh": 3, "model": "naive"}}. The frames themselves go '
+    "in the separate 'past' / 'future' / 'static' file parts."
+)
+"""Message for a ``POST /predict/bytes`` ``metadata`` field that is not JSON."""
+
+
 _STATIC_DIR = Path(__file__).parent / "static"
 """Directory holding the dashboard assets (``index.html``, css, js, icon)."""
 
@@ -315,7 +324,11 @@ async def predict_bytes(
     request_id = str(uuid.uuid4())
 
     try:
-        parsed_metadata = json.loads(metadata)
+        try:
+            parsed_metadata = json.loads(metadata)
+        except json.JSONDecodeError as error:
+            raise ValueError(BAD_METADATA_MESSAGE.format(error=error)) from error
+
         request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
 
