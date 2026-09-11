@@ -230,6 +230,11 @@ def predict(request: PredictRequest, http_request: Request) -> PredictResponse:
         coerced = coerce_request(request)
         response = http_request.app.state.runtime.scheduler.run(coerced)
 
+    # An HTTPException already carries a chosen status and detail; re-wrapping
+    # it would force it to 400 and flatten the detail into a stringified dict.
+    except HTTPException:
+        raise
+
     except Exception as exc:
         raise HTTPException(
             status_code=400,
@@ -331,6 +336,9 @@ async def predict_bytes(
 
         request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
+
+    except HTTPException:
+        raise
 
     except Exception as exc:
         raise HTTPException(
