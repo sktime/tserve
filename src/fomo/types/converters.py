@@ -43,7 +43,9 @@ from fomo.types.models import (
 )
 
 
-def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
+def _to_narwhals(
+    df: IntoFrame | dict[str, list], *, name: str = "table"
+) -> nw.DataFrame:
     """Convert a supported native table into a narwhals DataFrame.
 
     Parameters
@@ -54,6 +56,8 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
         ``narwhals.from_dicts``. Any other dict is column-oriented
         (name → list) via ``narwhals.from_dict``. Other values go
         through ``narwhals.from_native(..., eager_only=True)``.
+    name : str, default "table"
+        Field name (``past``, ``future``, …) used in error messages.
 
     Returns
     -------
@@ -234,12 +238,18 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
         Next step on the bytes path.
     """
     payload = request.model_dump(exclude={"past", "future", "static"})
-    past = _to_narwhals(request.past)
-    future = _to_narwhals(request.future) if request.future is not None else None
+    past = _to_narwhals(request.past, name="past")
+    future = (
+        _to_narwhals(request.future, name="future")
+        if request.future is not None
+        else None
+    )
     payload["past"] = past
     payload["future"] = future
     payload["static"] = (
-        _to_narwhals(request.static) if request.static is not None else None
+        _to_narwhals(request.static, name="static")
+        if request.static is not None
+        else None
     )
 
     if payload["time"] is None:
@@ -361,9 +371,11 @@ def coerce_response(response: PredictResponse) -> CoercedPredictResponse:
         If a frame cannot be converted to narwhals.
     """
     payload = response.model_dump(exclude={"predictions", "quantiles"})
-    payload["predictions"] = _to_narwhals(response.predictions)
+    payload["predictions"] = _to_narwhals(response.predictions, name="predictions")
     payload["quantiles"] = (
-        _to_narwhals(response.quantiles) if response.quantiles is not None else None
+        _to_narwhals(response.quantiles, name="quantiles")
+        if response.quantiles is not None
+        else None
     )
     return CoercedPredictResponse.model_validate(payload)
 
