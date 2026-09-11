@@ -153,6 +153,44 @@ def _to_bytes(df: nw.DataFrame) -> bytes:
     return sink.getvalue()
 
 
+def _from_arrow_bytes(blob: bytes, *, name: str) -> nw.DataFrame:
+    """Read one Arrow IPC stream blob back into a narwhals DataFrame.
+
+    Inverse of ``_to_bytes`` for the multipart and envelope paths.
+
+    Parameters
+    ----------
+    blob : bytes
+        Arrow IPC stream bytes for a single named part.
+    name : str
+        Part name (``past``, ``predictions``, …) used in error messages.
+
+    Returns
+    -------
+    narwhals.DataFrame
+        Eager pyarrow-backed frame.
+
+    Raises
+    ------
+    ValueError
+        If ``blob`` is not a readable Arrow IPC stream (empty body,
+        text, or truncated bytes). Re-raised from the ``pyarrow.ArrowInvalid``.
+    """
+    try:
+        table = pa.ipc.open_stream(io.BytesIO(blob)).read_all()
+
+    except pa.ArrowInvalid as error:
+        raise ValueError(
+            f"{name} could not be read as an Arrow IPC stream.\n\nOriginal error: "
+            f"{error}\n\nEach frame part of a multipart POST /predict/bytes must be "
+            "the bytes of an Arrow IPC *stream* (pyarrow.ipc.new_stream), not an "
+            "empty body, a JSON body, or an Arrow *file*. The FoMo client writes "
+            "this format for you."
+        ) from error
+
+    return nw.from_arrow(table, backend="pyarrow")
+
+
 def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     """Turn a user-facing request into the narwhals form executors consume.
 
@@ -296,10 +334,7 @@ def decode_request(
     payload = dict(metadata)
     for frame in ["past", "future", "static"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(
-                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
-                backend="pyarrow",
-            )
+            payload[frame] = _from_arrow_bytes(bytes_encoded[frame], name=frame)
     return CoercedPredictRequest.model_validate(payload)
 
 
@@ -394,10 +429,7 @@ def decode_response(
     payload = dict(metadata)
     for frame in ["predictions", "quantiles"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(
-                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
-                backend="pyarrow",
-            )
+            payload[frame] = _from_arrow_bytes(bytes_encoded[frame], name=frame)
     return CoercedPredictResponse.model_validate(payload)
 
 
