@@ -80,7 +80,9 @@ def from_request(
     """
     past = _indexed(request.past, request, name="past")
     y: pd.DataFrame = past.loc[:, request.target]
-    fh = ForecastingHorizon(range(1, request.fh + 1), is_relative=True)
+    fh = ForecastingHorizon(
+        range(1, request.fh + 1), is_relative=True, freq=_freq(past.index, request)
+    )
 
     static = _static(request)
     if not static:
