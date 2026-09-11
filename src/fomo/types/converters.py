@@ -81,8 +81,7 @@ def _to_narwhals(
         try:
             if set(df.keys()) == {"data", "columns"}:
                 rows = [
-                    dict(zip(df["columns"], row, strict=True))
-                    for row in df["data"]
+                    dict(zip(df["columns"], row, strict=True)) for row in df["data"]
                 ]
                 return nw.from_dicts(rows, backend="pyarrow")
 
