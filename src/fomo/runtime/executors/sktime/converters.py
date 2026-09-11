@@ -236,11 +236,27 @@ def _static(request: CoercedPredictRequest) -> dict[str, Any]:
     dict of str to any
         Empty dict if ``static`` is ``None``; otherwise
         ``static.to_pandas().iloc[0].to_dict()``.
+
+    Raises
+    ------
+    ValueError
+        If ``static`` is present but has no rows to read.
     """
     if request.static is None:
         return {}
+
     static: nw.DataFrame[Any] = request.static
-    return static.to_pandas().iloc[0].to_dict()
+    frame = static.to_pandas()
+
+    if frame.empty:
+        raise ValueError(
+            f"static has columns {list(frame.columns)} but no rows.\n\nStatic "
+            "features are read from a single row and held constant over time, "
+            'so give each column exactly one value, e.g. {"store": ["urban"]}, '
+            "or omit static entirely."
+        )
+
+    return frame.iloc[0].to_dict()
 
 
 def _as_table(frame: pd.DataFrame, request: CoercedPredictRequest) -> nw.DataFrame[Any]:
