@@ -78,7 +78,7 @@ def from_request(
     fomo.types.models.CoercedPredictRequest
         Column contracts for the coerced payload.
     """
-    past = _indexed(request.past, request)
+    past = _indexed(request.past, request, name="past")
     y: pd.DataFrame = past.loc[:, request.target]
     fh = ForecastingHorizon(range(1, request.fh + 1), is_relative=True)
 
@@ -87,7 +87,7 @@ def from_request(
         return y, None, None, fh, request.quantiles
 
     if request.future is not None:
-        future = _indexed(request.future, request)
+        future = _indexed(request.future, request, name="future")
     else:
         future = pd.DataFrame(index=fh.to_absolute(past.index[-1:]).to_pandas())
 
@@ -143,7 +143,9 @@ def to_response(
     )
 
 
-def _indexed(table: nw.DataFrame[Any], request: CoercedPredictRequest) -> pd.DataFrame:
+def _indexed(
+    table: nw.DataFrame[Any], request: CoercedPredictRequest, *, name: str
+) -> pd.DataFrame:
     """Set the time column as the index, converting JSON strings if needed.
 
     Indexes already valid for sktime (datetime, period, timedelta,
