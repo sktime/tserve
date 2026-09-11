@@ -152,17 +152,30 @@ def _indexed(
     range, integer) are unchanged. Anything else, typically a string
     timestamp column from JSON, is converted with ``pandas.to_datetime``.
 
+    The resulting index is checked so sktime sees a usable time axis:
+    no missing timestamps, sorted ascending, and no duplicates.
+
     Parameters
     ----------
     table : narwhals.DataFrame
         Past or future table.
     request : CoercedPredictRequest
         Supplies the time column name.
+    name : str
+        Frame name (``past`` or ``future``) used in error messages.
 
     Returns
     -------
     pandas.DataFrame
         Frame indexed by ``request.time``.
+
+    Raises
+    ------
+    ValueError
+        If the time column cannot be read as timestamps, or holds
+        missing, unsorted, or duplicate values. sktime reports these
+        as a long list of rejected input formats, so they are caught
+        here instead.
     """
     time = request.time
     frame = table.to_pandas().set_index(time)
