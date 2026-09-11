@@ -95,7 +95,16 @@ def _to_narwhals(
 
     # IntoFrame includes lazy frames; narwhals overloads don't match after
     # the dict branch, but eager_only=True is the documented conversion.
-    return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
+    try:
+        return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
+
+    except TypeError as error:
+        raise TypeError(
+            f"{name} is not a table FoMo can read: got {type(df).__name__}.\n\nOriginal error: "
+            f"{error}\n\nSend {name} as a column-oriented dict of name -> list, a "
+            "row-oriented dict with 'columns' and 'data', or a pandas / polars / "
+            "pyarrow table."
+        ) from error
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
