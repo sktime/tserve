@@ -164,9 +164,49 @@ def _indexed(
     pandas.DataFrame
         Frame indexed by ``request.time``.
     """
-    frame = table.to_pandas().set_index(request.time)
+    time = request.time
+    frame = table.to_pandas().set_index(time)
+
     if not is_in_valid_index_types(frame.index):
-        frame.index = pd.to_datetime(frame.index)
+        try:
+            frame.index = pd.to_datetime(frame.index)
+
+        except (ValueError, TypeError) as error:
+            raise ValueError(
+                f"{name} column {time!r} could not be read as timestamps.\n\n"
+                f"Original error: {error}\n\nUse one consistent format across "
+                'every row, ideally ISO 8601 (e.g. "2024-01-01" or '
+                f'"2024-01-01T00:00:00"), or send {time!r} as integers to '
+                "index the series by position instead."
+            ) from error
+
+    index = frame.index
+
+    if index.hasnans:
+        raise ValueError(
+            f"{name} column {time!r} has {int(index.isna().sum())} missing "
+            f"timestamp(s) out of {len(index)}.\n\nEmpty strings and nulls "
+            "become NaT, which sktime cannot place on a time axis. Give every "
+            "row a timestamp, or drop the incomplete rows before sending."
+        )
+
+    if not index.is_monotonic_increasing:
+        raise ValueError(
+            f"{name} column {time!r} is not sorted in increasing order.\n\n"
+            "sktime needs observations oldest first. Sort the rows by "
+            f"{time!r} before sending, e.g. pandas "
+            f"`df.sort_values({time!r})`."
+        )
+
+    if not index.is_unique:
+        duplicates = index[index.duplicated()].unique()
+        raise ValueError(
+            f"{name} column {time!r} has {len(duplicates)} duplicate "
+            f"timestamp(s), e.g. {list(duplicates[:3])}.\n\nEach row must be "
+            "one point in time. Aggregate the repeated rows (sum, mean, …) or "
+            "drop them so every timestamp appears once."
+        )
+
     return frame
 
 
