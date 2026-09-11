@@ -223,6 +223,50 @@ def _indexed(
     return frame
 
 
+def _freq(index: pd.Index, request: CoercedPredictRequest) -> str | None:
+    """Read the spacing of a past time index, for the forecasting horizon.
+
+    ``ForecastingHorizon.to_absolute`` turns relative steps into
+    timestamps by multiplying the horizon by this frequency. The index
+    ``past.index[-1:]`` used as its cutoff is one element long and so
+    carries no frequency of its own, which is why it is read here from
+    the full index and passed to the horizon.
+
+    Parameters
+    ----------
+    index : pandas.Index
+        Time index of the indexed ``past`` frame.
+    request : CoercedPredictRequest
+        Supplies the time column name for error messages.
+
+    Returns
+    -------
+    str or None
+        Pandas offset alias (``"D"``, ``"ME"``, …) for a
+        ``DatetimeIndex``. ``None`` for integer, range, and period
+        indexes, which need no frequency.
+
+    Raises
+    ------
+    ValueError
+        If a ``DatetimeIndex`` has no regular spacing to infer.
+    """
+    if not isinstance(index, pd.DatetimeIndex):
+        return None
+
+    freq = index.freqstr or index.inferred_freq
+    if freq is not None:
+        return freq
+
+    raise ValueError(
+        f"could not infer how far apart the {request.time!r} timestamps are, "
+        f"from {len(index)} row(s).\n\nForecasting future timestamps needs a "
+        "regular spacing. Send at least 3 rows at a fixed interval (hourly, "
+        "daily, monthly, …) with no gaps, or index the series by position "
+        f"using integers in {request.time!r}."
+    )
+
+
 def _static(request: CoercedPredictRequest) -> dict[str, Any]:
     """Read the first static row as values to broadcast over time.
 
