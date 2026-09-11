@@ -66,10 +66,13 @@ def _to_narwhals(
 
     Raises
     ------
-    Exception
-        Narwhals/pyarrow errors if ``df`` cannot be interpreted as a
-        table. Shape should already have been checked by
-        ``PredictRequest`` / ``PredictResponse``.
+    TypeError
+        If ``df`` is not a table narwhals can read at all (for example
+        ``None``). Re-raised from the narwhals error.
+    ValueError
+        If a column holds values pyarrow cannot store under one type
+        (mixed types, nested objects). Re-raised from the
+        ``pyarrow.ArrowInvalid``.
     """
     if isinstance(df, nw.DataFrame):
         return df
