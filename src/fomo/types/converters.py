@@ -89,10 +89,11 @@ def _to_narwhals(
 
         except pa.ArrowInvalid as error:
             raise ValueError(
-                f"{name} has a column FoMo could not convert to a single Arrow type.\n\n"
-                f"Original error: {error}\n\nEvery value in a column must share one type. "
-                'Mixed types (e.g. 1 and "2"), or nested objects and lists in a cell, '
-                "cannot be stored; use null for missing values."
+                f"{name} has a column FoMo could not convert to a single Arrow "
+                f"type.\n\nOriginal error: {error}\n\nEvery value in a column "
+                'must share one type. Mixed types (e.g. 1 and "2"), or nested '
+                "objects and lists in a cell, cannot be stored; use null for "
+                "missing values."
             ) from error
 
     # IntoFrame includes lazy frames; narwhals overloads don't match after
@@ -102,10 +103,10 @@ def _to_narwhals(
 
     except TypeError as error:
         raise TypeError(
-            f"{name} is not a table FoMo can read: got {type(df).__name__}.\n\nOriginal error: "
-            f"{error}\n\nSend {name} as a column-oriented dict of name -> list, a "
-            "row-oriented dict with 'columns' and 'data', or a pandas / polars / "
-            "pyarrow table."
+            f"{name} is not a table FoMo can read: got {type(df).__name__}.\n\n"
+            f"Original error: {error}\n\nSend {name} as a column-oriented dict "
+            "of name -> list, a row-oriented dict with 'columns' and 'data', or "
+            "a pandas / polars / pyarrow table."
         ) from error
 
 
@@ -262,7 +263,7 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     encode_request
         Next step on the bytes path.
     """
-    # 1. Perpare narwhals frames
+    # 1. Prepare narwhals frames
 
     payload = request.model_dump(exclude={"past", "future", "static"})
 
@@ -300,7 +301,7 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     elif isinstance(target, str):
         payload["target"] = [target]
 
-    # 3. Validate and return the reqeust
+    # 3. Validate and return the request
 
     return CoercedPredictRequest.model_validate(payload)
 
