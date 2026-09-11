@@ -263,20 +263,27 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     encode_request
         Next step on the bytes path.
     """
+    # 1. Perpare narwhals frames
+
     payload = request.model_dump(exclude={"past", "future", "static"})
+
     past = _to_narwhals(request.past, name="past")
     future = (
         _to_narwhals(request.future, name="future")
         if request.future is not None
         else None
     )
-    payload["past"] = past
-    payload["future"] = future
-    payload["static"] = (
+    static = (
         _to_narwhals(request.static, name="static")
         if request.static is not None
         else None
     )
+
+    payload["past"] = past
+    payload["future"] = future
+    payload["static"] = static
+
+    # 2. Handle time and target
 
     if payload["time"] is None:
         if not past.columns:
@@ -293,6 +300,8 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
         ]
     elif isinstance(target, str):
         payload["target"] = [target]
+
+    # 3. Validate and return the reqeust
 
     return CoercedPredictRequest.model_validate(payload)
 
