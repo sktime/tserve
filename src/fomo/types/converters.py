@@ -248,11 +248,13 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     ------
     ValidationError
         If coerced frames fail column checks (missing time/target
-        columns), inferred ``target`` is empty, or dumped fields
-        cannot construct ``CoercedPredictRequest``. Inner validators
-        raise ``ValueError``, which Pydantic wraps.
+        columns) or dumped fields cannot construct
+        ``CoercedPredictRequest``. Inner validators raise
+        ``ValueError``, which Pydantic wraps.
     ValueError
-        If ``time`` is omitted and ``past`` has no columns.
+        If ``time`` is omitted and ``past`` has no columns, or target
+        inference leaves an empty list (time-only ``past``, ``future``
+        holding every value column, or time only on a pandas index).
     Exception
         If a frame cannot be converted to narwhals.
 
@@ -300,6 +302,19 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
         ]
     elif isinstance(target, str):
         payload["target"] = [target]
+
+    if not payload["target"]:
+        future_cols = list(future.columns) if future is not None else "omitted"
+        raise ValueError(
+            "could not infer a target column to forecast.\n\n"
+            f"past columns: {list(past.columns)}; time: {payload['time']!r}; "
+            f"future columns: {future_cols}.\n\n"
+            "Target inference uses every past column other than time and the "
+            "columns of future. A time-only table leaves nothing to forecast. "
+            "If time is only on a pandas index, call reset_index() so it "
+            "becomes a column. If future already holds the value column, set "
+            'target explicitly, e.g. target=["sales"].'
+        )
 
     # 3. Validate and return the request
 

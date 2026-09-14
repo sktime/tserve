@@ -125,6 +125,42 @@ def test_coerce_request_omitted_target_without_future_excludes_only_time():
     assert coerced.target == ["sales", "promo"]
 
 
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        pytest.param(
+            {
+                "past": {"timestamp": ["2024-01-01", "2024-01-02"]},
+                "target": None,
+            },
+            id="time_only_past",
+        ),
+        pytest.param(
+            {
+                "past": {"timestamp": ["2024-01-01"], "sales": [120]},
+                "future": {"sales": [1]},
+                "target": None,
+            },
+            id="future_holds_value_column",
+        ),
+    ],
+)
+def test_coerce_request_rejects_empty_inferred_target(kwargs):
+    with pytest.raises(ValueError, match="could not infer a target column"):
+        coerce_request(_request(**kwargs))
+
+
+def test_coerce_request_rejects_pandas_index_as_time():
+    pd = pytest.importorskip("pandas")
+    past = pd.DataFrame(
+        {"sales": [1, 2, 3]},
+        index=pd.date_range("2024-01-01", periods=3, freq="D"),
+    )
+
+    with pytest.raises(ValueError, match="reset_index"):
+        coerce_request(_request(past=past, time=None, target=None))
+
+
 def test_encode_request():
     metadata, files = encode_request(coerce_request(_request()))
 
