@@ -5,11 +5,13 @@ normal exit and on ``KeyboardInterrupt``.
 """
 
 import argparse
+from pathlib import Path
+from typing import Any
 
 from fomo import __version__
 
 
-def parse_load_models(tokens: list[str]) -> list[str | tuple[str, str]]:
+def parse_load_models(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
     """Turn ``--load-models`` tokens into ``Server`` ``load_models`` items.
 
     A token without ``=`` is a registry id (or ``--models-dir`` stem).
@@ -32,7 +34,7 @@ def parse_load_models(tokens: list[str]) -> list[str | tuple[str, str]]:
         Empty id or spec after ``=``, or a token that looks like a
         craft spec but has no ``id=`` prefix.
     """
-    items: list[str | tuple[str, str]] = []
+    items: list[str | Path | tuple[str, Any]] = []
     for token in tokens:
         if "=" not in token:
             if "(" in token:
