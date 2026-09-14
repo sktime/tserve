@@ -53,6 +53,12 @@ BAD_METADATA_MESSAGE = (
 """Message for a ``POST /predict/bytes`` ``metadata`` field that is not JSON."""
 
 
+PREDICT_GET_MESSAGE = (
+    "GET /predict is not supported; send a JSON body with POST /predict."
+)
+"""Message for ``GET /predict``."""
+
+
 _STATIC_DIR = Path(__file__).parent / "static"
 """Directory holding the dashboard assets (``index.html``, css, js, icon)."""
 
@@ -178,6 +184,14 @@ def stats(request: Request) -> StatsResult:
         Dict this handler validates.
     """
     return StatsResult.model_validate(request.app.state.runtime.stats.snapshot())
+
+
+@router.get("/predict", include_in_schema=False)
+def predict_get() -> None:
+    """Reject ``GET /predict`` with a pointer at POST."""
+    raise HTTPException(
+        status_code=405, detail=PREDICT_GET_MESSAGE, headers={"Allow": "POST"}
+    )
 
 
 @router.post("/predict", response_model=PredictResponse)
