@@ -59,6 +59,10 @@ class SktimeExecutor(Executor):
 
         * ``registry``: ``sktime.registry.craft(SKTIME_REGISTRY[model]["spec"])``
           where ``model`` is the ``load_models`` item string.
+        * ``craft``: ``sktime.registry.craft(model)`` where ``model`` is
+          the user-supplied spec string. The result must be a
+          ``BaseForecaster`` instance (``craft("NaiveForecaster")``
+          returns a class and is rejected).
         * ``object``: use ``model`` as the forecaster.
         * ``directory``: ``sktime.base.load(model)`` (saved ``.zip`` path).
 
@@ -70,17 +74,20 @@ class SktimeExecutor(Executor):
         Parameters
         ----------
         info : ModelInfo
-            Must carry ``source`` ``registry``, ``object``, or
-            ``directory``.
+            Must carry ``source`` ``registry``, ``craft``, ``object``,
+            or ``directory``.
         model : any
-            Registry id, in-process forecaster, or zip path, matching
-            ``source``.
+            Registry id, craft spec string, in-process forecaster, or
+            zip path, matching ``source``.
 
         Raises
         ------
         KeyError
             If ``source`` is ``registry`` and ``model`` is not a key of
             ``SKTIME_REGISTRY``.
+        TypeError
+            If ``source`` is ``craft`` and the spec does not produce a
+            ``BaseForecaster`` instance.
         ModuleNotFoundError
             If the forecaster needs soft dependencies this environment
             does not satisfy. Re-raised from the underlying sktime error
@@ -89,6 +96,7 @@ class SktimeExecutor(Executor):
             Other errors from ``sktime.registry.craft`` or
             ``sktime.base.load``.
         """
+        from sktime.forecasting.base import BaseForecaster
         from sktime.utils.dependencies import _check_estimator_deps
 
         self._info = info
@@ -98,11 +106,18 @@ class SktimeExecutor(Executor):
                 from sktime.registry import craft
 
                 self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+            elif info.source == "craft":
+                from sktime.registry import craft
 
-            if info.source == "object":
+                self._forecaster = craft(model)
+                if not isinstance(self._forecaster, BaseForecaster):
+                    raise TypeError(
+                        f"craft spec for {info.id!r} must produce a sktime "
+                        f"forecaster instance, got {type(self._forecaster).__name__}"
+                    )
+            elif info.source == "object":
                 self._forecaster = model
-
-            if info.source == "directory":
+            elif info.source == "directory":
                 from sktime.base import load
 
                 self._forecaster = load(model)

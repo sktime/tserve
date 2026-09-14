@@ -9,7 +9,7 @@ until ``bootstrap(load_models)`` / ``--load-models``. Registry ids
 See Also
 --------
 fomo.runtime.registry.resolver.resolve_model
-    String, ``Path``, or ``(id, object)`` → ``ModelInfo``.
+    String, ``Path``, ``(id, spec)``, or ``(id, object)`` → ``ModelInfo``.
 fomo.runtime.registry.sktime_registry.SKTIME_REGISTRY
     sktime craft-spec catalog.
 """

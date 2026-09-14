@@ -27,9 +27,10 @@ class Server:
     Parameters
     ----------
     load_models : list of str or (str, object), optional
-        Registry ids to load, or ``(id, estimator)`` pairs. Default
-        ``[]`` loads nothing. When ``models_dir`` is set, matching
-        ``.zip`` stems already in this list are loaded from disk.
+        Registry ids to load, ``(id, estimator)`` pairs, or
+        ``(id, craft spec)`` string pairs. Default ``[]`` loads
+        nothing. When ``models_dir`` is set, matching ``.zip`` stems
+        already in this list are loaded from disk.
     models_dir : str or pathlib.Path, optional
         Directory of saved sktime ``.zip`` files. Not loaded wholesale.
     host : str, default ``"127.0.0.1"``
@@ -49,9 +50,11 @@ class Server:
     Raises
     ------
     ValueError
-        Unknown registry id, non-zip path, or duplicate id.
+        Unknown registry id, empty craft spec, non-zip path, or
+        duplicate id.
     TypeError
-        ``(id, object)`` whose object is not a sktime ``BaseForecaster``.
+        ``(id, object)`` whose object is neither a craft spec string
+        nor a sktime ``BaseForecaster``.
     ImportError
         Executor extra is not installed.
 
@@ -59,6 +62,12 @@ class Server:
     --------
     >>> from fomo.server import Server
     >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
+    >>> Server(
+    ...     load_models=[
+    ...         "naive",
+    ...         ("drift", 'NaiveForecaster(strategy="drift")'),
+    ...     ]
+    ... )
 
     Notes
     -----

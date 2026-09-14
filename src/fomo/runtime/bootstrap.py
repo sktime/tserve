@@ -79,14 +79,16 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
 
     For every item: ``resolve_model`` → ``create_executor(info.executor)``
     → ``load`` → ``warmup`` → ``stats.register``. Tuple items pass the
-    object (second element) to ``load``; strings and paths pass the item
-    itself. Duplicate ``ModelInfo.id`` values raise before a second load.
+    second element (craft spec or object) to ``load``; strings and
+    paths pass the item itself. Duplicate ``ModelInfo.id`` values raise
+    before a second load.
 
     Parameters
     ----------
     load_models : list of str, Path, or (str, object)
         Items understood by ``resolve_model``: a registry id, a
-        ``pathlib.Path`` to a ``.zip``, or ``(id, sktime BaseForecaster)``.
+        ``pathlib.Path`` to a ``.zip``, ``(id, craft spec)``, or
+        ``(id, sktime BaseForecaster)``.
 
     Returns
     -------
@@ -100,10 +102,11 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     ValueError
         If two items resolve to the same ``ModelInfo.id``, or if
         ``resolve_model`` / ``create_executor`` raise ``ValueError``
-        (unknown registry id, non-zip path, unknown executor).
+        (unknown registry id, empty craft spec, non-zip path,
+        unknown executor).
     TypeError
-        If a tuple item is not a sktime ``BaseForecaster``
-        (from ``resolve_model``).
+        If a tuple item is neither a craft spec string nor a
+        sktime ``BaseForecaster`` (from ``resolve_model``).
     ImportError
         If ``create_executor`` cannot import the executor extra.
 
