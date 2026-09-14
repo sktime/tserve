@@ -41,7 +41,6 @@ from fomo.types.converters import (
 )
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.predict+arrow"
-"""Media type for ``POST /predict/bytes`` envelope bodies."""
 
 
 BAD_METADATA_MESSAGE = (
@@ -50,26 +49,20 @@ BAD_METADATA_MESSAGE = (
     'e.g. metadata={{"fh": 3, "model": "naive"}}. The frames themselves go '
     "in the separate 'past' / 'future' / 'static' file parts."
 )
-"""Message for a ``POST /predict/bytes`` ``metadata`` field that is not JSON."""
 
 
 PREDICT_GET_MESSAGE = (
     "GET /predict is not supported; send a JSON body with POST /predict."
 )
-"""Message for ``GET /predict``."""
 
 
 _STATIC_DIR = Path(__file__).parent / "static"
-"""Directory holding the dashboard assets (``index.html``, css, js, icon)."""
 
 
 router = APIRouter()
-"""FastAPI router included by ``Server`` (dashboard, health, models, stats,
-predict)."""
 
 
 router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
-"""Serve ``fomo/server/static`` under ``/static`` for the dashboard assets."""
 
 
 @router.get("/", include_in_schema=False)
