@@ -1,6 +1,6 @@
 # Live objects
 
-Registry ids cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs or `(id, craft spec)` pairs to [`Server`][fomo.server.serve.Server]. This is Python-only: `--load-models` takes catalog names, so live objects and craft specs have no CLI equivalent.
+Registry ids cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][fomo.server.serve.Server], or pass `(id, craft spec)` pairs — those also work on the CLI as `id=spec`. Live objects have no CLI equivalent; `--load-models` cannot take a Python instance.
 
 ```python
 from fomo.server import Server
@@ -62,7 +62,12 @@ Server(
 }
 ```
 
-The spec is evaluated only in your process when `Server` is constructed, never from an HTTP `model` field. A class name without parentheses (`"NaiveForecaster"`) is not an instance and is rejected. An empty spec raises `ValueError`. Passing a spec as a bare string in `load_models` is treated as an unknown registry id; wrap it as `(id, spec)`.
+The spec is evaluated only in your process when `Server` is constructed (or when `fomo serve` parses `id=spec`), never from an HTTP `model` field. A class name without parentheses (`"NaiveForecaster"`) is not an instance and is rejected. An empty spec raises `ValueError`. Passing a spec as a bare string in `load_models` is treated as an unknown registry id; wrap it as `(id, spec)` in Python or `id=spec` on the CLI.
+
+```bash
+fomo serve --load-models chronos-bolt \
+  'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
+```
 
 ## Rules
 

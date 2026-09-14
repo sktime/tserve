@@ -130,7 +130,7 @@ Starting FoMo
   ReDoc       http://127.0.0.1:8000/redoc
 ```
 
-`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Every flag is in the [CLI reference](../reference/cli.md).
+`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Craft specs use `id=spec` on the same flag; quoting is in the [CLI reference](../reference/cli.md).
 
 ## Serve from Python
 
@@ -162,6 +162,6 @@ Keep it to one worker per process: each worker would load its own copy of every 
 
 ## Next
 
-- [Live objects](live-objects.md) — Python can also serve estimators you configured in the session, or a sktime craft spec as `(id, spec)`
+- [Live objects](live-objects.md) — Python can serve estimators you configured in the session; craft specs also work as `(id, spec)` or CLI `id=spec`
 - [Models from a directory](models-dir.md) — serve saved sktime `.zip` files
 - [Dashboard](dashboard.md) — the console at [http://127.0.0.1:8000/](http://127.0.0.1:8000/)

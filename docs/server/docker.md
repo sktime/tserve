@@ -14,7 +14,7 @@ Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on mac
 
 ## Run the server
 
-The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so every [CLI](../reference/cli.md) flag works here: `--load-models`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line).
+The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so every [CLI](../reference/cli.md) flag works here: `--load-models` (catalog ids or `id=spec` craft tokens), `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host.
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
