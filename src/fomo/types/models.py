@@ -378,8 +378,9 @@ class ModelInfo(BaseModel):
         Id used in predict ``model``.
     executor : {"sktime", "pytorch-forecasting", "custom"}
         Plugin that loaded the artifact.
-    source : {"object", "registry", "directory"}
-        Registry id, saved ``.zip``, or in-process estimator.
+    source : {"object", "registry", "directory", "craft"}
+        Registry id, saved ``.zip``, in-process estimator, or a
+        user-supplied sktime craft spec.
 
     See Also
     --------
