@@ -41,22 +41,9 @@ from fomo.types.converters import (
 )
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.predict+arrow"
-
-
-BAD_METADATA_MESSAGE = (
-    "the multipart 'metadata' field is not valid JSON.\n\nOriginal error: "
-    "{error}\n\nSend it as a JSON object of the non-frame predict fields, "
-    'e.g. metadata={{"fh": 3, "model": "naive"}}. The frames themselves go '
-    "in the separate 'past' / 'future' / 'static' file parts."
-)
-
-
-PREDICT_GET_MESSAGE = (
-    "GET /predict is not supported; send a JSON body with POST /predict."
-)
-
-
 _STATIC_DIR = Path(__file__).parent / "static"
+
+
 router = APIRouter()
 router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 
@@ -179,7 +166,9 @@ def stats(request: Request) -> StatsResult:
 def predict_get() -> None:
     """Reject ``GET /predict`` with a pointer at POST."""
     raise HTTPException(
-        status_code=405, detail=PREDICT_GET_MESSAGE, headers={"Allow": "POST"}
+        status_code=405,
+        detail="GET /predict is not supported; send a JSON body with POST /predict.",
+        headers={"Allow": "POST"},
     )
 
 
@@ -335,7 +324,12 @@ async def predict_bytes(
         try:
             parsed_metadata = json.loads(metadata)
         except json.JSONDecodeError as error:
-            raise ValueError(BAD_METADATA_MESSAGE.format(error=error)) from error
+            raise ValueError(
+                "the multipart 'metadata' field is not valid JSON.\n\nOriginal error: "
+                f"{error}\n\nSend it as a JSON object of the non-frame predict fields, "
+                'e.g. metadata={{"fh": 3, "model": "naive"}}. The frames themselves go '
+                "in the separate 'past' / 'future' / 'static' file parts."
+            ) from error
 
         request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
