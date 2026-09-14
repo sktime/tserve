@@ -9,10 +9,56 @@ import argparse
 from fomo import __version__
 
 
+def parse_load_models(tokens: list[str]) -> list[str | tuple[str, str]]:
+    """Turn ``--load-models`` tokens into ``Server`` ``load_models`` items.
+
+    A token without ``=`` is a registry id (or ``--models-dir`` stem).
+    A token with ``=`` is split on the first ``=`` into ``(id, spec)``.
+    Specs may contain further ``=`` (constructor kwargs).
+
+    Parameters
+    ----------
+    tokens : list of str
+        Raw ``--load-models`` values.
+
+    Returns
+    -------
+    list of str or (str, str)
+        Registry ids and craft ``(id, spec)`` pairs.
+
+    Raises
+    ------
+    ValueError
+        Empty id or spec after ``=``, or a token that looks like a
+        craft spec but has no ``id=`` prefix.
+    """
+    items: list[str | tuple[str, str]] = []
+    for token in tokens:
+        if "=" not in token:
+            if "(" in token:
+                raise ValueError(
+                    f"unknown model {token!r}; wrap a craft spec as id=spec,"
+                    " e.g. 'my-model=NaiveForecaster()'."
+                )
+            items.append(token)
+            continue
+
+        model_id, spec = token.split("=", 1)
+        model_id = model_id.strip()
+        spec = spec.strip()
+        if not model_id:
+            raise ValueError("load_models craft entry has an empty id")
+        if not spec:
+            raise ValueError(f"load_models entry {model_id!r} has an empty craft spec")
+        items.append((model_id, spec))
+    return items
+
+
 def _build_parser() -> argparse.ArgumentParser:
     """Build the ``fomo`` parser with a required ``serve`` subcommand.
 
-    ``serve`` flags: ``--load-models`` (``nargs="+"``, default ``[]``),
+    ``serve`` flags: ``--load-models`` (``nargs="+"``, default ``[]``;
+    catalog ids or ``id=spec`` craft tokens),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
     ``--port`` (default 8000), ``--log-level`` (default ``info``;
@@ -37,7 +83,7 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs="+",
         dest="load_models",
         default=[],
-        help="registry ids to load (default: none)",
+        help="registry ids or id=craft-spec to load (default: none)",
     )
     serve.add_argument(
         "--models-dir",
@@ -80,8 +126,10 @@ def main(argv: list[str] | None = None) -> int:
     SystemExit
         From ``ArgumentParser.error`` or argparse usage errors.
     ValueError
-        If ``Server`` / ``bootstrap`` reject a load spec (duplicate
-        id, unknown registry id, non-zip path, unknown executor).
+        If ``--load-models`` tokens are malformed (empty ``id=spec``,
+        a bare craft spec), or ``Server`` / ``bootstrap`` reject a
+        load spec (duplicate id, unknown registry id, non-zip path,
+        unknown executor).
     TypeError
         If a load-models object is not a sktime ``BaseForecaster``.
     ImportError
@@ -109,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     from fomo.server import Server
 
     server = Server(
-        load_models=args.load_models,
+        load_models=parse_load_models(args.load_models),
         models_dir=args.models_dir,
         host=args.host,
         port=args.port,
