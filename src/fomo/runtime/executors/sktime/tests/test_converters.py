@@ -108,6 +108,50 @@ def test_from_request_rejects_empty_static():
         from_request(_request(static=_df(store=[])))
 
 
+@pytest.mark.parametrize(
+    ("kwargs", "match"),
+    [
+        pytest.param(
+            {"past": _df(timestamp=[], sales=[])},
+            "no rows to forecast from",
+            id="empty_past",
+        ),
+        pytest.param(
+            {"past": _df(timestamp=_STAMPS, sales=["1", "2", "3"])},
+            "not numeric",
+            id="string_numbers",
+        ),
+        pytest.param(
+            {
+                "past": _df(
+                    timestamp=_STAMPS, sales=[1, 2, 3], region=["EU", "US", "EU"]
+                ),
+                "target": ["sales", "region"],
+            },
+            "not numeric",
+            id="string_column_as_target",
+        ),
+        pytest.param(
+            {"past": _df(timestamp=_STAMPS, sales=[True, False, True])},
+            "not numeric",
+            id="boolean_target",
+        ),
+        pytest.param(
+            {
+                "past": _df(timestamp=_STAMPS, sales=[1, 2, 3]),
+                "time": "sales",
+                "target": ["timestamp"],
+            },
+            "not numeric",
+            id="time_points_at_value_column",
+        ),
+    ],
+)
+def test_from_request_rejects_unusable_target(kwargs, match):
+    with pytest.raises(ValueError, match=match):
+        from_request(_request(**kwargs))
+
+
 def test_from_request_allows_irregular_integer_index():
     """Integer indexes are positional, so they need no inferred frequency."""
     y, *_ = from_request(_request(past=_df(timestamp=[0, 5, 19], sales=[1, 2, 3])))

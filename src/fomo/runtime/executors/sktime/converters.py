@@ -90,10 +90,11 @@ def from_request(
     Raises
     ------
     ValueError
-        If a time column is unusable (``_indexed``), a datetime index
-        has no inferable spacing (``_horizon``), ``static`` is present
-        but empty (``_static``), or ``future`` does not cover the
-        forecast horizon (``_exogenous``).
+        If a time column is unusable (``_indexed``), a target is empty
+        or not numeric (``_targets``), a datetime index has no
+        inferable spacing (``_horizon``), ``static`` is present but
+        empty (``_static``), or ``future`` does not cover the forecast
+        horizon (``_exogenous``).
 
     See Also
     --------
@@ -101,8 +102,7 @@ def from_request(
         Column contracts for the coerced payload.
     """
     past = _indexed(request.past, request, name="past")
-
-    y: pd.DataFrame = past.loc[:, request.target]
+    y = _targets(past, request)
     fh = _horizon(past, request)
     x, x_future = _exogenous(past, request, fh)
 
@@ -234,6 +234,61 @@ def _indexed(
         )
 
     return frame
+
+
+def _targets(past: pd.DataFrame, request: CoercedPredictRequest) -> pd.DataFrame:
+    """Take target columns and require a non-empty numeric ``y``.
+
+    sktime reports empty or non-numeric endogenous data as “categorical
+    features” or a numpy boolean-arithmetic error, so those are caught
+    here instead.
+
+    Parameters
+    ----------
+    past : pandas.DataFrame
+        Indexed past frame, from ``_indexed``.
+    request : CoercedPredictRequest
+        Supplies ``target`` column names.
+
+    Returns
+    -------
+    pandas.DataFrame
+        ``past`` restricted to ``request.target``.
+
+    Raises
+    ------
+    ValueError
+        If ``past`` has no rows, or a target column is not numeric
+        (strings, booleans, datetimes).
+    """
+    y: pd.DataFrame = past.loc[:, request.target]
+
+    if y.empty:
+        raise ValueError(
+            "past has no rows to forecast from.\n\nSend at least one "
+            "observation in past, with a time column and a numeric target."
+        )
+
+    bad = [
+        column
+        for column in y.columns
+        if not (
+            pd.api.types.is_numeric_dtype(y[column])
+            and not pd.api.types.is_bool_dtype(y[column])
+        )
+    ]
+    if bad:
+        dtypes = {column: str(y[column].dtype) for column in bad}
+        raise ValueError(
+            f"target column(s) {bad} are not numeric (dtypes: {dtypes}).\n\n"
+            "Forecasters need numbers in y. Send numeric values, not strings "
+            '(e.g. 1 not "1") or booleans. If a leftover string column was '
+            'inferred as a target, set target=["sales"] so it is excluded. '
+            "If time points at the value column, the date strings become the "
+            "target — set time to the timestamp column instead."
+        )
+
+    return y
 
 
 def _horizon(past: pd.DataFrame, request: CoercedPredictRequest) -> ForecastingHorizon:
