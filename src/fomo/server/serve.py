@@ -82,6 +82,10 @@ class Server:
         Image defaults, tags, and container arguments.
     [Models catalog](../models/index.md)
         Registry ids and required family extras.
+    [Live objects](../server/live-objects.md)
+        In-process ``(id, estimator)`` pairs.
+    [Craft specs](../server/craft-specs.md)
+        ``(id, spec)`` pairs and CLI ``id=spec``.
     [Dashboard](../server/dashboard.md)
         Browser interface served by ``app`` at ``GET /``.
     """
