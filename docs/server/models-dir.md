@@ -91,4 +91,4 @@ from pathlib import Path
 Server(load_models=[Path("my-models/custom-model-1.zip")], port=8000).run()
 ```
 
-To serve an estimator that is already in memory, skip the file entirely — see [Live objects](live-objects.md).
+To serve an estimator that is already in memory, skip the file entirely — see [Live objects](live-objects.md). To pass a sktime craft spec instead of a zip, see [Craft specs](craft-specs.md).

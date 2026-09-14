@@ -33,8 +33,9 @@ fomo serve --load-models chronos-bolt \
 `--models-dir` never loads a directory wholesale: it rewrites the ids you
 already named when they match a `.zip` stem in that directory, and the rest
 fall through to the registry. Serving a live estimator you built in Python
-has no CLI form — see [Live objects](../server/live-objects.md). A craft spec
-does: use `id=spec` as above.
+has no CLI form — see [Live objects](../server/live-objects.md). Craft specs
+are documented with quoting and `GET /models` source values on
+[Craft specs](../server/craft-specs.md).
 
 ## Startup and exit
 

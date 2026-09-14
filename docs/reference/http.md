@@ -92,8 +92,9 @@ is unused.
 ```
 
 `source` is `registry`, `directory` (a saved `.zip`), `object` (a live
-estimator), or `craft` (a sktime craft spec passed as `(id, spec)`).
-`executor` is the plugin that loaded it, today always `sktime`.
+estimator), or `craft` (a sktime craft spec). How to load a spec:
+[Craft specs](../server/craft-specs.md). `executor` is the plugin that
+loaded it, today always `sktime`.
 
 `GET /stats` is a snapshot of the process:
 

@@ -98,9 +98,17 @@ curl -s http://127.0.0.1:8000/models
 
     ---
 
-    Serve a live estimator from Python, or a craft spec from Python or `id=spec`.
+    Serve an estimator you configured in Python. CLI cannot do this.
 
     [:octicons-arrow-right-24: Live objects](live-objects.md)
+
+-   :material-text:{ .lg .middle } **Craft specs**
+
+    ---
+
+    Load a sktime craft spec as `(id, spec)` or CLI `id=spec`.
+
+    [:octicons-arrow-right-24: Craft specs](craft-specs.md)
 
 -   :material-folder-zip-outline:{ .lg .middle } **Models from a directory**
 

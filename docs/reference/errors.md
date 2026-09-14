@@ -72,4 +72,4 @@ CLI exits before uvicorn binds the port:
 Whatever an estimator raises while loading or warming up propagates unchanged,
 so a failed Hugging Face download stops startup with that library's error. A
 [family extra](../models/index.md#dependencies) or image tag that matches
-the ids you load is what avoids this.
+the ids you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).
