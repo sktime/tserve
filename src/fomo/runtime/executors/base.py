@@ -35,9 +35,9 @@ class Executor(ABC):
             Listing row (``id``, ``executor``, ``source``). ``source``
             selects how ``model`` is interpreted.
         model : any
-            Registry id string, ``pathlib.Path`` to a zip, or an
-            in-process forecaster object, as passed through from
-            ``bootstrap``.
+            Registry id string, craft spec string, ``pathlib.Path`` to
+            a zip, or an in-process forecaster object, as passed
+            through from ``bootstrap``.
         """
         ...
 

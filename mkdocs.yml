@@ -165,6 +165,7 @@ nav:
       - Docker: server/docker.md
       - From source: server/source.md
       - Live objects: server/live-objects.md
+      - Craft specs: server/craft-specs.md
       - Models from a directory: server/models-dir.md
       - Dashboard: server/dashboard.md
   - Models:

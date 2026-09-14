@@ -59,6 +59,21 @@ def test_bootstrap_loads_object():
     executor.warmup.assert_called_once_with()
 
 
+def test_bootstrap_loads_craft():
+    info = _info(source="craft")
+    executor = _executor()
+    spec = "NaiveForecaster()"
+
+    with (
+        patch("fomo.runtime.bootstrap.resolve_model", return_value=info),
+        patch("fomo.runtime.bootstrap.create_executor", return_value=executor),
+    ):
+        bootstrap([("mine", spec)])
+
+    executor.load.assert_called_once_with(info, spec)
+    executor.warmup.assert_called_once_with()
+
+
 def test_bootstrap_rejects_duplicate():
     with (
         patch("fomo.runtime.bootstrap.resolve_model", return_value=_info()),

@@ -116,7 +116,7 @@ def test_predict_parity_sktime():
     y_train, _ = temporal_train_test_split(y, test_size=fh)
 
     sktime_pred = (
-        craft(SKTIME_REGISTRY[model]["spec"])
+        craft(SKTIME_REGISTRY[model]["spec"], safe=True)
         .fit(y_train, fh=list(range(1, fh + 1)))
         .predict()
     )
@@ -157,7 +157,7 @@ def test_predict_parity_sktime_exog():
     y_train, _, X_train, X_future = temporal_train_test_split(y, X, test_size=fh)
 
     sktime_pred = (
-        craft(SKTIME_REGISTRY[model]["spec"])
+        craft(SKTIME_REGISTRY[model]["spec"], safe=True)
         .fit(y_train, X=X_train, fh=list(range(1, fh + 1)))
         .predict(X=X_future)
     )

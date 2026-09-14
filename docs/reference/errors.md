@@ -65,12 +65,12 @@ CLI exits before uvicorn binds the port:
 
 | exception | when |
 | --- | --- |
-| `ValueError` | unknown registry id (the message lists the known ids), a duplicate id in `load_models`, or a path that is not a `.zip` |
-| `TypeError` | an `(id, object)` pair whose object is not a sktime `BaseForecaster` |
+| `ValueError` | unknown registry id (the message lists the known ids; a string that looks like a craft spec also hints to pass `(id, spec)` in Python or `id=spec` on the CLI), an empty craft spec or empty `id=` token, a duplicate id in `load_models`, or a path that is not a `.zip` |
+| `TypeError` | an `(id, object)` pair whose object is neither a craft spec string nor a sktime `BaseForecaster`; or a craft spec that does not produce a `BaseForecaster` instance (for example a class name without parentheses) |
 | `ImportError` | the executor's extra is not installed |
 | `OSError` | `models_dir` does not exist or cannot be listed |
 
 Whatever an estimator raises while loading or warming up propagates unchanged,
 so a failed Hugging Face download stops startup with that library's error. A
 [family extra](../models/index.md#dependencies) or image tag that matches
-the ids you load is what avoids this.
+the ids you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).

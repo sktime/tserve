@@ -1,6 +1,6 @@
 # Live objects
 
-Registry ids cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][fomo.server.serve.Server]. This is Python-only: `--load-models` takes names, so a live object has no CLI equivalent.
+Registry ids cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][fomo.server.serve.Server]. This is Python-only: `--load-models` takes names, so a live object has no CLI equivalent. For a spec string instead of an instance, see [Craft specs](craft-specs.md).
 
 ```python
 from fomo.server import Server
@@ -36,7 +36,7 @@ The id is what predict requests send as `model`:
 
 - The object must be an sktime `BaseForecaster`. Anything else raises `TypeError` naming the id and the type you passed.
 - Ids must be unique across the whole list. A collision — including with a registry id — raises `ValueError` before the second load.
-- Registry ids, live objects, and [saved models](models-dir.md) mix freely in one `load_models` list.
+- Registry ids, live objects, [craft specs](craft-specs.md), and [saved models](models-dir.md) mix freely in one `load_models` list.
 - The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#dependencies) declare.
 
 ## Configured Hub estimators
@@ -60,4 +60,4 @@ Server(
 ).run()
 ```
 
-Each object is loaded and warmed up like any other model, so startup pays the same download and warmup cost once. Registry ids and extras are on the [catalog](../models/index.md).
+Each object is loaded and warmed up like any other model, so startup pays the same download and warmup cost once. Registry ids and extras are on the [catalog](../models/index.md). The same checkpoint as a spec string: [Craft specs](craft-specs.md).
