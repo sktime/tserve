@@ -39,7 +39,7 @@ server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
 sktime = [
-  "sktime @ git+https://github.com/sktime/sktime.git@80d868d398b62858bd46248b02eb256cdce41d45",
+  "sktime @ git+https://github.com/sktime/sktime.git@533b622d206e149f26476153aa43c6a380bceac9",
   "skpro",
 ]
 # estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
