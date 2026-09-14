@@ -65,7 +65,9 @@ class PredictRequest(BaseModel):
     model : str, default ``"naive"``
         Loaded model id.
     future : any, optional
-        Future timestamps when using ``static``.
+        Future values of time-varying covariates, over the forecast
+        horizon. Non-target columns shared with ``past`` are passed to
+        the estimator as exogenous features.
     static : any, optional
         One-row static features, broadcast over time.
     quantiles : list of float, optional

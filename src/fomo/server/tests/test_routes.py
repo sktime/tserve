@@ -176,3 +176,10 @@ def test_predict_errors_use_generic_http_exception(exc):
     assert detail["code"] == "request_failed"
     assert detail["error"] == str(exc)
     assert detail["request_id"]
+
+
+def test_predict_get():
+    result = _client(_runtime()).get("/predict")
+
+    assert result.status_code == 405
+    assert "POST /predict" in result.json()["detail"]

@@ -43,7 +43,9 @@ from fomo.types.models import (
 )
 
 
-def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
+def _to_narwhals(
+    df: IntoFrame | dict[str, list], *, name: str = "table"
+) -> nw.DataFrame:
     """Convert a supported native table into a narwhals DataFrame.
 
     Parameters
@@ -54,6 +56,8 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
         ``narwhals.from_dicts``. Any other dict is column-oriented
         (name → list) via ``narwhals.from_dict``. Other values go
         through ``narwhals.from_native(..., eager_only=True)``.
+    name : str, default "table"
+        Field name (``past``, ``future``, …) used in error messages.
 
     Returns
     -------
@@ -62,22 +66,48 @@ def _to_narwhals(df: IntoFrame | dict[str, list]) -> nw.DataFrame:
 
     Raises
     ------
-    Exception
-        Narwhals/pyarrow errors if ``df`` cannot be interpreted as a
-        table. Shape should already have been checked by
-        ``PredictRequest`` / ``PredictResponse``.
+    TypeError
+        If ``df`` is not a table narwhals can read at all (for example
+        ``None``). Re-raised from the narwhals error.
+    ValueError
+        If a column holds values pyarrow cannot store under one type
+        (mixed types, nested objects). Re-raised from the
+        ``pyarrow.ArrowInvalid``.
     """
     if isinstance(df, nw.DataFrame):
         return df
+
     if isinstance(df, dict):
-        if set(df.keys()) == {"data", "columns"}:
-            rows = [dict(zip(df["columns"], row, strict=True)) for row in df["data"]]
-            return nw.from_dicts(rows, backend="pyarrow")
-        else:
+        try:
+            if set(df.keys()) == {"data", "columns"}:
+                rows = [
+                    dict(zip(df["columns"], row, strict=True)) for row in df["data"]
+                ]
+                return nw.from_dicts(rows, backend="pyarrow")
+
             return nw.from_dict(df, backend="pyarrow")
+
+        except pa.ArrowInvalid as error:
+            raise ValueError(
+                f"{name} has a column FoMo could not convert to a single Arrow "
+                f"type.\n\nOriginal error: {error}\n\nEvery value in a column "
+                'must share one type. Mixed types (e.g. 1 and "2"), or nested '
+                "objects and lists in a cell, cannot be stored; use null for "
+                "missing values."
+            ) from error
+
     # IntoFrame includes lazy frames; narwhals overloads don't match after
     # the dict branch, but eager_only=True is the documented conversion.
-    return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
+    try:
+        return nw.from_native(df, eager_only=True)  # ty: ignore[no-matching-overload]
+
+    except TypeError as error:
+        raise TypeError(
+            f"{name} is not a table FoMo can read: got {type(df).__name__}.\n\n"
+            f"Original error: {error}\n\nSend {name} as a column-oriented dict "
+            "of name -> list, a row-oriented dict with 'columns' and 'data', or "
+            "a pandas / polars / pyarrow table."
+        ) from error
 
 
 def _from_narwhals(df: nw.DataFrame, template: Any) -> Any:
@@ -153,6 +183,44 @@ def _to_bytes(df: nw.DataFrame) -> bytes:
     return sink.getvalue()
 
 
+def _from_arrow_bytes(blob: bytes, *, name: str) -> nw.DataFrame:
+    """Read one Arrow IPC stream blob back into a narwhals DataFrame.
+
+    Inverse of ``_to_bytes`` for the multipart and envelope paths.
+
+    Parameters
+    ----------
+    blob : bytes
+        Arrow IPC stream bytes for a single named part.
+    name : str
+        Part name (``past``, ``predictions``, …) used in error messages.
+
+    Returns
+    -------
+    narwhals.DataFrame
+        Eager pyarrow-backed frame.
+
+    Raises
+    ------
+    ValueError
+        If ``blob`` is not a readable Arrow IPC stream (empty body,
+        text, or truncated bytes). Re-raised from the ``pyarrow.ArrowInvalid``.
+    """
+    try:
+        table = pa.ipc.open_stream(io.BytesIO(blob)).read_all()
+
+    except pa.ArrowInvalid as error:
+        raise ValueError(
+            f"{name} could not be read as an Arrow IPC stream.\n\nOriginal error: "
+            f"{error}\n\nEach frame part of a multipart POST /predict/bytes must be "
+            "the bytes of an Arrow IPC *stream* (pyarrow.ipc.new_stream), not an "
+            "empty body, a JSON body, or an Arrow *file*. The FoMo client writes "
+            "this format for you."
+        ) from error
+
+    return nw.from_arrow(table, backend="pyarrow")
+
+
 def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     """Turn a user-facing request into the narwhals form executors consume.
 
@@ -180,11 +248,13 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     ------
     ValidationError
         If coerced frames fail column checks (missing time/target
-        columns), inferred ``target`` is empty, or dumped fields
-        cannot construct ``CoercedPredictRequest``. Inner validators
-        raise ``ValueError``, which Pydantic wraps.
+        columns) or dumped fields cannot construct
+        ``CoercedPredictRequest``. Inner validators raise
+        ``ValueError``, which Pydantic wraps.
     ValueError
-        If ``time`` is omitted and ``past`` has no columns.
+        If ``time`` is omitted and ``past`` has no columns, or target
+        inference leaves an empty list (time-only ``past``, ``future``
+        holding every value column, or time only on a pandas index).
     Exception
         If a frame cannot be converted to narwhals.
 
@@ -195,14 +265,27 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
     encode_request
         Next step on the bytes path.
     """
+    # 1. Prepare narwhals frames
+
     payload = request.model_dump(exclude={"past", "future", "static"})
-    past = _to_narwhals(request.past)
-    future = _to_narwhals(request.future) if request.future is not None else None
+
+    past = _to_narwhals(request.past, name="past")
+    future = (
+        _to_narwhals(request.future, name="future")
+        if request.future is not None
+        else None
+    )
+    static = (
+        _to_narwhals(request.static, name="static")
+        if request.static is not None
+        else None
+    )
+
     payload["past"] = past
     payload["future"] = future
-    payload["static"] = (
-        _to_narwhals(request.static) if request.static is not None else None
-    )
+    payload["static"] = static
+
+    # 2. Handle time and target
 
     if payload["time"] is None:
         if not past.columns:
@@ -219,6 +302,21 @@ def coerce_request(request: PredictRequest) -> CoercedPredictRequest:
         ]
     elif isinstance(target, str):
         payload["target"] = [target]
+
+    if not payload["target"]:
+        future_cols = list(future.columns) if future is not None else "omitted"
+        raise ValueError(
+            "could not infer a target column to forecast.\n\n"
+            f"past columns: {list(past.columns)}; time: {payload['time']!r}; "
+            f"future columns: {future_cols}.\n\n"
+            "Target inference uses every past column other than time and the "
+            "columns of future. A time-only table leaves nothing to forecast. "
+            "If time is only on a pandas index, call reset_index() so it "
+            "becomes a column. If future already holds the value column, set "
+            'target explicitly, e.g. target=["sales"].'
+        )
+
+    # 3. Validate and return the request
 
     return CoercedPredictRequest.model_validate(payload)
 
@@ -296,10 +394,7 @@ def decode_request(
     payload = dict(metadata)
     for frame in ["past", "future", "static"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(
-                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
-                backend="pyarrow",
-            )
+            payload[frame] = _from_arrow_bytes(bytes_encoded[frame], name=frame)
     return CoercedPredictRequest.model_validate(payload)
 
 
@@ -326,9 +421,11 @@ def coerce_response(response: PredictResponse) -> CoercedPredictResponse:
         If a frame cannot be converted to narwhals.
     """
     payload = response.model_dump(exclude={"predictions", "quantiles"})
-    payload["predictions"] = _to_narwhals(response.predictions)
+    payload["predictions"] = _to_narwhals(response.predictions, name="predictions")
     payload["quantiles"] = (
-        _to_narwhals(response.quantiles) if response.quantiles is not None else None
+        _to_narwhals(response.quantiles, name="quantiles")
+        if response.quantiles is not None
+        else None
     )
     return CoercedPredictResponse.model_validate(payload)
 
@@ -394,10 +491,7 @@ def decode_response(
     payload = dict(metadata)
     for frame in ["predictions", "quantiles"]:
         if frame in bytes_encoded:
-            payload[frame] = nw.from_arrow(
-                pa.ipc.open_stream(io.BytesIO(bytes_encoded[frame])).read_all(),
-                backend="pyarrow",
-            )
+            payload[frame] = _from_arrow_bytes(bytes_encoded[frame], name=frame)
     return CoercedPredictResponse.model_validate(payload)
 
 
