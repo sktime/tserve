@@ -91,7 +91,7 @@ def from_request(
     ------
     ValueError
         If a time column is unusable (``_indexed``), a datetime index
-        has no inferrable spacing (``_horizon``), ``static`` is present
+        has no inferable spacing (``_horizon``), ``static`` is present
         but empty (``_static``), or ``future`` does not cover the
         forecast horizon (``_exogenous``).
 
