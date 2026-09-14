@@ -45,12 +45,24 @@ def from_request(
 ]:
     """Map a coerced request onto sktime ``y``, ``X``, ``X_future``, ``fh``.
 
-    Builds a relative ``ForecastingHorizon`` ``1 .. fh``. Static
-    features become constant columns via ``_static`` (first row of the
-    static table). If there is no static, both ``X`` and ``X_future``
-    are ``None``. If ``future`` is ``None`` while static columns are
-    still needed, the future index is
-    ``fh.to_absolute(past.index[-1:]).to_pandas()``.
+    Builds a relative ``ForecastingHorizon`` ``1 .. fh``, carrying the
+    frequency of the ``past`` time index so the horizon can place
+    absolute timestamps.
+
+    Exogenous features come from two places, and both land in ``X`` and
+    ``X_future``:
+
+    * time-varying covariates, the non-target columns present in both
+      ``past`` and ``future``;
+    * static features, constant columns from the first ``static`` row.
+
+    Both are assembled by ``_exogenous``.
+
+    With neither, ``X`` and ``X_future`` are both ``None``. ``X`` is
+    indexed like ``past``; ``X_future`` is indexed by the forecast
+    horizon, so a ``future`` holding extra rows is trimmed to it. When
+    ``future`` is omitted the horizon index is generated, so static
+    features alone need no ``future`` table.
 
     Parameters
     ----------
@@ -65,34 +77,35 @@ def from_request(
         String timestamps (JSON) become ``DatetimeIndex``; integer and
         datetime indexes are passed through.
     X : pandas.DataFrame or None
-        Past exogenous (broadcast static), or ``None``.
+        Past exogenous (covariates and broadcast static) indexed like
+        ``past``, or ``None``.
     X_future : pandas.DataFrame or None
-        Future exogenous with the same columns as ``X``, or ``None``.
+        Same columns as ``X`` over the forecast horizon, or ``None``.
     fh : sktime.forecasting.base.ForecastingHorizon
-        Relative horizon ``range(1, request.fh + 1)``.
+        Relative horizon ``range(1, request.fh + 1)``, with ``freq``
+        set from the ``past`` time index.
     quantiles : list of float or None
         ``request.quantiles``, forwarded unchanged.
+
+    Raises
+    ------
+    ValueError
+        If a time column is unusable (``_indexed``), a target is empty
+        or not numeric (``_targets``), a datetime index has no
+        inferable spacing (``_horizon``), ``static`` is present but
+        empty (``_static``), or ``future`` does not cover the forecast
+        horizon (``_exogenous``).
 
     See Also
     --------
     fomo.types.models.CoercedPredictRequest
         Column contracts for the coerced payload.
     """
-    past = _indexed(request.past, request)
-    y: pd.DataFrame = past.loc[:, request.target]
-    fh = ForecastingHorizon(range(1, request.fh + 1), is_relative=True)
+    past = _indexed(request.past, request, name="past")
+    y = _targets(past, request)
+    fh = _horizon(past, request)
+    x, x_future = _exogenous(past, request, fh)
 
-    static = _static(request)
-    if not static:
-        return y, None, None, fh, request.quantiles
-
-    if request.future is not None:
-        future = _indexed(request.future, request)
-    else:
-        future = pd.DataFrame(index=fh.to_absolute(past.index[-1:]).to_pandas())
-
-    x = pd.DataFrame(static, index=past.index)
-    x_future = pd.DataFrame(static, index=future.index)
     return y, x, x_future, fh, request.quantiles
 
 
@@ -143,12 +156,17 @@ def to_response(
     )
 
 
-def _indexed(table: nw.DataFrame[Any], request: CoercedPredictRequest) -> pd.DataFrame:
+def _indexed(
+    table: nw.DataFrame[Any], request: CoercedPredictRequest, *, name: str
+) -> pd.DataFrame:
     """Set the time column as the index, converting JSON strings if needed.
 
     Indexes already valid for sktime (datetime, period, timedelta,
     range, integer) are unchanged. Anything else, typically a string
     timestamp column from JSON, is converted with ``pandas.to_datetime``.
+
+    The resulting index is checked so sktime sees a usable time axis:
+    no missing timestamps, sorted ascending, and no duplicates.
 
     Parameters
     ----------
@@ -156,16 +174,262 @@ def _indexed(table: nw.DataFrame[Any], request: CoercedPredictRequest) -> pd.Dat
         Past or future table.
     request : CoercedPredictRequest
         Supplies the time column name.
+    name : str
+        Frame name (``past`` or ``future``) used in error messages.
 
     Returns
     -------
     pandas.DataFrame
         Frame indexed by ``request.time``.
+
+    Raises
+    ------
+    ValueError
+        If the time column cannot be read as timestamps, or holds
+        missing, unsorted, or duplicate values. sktime reports these
+        as a long list of rejected input formats, so they are caught
+        here instead.
     """
-    frame = table.to_pandas().set_index(request.time)
+    time = request.time
+    frame = table.to_pandas().set_index(time)
+
     if not is_in_valid_index_types(frame.index):
-        frame.index = pd.to_datetime(frame.index)
+        try:
+            frame.index = pd.to_datetime(frame.index)
+
+        except (ValueError, TypeError) as error:
+            raise ValueError(
+                f"{name} column {time!r} could not be read as timestamps.\n\n"
+                f"Original error: {error}\n\nUse one consistent format across "
+                'every row, ideally ISO 8601 (e.g. "2024-01-01" or '
+                f'"2024-01-01T00:00:00"), or send {time!r} as integers to '
+                "index the series by position instead."
+            ) from error
+
+    index = frame.index
+
+    if index.hasnans:
+        raise ValueError(
+            f"{name} column {time!r} has {int(index.isna().sum())} missing "
+            f"timestamp(s) out of {len(index)}.\n\nEmpty strings and nulls "
+            "become NaT, which sktime cannot place on a time axis. Give every "
+            "row a timestamp, or drop the incomplete rows before sending."
+        )
+
+    if not index.is_monotonic_increasing:
+        raise ValueError(
+            f"{name} column {time!r} is not sorted in increasing order.\n\n"
+            "sktime needs observations oldest first. Sort the rows by "
+            f"{time!r} before sending, e.g. pandas "
+            f"`df.sort_values({time!r})`."
+        )
+
+    if not index.is_unique:
+        duplicates = index[index.duplicated()].unique()
+        raise ValueError(
+            f"{name} column {time!r} has {len(duplicates)} duplicate "
+            f"timestamp(s), e.g. {list(duplicates[:3])}.\n\nEach row must be "
+            "one point in time. Aggregate the repeated rows (sum, mean, …) or "
+            "drop them so every timestamp appears once."
+        )
+
     return frame
+
+
+def _targets(past: pd.DataFrame, request: CoercedPredictRequest) -> pd.DataFrame:
+    """Take target columns and require a non-empty numeric ``y``.
+
+    sktime reports empty or non-numeric endogenous data as “categorical
+    features” or a numpy boolean-arithmetic error, so those are caught
+    here instead.
+
+    Parameters
+    ----------
+    past : pandas.DataFrame
+        Indexed past frame, from ``_indexed``.
+    request : CoercedPredictRequest
+        Supplies ``target`` column names.
+
+    Returns
+    -------
+    pandas.DataFrame
+        ``past`` restricted to ``request.target``.
+
+    Raises
+    ------
+    ValueError
+        If ``past`` has no rows, or a target column is not numeric
+        (strings, booleans, datetimes).
+    """
+    y: pd.DataFrame = past.loc[:, request.target]
+
+    if y.empty:
+        raise ValueError(
+            "past has no rows to forecast from.\n\nSend at least one "
+            "observation in past, with a time column and a numeric target."
+        )
+
+    bad = [
+        column
+        for column in y.columns
+        if not (
+            pd.api.types.is_numeric_dtype(y[column])
+            and not pd.api.types.is_bool_dtype(y[column])
+        )
+    ]
+    if bad:
+        dtypes = {column: str(y[column].dtype) for column in bad}
+        raise ValueError(
+            f"target column(s) {bad} are not numeric (dtypes: {dtypes}).\n\n"
+            "Forecasters need numbers in y. Send numeric values, not strings "
+            '(e.g. 1 not "1") or booleans. If a leftover string column was '
+            'inferred as a target, set target=["sales"] so it is excluded. '
+            "If time points at the value column, the date strings become the "
+            "target — set time to the timestamp column instead."
+        )
+
+    return y
+
+
+def _horizon(past: pd.DataFrame, request: CoercedPredictRequest) -> ForecastingHorizon:
+    """Build the relative forecasting horizon ``1 .. request.fh``.
+
+    ``ForecastingHorizon.to_absolute`` turns those relative steps into
+    timestamps by multiplying them by the index frequency, so the
+    horizon is given the spacing of the ``past`` index. It has to be
+    read here, from the full index: the cutoff sktime derives from it,
+    ``past.index[-1:]``, is one element long and carries no spacing of
+    its own.
+
+    Parameters
+    ----------
+    past : pandas.DataFrame
+        Indexed past frame, from ``_indexed``.
+    request : CoercedPredictRequest
+        Supplies ``fh`` and the time column name for error messages.
+
+    Returns
+    -------
+    sktime.forecasting.base.ForecastingHorizon
+        Relative horizon, with ``freq`` set for a ``DatetimeIndex`` and
+        ``None`` for integer, range, and period indexes, which are
+        positional and need no frequency.
+
+    Raises
+    ------
+    ValueError
+        If a ``DatetimeIndex`` has no regular spacing to infer.
+    """
+    index = past.index
+    freq = None
+
+    if isinstance(index, pd.DatetimeIndex):
+        freq = index.freqstr or index.inferred_freq
+
+        if freq is None:
+            raise ValueError(
+                f"could not infer how far apart the {request.time!r} timestamps "
+                f"are, from {len(index)} row(s).\n\nForecasting future "
+                "timestamps needs a regular spacing. Send at least 3 rows at a "
+                "fixed interval (hourly, daily, monthly, …) with no gaps, or "
+                f"index the series by position using integers in "
+                f"{request.time!r}."
+            )
+
+    return ForecastingHorizon(range(1, request.fh + 1), is_relative=True, freq=freq)
+
+
+def _exogenous(
+    past: pd.DataFrame, request: CoercedPredictRequest, fh: ForecastingHorizon
+) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+    """Build ``X`` and ``X_future`` from covariates and static values.
+
+    A non-target column becomes a time-varying covariate when it
+    appears in **both** ``past`` and ``future``: sktime needs its
+    history to fit and its future values to predict. A column on only
+    one side is left out, having no future values or no history. This
+    is the same split ``coerce_request`` applies when inferring
+    ``target``, which excludes columns present in ``future``.
+
+    Static values are added as constant columns. Both tables are built
+    from the same column list so they agree across ``fit`` and
+    ``predict``, as sktime requires.
+
+    Parameters
+    ----------
+    past : pandas.DataFrame
+        Indexed past frame, from ``_indexed``.
+    request : CoercedPredictRequest
+        Supplies ``future``, ``static``, and ``target``.
+    fh : sktime.forecasting.base.ForecastingHorizon
+        Horizon whose absolute timestamps ``X_future`` must cover.
+
+    Returns
+    -------
+    X : pandas.DataFrame or None
+        Exogenous features over the ``past`` index, or ``None`` when
+        there are no covariates and no static values.
+    X_future : pandas.DataFrame or None
+        Same columns over the forecast horizon, or ``None``.
+
+    Raises
+    ------
+    ValueError
+        If ``future`` is present but misses a timestamp being forecast.
+    """
+    # 1. Decide which columns can carry exogenous information
+
+    future = (
+        _indexed(request.future, request, name="future")
+        if request.future is not None
+        else None
+    )
+    static = _static(request)
+    exog = (
+        []
+        if future is None
+        else [
+            column
+            for column in past.columns
+            if column not in request.target and column in future.columns
+        ]
+    )
+
+    if not exog and not static:
+        return None, None
+
+    # 2. Line the future frame up with the timestamps being forecast
+
+    horizon = fh.to_absolute(past.index[-1:]).to_pandas()
+
+    if future is None:
+        future = pd.DataFrame(index=horizon)
+
+    else:
+        missing = horizon.difference(future.index)
+
+        if not missing.empty:
+            raise ValueError(
+                f"future is missing {len(missing)} of the {len(horizon)} "
+                f"timestamp(s) being forecast, e.g. {list(missing[:3])}.\n\n"
+                f"fh={request.fh} forecasts the next {request.fh} step(s) after "
+                f"the last past row, so future must hold a row for each of "
+                f"{list(horizon[:3])}... Send future rows that continue past, "
+                "or omit future to have them generated."
+            )
+
+        future = future.reindex(horizon)
+
+    # 3. Build both tables from the same columns, in the same order
+
+    x = past.loc[:, exog].copy()
+    x_future = future.loc[:, exog].copy()
+
+    for column, value in static.items():
+        x[column] = value
+        x_future[column] = value
+
+    return x, x_future
 
 
 def _static(request: CoercedPredictRequest) -> dict[str, Any]:
@@ -181,11 +445,27 @@ def _static(request: CoercedPredictRequest) -> dict[str, Any]:
     dict of str to any
         Empty dict if ``static`` is ``None``; otherwise
         ``static.to_pandas().iloc[0].to_dict()``.
+
+    Raises
+    ------
+    ValueError
+        If ``static`` is present but has no rows to read.
     """
     if request.static is None:
         return {}
+
     static: nw.DataFrame[Any] = request.static
-    return static.to_pandas().iloc[0].to_dict()
+    frame = static.to_pandas()
+
+    if frame.empty:
+        raise ValueError(
+            f"static has columns {list(frame.columns)} but no rows.\n\nStatic "
+            "features are read from a single row and held constant over time, "
+            'so give each column exactly one value, e.g. {"store": ["urban"]}, '
+            "or omit static entirely."
+        )
+
+    return frame.iloc[0].to_dict()
 
 
 def _as_table(frame: pd.DataFrame, request: CoercedPredictRequest) -> nw.DataFrame[Any]:

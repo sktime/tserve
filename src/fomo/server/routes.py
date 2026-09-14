@@ -41,20 +41,11 @@ from fomo.types.converters import (
 )
 
 _ENVELOPE_CONTENT_TYPE = "application/vnd.fomo.predict+arrow"
-"""Media type for ``POST /predict/bytes`` envelope bodies."""
-
-
 _STATIC_DIR = Path(__file__).parent / "static"
-"""Directory holding the dashboard assets (``index.html``, css, js, icon)."""
 
 
 router = APIRouter()
-"""FastAPI router included by ``Server`` (dashboard, health, models, stats,
-predict)."""
-
-
 router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
-"""Serve ``fomo/server/static`` under ``/static`` for the dashboard assets."""
 
 
 @router.get("/", include_in_schema=False)
@@ -171,6 +162,16 @@ def stats(request: Request) -> StatsResult:
     return StatsResult.model_validate(request.app.state.runtime.stats.snapshot())
 
 
+@router.get("/predict", include_in_schema=False)
+def predict_get() -> None:
+    """Reject ``GET /predict`` with a pointer at POST."""
+    raise HTTPException(
+        status_code=405,
+        detail="GET /predict is not supported; send a JSON body with POST /predict.",
+        headers={"Allow": "POST"},
+    )
+
+
 @router.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest, http_request: Request) -> PredictResponse:
     """Run a JSON ``POST /predict``.
@@ -220,6 +221,11 @@ def predict(request: PredictRequest, http_request: Request) -> PredictResponse:
     try:
         coerced = coerce_request(request)
         response = http_request.app.state.runtime.scheduler.run(coerced)
+
+    # An HTTPException already carries a chosen status and detail; re-wrapping
+    # it would force it to 400 and flatten the detail into a stringified dict.
+    except HTTPException:
+        raise
 
     except Exception as exc:
         raise HTTPException(
@@ -315,9 +321,21 @@ async def predict_bytes(
     request_id = str(uuid.uuid4())
 
     try:
-        parsed_metadata = json.loads(metadata)
+        try:
+            parsed_metadata = json.loads(metadata)
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                "the multipart 'metadata' field is not valid JSON.\n\nOriginal error: "
+                f"{error}\n\nSend it as a JSON object of the non-frame predict fields, "
+                'e.g. metadata={{"fh": 3, "model": "naive"}}. The frames themselves go '
+                "in the separate 'past' / 'future' / 'static' file parts."
+            ) from error
+
         request = decode_request(parsed_metadata, files)
         response = http_request.app.state.runtime.scheduler.run(request)
+
+    except HTTPException:
+        raise
 
     except Exception as exc:
         raise HTTPException(

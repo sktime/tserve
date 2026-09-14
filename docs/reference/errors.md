@@ -10,7 +10,7 @@ status codes, and the Python side raises built-ins plus Pydantic
 | --- | --- |
 | **422** | the body does not match [`PredictRequest`][fomo.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
 | **400** | the body was accepted but the request failed: the `model` id is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
-| **405** | wrong method, such as `GET /predict` |
+| **405** | wrong method, such as `GET /predict` (the body says to use `POST /predict`) |
 
 The split is where the failure happens. **422** is FastAPI rejecting the
 JSON body before the handler runs, so the body is the usual FastAPI list of
@@ -42,10 +42,10 @@ posting to `/predict` — there is no version prefix.
 
 | raised | when |
 | --- | --- |
-| `ValidationError` | local, before any HTTP call: unsupported table shape, `fh` not `> 0`, missing time or target column, empty inferred target |
+| `ValidationError` | local, before any HTTP call: unsupported table shape, `fh` not `> 0`, missing time or target column |
 | `RuntimeError` | the server answered 400 or higher; the message is `detail["error"]` when present, else the raw body |
 | `httpx.RequestError` | connection refused, DNS failure, or timeout (default 60 s, set `timeout=` on `Client`) |
-| `ValueError` | the response envelope is truncated, has wrong magic bytes, or an unsupported version |
+| `ValueError` | empty inferred target (time-only `past`, `future` holding the value column, or time only on a pandas index); or the response envelope is truncated, has wrong magic bytes, or an unsupported version |
 
 `RuntimeError` is deliberately flat: the server-side type is gone by then, so
 read the message. Local `ValidationError`s never reach the network, which is
@@ -54,8 +54,9 @@ trip.
 
 The one surprising local failure is a pandas frame whose time axis is only the
 index. `time` then resolves to the first real column, target inference finds
-nothing left, and the request fails before it is sent. Call `reset_index()`
-first — see [Use an indexed pandas frame](../client/python.md#use-an-indexed-pandas-frame).
+nothing left, and `coerce_request` raises `ValueError` before the request is
+sent. Call `reset_index()` first — see
+[Use an indexed pandas frame](../client/python.md#use-an-indexed-pandas-frame).
 
 ## Startup
 

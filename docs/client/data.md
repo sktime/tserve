@@ -13,7 +13,7 @@ them to Arrow.
 | `time` | no | Name of the time column. Defaults to the first column of `past`. |
 | `target` | no | Target column name or list of names. See [column inference](#column-inference). |
 | `model` | no | Loaded model id. Defaults to `naive`, which must still be loaded. |
-| `future` | no | Future table. When present, it must contain the time column. |
+| `future` | no | Future values of time-varying covariates. When present, it must contain the time column. |
 | `static` | no | One row of values that remain constant over time. |
 | `quantiles` | no | Quantile levels passed to models that support quantile forecasts. |
 
@@ -179,7 +179,7 @@ FoMo then uses:
 
 1. the first `past` column as `time`;
 2. every other `past` column as a target, except columns also present in
-   `future`.
+   `future`, which become exogenous features instead.
 
 Specify `target` explicitly when a table contains columns that should not be
 forecast.
@@ -210,22 +210,33 @@ will reject that request. Use `GET /models` to see loaded ids and the
 The current sktime executor takes the first `static` row and broadcasts it
 across the historical and forecast horizons.
 
-`future` can supply the forecast timestamps:
+`future` carries time-varying covariates: values you already know for the
+steps being forecast, such as a planned promotion or a published price.
 
 ```json
 {
   "future": {
-    "timestamp": ["2024-01-06", "2024-01-07", "2024-01-08"]
+    "timestamp": ["2024-01-06", "2024-01-07", "2024-01-08"],
+    "promo": [1, 0, 0]
   }
 }
 ```
 
-When `future` is omitted, the executor derives the next `fh` index values.
+A non-target column is passed to the estimator as an exogenous feature when
+it appears in **both** `past` and `future`. The estimator needs its history
+to fit and its future values to predict, so a column found in only one of
+the two tables is left out: a `past`-only column has no future values, and a
+`future`-only column has no history.
 
-Extra values in `past` and `future` are accepted by the transport, but the
-current sktime conversion does not pass them to the estimator as
-time-varying covariates. Other `future` columns only affect automatic target
-inference. Static values are the supported exogenous input today.
+Whether a covariate changes the forecast depends on the model. Estimators
+carrying the sktime tag `capability:exogenous` use it; others ignore it.
+
+`fh` remains relative. The forecast timestamps are always the next `fh`
+steps after the last `past` row, so `future` must hold a row for each of
+them; extra rows outside the horizon are ignored. A `future` table that
+skips the horizon is rejected rather than silently ignored. When `future` is
+omitted, the executor derives the next `fh` index values, so `static` alone
+needs no `future` table.
 
 ## Quantiles
 
