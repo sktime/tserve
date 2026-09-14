@@ -391,7 +391,7 @@ class ModelInfo(BaseModel):
 
     id: str
     executor: Literal["sktime", "pytorch-forecasting", "custom"]
-    source: Literal["object", "registry", "directory"]
+    source: Literal["object", "registry", "directory", "craft"]
 
 
 class ModelsResult(BaseModel):
