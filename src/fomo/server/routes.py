@@ -57,11 +57,7 @@ PREDICT_GET_MESSAGE = (
 
 
 _STATIC_DIR = Path(__file__).parent / "static"
-
-
 router = APIRouter()
-
-
 router.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 
 
