@@ -222,8 +222,9 @@ that loads `naive` is not the Python or CLI default.
 `GET /health` checks process liveness. `GET /models` lists loaded ids.
 `GET /stats` reports process and per-model metrics. See the
 [CLI reference](https://fomo.readthedocs.io/en/latest/reference/cli/), or
-serve [saved models](https://fomo.readthedocs.io/en/latest/server/models-dir/)
-and [live estimator objects](https://fomo.readthedocs.io/en/latest/server/live-objects/).
+serve [saved models](https://fomo.readthedocs.io/en/latest/server/models-dir/),
+[live estimator objects](https://fomo.readthedocs.io/en/latest/server/live-objects/),
+or [craft specs](https://fomo.readthedocs.io/en/latest/server/craft-specs/).
 
 ## HTTP and Python clients
 
