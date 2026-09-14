@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from fomo import __version__
-from fomo.cli.main import main
+from fomo.cli.main import main, parse_load_models
 
 
 def _run(argv):
@@ -52,6 +52,45 @@ def test_main_forwards_flags():
         port=9000,
         log_level="debug",
     )
+
+
+def test_main_parses_craft_token():
+    _, Server, _ = _run(
+        [
+            "serve",
+            "--load-models",
+            "naive",
+            'drift=NaiveForecaster(strategy="drift")',
+        ]
+    )
+
+    Server.assert_called_once_with(
+        load_models=["naive", ("drift", 'NaiveForecaster(strategy="drift")')],
+        models_dir=None,
+        host="127.0.0.1",
+        port=8000,
+        log_level="info",
+    )
+
+
+def test_parse_load_models():
+    assert parse_load_models(["naive", "chronos-2"]) == ["naive", "chronos-2"]
+    assert parse_load_models(
+        ['ttm-local=TinyTimeMixerForecaster(model_path="x", revision="a=b")']
+    ) == [("ttm-local", 'TinyTimeMixerForecaster(model_path="x", revision="a=b")')]
+
+
+@pytest.mark.parametrize(
+    ("tokens", "match"),
+    [
+        pytest.param(["NaiveForecaster()"], "id=spec", id="bare_spec"),
+        pytest.param(["=NaiveForecaster()"], "empty id", id="empty_id"),
+        pytest.param(["mine="], "empty craft spec", id="empty_spec"),
+    ],
+)
+def test_parse_load_models_rejects(tokens, match):
+    with pytest.raises(ValueError, match=match):
+        parse_load_models(tokens)
 
 
 def test_main_version(capsys):
