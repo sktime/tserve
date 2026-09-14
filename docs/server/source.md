@@ -162,6 +162,6 @@ Keep it to one worker per process: each worker would load its own copy of every 
 
 ## Next
 
-- [Live objects](live-objects.md) — Python can also serve estimators you configured in the session
+- [Live objects](live-objects.md) — Python can also serve estimators you configured in the session, or a sktime craft spec as `(id, spec)`
 - [Models from a directory](models-dir.md) — serve saved sktime `.zip` files
 - [Dashboard](dashboard.md) — the console at [http://127.0.0.1:8000/](http://127.0.0.1:8000/)

@@ -91,8 +91,9 @@ is unused.
 }
 ```
 
-`source` is `registry`, `directory` (a saved `.zip`), or `object` (a live
-estimator). `executor` is the plugin that loaded it, today always `sktime`.
+`source` is `registry`, `directory` (a saved `.zip`), `object` (a live
+estimator), or `craft` (a sktime craft spec passed as `(id, spec)`).
+`executor` is the plugin that loaded it, today always `sktime`.
 
 `GET /stats` is a snapshot of the process:
 
