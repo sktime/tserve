@@ -131,6 +131,9 @@ env.bak/
 venv.bak/
 envs/
 
+# uv
+uv.lock
+
 # Tooling caches
 .mypy_cache/
 .dmypy.json
