@@ -2,7 +2,9 @@ import narwhals as nw
 import pytest
 
 from fomo.types.converters import (
+    _from_arrow_bytes,
     _from_narwhals,
+    _to_bytes,
     _to_narwhals,
     coerce_request,
     coerce_response,
@@ -161,6 +163,34 @@ def test_coerce_request_rejects_pandas_index_as_time():
         coerce_request(_request(past=past, time=None, target=None))
 
 
+@pytest.mark.parametrize(
+    ("df", "error", "match"),
+    [
+        pytest.param(
+            None,
+            TypeError,
+            "is not a table FoMo can read",
+            id="none",
+        ),
+        pytest.param(
+            {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [1, "2"]},
+            ValueError,
+            "could not convert to a single Arrow type",
+            id="mixed_types",
+        ),
+        pytest.param(
+            {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [{"x": 1}, 2]},
+            ValueError,
+            "could not convert to a single Arrow type",
+            id="nested_object",
+        ),
+    ],
+)
+def test_to_narwhals_rejects(df, error, match):
+    with pytest.raises(error, match=match):
+        _to_narwhals(df, name="past")
+
+
 def test_encode_request():
     metadata, files = encode_request(coerce_request(_request()))
 
@@ -250,6 +280,28 @@ def test_unpack_envelope():
 def test_unpack_envelope_rejects(body, match):
     with pytest.raises(ValueError, match=match):
         unpack_envelope(body)
+
+
+def test_from_arrow_bytes_roundtrip():
+    frame = _to_narwhals({"timestamp": ["2024-01-01"], "sales": [120]})
+
+    out = _from_arrow_bytes(_to_bytes(frame), name="past")
+
+    assert list(out.columns) == ["timestamp", "sales"]
+    assert out["sales"].to_list() == [120]
+
+
+@pytest.mark.parametrize(
+    "blob",
+    [
+        pytest.param(b"", id="empty"),
+        pytest.param(b"not-arrow", id="text"),
+        pytest.param(b"\x00\x01\x02\x03\x04\x05\x06\x07", id="garbage"),
+    ],
+)
+def test_from_arrow_bytes_rejects(blob):
+    with pytest.raises(ValueError, match="could not be read as an Arrow IPC stream"):
+        _from_arrow_bytes(blob, name="past")
 
 
 _TEMPLATE_COLUMNS = {"timestamp": ["2024-01-01"], "sales": [120.0]}
