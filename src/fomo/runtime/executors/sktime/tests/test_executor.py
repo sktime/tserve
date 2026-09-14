@@ -1,4 +1,5 @@
 import narwhals as nw
+import pytest
 from sktime.forecasting.naive import NaiveForecaster
 
 from fomo.runtime.executors.sktime.executor import SktimeExecutor
@@ -49,6 +50,28 @@ def test_load_object():
     executor.load(ModelInfo(id="mine", executor="sktime", source="object"), model)
 
     assert executor._forecaster is model
+
+
+def test_load_craft():
+    executor = SktimeExecutor()
+
+    executor.load(
+        ModelInfo(id="mine", executor="sktime", source="craft"),
+        "NaiveForecaster()",
+    )
+
+    assert isinstance(executor._forecaster, NaiveForecaster)
+    assert not executor._forecaster.is_fitted
+
+
+def test_load_craft_rejects_class():
+    executor = SktimeExecutor()
+
+    with pytest.raises(TypeError, match="forecaster instance"):
+        executor.load(
+            ModelInfo(id="mine", executor="sktime", source="craft"),
+            "NaiveForecaster",
+        )
 
 
 def test_load_path(tmp_path):

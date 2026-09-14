@@ -25,6 +25,12 @@ def test_resolve_model_from_object():
     assert info == ModelInfo(id="mine", executor="sktime", source="object")
 
 
+def test_resolve_model_from_craft():
+    info = resolve_model(("mine", "NaiveForecaster()"))
+
+    assert info == ModelInfo(id="mine", executor="sktime", source="craft")
+
+
 @pytest.mark.parametrize(
     ("item", "exc", "match"),
     [
@@ -35,6 +41,12 @@ def test_resolve_model_from_object():
             id="unknown_registry",
         ),
         pytest.param(
+            "NaiveForecaster()",
+            ValueError,
+            "pass a \\(id, spec\\) pair",
+            id="bare_craft_hint",
+        ),
+        pytest.param(
             Path("naive.pkl"),
             ValueError,
             "not a saved sktime model",
@@ -43,8 +55,20 @@ def test_resolve_model_from_object():
         pytest.param(
             ("mine", object()),
             TypeError,
-            "must be a sktime forecaster, got object",
+            "must be a sktime forecaster or a craft spec string, got object",
             id="non_sktime_object",
+        ),
+        pytest.param(
+            ("mine", ""),
+            ValueError,
+            "empty craft spec",
+            id="empty_craft",
+        ),
+        pytest.param(
+            ("mine", "   "),
+            ValueError,
+            "empty craft spec",
+            id="whitespace_craft",
         ),
     ],
 )
