@@ -105,11 +105,11 @@ class SktimeExecutor(Executor):
             if info.source == "registry":
                 from sktime.registry import craft
 
-                self._forecaster = craft(SKTIME_REGISTRY[model]["spec"])
+                self._forecaster = craft(SKTIME_REGISTRY[model]["spec"], safe=True)
             elif info.source == "craft":
                 from sktime.registry import craft
 
-                self._forecaster = craft(model)
+                self._forecaster = craft(model, safe=True)
                 if not isinstance(self._forecaster, BaseForecaster):
                     raise TypeError(
                         f"craft spec for {info.id!r} must produce a sktime "
