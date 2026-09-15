@@ -121,6 +121,8 @@ Three predicted days come back, plus the id that served them:
 }
 ```
 
+`past` can also be [row-oriented](client/data.md#table-formats), with `columns` and `data` instead of one list per column. Leave out `time` and `target` and FoMo [infers them](client/data.md#column-inference) from column order. A request it cannot serve comes back as a 400 or 422 [error](reference/errors.md) carrying a message and the `request_id`.
+
 **From `python`**
 
 The client takes the same fields as keywords and sends Arrow instead of JSON. Install the `client` extra:
