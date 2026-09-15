@@ -26,16 +26,6 @@ from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
-MISSING_DEPS_MESSAGE = (
-    "Model {model!r} could not be loaded: its sktime forecaster needs soft "
-    "dependencies that are missing from, or incompatible with, this "
-    "environment.\n\nOriginal error: {error}\n\nInstall the dependency extra "
-    'that covers this model, e.g. `pip install "fomo[<extra>]"` or '
-    "`uv sync --extra <extra>`, then load it again. The catalog lists the "
-    "extra (and matching Docker tag) for every model id: "
-    "https://fomo.readthedocs.io/en/latest/models/"
-)
-
 
 @register("sktime")
 class SktimeExecutor(Executor):
@@ -90,8 +80,8 @@ class SktimeExecutor(Executor):
             ``BaseForecaster`` instance.
         ModuleNotFoundError
             If the forecaster needs soft dependencies this environment
-            does not satisfy. Re-raised from the underlying sktime error
-            with ``MISSING_DEPS_MESSAGE``, pointing at the catalog extra.
+            does not satisfy. Re-raised from the underlying sktime error,
+            pointing at the catalog extra.
         Exception
             Other errors from ``sktime.registry.craft`` or
             ``sktime.base.load``.
@@ -128,7 +118,13 @@ class SktimeExecutor(Executor):
 
         except ModuleNotFoundError as error:
             raise ModuleNotFoundError(
-                MISSING_DEPS_MESSAGE.format(model=info.id, error=error)
+                f"Model {info.id!r} could not be loaded: its sktime forecaster needs soft "
+                "dependencies that are missing from, or incompatible with, this "
+                f"environment.\n\nOriginal error: {error}\n\nInstall the dependency extra "
+                'that covers this model, e.g. `pip install "fomo[<extra>]"` or '
+                "`uv sync --extra <extra>`, then load it again. The catalog lists the "
+                "extra (and matching Docker tag) for every model id: "
+                "https://fomo.readthedocs.io/en/latest/models/"
             ) from error
 
     def warmup(self) -> None:
