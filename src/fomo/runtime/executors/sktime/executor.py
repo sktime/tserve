@@ -118,13 +118,13 @@ class SktimeExecutor(Executor):
 
         except ModuleNotFoundError as error:
             raise ModuleNotFoundError(
-                f"Model {info.id!r} could not be loaded: its sktime forecaster needs soft "
-                "dependencies that are missing from, or incompatible with, this "
-                f"environment.\n\nOriginal error: {error}\n\nInstall the dependency extra "
-                'that covers this model, e.g. `pip install "fomo[<extra>]"` or '
-                "`uv sync --extra <extra>`, then load it again. The catalog lists the "
-                "extra (and matching Docker tag) for every model id: "
-                "https://fomo.readthedocs.io/en/latest/models/"
+                f"Model {info.id!r} could not be loaded: its sktime forecaster "
+                "needs soft dependencies that are missing from, or incompatible "
+                f"with, this environment.\n\nOriginal error: {error}\n\nInstall "
+                "the dependency extra that covers this model, e.g. `pip install "
+                '"fomo[<extra>]"` or `uv sync --extra <extra>`, then load it '
+                "again. The catalog lists the extra (and matching Docker tag) "
+                "for every model id: https://fomo.readthedocs.io/en/latest/models/"
             ) from error
 
     def warmup(self) -> None:
