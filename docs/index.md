@@ -30,6 +30,8 @@ Pull the `hub` image and load two registry ids: `chronos-bolt` and `ttm-r3`.
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
+Every id except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host.
+
 **Build from source**
 
 Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
