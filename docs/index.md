@@ -60,7 +60,9 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-The other [CLI flags](reference/cli.md#flags) are `--host`, `--port`, and `--log-level`. Beyond catalog ids, `--load-models` also takes an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
+`GET /models` lists the ids this process actually loaded, not the full [catalog](models/index.md). `--host`, `--port`, and `--log-level` are the other [CLI flags](reference/cli.md#flags).
+
+`--load-models` can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
 
 ### Predict
 
