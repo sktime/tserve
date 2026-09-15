@@ -166,6 +166,11 @@ class SktimeExecutor(Executor):
         sets ``request_id=""``; server routes overwrite that on the
         bytes path after predict.
 
+        ``quantiles`` against a forecaster whose
+        ``capability:pred_int`` tag is false is rejected before
+        ``predict_quantiles`` is called, so that case carries no
+        estimator message at all.
+
         Parameters
         ----------
         request : CoercedPredictRequest
@@ -182,21 +187,60 @@ class SktimeExecutor(Executor):
         ValidationError
             If ``to_response`` cannot construct
             ``CoercedPredictResponse`` (empty prediction tables).
-        Exception
-            Errors from the wrapped sktime ``fit`` / ``predict`` /
-            ``predict_quantiles`` call.
+        RuntimeError
+            If the point forecast (``fit`` then ``predict``) raised, if
+            ``quantiles`` was sent to a forecaster that cannot produce
+            them, or if ``predict_quantiles`` raised. The message says
+            which step failed and what usually causes it, and quotes the
+            estimator's own message under ``Original error:``.
         """
+        # 1. Parse Request
         y, X, X_future, fh, quantiles = from_request(request)
-
-        self._forecaster.fit(y=y, X=X, fh=fh)
-        pred = self._forecaster.predict(X=X_future, fh=fh)
+        pred = None
         pred_quantiles = None
-        if quantiles:
-            pred_quantiles = self._forecaster.predict_quantiles(
-                alpha=quantiles, X=X_future, fh=fh
-            )
 
+        # 2. Get Point Forecast
+        try:
+            self._forecaster.fit(y=y, X=X, fh=fh)
+            pred = self._forecaster.predict(X=X_future, fh=fh)
+        except Exception as error:
+            raise RuntimeError(
+                f"Model {request.model!r} failed to forecast {request.fh} "
+                f"step(s) ahead from the {len(y)} row(s) in past.\n\nOriginal "
+                f"error: {error}\n\nCheck the request against what this model "
+                "supports. The catalog records the context, horizon, and "
+                "capabilities of every model: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            ) from error
+
+        # 3. Get Quantile Forecasts
+        if quantiles and not self._forecaster.get_tag("capability:pred_int"):
+            raise RuntimeError(
+                f"Model {request.model!r} cannot return quantile predictions, "
+                f"so the requested quantiles {quantiles} are unavailable.\n\n"
+                "Drop `quantiles` from the request to get point forecasts "
+                "only, or load a model that supports them. The catalog marks "
+                "quantile support for every family: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            )
+        elif quantiles:
+            try:
+                pred_quantiles = self._forecaster.predict_quantiles(
+                    alpha=quantiles, X=X_future, fh=fh
+                )
+            except Exception as error:
+                raise RuntimeError(
+                    f"Model {request.model!r} returned its point forecast but "
+                    f"failed on the requested quantiles {quantiles}.\n\n"
+                    f"Original error: {error}\n\nDrop `quantiles` to keep just "
+                    "the point forecast, or check what this model supports. "
+                    "The catalog records the quantile support of every model: "
+                    "https://fomo.readthedocs.io/en/latest/models/"
+                ) from error
+
+        # 4. Create Response
         response: CoercedPredictResponse = to_response(
             pred, request, quantiles=pred_quantiles
         )
+
         return response
