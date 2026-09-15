@@ -131,9 +131,31 @@ class SktimeExecutor(Executor):
         """Fit a dummy 3-row ``y`` and ``predict`` with ``fh=[1]``.
 
         The dummy frame is ``pandas.DataFrame({"y": [0, 1, 2, ..., 127]})``.
+
+        Raises
+        ------
+        RuntimeError
+            If the forecaster cannot fit and predict the dummy series.
+            Re-raised from the underlying sktime error, since a model
+            that fails here would fail on every request.
         """
-        self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
-        self._forecaster.predict()
+        model = self._info.id if self._info is not None else "unknown"
+
+        try:
+            self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
+            self._forecaster.predict()
+
+        except Exception as error:
+            raise RuntimeError(
+                f"Model {model!r} was loaded but failed to forecast a dummy "
+                "128-row series during warmup, so it would fail on every "
+                f"request.\n\nOriginal error: {error}\n\nThe forecaster itself "
+                "was built, so this is usually the environment rather than the "
+                "model id: a dependency version it cannot work with, or a "
+                "device it cannot reach. Installing the catalog's extra for "
+                "this model pins versions known to work: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            ) from error
 
     def predict(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
         """Fit on the request, predict, optionally predict quantiles.
