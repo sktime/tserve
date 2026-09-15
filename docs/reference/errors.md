@@ -28,8 +28,28 @@ field errors. **400** is the handler wrapping everything after that:
 
 An id that is missing from `GET /models` is 400, not 404. Missing columns read
 `past is missing columns: ['sales'] (available: ['timestamp', 'value'])`.
-Estimator failures keep the message the estimator raised, so a series shorter
-than a model's context length surfaces here too.
+
+Estimator failures are wrapped rather than passed through, because the library
+wording for the same mistake ranges from clear to unrecognizable — Chronos
+Bolt past 64 steps raises `'ChronosBoltPipeline' object has no attribute
+'quantiles'`. The message names the step that failed and the request values it
+failed on, quotes the estimator under `Original error:`, and points at the
+[catalog](../models/index.md):
+
+| the step that failed | 400 opens with |
+| --- | --- |
+| the point forecast (`fit` then `predict`) | `Model 'chronos-bolt' failed to forecast 70 step(s) ahead from the 200 row(s) in past.` |
+| the quantiles | `Model 'timesfm-2.5' returned its point forecast but failed on the requested quantiles [0.1, 0.9].` |
+
+It does not try to diagnose the cause beyond that, so read the original error
+and compare the request against the context, horizon, and quantile support the
+catalog records for the model. An `fh` past the model's trained horizon and a
+`past` shorter than its context length both surface as the first one.
+
+Asking a model that cannot produce quantiles for them is the one case FoMo does
+decide: it is rejected before the estimator runs, so it reads `Model
+'chronos-bolt' cannot return quantile predictions, so the requested quantiles
+[0.1, 0.9] are unavailable.` with no `Original error:` at all.
 
 `POST /predict/bytes` behaves the same way, with 422 reserved for a missing
 `metadata` field or `past` file.
@@ -69,8 +89,9 @@ CLI exits before uvicorn binds the port:
 | `TypeError` | an `(id, object)` pair whose object is neither a craft spec string nor a sktime `BaseForecaster`; or a craft spec that does not produce a `BaseForecaster` instance (for example a class name without parentheses) |
 | `ImportError` | the executor's extra is not installed |
 | `OSError` | `models_dir` does not exist or cannot be listed |
+| `RuntimeError` | the model loaded but failed its warmup forecast, so it would fail on every request |
 
-Whatever an estimator raises while loading or warming up propagates unchanged,
-so a failed Hugging Face download stops startup with that library's error. A
+Whatever an estimator raises while loading propagates unchanged, so a failed
+Hugging Face download stops startup with that library's error. A
 [family extra](../models/index.md#dependencies) or image tag that matches
 the ids you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).
