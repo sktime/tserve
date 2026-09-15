@@ -161,7 +161,9 @@ print(result.predictions)
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
 
-`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md).
+`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md). A pandas frame that keeps time in its [index](client/python.md#use-an-indexed-pandas-frame) works too, and the predictions come back indexed the same way.
+
+The process answers more than `/predict`. Its browser [dashboard](server/dashboard.md) plots a forecast from a sample series or a CSV you drop on it, while [`GET /models` and `GET /stats`](client/http.md#inspect-the-server) report what is loaded and how it is doing.
 
 ## Where to next
 
