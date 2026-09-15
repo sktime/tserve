@@ -34,7 +34,7 @@ Every id except `naive` downloads a checkpoint from Hugging Face on first load. 
 
 **Build from source**
 
-Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
+Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI yet. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
 
 === "uv"
 
