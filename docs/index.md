@@ -71,6 +71,8 @@ A request is a table plus the roles of its columns:
 - `fh` — how many steps ahead
 - `model` — an id this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
 
+Three more fields are optional. Add [`quantiles`](client/data.md#quantiles) for prediction intervals from models that support them, or [`future` and `static`](client/data.md#future-and-static-data) for covariates you already know.
+
 **From `curl`**
 
 Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on Windows so PowerShell does not use `Invoke-WebRequest`).
