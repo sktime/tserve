@@ -203,4 +203,12 @@ The process answers more than `/predict`. Its browser [dashboard](server/dashboa
 
     [:octicons-arrow-right-24: HTTP](client/http.md) or [Python](client/python.md)
 
+-   :material-table-column:{ .lg .middle } **Data specification**
+
+    ---
+
+    Every request field, table format, and response shape.
+
+    [:octicons-arrow-right-24: Data specification](client/data.md)
+
 </div>
