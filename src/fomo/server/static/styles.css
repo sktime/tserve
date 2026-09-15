@@ -482,7 +482,9 @@ a:hover { text-decoration: underline; }
 }
 .alert .icon { margin-top: 1px; }
 .alert__title { display: block; font-size: 12px; }
-.alert__body { color: var(--text); opacity: 0.85; word-break: break-word; font-family: var(--mono); font-size: 11px; }
+/* pre-line keeps the blank lines server messages put around "Original
+   error:" and the suggested fix; without it they render as one block. */
+.alert__body { color: var(--text); opacity: 0.85; word-break: break-word; font-family: var(--mono); font-size: 11px; white-space: pre-line; }
 
 /* ── chart ────────────────────────────────────────────────────────── */
 
