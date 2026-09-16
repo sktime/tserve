@@ -26,16 +26,6 @@ from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
-MISSING_DEPS_MESSAGE = (
-    "Model {model!r} could not be loaded: its sktime forecaster needs soft "
-    "dependencies that are missing from, or incompatible with, this "
-    "environment.\n\nOriginal error: {error}\n\nInstall the dependency extra "
-    'that covers this model, e.g. `pip install "fomo[<extra>]"` or '
-    "`uv sync --extra <extra>`, then load it again. The catalog lists the "
-    "extra (and matching Docker tag) for every model id: "
-    "https://fomo.readthedocs.io/en/latest/models/"
-)
-
 
 @register("sktime")
 class SktimeExecutor(Executor):
@@ -90,8 +80,8 @@ class SktimeExecutor(Executor):
             ``BaseForecaster`` instance.
         ModuleNotFoundError
             If the forecaster needs soft dependencies this environment
-            does not satisfy. Re-raised from the underlying sktime error
-            with ``MISSING_DEPS_MESSAGE``, pointing at the catalog extra.
+            does not satisfy. Re-raised from the underlying sktime error,
+            pointing at the catalog extra.
         Exception
             Other errors from ``sktime.registry.craft`` or
             ``sktime.base.load``.
@@ -128,16 +118,44 @@ class SktimeExecutor(Executor):
 
         except ModuleNotFoundError as error:
             raise ModuleNotFoundError(
-                MISSING_DEPS_MESSAGE.format(model=info.id, error=error)
+                f"Model {info.id!r} could not be loaded: its sktime forecaster "
+                "needs soft dependencies that are missing from, or incompatible "
+                f"with, this environment.\n\nOriginal error: {error}\n\nInstall "
+                "the dependency extra that covers this model, e.g. `pip install "
+                '"fomo[<extra>]"` or `uv sync --extra <extra>`, then load it '
+                "again. The catalog lists the extra (and matching Docker tag) "
+                "for every model id: https://fomo.readthedocs.io/en/latest/models/"
             ) from error
 
     def warmup(self) -> None:
         """Fit a dummy 3-row ``y`` and ``predict`` with ``fh=[1]``.
 
         The dummy frame is ``pandas.DataFrame({"y": [0, 1, 2, ..., 127]})``.
+
+        Raises
+        ------
+        RuntimeError
+            If the forecaster cannot fit and predict the dummy series.
+            Re-raised from the underlying sktime error, since a model
+            that fails here would fail on every request.
         """
-        self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
-        self._forecaster.predict()
+        model = self._info.id if self._info is not None else "unknown"
+
+        try:
+            self._forecaster.fit(pd.DataFrame({"y": list(range(128))}), fh=[1])
+            self._forecaster.predict()
+
+        except Exception as error:
+            raise RuntimeError(
+                f"Model {model!r} was loaded but failed to forecast a dummy "
+                "128-row series during warmup, so it would fail on every "
+                f"request.\n\nOriginal error: {error}\n\nThe forecaster itself "
+                "was built, so this is usually the environment rather than the "
+                "model id: a dependency version it cannot work with, or a "
+                "device it cannot reach. Installing the catalog's extra for "
+                "this model pins versions known to work: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            ) from error
 
     def predict(self, request: CoercedPredictRequest) -> CoercedPredictResponse:
         """Fit on the request, predict, optionally predict quantiles.
@@ -147,6 +165,11 @@ class SktimeExecutor(Executor):
         runs ``predict_quantiles(alpha, X_future, fh)``. ``to_response``
         sets ``request_id=""``; server routes overwrite that on the
         bytes path after predict.
+
+        ``quantiles`` against a forecaster whose
+        ``capability:pred_int`` tag is false is rejected before
+        ``predict_quantiles`` is called, so that case carries no
+        estimator message at all.
 
         Parameters
         ----------
@@ -164,21 +187,60 @@ class SktimeExecutor(Executor):
         ValidationError
             If ``to_response`` cannot construct
             ``CoercedPredictResponse`` (empty prediction tables).
-        Exception
-            Errors from the wrapped sktime ``fit`` / ``predict`` /
-            ``predict_quantiles`` call.
+        RuntimeError
+            If the point forecast (``fit`` then ``predict``) raised, if
+            ``quantiles`` was sent to a forecaster that cannot produce
+            them, or if ``predict_quantiles`` raised. The message says
+            which step failed and what usually causes it, and quotes the
+            estimator's own message under ``Original error:``.
         """
+        # 1. Parse Request
         y, X, X_future, fh, quantiles = from_request(request)
-
-        self._forecaster.fit(y=y, X=X, fh=fh)
-        pred = self._forecaster.predict(X=X_future, fh=fh)
+        pred = None
         pred_quantiles = None
-        if quantiles:
-            pred_quantiles = self._forecaster.predict_quantiles(
-                alpha=quantiles, X=X_future, fh=fh
-            )
 
+        # 2. Get Point Forecast
+        try:
+            self._forecaster.fit(y=y, X=X, fh=fh)
+            pred = self._forecaster.predict(X=X_future, fh=fh)
+        except Exception as error:
+            raise RuntimeError(
+                f"Model {request.model!r} failed to forecast {request.fh} "
+                f"step(s) ahead from the {len(y)} row(s) in past.\n\nOriginal "
+                f"error: {error}\n\nCheck the request against what this model "
+                "supports. The catalog records the context, horizon, and "
+                "capabilities of every model: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            ) from error
+
+        # 3. Get Quantile Forecasts
+        if quantiles and not self._forecaster.get_tag("capability:pred_int"):
+            raise RuntimeError(
+                f"Model {request.model!r} cannot return quantile predictions, "
+                f"so the requested quantiles {quantiles} are unavailable.\n\n"
+                "Drop `quantiles` from the request to get point forecasts "
+                "only, or load a model that supports them. The catalog marks "
+                "quantile support for every family: "
+                "https://fomo.readthedocs.io/en/latest/models/"
+            )
+        elif quantiles:
+            try:
+                pred_quantiles = self._forecaster.predict_quantiles(
+                    alpha=quantiles, X=X_future, fh=fh
+                )
+            except Exception as error:
+                raise RuntimeError(
+                    f"Model {request.model!r} returned its point forecast but "
+                    f"failed on the requested quantiles {quantiles}.\n\n"
+                    f"Original error: {error}\n\nDrop `quantiles` to keep just "
+                    "the point forecast, or check what this model supports. "
+                    "The catalog records the quantile support of every model: "
+                    "https://fomo.readthedocs.io/en/latest/models/"
+                ) from error
+
+        # 4. Create Response
         response: CoercedPredictResponse = to_response(
             pred, request, quantiles=pred_quantiles
         )
+
         return response
