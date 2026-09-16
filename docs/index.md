@@ -89,16 +89,7 @@ Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
-        "sales": [120, 135, 128, 142, 138]
-      },
-      "time": "timestamp",
-      "target": ["sales"],
-      "fh": 3,
-      "model": "chronos-bolt"
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
     ```
 
 Three predicted days come back, plus the id that served them:
