@@ -138,17 +138,7 @@ prediction, so this example uses the loaded `timesfm-2.5` model:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
-        "sales": [120, 135, 128, 142, 150]
-      },
-      "time": "timestamp",
-      "target": ["sales"],
-      "fh": 3,
-      "model": "timesfm-2.5",
-      "quantiles": [0.1, 0.5, 0.9]
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-02-01","2024-03-01","2024-04-01","2024-05-01"],"sales":[120,135,128,142,150]},"time":"timestamp","target":["sales"],"fh":3,"model":"timesfm-2.5","quantiles":[0.1,0.5,0.9]}'
     ```
 
 Many estimators name those columns `{target}_{level}` (`sales_0.1`,
