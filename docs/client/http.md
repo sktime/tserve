@@ -58,16 +58,7 @@ asks for the next three:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
-        "sales": [120, 135, 128, 142, 138]
-      },
-      "time": "timestamp",
-      "target": ["sales"],
-      "fh": 3,
-      "model": "chronos-bolt"
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
     ```
 
 `POST /predict` returns a column-oriented JSON table:
@@ -117,20 +108,7 @@ so FoMo uses the first column as time and the other column as the target:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "columns": ["timestamp", "sales"],
-        "data": [
-          ["2024-01-01", 120],
-          ["2024-01-02", 135],
-          ["2024-01-03", 128],
-          ["2024-01-04", 142],
-          ["2024-01-05", 138]
-        ]
-      },
-      "fh": 3,
-      "model": "chronos-bolt"
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"columns":["timestamp","sales"],"data":[["2024-01-01",120],["2024-01-02",135],["2024-01-03",128],["2024-01-04",142],["2024-01-05",138]]},"fh":3,"model":"chronos-bolt"}'
     ```
 
 The response is still column-oriented JSON. HTTP does not preserve the
@@ -160,17 +138,7 @@ prediction, so this example uses the loaded `timesfm-2.5` model:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01", "2024-05-01"],
-        "sales": [120, 135, 128, 142, 150]
-      },
-      "time": "timestamp",
-      "target": ["sales"],
-      "fh": 3,
-      "model": "timesfm-2.5",
-      "quantiles": [0.1, 0.5, 0.9]
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-02-01","2024-03-01","2024-04-01","2024-05-01"],"sales":[120,135,128,142,150]},"time":"timestamp","target":["sales"],"fh":3,"model":"timesfm-2.5","quantiles":[0.1,0.5,0.9]}'
     ```
 
 Many estimators name those columns `{target}_{level}` (`sales_0.1`,
