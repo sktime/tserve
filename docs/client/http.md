@@ -108,20 +108,7 @@ so FoMo uses the first column as time and the other column as the target:
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
-      "past": {
-        "columns": ["timestamp", "sales"],
-        "data": [
-          ["2024-01-01", 120],
-          ["2024-01-02", 135],
-          ["2024-01-03", 128],
-          ["2024-01-04", 142],
-          ["2024-01-05", 138]
-        ]
-      },
-      "fh": 3,
-      "model": "chronos-bolt"
-    }'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"columns":["timestamp","sales"],"data":[["2024-01-01",120],["2024-01-02",135],["2024-01-03",128],["2024-01-04",142],["2024-01-05",138]]},"fh":3,"model":"chronos-bolt"}'
     ```
 
 The response is still column-oriented JSON. HTTP does not preserve the
