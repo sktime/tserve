@@ -30,9 +30,11 @@ Pull the `hub` image and load two registry ids: `chronos-bolt` and `ttm-r3`.
 docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
 ```
 
+Every id except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
+
 **Build from source**
 
-Or clone the repo and start from source. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
+Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI yet. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
 
 === "uv"
 
@@ -58,6 +60,10 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
+`GET /models` lists the ids this process actually loaded, not the full [catalog](models/index.md). `--host`, `--port`, and `--log-level` are the other [CLI flags](reference/cli.md#flags).
+
+`--load-models` can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
+
 ### Predict
 
 A request is a table plus the roles of its columns:
@@ -66,6 +72,8 @@ A request is a table plus the roles of its columns:
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
 - `model` — an id this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
+
+Three more fields are optional. Add [`quantiles`](client/data.md#quantiles) for prediction intervals from models that support them, or [`future` and `static`](client/data.md#future-and-static-data) for covariates you already know. The full contract — formats, defaults, and limits — is the [data specification](client/data.md).
 
 **From `curl`**
 
@@ -115,6 +123,8 @@ Three predicted days come back, plus the id that served them:
 }
 ```
 
+`past` can also be [row-oriented](client/data.md#table-formats), with `columns` and `data` instead of one list per column. Leave out `time` and `target` and FoMo [infers them](client/data.md#column-inference) from column order. A request it cannot serve comes back as a 400 or 422 [error](reference/errors.md) carrying a message and the `request_id`.
+
 **From `python`**
 
 The client takes the same fields as keywords and sends Arrow instead of JSON. Install the `client` extra:
@@ -153,7 +163,9 @@ print(result.predictions)
 #  'sales': [139.96…, 138.93…, 138.26…]}
 ```
 
-`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md).
+`past` went in as a dict of columns, so `predictions` comes back as one. Pass pandas, polars, or pyarrow and you get that type back instead — see [Python](client/python.md). A pandas frame that keeps time in its [index](client/python.md#use-an-indexed-pandas-frame) works too, and the predictions come back indexed the same way.
+
+The process answers more than `/predict`. Its browser [dashboard](server/dashboard.md) plots a forecast from a sample series or a CSV you drop on it, while [`GET /models` and `GET /stats`](client/http.md#inspect-the-server) report what is loaded and how it is doing.
 
 ## Where to next
 
@@ -190,5 +202,13 @@ print(result.predictions)
     Request and response shapes over JSON, or the Python client.
 
     [:octicons-arrow-right-24: HTTP](client/http.md) or [Python](client/python.md)
+
+-   :material-table-column:{ .lg .middle } **Data specification**
+
+    ---
+
+    Every request field, table format, and response shape.
+
+    [:octicons-arrow-right-24: Data specification](client/data.md)
 
 </div>
