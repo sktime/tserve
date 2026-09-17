@@ -11,7 +11,9 @@ revision).
 
 Craft strings stay private to this catalog. ``ModelInfo`` is
 listing-only (``id``, ``executor``, ``source``) and does not expose
-specs. ``SktimeExecutor.load`` calls
+specs. Each entry also carries ``extras`` (compatible optional-dependency
+groups, smallest first) and ``tags`` (matching Docker Hub tags, CPU then
+GPU). ``SktimeExecutor.load`` calls
 ``sktime.registry.craft(SKTIME_REGISTRY[model]["spec"])`` when
 ``source`` is ``registry``.
 
@@ -956,3 +958,72 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # },
 }
 """Catalog of loadable sktime model ids; see the module docstring."""
+
+# Extra name matches the CPU Docker tag, except ``server`` → ``base``.
+# GPU tags are ``{extra}-gpu``; there is no ``:base-gpu``. Family extras
+# that pull ``hf`` also load Hub models. ``kronos`` sits on ``base``.
+_ALL_EXTRAS = (
+    "server",
+    "hub",
+    "chronos",
+    "kronos",
+    "granite",
+    "moirai",
+    "tirex",
+    "toto",
+    "mantis",
+    "full",
+)
+_HF_EXTRAS = (
+    "hub",
+    "chronos",
+    "granite",
+    "moirai",
+    "tirex",
+    "toto",
+    "mantis",
+    "full",
+)
+
+
+def docker_tags_for(extras: tuple[str, ...]) -> tuple[str, ...]:
+    """Map extras to Docker tags. ``server`` is ``base``; others get a ``-gpu`` sibling."""
+    tags: list[str] = []
+    for extra in extras:
+        tag = "base" if extra == "server" else extra
+        tags.append(tag)
+        if tag != "base":
+            tags.append(f"{tag}-gpu")
+    return tuple(tags)
+
+
+def _extras_for(model_id: str) -> tuple[str, ...]:
+    if model_id == "naive":
+        return _ALL_EXTRAS
+    if model_id.startswith("chronos-2"):
+        return ("chronos", "full")
+    if model_id.startswith(("chronos-", "ttm", "timesfm-")):
+        return _HF_EXTRAS
+    if model_id.startswith(("kronos", "windfm")):
+        return ("kronos", "full")
+    if model_id.startswith("flowstate"):
+        return ("granite", "full")
+    if model_id.startswith(("moirai-", "lagllama")):
+        return ("moirai", "full")
+    if model_id.startswith("tirex"):
+        return ("tirex", "full")
+    if model_id.startswith("toto-"):
+        return ("toto", "full")
+    if model_id.startswith("mantis"):
+        return ("mantis", "full")
+    raise KeyError(f"no extra mapping for registry id {model_id!r}")
+
+
+def _attach_extras(registry: BASE_REGISTRY_TYPE) -> None:
+    for model_id, meta in registry.items():
+        extras = _extras_for(model_id)
+        meta["extras"] = extras
+        meta["tags"] = docker_tags_for(extras)
+
+
+_attach_extras(SKTIME_REGISTRY)
