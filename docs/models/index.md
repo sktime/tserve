@@ -8,7 +8,817 @@ The name in the `model` column is what you pass to `--load-models` and to a pred
 
 --8<-- "includes/model-dependencies.md"
 
-Install extras from a clone on [From source](../server/source.md#dependencies). Image tags, token, and cache: [Docker](../server/docker.md).
+Pick a tab for the extra / image you want. Each one has source (`uv` / `pip`) and Docker commands, HTTP and Python predict snippets, and the model ids that extra can load. Token, cache, and GPU details: [Docker](../server/docker.md). Clone installs: [From source](../server/source.md#dependencies).
+
+=== "base"
+
+    Naive only. Extra `server`. Image [`:base`](https://hub.docker.com/r/geetu040/fomo/tags?name=base). There is no `:base-gpu`.
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server
+        uv run fomo serve --load-models naive
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server]"
+        fomo serve --load-models naive
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:base --load-models naive
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "naive"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="naive",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Naive | `naive` |
+
+=== "hub"
+
+    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x, and `naive`. Extra `hub`. Images [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) / [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu). The same models also load on any extra that pulls `hf` (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `full`).
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra hub
+        uv run fomo serve --load-models chronos-bolt
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,hub]"
+        fomo serve --load-models chronos-bolt
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "chronos-bolt"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="chronos-bolt",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "chronos"
+
+    Chronos-2, plus every Hub model. Extra `chronos`. Images [`:chronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos) / [`:chronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos-gpu).
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra chronos
+        uv run fomo serve --load-models chronos-2
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,chronos]"
+        fomo serve --load-models chronos-2
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:chronos --load-models chronos-2
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:chronos-gpu --load-models chronos-2
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "chronos-2"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="chronos-2",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Chronos-2 | `chronos-2`, `chronos-2-small`, `chronos-2-synth` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "kronos"
+
+    Kronos and WindFM, plus `naive`. Extra `kronos`. Images [`:kronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos) / [`:kronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos-gpu). This image sits on `base`, not `hub`, so it cannot load Chronos Bolt, TTM, or TimesFM.
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra kronos
+        uv run fomo serve --load-models kronos
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,kronos]"
+        fomo serve --load-models kronos
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:kronos --load-models kronos
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:kronos-gpu --load-models kronos
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "kronos"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="kronos",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Naive | `naive` |
+    | Kronos | `kronos`, `kronos-mini`, `kronos-base` |
+    | WindFM | `windfm`, `windfm-robust` |
+
+=== "granite"
+
+    FlowState, plus every Hub model. Extra `granite`. Images [`:granite`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite) / [`:granite-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite-gpu).
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra granite
+        uv run fomo serve --load-models flowstate
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,granite]"
+        fomo serve --load-models flowstate
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:granite --load-models flowstate
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:granite-gpu --load-models flowstate
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "flowstate"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="flowstate",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | FlowState | `flowstate`, `flowstate-granite` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "moirai"
+
+    Moirai 2, Moirai 1.x, Lag-Llama, plus every Hub model. Extra `moirai`. Images [`:moirai`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai) / [`:moirai-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai-gpu).
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra moirai
+        uv run fomo serve --load-models moirai-2
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,moirai]"
+        fomo serve --load-models moirai-2
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:moirai-gpu --load-models moirai-2
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "moirai-2"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="moirai-2",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Moirai 2 | `moirai-2` |
+    | Moirai 1.x | `moirai-1.0-r-small`, `moirai-1.0-r-base`, `moirai-1.0-r-large`, `moirai-1.1-r-small`, `moirai-1.1-r-base`, `moirai-1.1-r-large` |
+    | Lag-Llama | `lagllama` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "tirex"
+
+    TiRex, plus every Hub model. Extra `tirex`. Images [`:tirex`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex) / [`:tirex-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex-gpu). The registry sets `license_accepted=True`.
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra tirex
+        uv run fomo serve --load-models tirex
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,tirex]"
+        fomo serve --load-models tirex
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:tirex --load-models tirex
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:tirex-gpu --load-models tirex
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "tirex"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="tirex",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | TiRex | `tirex`, `tirex-1.1-gifteval` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "toto"
+
+    Toto-2, plus every Hub model. Extra `toto`. Images [`:toto`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto) / [`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu).
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra toto
+        uv run fomo serve --load-models toto-2.0-4m
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,toto]"
+        fomo serve --load-models toto-2.0-4m
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:toto --load-models toto-2.0-4m
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:toto-gpu --load-models toto-2.0-4m
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "toto-2.0-4m"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="toto-2.0-4m",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Toto-2 | `toto-2.0-4m`, `toto-2.0-22m`, `toto-2.0-313m`, `toto-2.0-1b`, `toto-2.0-2.5b` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "mantis"
+
+    Mantis, plus every Hub model. Extra `mantis`. Images [`:mantis`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis) / [`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu). `context_length` is 127; history must be longer than that.
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra mantis
+        uv run fomo serve --load-models mantis
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,mantis]"
+        fomo serve --load-models mantis
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:mantis --load-models mantis
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:mantis-gpu --load-models mantis
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "mantis"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="mantis",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    | family | ids |
+    | --- | --- |
+    | Mantis | `mantis`, `mantis-8m`, `mantis-plus` |
+    | Naive | `naive` |
+    | Chronos Bolt | `chronos-bolt`, `chronos-bolt-mini`, `chronos-bolt-small`, `chronos-bolt-base` |
+    | Chronos T5 | `chronos-t5`, `chronos-t5-mini`, `chronos-t5-small`, `chronos-t5-base`, `chronos-t5-large` |
+    | TimesFM | `timesfm-2.5`, `timesfm-2` |
+    | TTM | `ttm`, `ttm-r1`, `ttm-r2`, `ttm-r3`, and the revision ids under [TTM](#ttm) |
+
+=== "full"
+
+    Every family on this page. Extra `full`. Images [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) / [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu). Use this when the ids span more than one family extra.
+
+    **Start the server**
+
+    === "uv"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        uv sync --extra server --extra full
+        uv run fomo serve --load-models chronos-2
+        ```
+
+    === "pip"
+
+        ```bash
+        git clone https://github.com/sktime/fomo.git && cd fomo
+        pip install -e ".[server,full]"
+        fomo serve --load-models chronos-2
+        ```
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 geetu040/fomo:full --load-models chronos-2
+        ```
+
+        GPU:
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 geetu040/fomo:full-gpu --load-models chronos-2
+        ```
+
+    **Predict** — Python needs the [`client`](../client/python.md) extra on the caller.
+
+    === "HTTP"
+
+        ```bash
+        curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+          "past": {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138]
+          },
+          "time": "timestamp",
+          "target": ["sales"],
+          "fh": 3,
+          "model": "chronos-2"
+        }'
+        ```
+
+    === "Python"
+
+        ```python
+        from fomo.client import Client
+
+        past = {
+            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+            "sales": [120, 135, 128, 142, 138],
+        }
+
+        with Client("http://127.0.0.1:8000") as client:
+            result = client.predict(
+                past=past,
+                time="timestamp",
+                target=["sales"],
+                fh=3,
+                model="chronos-2",
+            )
+        print(result.predictions)
+        ```
+
+    **Models**
+
+    All **110** ids below. Mix families in `--load-models`, for example `chronos-2 tirex`.
 
 ## Baseline
 
