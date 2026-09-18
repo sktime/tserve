@@ -2,7 +2,7 @@
 
 # FoMo
 
-Time-series Foundation Models behind one server. Load the models you name, keep them warm, and predict from `curl` or `python`.
+Time-series Foundation Models behind one server. Load extra models you name, keep them warm, and predict from `curl` or `python`.
 { .fomo-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }

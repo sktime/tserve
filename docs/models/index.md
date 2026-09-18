@@ -1,9 +1,9 @@
 # Catalog
 
 110 ids a FoMo process *can* load. The server always loads `naive`; extra ids
-load when [`--model`](../reference/cli.md#flags) names them. `GET /models`
-reports what did. The same id goes in `--model` and in a request's
-[`model`](../client/data.md#prediction-horizon-and-model) field.
+load when [`--model`](../reference/cli.md#flags) or leftover positionals name
+them. `GET /models` reports what did. The same id goes in `--model` and in a
+request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 

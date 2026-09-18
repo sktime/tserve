@@ -1,6 +1,6 @@
 # Server
 
-The server is the process you start. It loads the models you name, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
+The server is the process you start. It loads models, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
 Nothing extra loads unless you name it. A bare `fomo serve` still loads `naive`. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which ids exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
@@ -42,7 +42,7 @@ CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
 
-The commands above load [`hub`](../models/hub.md) ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the id in `--model`. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
+The commands above load [`hub`](../models/hub.md) ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the id in `--model` or as a leftover positional. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
 
 === "uv"
 

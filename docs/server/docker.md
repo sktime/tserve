@@ -1,6 +1,6 @@
 # Docker
 
-Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process can load; the arguments decide which ids it actually loads.
+Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional ids it actually loads. `naive` is always loaded.
 
 ## Pull an image
 
@@ -100,7 +100,7 @@ Mount the directory and point `--models-dir` at the container path:
 docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --model custom-model-1 chronos-bolt
 ```
 
-Only stems you also name in `--model` are loaded from disk — the rules are on [Models from a directory](models-dir.md).
+Only stems you also name in `--model` (or leftover positionals) are loaded from disk — the rules are on [Models from a directory](models-dir.md).
 
 ## Dashboard
 

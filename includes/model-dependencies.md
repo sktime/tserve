@@ -13,4 +13,4 @@ Pick the smallest extra (or image tag) that **adds** the family you want. Extra 
 | `tirex` | [`:tirex`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex) | [`:tirex-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=tirex-gpu) | TiRex | 2 | `tirex` |
 | `toto` | [`:toto`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
 | `mantis` | [`:mantis`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
-| `full` | [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) | all of the above | 110 | `naive` |
+| `full` | [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) | all of the above | 110 | `chronos-2` |

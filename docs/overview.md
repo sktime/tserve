@@ -10,7 +10,7 @@ Walk top to bottom. Three seams:
 
 ## What you run
 
-[`Server`][fomo.server.serve.Server] (or `fomo serve`) loads the models you name, then serves:
+[`Server`][fomo.server.serve.Server] (or `fomo serve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |
