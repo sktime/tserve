@@ -2,13 +2,13 @@
 
 The server is the process you start. It loads models, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
-Nothing extra loads unless you name it. A bare `fomo serve` still loads `naive`, enough to test the process. Name a catalog id for a real forecast. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which ids exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
+Nothing extra loads unless you name it. A bare `fomo serve` still loads `naive`, enough to test the process. Name a catalog model for a real forecast. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which models exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
 ## Quick start
 
 **Docker**
 
-The `hub` image can load both models used throughout the client guides. Extra ids after the image name load alongside `naive`.
+The `hub` image can load both models used throughout the client guides. Extra models after the image name load alongside `naive`.
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
@@ -42,7 +42,7 @@ CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
 
-The commands above load [`hub`](../models/hub.md) ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the id in `--model` or as a leftover positional. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
+The commands above load [`hub`](../models/hub.md) models. Every other family follows the same three steps: find the model in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the model in `--model` or as a leftover positional. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
 
 === "uv"
 
@@ -58,7 +58,7 @@ The commands above load [`hub`](../models/hub.md) ids. Every other family follow
     fomo serve --model moirai-2
     ```
 
-In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same id, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the ids it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
+In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
 
 Once the process is up, the terminal prints the URLs:
 
@@ -114,7 +114,7 @@ curl -s http://127.0.0.1:8000/models
 
     ---
 
-    Load sktime `.zip` files by stem. Mix them with registry ids.
+    Load sktime `.zip` files by stem. Mix them with registry models.
 
     [:octicons-arrow-right-24: Models from a directory](models-dir.md)
 
@@ -122,7 +122,7 @@ curl -s http://127.0.0.1:8000/models
 
     ---
 
-    One page per extra and image tag, with the ids each one can serve.
+    One page per extra and image tag, with the models each one can serve.
 
     [:octicons-arrow-right-24: Catalog](../models/index.md)
 

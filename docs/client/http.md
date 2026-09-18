@@ -11,7 +11,7 @@ instead of this JSON route.
 | `POST` | `/predict` | [JSON prediction](#send-a-prediction) |
 | `POST` | `/predict/bytes` | [Arrow prediction](#arrow-endpoint), used by the Python client |
 | `GET` | `/health` | [process liveness](#inspect-the-server) |
-| `GET` | `/models` | [loaded model ids](#inspect-the-server) |
+| `GET` | `/models` | [loaded models](#inspect-the-server) |
 | `GET` | `/stats` | [uptime, memory, per-model metrics](#inspect-the-server) |
 | `GET` | `/` | browser [dashboard](../server/dashboard.md) |
 | `GET` | `/docs`, `/redoc`, `/openapi.json` | live OpenAPI |
@@ -167,7 +167,7 @@ Use the JSON status routes to check the process and its loaded models:
     ```
 
 `GET /health` checks process liveness, not whether models are warm.
-`GET /models` lists loaded ids, not the registry [catalog](../models/index.md).
+`GET /models` lists loaded models, not the registry [catalog](../models/index.md).
 
 Point a browser at `/` for the [dashboard](../server/dashboard.md) or `/docs`
 to try the endpoints from Swagger.
@@ -183,7 +183,7 @@ returns a `FOMO` envelope with media type
 
 Prediction is POST-only. `GET /predict` returns **405 Method Not Allowed**.
 Invalid JSON request shapes return **422**. Coercion and prediction failures,
-including an unloaded model id, return **400** with an error message and
+including an unloaded model, return **400** with an error message and
 `request_id`.
 
 See [Errors](../reference/errors.md) for response bodies and Python

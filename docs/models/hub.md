@@ -1,6 +1,6 @@
 # hub
 
-Four Hugging Face families, 81 of the catalog's 110 ids. The usual starting
+Four Hugging Face families, 81 of the catalog's 110 models. The usual starting
 point.
 
 | extra | CPU tag | GPU tag | families | models | example |
@@ -8,7 +8,7 @@ point.
 | `hub` | [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
 
 Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls
-`hf` builds on `hub`, so those pages can load these ids as well.
+`hf` builds on `hub`, so those pages can load these models as well.
 
 ## Start a server
 

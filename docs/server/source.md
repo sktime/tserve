@@ -84,7 +84,7 @@ uv repeats `--extra`. pip takes one extras list. After uv, run `uv run fomo serv
 
 --8<-- "includes/model-dependencies.md"
 
-All 110 supported models are on the [catalog](../models/index.md), and each extra above has a page with its ids and a worked `uv` / `pip` install: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
+All 110 supported models are on the [catalog](../models/index.md), and each extra above has a page with its models and a worked `uv` / `pip` install: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
 
 ## GPU
 
@@ -130,7 +130,7 @@ Starting FoMo
   ReDoc       http://127.0.0.1:8000/redoc
 ```
 
-`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog ids can also be leftover positionals (`fomo serve chronos-bolt ttm-r3`); `--model` still works and combines with them. Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
+`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models can also be leftover positionals (`fomo serve chronos-bolt ttm-r3`); `--model` still works and combines with them. Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
 
 ## Serve from Python
 
@@ -148,7 +148,7 @@ print(server.url)  # http://127.0.0.1:8000
 server.run()
 ```
 
-Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, enough to test the process, exactly like a bare `fomo serve`.
+Models load during construction, so an unknown model or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, enough to test the process, exactly like a bare `fomo serve`.
 
 `server.app` is the FastAPI app, for mounting it inside another application or handing it to uvicorn yourself:
 

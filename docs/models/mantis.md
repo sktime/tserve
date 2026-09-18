@@ -1,6 +1,6 @@
 # mantis
 
-Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) id.
+Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -110,7 +110,7 @@ curl -s http://127.0.0.1:8000/models
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

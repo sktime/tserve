@@ -88,7 +88,7 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="model",
         default=[],
         help=(
-            "extra catalog ids for real forecasts "
+            "extra catalog models for real forecasts "
             "(naive is a test baseline, always loaded)"
         ),
     )
@@ -111,7 +111,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "positional_model",
         nargs="*",
         metavar="MODEL",
-        help="extra registry ids or id=craft-spec; same as --model",
+        help="extra catalog models or id=craft-spec; same as --model",
     )
     return parser
 

@@ -1,6 +1,6 @@
 # full
 
-Every family in one extra. Use it when your ids span more than one family
+Every family in one extra. Use it when your models span more than one family
 extra.
 
 | extra | CPU tag | GPU tag | families | models | example |
@@ -38,7 +38,7 @@ family, the extra on that family's page pulls far less.
 
 GPU: swap in
 [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) and
-add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each id costs
+add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs
 a download at first start and stays in memory.
 
 Check what loaded:
@@ -49,7 +49,7 @@ curl -s http://127.0.0.1:8000/models
 
 ## Predict
 
-One process answers for every loaded id; switch by changing `model`. Python
+One process answers for every loaded model; switch by changing `model`. Python
 needs the [`client`](../client/python.md#install) extra on the caller.
 
 === "bash / zsh"
@@ -97,10 +97,10 @@ needs the [`client`](../client/python.md#install) extra on the caller.
 
 ## Models
 
-All 110 ids load here. Checkpoints for all of them:
+All 110 models load here. Checkpoints for all of them:
 [All models](index.md#all-models).
 
-| extra | families | models | ids |
+| extra | families | models | catalog |
 | --- | --- | --- | --- |
 | `server` | Naive | 1 | [base](base.md#models) |
 | `hub` | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | [hub](hub.md#models) |
@@ -115,7 +115,7 @@ All 110 ids load here. Checkpoints for all of them:
 ## Also loadable here
 
 Combinations no single family extra allows. `kronos` alone cannot load a TTM
-id, `tirex` alone cannot load a Kronos id; `full` serves all three at once:
+model, `tirex` alone cannot load a Kronos model; `full` serves all three at once:
 
 ```bash
 fomo serve --model kronos ttm-r3 tirex

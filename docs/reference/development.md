@@ -98,7 +98,7 @@ building single images by hand, is on
 | `src/fomo/client` | `Client` and its HTTP transport |
 | `src/fomo/types` | request/response models and the wire converters |
 | `src/fomo/runtime` | registry, bootstrap, executors |
-| `src/fomo/scheduling` | dispatch by loaded model id |
+| `src/fomo/scheduling` | dispatch by loaded model |
 | `src/fomo/logging` | stats collected for `GET /stats` |
 
 How those pieces fit together is on [Overview](../overview.md).

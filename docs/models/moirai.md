@@ -1,6 +1,6 @@
 # moirai
 
-Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) id.
+Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -102,7 +102,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

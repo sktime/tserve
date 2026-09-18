@@ -1,9 +1,9 @@
 # Catalog
 
-110 ids a FoMo process *can* load. The server always loads `naive`, a
-no-download baseline for testing. Name a catalog id with
+110 models a FoMo process *can* load. The server always loads `naive`, a
+no-download baseline for testing. Name a catalog model with
 [`--model`](../reference/cli.md#flags) or leftover positionals for a real
-forecast. `GET /models` reports what did. The same id goes in `--model` and in
+forecast. `GET /models` reports what did. The same model goes in `--model` and in
 a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
@@ -38,7 +38,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "hub"
 
-    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 ids, plus `naive`. Full
+    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 models, plus `naive`. Full
     page: [hub](hub.md).
 
     === "uv"
@@ -63,7 +63,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "chronos"
 
-    Chronos-2, plus every [hub](hub.md) id. Full page: [chronos](chronos.md).
+    Chronos-2, plus every [hub](hub.md) model. Full page: [chronos](chronos.md).
 
     === "uv"
 
@@ -87,7 +87,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "kronos"
 
-    Kronos and WindFM. Sits on `base`, so **no** Hub ids. Full page:
+    Kronos and WindFM. Sits on `base`, so **no** Hub models. Full page:
     [kronos](kronos.md).
 
     === "uv"
@@ -112,7 +112,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "granite"
 
-    FlowState, plus every [hub](hub.md) id. Full page: [granite](granite.md).
+    FlowState, plus every [hub](hub.md) model. Full page: [granite](granite.md).
 
     === "uv"
 
@@ -136,7 +136,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "moirai"
 
-    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) id. Full page:
+    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) model. Full page:
     [moirai](moirai.md).
 
     === "uv"
@@ -161,7 +161,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "tirex"
 
-    TiRex, plus every [hub](hub.md) id. Full page: [tirex](tirex.md).
+    TiRex, plus every [hub](hub.md) model. Full page: [tirex](tirex.md).
 
     === "uv"
 
@@ -185,7 +185,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "toto"
 
-    Toto-2, plus every [hub](hub.md) id. Full page: [toto](toto.md).
+    Toto-2, plus every [hub](hub.md) model. Full page: [toto](toto.md).
 
     === "uv"
 
@@ -209,7 +209,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "mantis"
 
-    Mantis, plus every [hub](hub.md) id. Needs `past` longer than 127 rows.
+    Mantis, plus every [hub](hub.md) model. Needs `past` longer than 127 rows.
     Full page: [mantis](mantis.md).
 
     === "uv"
@@ -234,7 +234,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "full"
 
-    All 110 ids, and the only way to mix two family stacks. Full page:
+    All 110 models, and the only way to mix two family stacks. Full page:
     [full](full.md).
 
     === "uv"

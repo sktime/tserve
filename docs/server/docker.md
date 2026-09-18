@@ -1,6 +1,6 @@
 # Docker
 
-Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional ids it actually loads. `naive` is always loaded as a test baseline.
+Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional models it actually loads. `naive` is always loaded as a test baseline.
 
 ## Pull an image
 
@@ -8,13 +8,13 @@ Images ship Python, the FoMo package, and one set of model dependencies. The tag
 docker pull geetu040/fomo:hub
 ```
 
-[`base`](../models/base.md) carries `naive` only. [`hub`](../models/hub.md) adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` ([`chronos`](../models/chronos.md), [`granite`](../models/granite.md), [`moirai`](../models/moirai.md), [`tirex`](../models/tirex.md), [`toto`](../models/toto.md), [`mantis`](../models/mantis.md)) include Hub plus one more stack. [`kronos`](../models/kronos.md) sits on `base`, not `hub`. [`full`](../models/full.md) has all of them, and every family tag has a `*-gpu` variant. Each of those pages carries the ids that tag can load, with a `docker run` for it; the tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
+[`base`](../models/base.md) carries `naive` only. [`hub`](../models/hub.md) adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` ([`chronos`](../models/chronos.md), [`granite`](../models/granite.md), [`moirai`](../models/moirai.md), [`tirex`](../models/tirex.md), [`toto`](../models/toto.md), [`mantis`](../models/mantis.md)) include Hub plus one more stack. [`kronos`](../models/kronos.md) sits on `base`, not `hub`. [`full`](../models/full.md) has all of them, and every family tag has a `*-gpu` variant. Each of those pages carries the models that tag can load, with a `docker run` for it; the tag-to-models map lives on the [catalog](../models/index.md#dependencies).
 
 Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
 
 ## Run the server
 
-The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog ids are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--model`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
+The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--model`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
@@ -30,7 +30,7 @@ The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:
 
 ## Choose which models to load
 
-Ids must belong to the families baked into the tag. `chronos-bolt` and `ttm-r3` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown id fails immediately with the known ids listed; an id whose family is missing from the image fails when that model loads.
+Models must belong to the families baked into the tag. `chronos-bolt` and `ttm-r3` load on `:hub` or `:full`. `chronos-2` loads on `:chronos` or `:full`. An unknown model fails immediately with the known models listed; a model whose family is missing from the image fails when that model loads.
 
 `:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
 
@@ -38,13 +38,13 @@ Ids must belong to the families baked into the tag. `chronos-bolt` and `ttm-r3` 
 docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
 ```
 
-When the ids span more than one family, `:full` is the tag that carries all of them:
+When the models span more than one family, `:full` is the tag that carries all of them:
 
 ```bash
 docker run --rm -p 8000:8000 geetu040/fomo:full --model moirai-2 tirex
 ```
 
-`naive` downloads nothing. Every other id fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 110 supported models are on the [catalog](../models/index.md).
+`naive` downloads nothing. Every other model fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 110 supported models are on the [catalog](../models/index.md).
 
 ## Hugging Face token
 

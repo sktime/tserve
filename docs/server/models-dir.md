@@ -63,8 +63,8 @@ from the registry, and `GET /models` labels them apart:
 
 ## Rules
 
-- `--models-dir` never loads a directory wholesale. It only rewrites ids that are already in `--model` (or leftover positionals) and match a `.zip` stem in that directory.
-- A name that matches no file falls through to the registry, and fails there if it is not a registry id.
+- `--models-dir` never loads a directory wholesale. It only rewrites models that are already in `--model` (or leftover positionals) and match a `.zip` stem in that directory.
+- A name that matches no file falls through to the registry, and fails there if it is not a registry model.
 - Other suffixes raise `ValueError`; a saved `.pkl` is not accepted.
 - The directory itself has to exist.
 - Dependencies are your problem: a saved TTM still needs the `hub` [extra](../models/index.md#dependencies) in the environment doing the loading.
@@ -84,7 +84,7 @@ Server(
 ).run()
 ```
 
-A `pathlib.Path` in `model` also works on its own, no `models_dir` needed. The id is the file stem:
+A `pathlib.Path` in `model` also works on its own, no `models_dir` needed. The model is the file stem:
 
 ```python
 from pathlib import Path

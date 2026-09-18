@@ -3,7 +3,7 @@
 `KronosForecaster` &middot; extra [`kronos`](kronos.md) &middot; 3 models
 &middot; no [quantiles](../client/data.md#quantiles)
 
-The tokenizer ships with the model, not as a separate id.
+The tokenizer ships with the model, not as a separate model.
 
 | model | checkpoint |
 | --- | --- |

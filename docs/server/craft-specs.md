@@ -1,8 +1,8 @@
 # Craft specs
 
-A craft spec is the same string you would pass to `sktime.registry.craft`: a class call, including constructor kwargs, with no imports. Pass it to [`Server`][fomo.server.serve.Server] as `(id, spec)`, or to `fomo serve` as `id=spec`. Predict uses the **id**, not the spec string.
+A craft spec is the same string you would pass to `sktime.registry.craft`: a class call, including constructor kwargs, with no imports. Pass it to [`Server`][fomo.server.serve.Server] as `(id, spec)`, or to `fomo serve` as `id=spec`. Predict uses that name as `model`, not the spec string.
 
-Catalog ids cover published checkpoints. A spec is how you load a checkpoint, revision, or configuration the [catalog](../models/index.md) does not name.
+Catalog models cover published checkpoints. A spec is how you load a checkpoint, revision, or configuration the [catalog](../models/index.md) does not name.
 
 ```python
 from fomo.server import Server
@@ -33,7 +33,7 @@ Server(
 
 ## From the command line
 
-`--model` and leftover positionals split each token on the first `=`. Catalog ids have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
+`--model` and leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
 fomo serve --model chronos-bolt \
@@ -45,9 +45,9 @@ Docker is the same argv after the image name. A token that looks like `ClassName
 ## Rules
 
 - The spec must be a non-empty string that `craft` turns into a sktime `BaseForecaster` **instance**. A class name without parentheses (`"NaiveForecaster"`) is rejected.
-- A bare spec in Python `model` is treated as an unknown registry id. Wrap it as `(id, spec)`.
-- Ids must be unique across the whole list. A collision — including with a registry id — raises `ValueError` before the second load.
-- Registry ids, [live objects](live-objects.md), craft specs, and [saved models](models-dir.md) mix freely in one `model` list.
+- A bare spec in Python `model` is treated as an unknown registry model. Wrap it as `(id, spec)`.
+- Models must be unique across the whole list. A collision — including with a registry model — raises `ValueError` before the second load.
+- Registry models, [live objects](live-objects.md), craft specs, and [saved models](models-dir.md) mix freely in one `model` list.
 - The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#dependencies) declare.
 - The spec is evaluated only in your process at startup, never from an HTTP `model` field.
 

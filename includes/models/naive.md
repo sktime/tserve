@@ -4,7 +4,7 @@
 [quantiles](../client/data.md#quantiles)
 
 Drift strategy. No weights, no Hugging Face download. Always loaded so you can
-test the server; name another catalog id for a real forecast.
+test the server; name another catalog model for a real forecast.
 
 | model | checkpoint |
 | --- | --- |

@@ -1,6 +1,6 @@
 # chronos
 
-Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) id.
+Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -93,7 +93,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 
