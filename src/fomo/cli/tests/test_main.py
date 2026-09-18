@@ -73,6 +73,44 @@ def test_main_parses_craft_token():
     )
 
 
+def test_main_positional_models():
+    _, Server, _ = _run(["serve", "naive", "chronos-2"])
+
+    Server.assert_called_once_with(
+        model=["naive", "chronos-2"],
+        models_dir=None,
+        host="127.0.0.1",
+        port=8000,
+        log_level="info",
+    )
+
+
+def test_main_combines_flag_and_positional():
+    _, Server, _ = _run(
+        [
+            "serve",
+            "--model",
+            "naive",
+            "--host",
+            "0.0.0.0",
+            "chronos-2",
+            'drift=NaiveForecaster(strategy="drift")',
+        ]
+    )
+
+    Server.assert_called_once_with(
+        model=[
+            "naive",
+            "chronos-2",
+            ("drift", 'NaiveForecaster(strategy="drift")'),
+        ],
+        models_dir=None,
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+    )
+
+
 def test_parse_model():
     assert parse_model(["naive", "chronos-2"]) == ["naive", "chronos-2"]
     assert parse_model(
