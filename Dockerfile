@@ -17,7 +17,7 @@ ENV UV_LINK_MODE=copy \
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
     && rm -rf /var/lib/apt/lists/*
 
-# `server` and `sktime` are always in, so CMD can load naive. Heavier extras
+# `server` and `sktime` are always in, so the process can load naive. Heavier extras
 # come from the build arg, one word each, e.g.
 #   docker build --build-arg FOMO_EXTRAS=hub .
 #   docker build --build-arg FOMO_EXTRAS="chronos gpu" .
@@ -50,4 +50,3 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 ENTRYPOINT ["fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["--load-models", "naive"]

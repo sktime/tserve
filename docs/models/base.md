@@ -1,6 +1,8 @@
 # base
 
-The `naive` baseline and nothing else. Downloads no weights.
+The `naive` baseline and nothing else. Downloads no weights. Use `:base` to
+test the server; load a [family extra](index.md#dependencies) for a real
+forecast.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -15,7 +17,7 @@ Every other page in this section layers on top of this one.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server
-    uv run fomo serve --load-models naive
+    uv run fomo serve
     ```
 
 === "pip"
@@ -23,13 +25,13 @@ Every other page in this section layers on top of this one.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server]"
-    fomo serve --load-models naive
+    fomo serve
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:base --load-models naive
+    docker run --rm -p 8000:8000 geetu040/fomo:base
     ```
 
 There is no `:base-gpu` image.
@@ -92,7 +94,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 ## Also loadable here
 
-Nothing. `:base` carries no Hugging Face stack, so any other id fails at
+Nothing. `:base` carries no Hugging Face stack, so any other model fails at
 startup ([Errors](../reference/errors.md#startup)). For Chronos Bolt, Chronos
 T5, TTM, and TimesFM, use [`hub`](hub.md).
 

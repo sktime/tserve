@@ -1,6 +1,6 @@
 # toto
 
-Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) id.
+Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra toto
-    uv run fomo serve --load-models toto-2.0-4m
+    uv run fomo serve --model toto-2.0-4m
     ```
 
 === "pip"
@@ -21,13 +21,13 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,toto]"
-    fomo serve --load-models toto-2.0-4m
+    fomo serve --model toto-2.0-4m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:toto --load-models toto-2.0-4m
+    docker run --rm -p 8000:8000 geetu040/fomo:toto --model toto-2.0-4m
     ```
 
 GPU: swap in
@@ -93,7 +93,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

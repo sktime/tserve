@@ -1,14 +1,14 @@
 # hub
 
-Four Hugging Face families, 81 of the catalog's 110 ids. The usual starting
+Four Hugging Face families, 81 of the catalog's 110 models. The usual starting
 point.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
 | `hub` | [`:hub`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
 
-Builds on [`base`](base.md), so `naive` loads here too. Every extra that pulls
-`hf` builds on `hub`, so those pages load these ids as well.
+Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls
+`hf` builds on `hub`, so those pages can load these models as well.
 
 ## Start a server
 
@@ -17,7 +17,7 @@ Builds on [`base`](base.md), so `naive` loads here too. Every extra that pulls
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt
+    uv run fomo serve --model chronos-bolt
     ```
 
 === "pip"
@@ -25,13 +25,13 @@ Builds on [`base`](base.md), so `naive` loads here too. Every extra that pulls
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt
+    fomo serve --model chronos-bolt
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt
+    docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt
     ```
 
 GPU: swap in

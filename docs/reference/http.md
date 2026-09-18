@@ -25,7 +25,7 @@ excluded from the OpenAPI schema.
 
 `Content-Type: application/json`. The body is
 [`PredictRequest`][fomo.types.models.PredictRequest] — `past` and `fh` are
-required, `model` defaults to `naive` and must be loaded. Field meanings,
+required, `model` defaults to `naive`. Field meanings,
 table shapes, and inference rules are in the
 [data specification](../client/data.md).
 
@@ -35,7 +35,7 @@ unless requested and supported), `model`, and a server-assigned `request_id`.
 | status | meaning |
 | --- | --- |
 | 200 | prediction produced |
-| 400 | body was valid but the request failed (unloaded id, missing column, estimator error) |
+| 400 | body was valid but the request failed (unloaded model, missing column, estimator error) |
 | 422 | body does not match `PredictRequest` |
 
 Bodies for both failures are in [Errors](errors.md#predict-requests).
@@ -86,6 +86,7 @@ is unused.
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]
 }
@@ -120,7 +121,7 @@ loaded it, today always `sktime`.
 }
 ```
 
-Keys under `models` are loaded model ids. Timings are wall-clock seconds, and
+Keys under `models` are loaded models. Timings are wall-clock seconds, and
 failed predicts count in both `requests.failed` and `latency_s`. Either memory
 probe is `null` when it is unavailable — `gpu_mb` needs torch already imported
 with CUDA present. Field-by-field types are in

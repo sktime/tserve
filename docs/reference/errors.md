@@ -9,7 +9,7 @@ status codes, and the Python side raises built-ins plus Pydantic
 | status | when |
 | --- | --- |
 | **422** | the body does not match [`PredictRequest`][fomo.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
-| **400** | the body was accepted but the request failed: the `model` id is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
+| **400** | the body was accepted but the request failed: the `model` is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
 | **405** | wrong method, such as `GET /predict` (the body says to use `POST /predict`) |
 
 The split is where the failure happens. **422** is FastAPI rejecting the
@@ -26,7 +26,7 @@ field errors. **400** is the handler wrapping everything after that:
 }
 ```
 
-An id that is missing from `GET /models` is 400, not 404. Missing columns read
+A model that is missing from `GET /models` is 400, not 404. Missing columns read
 `past is missing columns: ['sales'] (available: ['timestamp', 'value'])`.
 
 Estimator failures are wrapped rather than passed through, because the library
@@ -69,7 +69,7 @@ posting to `/predict` — there is no version prefix.
 
 `RuntimeError` is deliberately flat: the server-side type is gone by then, so
 read the message. Local `ValidationError`s never reach the network, which is
-why a wrong table shape fails instantly while an unloaded id needs a round
+why a wrong table shape fails instantly while an unloaded model needs a round
 trip.
 
 The one surprising local failure is a pandas frame whose time axis is only the
@@ -85,7 +85,7 @@ CLI exits before uvicorn binds the port:
 
 | exception | when |
 | --- | --- |
-| `ValueError` | unknown registry id (the message lists the known ids; a string that looks like a craft spec also hints to pass `(id, spec)` in Python or `id=spec` on the CLI), an empty craft spec or empty `id=` token, a duplicate id in `load_models`, or a path that is not a `.zip` |
+| `ValueError` | unknown model (the message lists the known models; a string that looks like a craft spec also hints to pass `(id, spec)` in Python or `id=spec` on the CLI), an empty craft spec or empty `id=` token, a duplicate model, or a path that is not a `.zip` |
 | `TypeError` | an `(id, object)` pair whose object is neither a craft spec string nor a sktime `BaseForecaster`; or a craft spec that does not produce a `BaseForecaster` instance (for example a class name without parentheses) |
 | `ImportError` | the executor's extra is not installed |
 | `OSError` | `models_dir` does not exist or cannot be listed |
@@ -94,4 +94,4 @@ CLI exits before uvicorn binds the port:
 Whatever an estimator raises while loading propagates unchanged, so a failed
 Hugging Face download stops startup with that library's error. A
 [family extra](../models/index.md#dependencies) or image tag that matches
-the ids you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).
+the models you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).

@@ -29,10 +29,11 @@
       <span class="pill__dot"></span>
       <span id="health-pill-text">connecting</span>
     </div>
-    <label class="switch" title="Poll /health and /stats every 5 seconds">
-      <input type="checkbox" id="auto-refresh" checked />
+    <label class="switch has-tip">
+      <input type="checkbox" id="auto-refresh" checked aria-describedby="live-tip" />
       <span class="switch__track"><span class="switch__thumb"></span></span>
       <span class="switch__label">Live</span>
+      <span id="live-tip" class="tip" role="tooltip">When on, refreshes health and runtime stats every 5 seconds</span>
     </label>
     <button id="refresh-btn" class="btn btn--ghost" type="button" title="Refresh health, models and stats">
       <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5"/></svg>

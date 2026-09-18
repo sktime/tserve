@@ -247,7 +247,7 @@ a:hover { text-decoration: underline; }
 
 /* ── switch ───────────────────────────────────────────────────────── */
 
-.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.switch { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .switch__track {
   width: 36px; height: 20px; border-radius: 999px;
@@ -267,6 +267,25 @@ a:hover { text-decoration: underline; }
 .switch--sm .switch__track { width: 32px; height: 18px; }
 .switch--sm .switch__thumb { width: 12px; height: 12px; }
 .switch--sm input:checked + .switch__track .switch__thumb { transform: translateX(14px); }
+
+.tip {
+  position: absolute; z-index: 40; pointer-events: none;
+  top: calc(100% + 8px); right: 0;
+  width: max-content; max-width: 220px; padding: 8px 10px;
+  border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  color: var(--text); font-size: 11.5px; font-weight: 500; line-height: 1.4;
+  text-align: left; white-space: normal;
+  opacity: 0; visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s;
+}
+.has-tip:hover .tip,
+.has-tip:focus-within .tip {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
 
 /* ── layout ───────────────────────────────────────────────────────── */
 

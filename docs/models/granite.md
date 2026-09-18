@@ -1,6 +1,6 @@
 # granite
 
-IBM FlowState, plus every [`hub`](hub.md) id.
+IBM FlowState, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ IBM FlowState, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra granite
-    uv run fomo serve --load-models flowstate
+    uv run fomo serve --model flowstate
     ```
 
 === "pip"
@@ -21,13 +21,13 @@ IBM FlowState, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,granite]"
-    fomo serve --load-models flowstate
+    fomo serve --model flowstate
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:granite --load-models flowstate
+    docker run --rm -p 8000:8000 geetu040/fomo:granite --model flowstate
     ```
 
 GPU: swap in
@@ -93,7 +93,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

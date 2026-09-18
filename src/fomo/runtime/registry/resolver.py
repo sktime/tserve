@@ -1,4 +1,4 @@
-"""Turn a ``load_models`` item into listing-only ``ModelInfo``.
+"""Turn a ``model`` item into listing-only ``ModelInfo``.
 
 Does not instantiate a forecaster. Registry ids become
 ``source="registry"``; ``.zip`` paths become ``source="directory"``
@@ -112,20 +112,20 @@ def _resolve_from_object(item: tuple[str, Any]) -> ModelInfo:
 
     if isinstance(obj, str):
         if not obj.strip():
-            raise ValueError(f"load_models entry {model_id!r} has an empty craft spec")
+            raise ValueError(f"model entry {model_id!r} has an empty craft spec")
         return ModelInfo(id=model_id, executor="sktime", source="craft")
 
     if isinstance(obj, BaseForecaster):
         return ModelInfo(id=model_id, executor="sktime", source="object")
 
     raise TypeError(
-        f"load_models entry {model_id!r} must be a sktime forecaster "
+        f"model entry {model_id!r} must be a sktime forecaster "
         f"or a craft spec string, got {type(obj).__name__}"
     )
 
 
 def resolve_model(item: str | Path | tuple[str, Any]) -> ModelInfo:
-    """Dispatch a load-models item to registry, path, craft, or object.
+    """Dispatch a model item to registry, path, craft, or object.
 
     Parameters
     ----------

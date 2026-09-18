@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from fomo import __version__
-from fomo.cli.main import main, parse_load_models
+from fomo.cli.main import main, parse_model
 
 
 def _run(argv):
@@ -18,7 +18,7 @@ def test_main():
 
     assert code == 0
     Server.assert_called_once_with(
-        load_models=[],
+        model=[],
         models_dir=None,
         host="127.0.0.1",
         port=8000,
@@ -31,7 +31,7 @@ def test_main_forwards_flags():
     _, Server, _ = _run(
         [
             "serve",
-            "--load-models",
+            "--model",
             "naive",
             "chronos-2",
             "--models-dir",
@@ -46,7 +46,7 @@ def test_main_forwards_flags():
     )
 
     Server.assert_called_once_with(
-        load_models=["naive", "chronos-2"],
+        model=["naive", "chronos-2"],
         models_dir="/models",
         host="0.0.0.0",
         port=9000,
@@ -58,14 +58,14 @@ def test_main_parses_craft_token():
     _, Server, _ = _run(
         [
             "serve",
-            "--load-models",
+            "--model",
             "naive",
             'drift=NaiveForecaster(strategy="drift")',
         ]
     )
 
     Server.assert_called_once_with(
-        load_models=["naive", ("drift", 'NaiveForecaster(strategy="drift")')],
+        model=["naive", ("drift", 'NaiveForecaster(strategy="drift")')],
         models_dir=None,
         host="127.0.0.1",
         port=8000,
@@ -73,9 +73,47 @@ def test_main_parses_craft_token():
     )
 
 
-def test_parse_load_models():
-    assert parse_load_models(["naive", "chronos-2"]) == ["naive", "chronos-2"]
-    assert parse_load_models(
+def test_main_positional_models():
+    _, Server, _ = _run(["serve", "naive", "chronos-2"])
+
+    Server.assert_called_once_with(
+        model=["naive", "chronos-2"],
+        models_dir=None,
+        host="127.0.0.1",
+        port=8000,
+        log_level="info",
+    )
+
+
+def test_main_combines_flag_and_positional():
+    _, Server, _ = _run(
+        [
+            "serve",
+            "--model",
+            "naive",
+            "--host",
+            "0.0.0.0",
+            "chronos-2",
+            'drift=NaiveForecaster(strategy="drift")',
+        ]
+    )
+
+    Server.assert_called_once_with(
+        model=[
+            "naive",
+            "chronos-2",
+            ("drift", 'NaiveForecaster(strategy="drift")'),
+        ],
+        models_dir=None,
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+    )
+
+
+def test_parse_model():
+    assert parse_model(["naive", "chronos-2"]) == ["naive", "chronos-2"]
+    assert parse_model(
         ['ttm-local=TinyTimeMixerForecaster(model_path="x", revision="a=b")']
     ) == [("ttm-local", 'TinyTimeMixerForecaster(model_path="x", revision="a=b")')]
 
@@ -88,9 +126,9 @@ def test_parse_load_models():
         pytest.param(["mine="], "empty craft spec", id="empty_spec"),
     ],
 )
-def test_parse_load_models_rejects(tokens, match):
+def test_parse_model_rejects(tokens, match):
     with pytest.raises(ValueError, match=match):
-        parse_load_models(tokens)
+        parse_model(tokens)
 
 
 def test_main_version(capsys):

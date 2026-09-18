@@ -2,7 +2,7 @@
 
 # FoMo
 
-Time-series Foundation Models behind one server. Load the models you name, keep them warm, and predict from `curl` or `python`.
+Time-series Foundation Models behind one server. Load extra models you name, keep them warm, and predict from `curl` or `python`.
 { .fomo-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }
@@ -12,7 +12,7 @@ Time-series Foundation Models behind one server. Load the models you name, keep 
 
 FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
-The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You name the ids you want; the server loads those and leaves the rest alone.
+The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. The server always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
 
 Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 
@@ -24,13 +24,13 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 **Use Docker**
 
-Pull the `hub` image and load two registry ids: `chronos-bolt` and `ttm-r3`.
+Pull the `hub` image and load two registry models: `chronos-bolt` and `ttm-r3`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
-Every id except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
+Every model except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
 
 **Build from source**
 
@@ -41,7 +41,7 @@ Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt ttm-r3
+    uv run fomo serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -49,7 +49,7 @@ Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt ttm-r3
+    fomo serve --model chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
@@ -60,9 +60,9 @@ Once the process is up, the terminal prints the URLs:
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-`GET /models` lists the ids this process actually loaded, not the full [catalog](models/index.md). `--host`, `--port`, and `--log-level` are the other [CLI flags](reference/cli.md#flags).
+`GET /models` lists the models this process actually loaded, not the full [catalog](models/index.md). `--host`, `--port`, and `--log-level` are the other [CLI flags](reference/cli.md#flags).
 
-`--load-models` can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
+`--model` (or leftover positionals) can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
 
 ### Predict
 
@@ -71,7 +71,7 @@ A request is a table plus the roles of its columns:
 - `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
-- `model` — an id this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
+- `model` — a model this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
 
 Three more fields are optional. Add [`quantiles`](client/data.md#quantiles) for prediction intervals from models that support them, or [`future` and `static`](client/data.md#future-and-static-data) for covariates you already know. The full contract — formats, defaults, and limits — is the [data specification](client/data.md).
 
@@ -100,7 +100,7 @@ Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on
     curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
     ```
 
-Three predicted days come back, plus the id that served them:
+Three predicted days come back, plus the model that served them:
 
 ```json
 {
@@ -182,7 +182,7 @@ The process answers more than `/predict`. Its browser [dashboard](server/dashboa
 
     ---
 
-    Which registry ids exist and which extra each one needs.
+    Which registry models exist and which extra each one needs.
 
     [:octicons-arrow-right-24: Models](models/index.md)
 

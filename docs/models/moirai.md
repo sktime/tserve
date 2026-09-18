@@ -1,6 +1,6 @@
 # moirai
 
-Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) id.
+Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra moirai
-    uv run fomo serve --load-models moirai-2
+    uv run fomo serve --model moirai-2
     ```
 
 === "pip"
@@ -26,13 +26,13 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,moirai]"
-    fomo serve --load-models moirai-2
+    fomo serve --model moirai-2
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+    docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
     ```
 
 GPU: swap in
@@ -102,7 +102,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

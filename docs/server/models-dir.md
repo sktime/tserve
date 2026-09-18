@@ -28,24 +28,24 @@ my-models/
 
 ## Load them
 
-Point `--models-dir` at the directory, then name the file stems in `--load-models`:
+Point `--models-dir` at the directory, then name the file stems in `--model` or as leftover positionals:
 
 === "uv"
 
     ```bash
-    uv run fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt
+    uv run fomo serve --models-dir my-models --model custom-model-1 chronos-bolt
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --models-dir my-models --load-models custom-model-1 chronos-bolt
+    fomo serve --models-dir my-models --model custom-model-1 chronos-bolt
     ```
 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --load-models custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --model custom-model-1 chronos-bolt
 ```
 
 Either way `custom-model-1` is served from the zip and `chronos-bolt`
@@ -54,6 +54,7 @@ from the registry, and `GET /models` labels them apart:
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "custom-model-1", "executor": "sktime", "source": "directory"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]
@@ -62,8 +63,8 @@ from the registry, and `GET /models` labels them apart:
 
 ## Rules
 
-- `--models-dir` never loads a directory wholesale. It only rewrites ids that are already in `--load-models` and match a `.zip` stem in that directory.
-- A name that matches no file falls through to the registry, and fails there if it is not a registry id.
+- `--models-dir` never loads a directory wholesale. It only rewrites models that are already in `--model` (or leftover positionals) and match a `.zip` stem in that directory.
+- A name that matches no file falls through to the registry, and fails there if it is not a registry model.
 - Other suffixes raise `ValueError`; a saved `.pkl` is not accepted.
 - The directory itself has to exist.
 - Dependencies are your problem: a saved TTM still needs the `hub` [extra](../models/index.md#dependencies) in the environment doing the loading.
@@ -77,18 +78,18 @@ from fomo.server import Server
 
 Server(
     models_dir="my-models",
-    load_models=["custom-model-1", "chronos-bolt"],
+    model=["custom-model-1", "chronos-bolt"],
     host="127.0.0.1",
     port=8000,
 ).run()
 ```
 
-A `pathlib.Path` in `load_models` also works on its own, no `models_dir` needed. The id is the file stem:
+A `pathlib.Path` in `model` also works on its own, no `models_dir` needed. The model is the file stem:
 
 ```python
 from pathlib import Path
 
-Server(load_models=[Path("my-models/custom-model-1.zip")], port=8000).run()
+Server(model=[Path("my-models/custom-model-1.zip")], port=8000).run()
 ```
 
 To serve an estimator that is already in memory, skip the file entirely — see [Live objects](live-objects.md). To pass a sktime craft spec instead of a zip, see [Craft specs](craft-specs.md).

@@ -3,7 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/fomo/badge/?version=latest)](https://fomo.readthedocs.io/en/latest/?badge=latest)
 
 FoMo is a local inference server for time-series foundation models. Start the
-process, load named registry ids once, keep them warm, and predict through
+process, load named registry models once, keep them warm, and predict through
 `POST /predict`, the Python client, or the browser dashboard. The process also
 serves its own OpenAPI documentation. FoMo does not provide a hosted API.
 
@@ -16,27 +16,28 @@ serves its own OpenAPI documentation. FoMo does not provide a hosted API.
 ### Docker
 
 The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
-TimesFM 2.x. This command loads two registry ids:
+TimesFM 2.x. This command loads two registry models:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
 `moirai-2`:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
 ```
 
-Choose an id and its matching image tag from the
-[model catalog](https://fomo.readthedocs.io/en/latest/models/). With no
-arguments, an image loads `naive` through its image `CMD`.
+Choose a model and its matching image tag from the
+[model catalog](https://fomo.readthedocs.io/en/latest/models/). The process
+always loads `naive` for testing; name extra models alongside it for a real
+forecast.
 
 ### From source
 
 FoMo requires Python 3.12 or newer and is not on PyPI yet. Clone it over HTTPS,
-install `server` plus the family extra for the ids you need, and start the
+install `server` plus the family extra for the models you need, and start the
 process. These commands work line by line in macOS/Linux shells and Windows
 PowerShell.
 
@@ -46,7 +47,7 @@ PowerShell.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 uv sync --extra server --extra hub
-uv run fomo serve --load-models chronos-bolt ttm-r3
+uv run fomo serve --model chronos-bolt ttm-r3
 ```
 
 **pip**
@@ -58,7 +59,7 @@ torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
-fomo serve --load-models chronos-bolt ttm-r3
+fomo serve --model chronos-bolt ttm-r3
 ```
 
 To force a CPU wheel, install torch from the CPU index first, then FoMo. If
@@ -69,7 +70,7 @@ python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -e ".[server,hub]"
 ```
 
-The `server` extra alone is enough for `naive`. Do not install `client` on a
+The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a
 server-only machine. See [Server](https://fomo.readthedocs.io/en/latest/server/)
 for family extras, GPU installs, and Python-based server setup.
 
@@ -82,7 +83,7 @@ A predict request describes a table and the roles of its columns:
 - `time` names the time column, and `target` names the column or columns to
   forecast.
 - `fh` is the number of steps ahead and must be greater than zero.
-- `model` is an id already loaded by this server.
+- `model` is a model already loaded by this server.
 - `future`, `static`, and `quantiles` are optional.
 
 `quantiles` requires an estimator that supports quantile prediction, such as
@@ -165,13 +166,13 @@ See the [Python guide](https://fomo.readthedocs.io/en/latest/client/python/).
 
 ## Choose and load models
 
-FoMo has named ids for Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto,
+FoMo has named models for Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto,
 TiRex, FlowState, Kronos, Mantis, Lag-Llama, and the `naive` baseline. To load
 one:
 
-1. Find its exact id in the [catalog](https://fomo.readthedocs.io/en/latest/models/).
+1. Find its exact name in the [catalog](https://fomo.readthedocs.io/en/latest/models/).
 2. Install the listed family extra, or pull the matching Docker tag.
-3. Name the id in `--load-models`.
+3. Name the model on `fomo serve` (leftover positionals or `--model`).
 
 The catalog is what a process *can* load. `GET /models` reports only what the
 current process *did* load.
@@ -192,7 +193,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --model chronos-bolt ttm-r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -200,13 +201,13 @@ it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use
 `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt
+docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --model chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 The [Docker guide](https://fomo.readthedocs.io/en/latest/server/docker/) covers
@@ -214,12 +215,12 @@ all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `fomo serve` loads nothing. Use `--load-models` to select registry ids,
-`--models-dir` for selected sktime `.zip` files, `--host` and `--port` to
-change the binding, and `--log-level` to change verbosity. The image default
-that loads `naive` is not the Python or CLI default.
+A bare `fomo serve` still loads `naive`, enough to test the process. Name extra
+registry models as leftover positionals (`fomo serve chronos-bolt ttm-r3`) or with
+`--model` for a real forecast. `--models-dir` selects sktime `.zip` files,
+`--host` and `--port` change the binding, and `--log-level` changes verbosity.
 
-`GET /health` checks process liveness. `GET /models` lists loaded ids.
+`GET /health` checks process liveness. `GET /models` lists loaded models.
 `GET /stats` reports process and per-model metrics. See the
 [CLI reference](https://fomo.readthedocs.io/en/latest/reference/cli/), or
 serve [saved models](https://fomo.readthedocs.io/en/latest/server/models-dir/),

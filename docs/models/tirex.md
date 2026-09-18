@@ -1,6 +1,6 @@
 # tirex
 
-NX-AI TiRex, plus every [`hub`](hub.md) id.
+NX-AI TiRex, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra tirex
-    uv run fomo serve --load-models tirex
+    uv run fomo serve --model tirex
     ```
 
 === "pip"
@@ -26,13 +26,13 @@ NX-AI TiRex, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,tirex]"
-    fomo serve --load-models tirex
+    fomo serve --model tirex
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:tirex --load-models tirex
+    docker run --rm -p 8000:8000 geetu040/fomo:tirex --model tirex
     ```
 
 GPU: swap in
@@ -98,7 +98,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

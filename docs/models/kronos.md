@@ -16,7 +16,7 @@ T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra kronos
-    uv run fomo serve --load-models kronos
+    uv run fomo serve --model kronos
     ```
 
 === "pip"
@@ -24,13 +24,13 @@ T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,kronos]"
-    fomo serve --load-models kronos
+    fomo serve --model kronos
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:kronos --load-models kronos
+    docker run --rm -p 8000:8000 geetu040/fomo:kronos --model kronos
     ```
 
 GPU: swap in

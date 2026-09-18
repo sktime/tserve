@@ -1,8 +1,8 @@
-"""Model catalogs and resolution of ``load_models`` items.
+"""Model catalogs and resolution of ``model`` items.
 
 ``SKTIME_REGISTRY`` is a catalog of ids the server *can* load.
 ``GET /models`` lists **loaded** models only; nothing is instantiated
-until ``bootstrap(load_models)`` / ``--load-models``. Registry ids
+until ``bootstrap(model)`` / ``--model``. Registry ids
 (``naive``, ``chronos-2``, …) are not executor names (``sktime``,
 ``pytorch-forecasting``, ``custom``).
 

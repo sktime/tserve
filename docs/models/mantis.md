@@ -1,6 +1,6 @@
 # mantis
 
-Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) id.
+Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra mantis
-    uv run fomo serve --load-models mantis-8m
+    uv run fomo serve --model mantis-8m
     ```
 
 === "pip"
@@ -26,13 +26,13 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) id.
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,mantis]"
-    fomo serve --load-models mantis-8m
+    fomo serve --model mantis-8m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:mantis --load-models mantis-8m
+    docker run --rm -p 8000:8000 geetu040/fomo:mantis --model mantis-8m
     ```
 
 GPU: swap in
@@ -110,7 +110,7 @@ curl -s http://127.0.0.1:8000/models
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
-- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 ids, from [`hub`](hub.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM](hub.md#timesfm): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

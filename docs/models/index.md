@@ -1,9 +1,10 @@
 # Catalog
 
-110 ids a FoMo process *can* load. Nothing loads until
-[`--load-models`](../reference/cli.md#flags) names it; `GET /models` reports
-what did. The same id goes in `--load-models` and in a request's
-[`model`](../client/data.md#prediction-horizon-and-model) field.
+110 models a FoMo process *can* load. The server always loads `naive`, a
+no-download baseline for testing. Name a catalog model with
+[`--model`](../reference/cli.md#flags) or leftover positionals for a real
+forecast. `GET /models` reports what did. The same model goes in `--model` and in
+a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -13,248 +14,248 @@ what did. The same id goes in `--load-models` and in a request's
 
 === "base"
 
-    `naive` only, nothing downloaded. Full page: [base](base.md).
+    `naive` only — a test baseline, nothing downloaded. Full page: [base](base.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server
-        uv run fomo serve --load-models naive
+        uv run fomo serve
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server]"
-        fomo serve --load-models naive
+        fomo serve
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:base --load-models naive
+        docker run --rm -p 8000:8000 geetu040/fomo:base
         ```
 
 === "hub"
 
-    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 ids, plus `naive`. Full
+    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 models, plus `naive`. Full
     page: [hub](hub.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra hub
-        uv run fomo serve --load-models chronos-bolt
+        uv run fomo serve --model chronos-bolt
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,hub]"
-        fomo serve --load-models chronos-bolt
+        fomo serve --model chronos-bolt
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt
+        docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt
         ```
 
 === "chronos"
 
-    Chronos-2, plus every [hub](hub.md) id. Full page: [chronos](chronos.md).
+    Chronos-2, plus every [hub](hub.md) model. Full page: [chronos](chronos.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra chronos
-        uv run fomo serve --load-models chronos-2
+        uv run fomo serve --model chronos-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,chronos]"
-        fomo serve --load-models chronos-2
+        fomo serve --model chronos-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:chronos --load-models chronos-2
+        docker run --rm -p 8000:8000 geetu040/fomo:chronos --model chronos-2
         ```
 
 === "kronos"
 
-    Kronos and WindFM. Sits on `base`, so **no** Hub ids. Full page:
+    Kronos and WindFM. Sits on `base`, so **no** Hub models. Full page:
     [kronos](kronos.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra kronos
-        uv run fomo serve --load-models kronos
+        uv run fomo serve --model kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,kronos]"
-        fomo serve --load-models kronos
+        fomo serve --model kronos
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:kronos --load-models kronos
+        docker run --rm -p 8000:8000 geetu040/fomo:kronos --model kronos
         ```
 
 === "granite"
 
-    FlowState, plus every [hub](hub.md) id. Full page: [granite](granite.md).
+    FlowState, plus every [hub](hub.md) model. Full page: [granite](granite.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra granite
-        uv run fomo serve --load-models flowstate
+        uv run fomo serve --model flowstate
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,granite]"
-        fomo serve --load-models flowstate
+        fomo serve --model flowstate
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:granite --load-models flowstate
+        docker run --rm -p 8000:8000 geetu040/fomo:granite --model flowstate
         ```
 
 === "moirai"
 
-    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) id. Full page:
+    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) model. Full page:
     [moirai](moirai.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra moirai
-        uv run fomo serve --load-models moirai-2
+        uv run fomo serve --model moirai-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,moirai]"
-        fomo serve --load-models moirai-2
+        fomo serve --model moirai-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+        docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
         ```
 
 === "tirex"
 
-    TiRex, plus every [hub](hub.md) id. Full page: [tirex](tirex.md).
+    TiRex, plus every [hub](hub.md) model. Full page: [tirex](tirex.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra tirex
-        uv run fomo serve --load-models tirex
+        uv run fomo serve --model tirex
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,tirex]"
-        fomo serve --load-models tirex
+        fomo serve --model tirex
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:tirex --load-models tirex
+        docker run --rm -p 8000:8000 geetu040/fomo:tirex --model tirex
         ```
 
 === "toto"
 
-    Toto-2, plus every [hub](hub.md) id. Full page: [toto](toto.md).
+    Toto-2, plus every [hub](hub.md) model. Full page: [toto](toto.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra toto
-        uv run fomo serve --load-models toto-2.0-4m
+        uv run fomo serve --model toto-2.0-4m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,toto]"
-        fomo serve --load-models toto-2.0-4m
+        fomo serve --model toto-2.0-4m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:toto --load-models toto-2.0-4m
+        docker run --rm -p 8000:8000 geetu040/fomo:toto --model toto-2.0-4m
         ```
 
 === "mantis"
 
-    Mantis, plus every [hub](hub.md) id. Needs `past` longer than 127 rows.
+    Mantis, plus every [hub](hub.md) model. Needs `past` longer than 127 rows.
     Full page: [mantis](mantis.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra mantis
-        uv run fomo serve --load-models mantis-8m
+        uv run fomo serve --model mantis-8m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,mantis]"
-        fomo serve --load-models mantis-8m
+        fomo serve --model mantis-8m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:mantis --load-models mantis-8m
+        docker run --rm -p 8000:8000 geetu040/fomo:mantis --model mantis-8m
         ```
 
 === "full"
 
-    All 110 ids, and the only way to mix two family stacks. Full page:
+    All 110 models, and the only way to mix two family stacks. Full page:
     [full](full.md).
 
     === "uv"
 
         ```bash
         uv sync --extra server --extra full
-        uv run fomo serve --load-models chronos-2 tirex kronos
+        uv run fomo serve --model chronos-2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,full]"
-        fomo serve --load-models chronos-2 tirex kronos
+        fomo serve --model chronos-2 tirex kronos
         ```
 
     === "Docker"
 
         ```bash
         docker run --rm -p 8000:8000 geetu040/fomo:full \
-          --load-models chronos-2 tirex kronos
+          --model chronos-2 tirex kronos
         ```
 
 - `uv` and `pip` assume a clone: [From source](../server/source.md#install).

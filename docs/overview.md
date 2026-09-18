@@ -10,7 +10,7 @@ Walk top to bottom. Three seams:
 
 ## What you run
 
-[`Server`][fomo.server.serve.Server] (or `fomo serve`) loads the models you name, then serves:
+[`Server`][fomo.server.serve.Server] (or `fomo serve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |
@@ -18,9 +18,9 @@ Walk top to bottom. Three seams:
 | JSON predictions | `POST /predict` — [HTTP](client/http.md) |
 | Python predictions | [`Client`][fomo.client.client.Client] — [Python](client/python.md) |
 | Live OpenAPI | `/docs`, `/redoc` |
-| Loaded ids | `GET /models` |
+| Loaded models | `GET /models` |
 
-The [catalog](models/index.md) is the list of ids the process *can* load. `--load-models` is the list it *did* load. Predict `model` must be a loaded id.
+The [catalog](models/index.md) is the list of models the process *can* load. `--model` names extra models on top of `naive`, a test baseline. Predict `model` must be a loaded model.
 
 Install extras to match what you will load. `server` includes `sktime` (enough for [`naive`](models/base.md)). Hub families are separate extras ([`hub`](models/hub.md), [`chronos`](models/chronos.md), [`granite`](models/granite.md), …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies); each extra also has its own page under [Models](models/index.md).
 
@@ -33,7 +33,7 @@ A prediction request is tables plus column roles, not a 1-d `y` vector. The same
 | `past` | required. historical table: one row per timestamp, with a time column and target values |
 | `fh` | required. steps ahead (`> 0`) |
 | `time`, `target` | optional. omitted → first `past` column as time; remaining columns not present in `future` as targets |
-| `model` | optional. default `"naive"` — still must be loaded |
+| `model` | optional. default `"naive"` |
 | `future` | optional future timestamps |
 | `static` | optional one-row static values |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |

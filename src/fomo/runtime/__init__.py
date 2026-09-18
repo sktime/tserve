@@ -17,7 +17,7 @@ Executors only see ``CoercedPredictRequest`` /
 ``GET /models`` lists **loaded** models only. Registry ids (``naive``,
 ``chronos-2``, …) are not executor names (``sktime``,
 ``pytorch-forecasting``, ``custom``). ``SKTIME_REGISTRY`` is a catalog;
-nothing loads until ``bootstrap(load_models)`` / ``--load-models``.
+nothing loads until ``bootstrap(model)`` / ``--model``.
 
 FoMo has no custom exception classes. ``HealthError`` is a Pydantic
 payload, not an exception.
@@ -25,7 +25,7 @@ payload, not an exception.
 See Also
 --------
 fomo.runtime.bootstrap
-    ``Runtime`` handle and ``bootstrap(load_models)``.
+    ``Runtime`` handle and ``bootstrap(model)``.
 fomo.runtime.executors
     Executor ABC, plugin registry, and ``create_executor``.
 fomo.runtime.registry

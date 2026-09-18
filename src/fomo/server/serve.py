@@ -1,8 +1,8 @@
 """HTTP inference server.
 
-``Server`` loads the models you name, then serves forecasts, a
-dashboard at ``/``, and OpenAPI at ``/docs``. CLI ``fomo serve``
-constructs this class and calls ``run``.
+``Server`` always loads ``naive`` as a test baseline, plus extra models you
+name for real forecasts, then serves a dashboard at ``/`` and OpenAPI at
+``/docs``. CLI ``fomo serve`` constructs this class and calls ``run``.
 """
 
 import logging
@@ -20,17 +20,32 @@ from fomo.server.routes import router
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "naive"
+
+
+def _includes_default_model(model: list[str | Path | tuple[str, Any]]) -> bool:
+    """Return whether ``model`` already names the always-loaded ``naive`` id."""
+    for item in model:
+        if item == _DEFAULT_MODEL:
+            return True
+        if isinstance(item, Path) and item.stem == _DEFAULT_MODEL:
+            return True
+        if isinstance(item, tuple) and item[0] == _DEFAULT_MODEL:
+            return True
+    return False
+
 
 class Server:
     """Run a FoMo inference HTTP server.
 
     Parameters
     ----------
-    load_models : list of str or (str, object), optional
-        Registry ids to load, ``(id, estimator)`` pairs, or
-        ``(id, craft spec)`` string pairs. Default ``[]`` loads
-        nothing. When ``models_dir`` is set, matching ``.zip`` stems
-        already in this list are loaded from disk.
+    model : list of str or (str, object), optional
+        Extra registry ids to load, ``(id, estimator)`` pairs, or
+        ``(id, craft spec)`` string pairs. ``naive`` is always loaded as
+        a test baseline. Default ``[]`` loads only ``naive``. When
+        ``models_dir`` is set, matching ``.zip`` stems already in this
+        list are loaded from disk.
     models_dir : str or pathlib.Path, optional
         Directory of saved sktime ``.zip`` files. Not loaded wholesale.
     host : str, default ``"127.0.0.1"``
@@ -61,18 +76,18 @@ class Server:
     Examples
     --------
     >>> from fomo.server import Server
-    >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
+    >>> Server(host="127.0.0.1", port=8000).run()
     >>> Server(
-    ...     load_models=[
-    ...         "naive",
+    ...     model=[
+    ...         "chronos-bolt",
     ...         ("drift", 'NaiveForecaster(strategy="drift")'),
     ...     ]
     ... )
 
     Notes
     -----
-    Omitting ``load_models`` loads nothing. The Docker image separately
-    supplies ``--load-models naive`` through its default ``CMD``.
+    ``naive`` is always loaded as a test baseline. Extra ids in ``model``
+    load alongside it for real forecasts.
 
     See Also
     --------
@@ -92,7 +107,7 @@ class Server:
 
     def __init__(
         self,
-        load_models: list[str | Path | tuple[str, Any]] | None = None,
+        model: list[str | Path | tuple[str, Any]] | None = None,
         models_dir: str | Path | None = None,
         *,
         host: str = "127.0.0.1",
@@ -100,19 +115,22 @@ class Server:
         log_level: str = "info",
     ) -> None:
         """Construct a Server."""
-        self.load_models = list(load_models) if load_models is not None else []
+        self.model = list(model) if model is not None else []
         self.models_dir = Path(models_dir) if models_dir is not None else None
         self.host = host
         self.port = port
         self.log_level = log_level
 
         # load model paths from `models_dir`
-        # for only the selected ones in load_models
+        # for only the selected ones in model
         if self.models_dir is not None:
             for model_path in self.models_dir.iterdir():
                 name = model_path.stem
-                if name in self.load_models:
-                    self.load_models[self.load_models.index(name)] = model_path
+                if name in self.model:
+                    self.model[self.model.index(name)] = model_path
+
+        if not _includes_default_model(self.model):
+            self.model = [_DEFAULT_MODEL, *self.model]
 
         # configure before bootstrap, so warmup progress is visible.
         # uvicorn's formatter makes FoMo lines look like uvicorn's own;
@@ -124,7 +142,7 @@ class Server:
             handler.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s"))
             fomo_logger.addHandler(handler)
 
-        self.runtime: Runtime = bootstrap(self.load_models)
+        self.runtime: Runtime = bootstrap(self.model)
         self.app = FastAPI(title="FoMo")
         self.app.state.runtime = self.runtime
         self.app.include_router(router)

@@ -10,8 +10,8 @@ from fomo.server import Server
 from fomo.types import HealthResult, ModelInfo, StatsResult
 
 
-def create_client(load_models=None):
-    server = Server(load_models=load_models or ["naive"])
+def create_client(model=None):
+    server = Server(model=model)
     app = server.app
     httpx_client = TestClient(app)
     client = Client(
@@ -167,7 +167,7 @@ def test_predict_parity_sktime_exog():
     past["Period"] = past["Period"].dt.to_timestamp()
     future["Period"] = future["Period"].dt.to_timestamp()
 
-    ttm_client = create_client(load_models=[model])
+    ttm_client = create_client(model=[model])
     result = ttm_client.predict(
         past=past,
         future=future,

@@ -11,7 +11,7 @@ server. It accepts native Python tables, converts them to Arrow, and posts to
 | `Client(url, timeout=60.0)` | [a client bound to one server](#connect) |
 | `client.predict(past=..., fh=...)` | [a prediction](#send-a-prediction) as a `PredictResponse` |
 | `client.health()` | process liveness |
-| `client.models()` | loaded model ids |
+| `client.models()` | loaded models |
 | `client.stats()` | uptime, memory, per-model metrics |
 | `client.close()` | closes the HTTP session |
 
@@ -25,7 +25,7 @@ The point forecast examples use `chronos-bolt`. Quantile examples use
 does not:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
@@ -69,7 +69,7 @@ with Client("http://127.0.0.1:8000", timeout=120.0) as client:
 
 `models()` reports what this process loaded, not the registry
 [catalog](../models/index.md), so it is the quickest way to check which
-`model` ids a prediction can use.
+`model` values a prediction can use.
 
 The default timeout is 60 seconds. Increase it for forecasts that need more
 time.
@@ -282,7 +282,7 @@ which supports covariates. Stop the starter server and restart with the
 `chronos` image:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:chronos --load-models chronos-2
+docker run --rm -p 8000:8000 geetu040/fomo:chronos --model chronos-2
 ```
 
 ```python
