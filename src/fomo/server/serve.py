@@ -26,7 +26,7 @@ class Server:
 
     Parameters
     ----------
-    load_models : list of str or (str, object), optional
+    model : list of str or (str, object), optional
         Registry ids to load, ``(id, estimator)`` pairs, or
         ``(id, craft spec)`` string pairs. Default ``[]`` loads
         nothing. When ``models_dir`` is set, matching ``.zip`` stems
@@ -61,9 +61,9 @@ class Server:
     Examples
     --------
     >>> from fomo.server import Server
-    >>> Server(load_models=["naive"], host="127.0.0.1", port=8000).run()
+    >>> Server(model=["naive"], host="127.0.0.1", port=8000).run()
     >>> Server(
-    ...     load_models=[
+    ...     model=[
     ...         "naive",
     ...         ("drift", 'NaiveForecaster(strategy="drift")'),
     ...     ]
@@ -71,8 +71,8 @@ class Server:
 
     Notes
     -----
-    Omitting ``load_models`` loads nothing. The Docker image separately
-    supplies ``--load-models naive`` through its default ``CMD``.
+    Omitting ``model`` loads nothing. The Docker image separately
+    supplies ``--model naive`` through its default ``CMD``.
 
     See Also
     --------
@@ -92,7 +92,7 @@ class Server:
 
     def __init__(
         self,
-        load_models: list[str | Path | tuple[str, Any]] | None = None,
+        model: list[str | Path | tuple[str, Any]] | None = None,
         models_dir: str | Path | None = None,
         *,
         host: str = "127.0.0.1",
@@ -100,19 +100,19 @@ class Server:
         log_level: str = "info",
     ) -> None:
         """Construct a Server."""
-        self.load_models = list(load_models) if load_models is not None else []
+        self.model = list(model) if model is not None else []
         self.models_dir = Path(models_dir) if models_dir is not None else None
         self.host = host
         self.port = port
         self.log_level = log_level
 
         # load model paths from `models_dir`
-        # for only the selected ones in load_models
+        # for only the selected ones in model
         if self.models_dir is not None:
             for model_path in self.models_dir.iterdir():
                 name = model_path.stem
-                if name in self.load_models:
-                    self.load_models[self.load_models.index(name)] = model_path
+                if name in self.model:
+                    self.model[self.model.index(name)] = model_path
 
         # configure before bootstrap, so warmup progress is visible.
         # uvicorn's formatter makes FoMo lines look like uvicorn's own;
@@ -124,7 +124,7 @@ class Server:
             handler.setFormatter(DefaultFormatter("%(levelprefix)s %(message)s"))
             fomo_logger.addHandler(handler)
 
-        self.runtime: Runtime = bootstrap(self.load_models)
+        self.runtime: Runtime = bootstrap(self.model)
         self.app = FastAPI(title="FoMo")
         self.app.state.runtime = self.runtime
         self.app.include_router(router)

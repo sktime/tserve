@@ -27,7 +27,7 @@ Models stay warm in the process, so the download and load cost is paid once at s
 Pull the `hub` image and load two registry ids: `chronos-bolt` and `ttm-r3`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 Every id except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
@@ -41,7 +41,7 @@ Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt ttm-r3
+    uv run fomo serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -49,7 +49,7 @@ Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt ttm-r3
+    fomo serve --model chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
@@ -62,7 +62,7 @@ Once the process is up, the terminal prints the URLs:
 
 `GET /models` lists the ids this process actually loaded, not the full [catalog](models/index.md). `--host`, `--port`, and `--log-level` are the other [CLI flags](reference/cli.md#flags).
 
-`--load-models` can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
+`--model` can also take an sktime [craft spec](server/craft-specs.md) written as `id=spec`, or a saved `.zip` from a [directory of models](server/models-dir.md). To serve an estimator you configured yourself, start the server from Python with a [live object](server/live-objects.md).
 
 ### Predict
 

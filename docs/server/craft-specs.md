@@ -8,7 +8,7 @@ Catalog ids cover published checkpoints. A spec is how you load a checkpoint, re
 from fomo.server import Server
 
 Server(
-    load_models=[
+    model=[
         "chronos-bolt",
         (
             "ttm-local",
@@ -32,10 +32,10 @@ Server(
 
 ## From the command line
 
-`--load-models` splits each token on the first `=`. Catalog ids have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
+`--model` splits each token on the first `=`. Catalog ids have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
-fomo serve --load-models chronos-bolt \
+fomo serve --model chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 
@@ -44,9 +44,9 @@ Docker is the same argv after the image name. A token that looks like `ClassName
 ## Rules
 
 - The spec must be a non-empty string that `craft` turns into a sktime `BaseForecaster` **instance**. A class name without parentheses (`"NaiveForecaster"`) is rejected.
-- A bare spec in Python `load_models` is treated as an unknown registry id. Wrap it as `(id, spec)`.
+- A bare spec in Python `model` is treated as an unknown registry id. Wrap it as `(id, spec)`.
 - Ids must be unique across the whole list. A collision — including with a registry id — raises `ValueError` before the second load.
-- Registry ids, [live objects](live-objects.md), craft specs, and [saved models](models-dir.md) mix freely in one `load_models` list.
+- Registry ids, [live objects](live-objects.md), craft specs, and [saved models](models-dir.md) mix freely in one `model` list.
 - The estimator's own dependencies have to be installed; FoMo only adds the ones its [extras](../models/index.md#dependencies) declare.
 - The spec is evaluated only in your process at startup, never from an HTTP `model` field.
 

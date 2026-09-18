@@ -113,8 +113,8 @@ def models(request: Request) -> ModelsResult:
     """List **loaded** models as ``GET /models``.
 
     Delegates to ``runtime.loaded_models()``. This is not the full
-    registry catalog: ids never passed to ``load_models`` /
-    ``--load-models`` do not appear.
+    registry catalog: ids never passed to ``model`` /
+    ``--model`` do not appear.
 
     Parameters
     ----------

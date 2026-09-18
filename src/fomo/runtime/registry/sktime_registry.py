@@ -2,8 +2,8 @@
 
 ``SKTIME_REGISTRY`` lists ids the server *can* load (``naive``,
 ``chronos-2``, ``chronos-bolt-small``, …). It is not the loaded-model
-list: ``GET /models`` returns only models ``bootstrap(load_models)`` /
-``--load-models`` actually instantiated. Registry ids are not executor
+list: ``GET /models`` returns only models ``bootstrap(model)`` /
+``--model`` actually instantiated. Registry ids are not executor
 names (``sktime``, ``pytorch-forecasting``, ``custom``).
 
 Ids are kebab-case and name the checkpoint (family, version, size or
@@ -29,7 +29,7 @@ fomo.runtime.bootstrap.bootstrap
 from fomo.runtime.registry import BASE_REGISTRY_TYPE
 
 # Catalog of ids the server can load. Nothing here is loaded until
-# --load-models / load_models selects it.
+# --model / model selects it.
 # Checkout https://github.com/sktime/fomo/issues/1
 # Craft strings stay private to the registry; ModelInfo is listing-only.
 

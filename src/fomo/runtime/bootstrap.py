@@ -7,7 +7,7 @@ forecasts; that is ``fomo.scheduling.scheduler.Scheduler``.
 See Also
 --------
 fomo.runtime.registry.resolve_model
-    Turn a load-models item into ``ModelInfo``.
+    Turn a model item into ``ModelInfo``.
 fomo.runtime.executors.create_executor
     Construct the plugin named by ``ModelInfo.executor``.
 fomo.scheduling.scheduler.Scheduler
@@ -34,7 +34,7 @@ class Runtime:
 
     ``GET /models`` reads ``loaded_models()``, which returns only models
     that ``bootstrap`` actually loaded. Registry catalog ids that were
-    never passed to ``load_models`` / ``--load-models`` do not appear.
+    never passed to ``model`` / ``--model`` do not appear.
 
     Attributes
     ----------
@@ -74,7 +74,7 @@ class Runtime:
         return ModelsResult(models=list(self.models.values()))
 
 
-def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
+def bootstrap(model: list[str | Path | tuple[str, Any]]) -> Runtime:
     """Resolve, construct, load, warmup, and register each selected model.
 
     For every item: ``resolve_model`` → ``create_executor(info.executor)``
@@ -85,7 +85,7 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
 
     Parameters
     ----------
-    load_models : list of str, Path, or (str, object)
+    model : list of str, Path, or (str, object)
         Items understood by ``resolve_model``: a registry id, a
         ``pathlib.Path`` to a ``.zip``, ``(id, craft spec)``, or
         ``(id, sktime BaseForecaster)``.
@@ -124,16 +124,16 @@ def bootstrap(load_models: list[str | Path | tuple[str, Any]]) -> Runtime:
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
 
-    total = len(load_models)
+    total = len(model)
     plural = "" if total == 1 else "s"
     logger.info(f"Loading {paint(str(total), '1;36')} model{plural}")
 
-    for position, item in enumerate(load_models, start=1):
+    for position, item in enumerate(model, start=1):
         info = resolve_model(item)
         item = item[1] if isinstance(item, tuple) else item
 
         if info.id in models:
-            raise ValueError(f"duplicate model id {info.id!r} in load_models")
+            raise ValueError(f"duplicate model id {info.id!r} in model")
 
         label = f"{info.id} via {info.executor}"
         dots = paint("." * max(3, 40 - len(label)), "2")

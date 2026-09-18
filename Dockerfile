@@ -50,4 +50,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 ENTRYPOINT ["fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["--load-models", "naive"]
+CMD ["--model", "naive"]

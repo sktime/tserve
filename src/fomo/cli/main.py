@@ -11,8 +11,8 @@ from typing import Any
 from fomo import __version__
 
 
-def parse_load_models(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
-    """Turn ``--load-models`` tokens into ``Server`` ``load_models`` items.
+def parse_model(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
+    """Turn ``--model`` tokens into ``Server`` ``model`` items.
 
     A token without ``=`` is a registry id (or ``--models-dir`` stem).
     A token with ``=`` is split on the first ``=`` into ``(id, spec)``.
@@ -21,7 +21,7 @@ def parse_load_models(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
     Parameters
     ----------
     tokens : list of str
-        Raw ``--load-models`` values.
+        Raw ``--model`` values.
 
     Returns
     -------
@@ -49,9 +49,9 @@ def parse_load_models(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
         model_id = model_id.strip()
         spec = spec.strip()
         if not model_id:
-            raise ValueError("load_models craft entry has an empty id")
+            raise ValueError("model craft entry has an empty id")
         if not spec:
-            raise ValueError(f"load_models entry {model_id!r} has an empty craft spec")
+            raise ValueError(f"model entry {model_id!r} has an empty craft spec")
         items.append((model_id, spec))
     return items
 
@@ -59,7 +59,7 @@ def parse_load_models(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
 def _build_parser() -> argparse.ArgumentParser:
     """Build the ``fomo`` parser with a required ``serve`` subcommand.
 
-    ``serve`` flags: ``--load-models`` (``nargs="+"``, default ``[]``;
+    ``serve`` flags: ``--model`` (``nargs="+"``, default ``[]``;
     catalog ids or ``id=spec`` craft tokens),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
@@ -71,7 +71,7 @@ def _build_parser() -> argparse.ArgumentParser:
     argparse.ArgumentParser
         Parser with ``prog="fomo"`` and required dest ``command``.
     """
-    parser = argparse.ArgumentParser(prog="fomo")
+    parser = argparse.ArgumentParser(prog="fomo", allow_abbrev=False)
     parser.add_argument(
         "--version",
         action="version",
@@ -79,11 +79,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    serve = sub.add_parser("serve", help="run the inference server")
+    serve = sub.add_parser("serve", help="run the inference server", allow_abbrev=False)
     serve.add_argument(
-        "--load-models",
+        "--model",
         nargs="+",
-        dest="load_models",
+        dest="model",
         default=[],
         help="registry ids or id=craft-spec to load (default: none)",
     )
@@ -128,26 +128,26 @@ def main(argv: list[str] | None = None) -> int:
     SystemExit
         From ``ArgumentParser.error`` or argparse usage errors.
     ValueError
-        If ``--load-models`` tokens are malformed (empty ``id=spec``,
+        If ``--model`` tokens are malformed (empty ``id=spec``,
         a bare craft spec), or ``Server`` / ``bootstrap`` reject a
         load spec (duplicate id, unknown registry id, non-zip path,
         unknown executor).
     TypeError
-        If a load-models object is not a sktime ``BaseForecaster``.
+        If a model object is not a sktime ``BaseForecaster``.
     ImportError
         If the executor extra is not installed.
 
     See Also
     --------
     fomo.server.serve.Server
-        Constructed from ``--load-models``, ``--models-dir``,
+        Constructed from ``--model``, ``--models-dir``,
         ``--host``, ``--port``, and ``--log-level``.
     [Install and serve](../server/index.md)
         Install server and model-family dependencies.
     [Models catalog](../models/index.md)
-        Registry ids accepted by ``--load-models``.
+        Registry ids accepted by ``--model``.
     [Docker](../server/docker.md)
-        Container entrypoint and default ``--load-models naive`` CMD.
+        Container entrypoint and default ``--model naive`` CMD.
     [Startup errors](../reference/errors.md#startup)
         Failures that occur before uvicorn binds the port.
     """
@@ -159,7 +159,7 @@ def main(argv: list[str] | None = None) -> int:
     from fomo.server import Server
 
     server = Server(
-        load_models=parse_load_models(args.load_models),
+        model=parse_model(args.model),
         models_dir=args.models_dir,
         host=args.host,
         port=args.port,

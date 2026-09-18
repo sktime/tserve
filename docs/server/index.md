@@ -11,7 +11,7 @@ Nothing loads unless you name it. A bare `fomo serve` starts empty. `GET /models
 The `hub` image can load both models used throughout the client guides. Arguments replace the image `CMD`, which otherwise loads `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
@@ -25,7 +25,7 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     uv sync --extra server --extra hub
-    uv run fomo serve --load-models chronos-bolt ttm-r3
+    uv run fomo serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -33,7 +33,7 @@ Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match
     ```bash
     git clone https://github.com/sktime/fomo.git && cd fomo
     pip install -e ".[server,hub]"
-    fomo serve --load-models chronos-bolt ttm-r3
+    fomo serve --model chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
@@ -42,20 +42,20 @@ CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
 
-The commands above load `hub` ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md), read the extra and image tag listed with its family, then install that extra and name the id in `--load-models`. `moirai-2` sits in the `moirai` extra:
+The commands above load `hub` ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md), read the extra and image tag listed with its family, then install that extra and name the id in `--model`. `moirai-2` sits in the `moirai` extra:
 
 === "uv"
 
     ```bash
     uv sync --extra server --extra moirai
-    uv run fomo serve --load-models moirai-2
+    uv run fomo serve --model moirai-2
     ```
 
 === "pip"
 
     ```bash
     pip install -e ".[server,moirai]"
-    fomo serve --load-models moirai-2
+    fomo serve --model moirai-2
     ```
 
 In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same id, as in [Choose which models to load](docker.md#choose-which-models-to-load).

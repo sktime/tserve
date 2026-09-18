@@ -58,8 +58,7 @@ def _missing_dependency_message(model_id: str, error: ModuleNotFoundError) -> st
             f'  pip install -e ".[{",".join(extras)}]"',
             "",
             "Or pull a matching image:",
-            f"  docker run --rm -p 8000:8000 geetu040/fomo:{tag} "
-            f"--load-models {model_id}",
+            f"  docker run --rm -p 8000:8000 geetu040/fomo:{tag} --model {model_id}",
             "",
             f"Compatible extras: {', '.join(group)}",
             f"Compatible tags: {tags}",
@@ -90,7 +89,7 @@ class SktimeExecutor(Executor):
         """Materialize a sktime forecaster from ``info.source``.
 
         * ``registry``: ``sktime.registry.craft(SKTIME_REGISTRY[model]["spec"])``
-          where ``model`` is the ``load_models`` item string.
+          where ``model`` is the catalog id string.
         * ``craft``: ``sktime.registry.craft(model)`` where ``model`` is
           the user-supplied spec string. The result must be a
           ``BaseForecaster`` instance (``craft("NaiveForecaster")``

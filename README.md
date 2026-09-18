@@ -19,14 +19,14 @@ The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
 TimesFM 2.x. This command loads two registry ids:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
 `moirai-2`:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:moirai --load-models moirai-2
+docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
 ```
 
 Choose an id and its matching image tag from the
@@ -46,7 +46,7 @@ PowerShell.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 uv sync --extra server --extra hub
-uv run fomo serve --load-models chronos-bolt ttm-r3
+uv run fomo serve --model chronos-bolt ttm-r3
 ```
 
 **pip**
@@ -58,7 +58,7 @@ torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
 git clone https://github.com/sktime/fomo.git
 cd fomo
 python -m pip install -e ".[server,hub]"
-fomo serve --load-models chronos-bolt ttm-r3
+fomo serve --model chronos-bolt ttm-r3
 ```
 
 To force a CPU wheel, install torch from the CPU index first, then FoMo. If
@@ -171,7 +171,7 @@ one:
 
 1. Find its exact id in the [catalog](https://fomo.readthedocs.io/en/latest/models/).
 2. Install the listed family extra, or pull the matching Docker tag.
-3. Name the id in `--load-models`.
+3. Name the id in `--model`.
 
 The catalog is what a process *can* load. `GET /models` reports only what the
 current process *did* load.
@@ -192,7 +192,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --load-models chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --model chronos-bolt ttm-r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -200,13 +200,13 @@ it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use
 `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --load-models chronos-bolt
+docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --model chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --load-models chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 -v fomo-hf:/root/.cache/huggingface geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
 The [Docker guide](https://fomo.readthedocs.io/en/latest/server/docker/) covers
@@ -214,7 +214,7 @@ all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `fomo serve` loads nothing. Use `--load-models` to select registry ids,
+A bare `fomo serve` loads nothing. Use `--model` to select registry ids,
 `--models-dir` for selected sktime `.zip` files, `--host` and `--port` to
 change the binding, and `--log-level` to change verbosity. The image default
 that loads `naive` is not the Python or CLI default.

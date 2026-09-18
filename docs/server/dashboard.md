@@ -16,7 +16,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](
 
 Health and stats cards on the right poll `GET /health` and `GET /stats`. Toggle **Live** to refresh every 5 seconds.
 
-If the model list is empty, the process started without `--load-models` (or the image `CMD` was replaced with an empty list). Load an id and refresh.
+If the model list is empty, the process started without `--model` (or the image `CMD` was replaced with an empty list). Load an id and refresh.
 
 There is no authentication and no hosted FoMo API — these URLs are the process you started.
 

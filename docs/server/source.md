@@ -112,13 +112,13 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run fomo serve --load-models chronos-bolt ttm-r3
+    uv run fomo serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --load-models chronos-bolt ttm-r3
+    fomo serve --model chronos-bolt ttm-r3
     ```
 
 Startup prints the URLs it binds:
@@ -140,7 +140,7 @@ Starting FoMo
 from fomo.server import Server
 
 server = Server(
-    load_models=["chronos-bolt", "ttm-r3"],
+    model=["chronos-bolt", "ttm-r3"],
     host="127.0.0.1",
     port=8000,
 )
@@ -148,7 +148,7 @@ print(server.url)  # http://127.0.0.1:8000
 server.run()
 ```
 
-Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `load_models` starts empty, exactly like a bare `fomo serve`.
+Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` starts empty, exactly like a bare `fomo serve`.
 
 `server.app` is the FastAPI app, for mounting it inside another application or handing it to uvicorn yourself:
 

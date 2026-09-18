@@ -13,7 +13,7 @@ def _server(**kwargs):
 
 
 def test_server():
-    server, bootstrap, runtime = _server(load_models=["naive"])
+    server, bootstrap, runtime = _server(model=["naive"])
 
     assert isinstance(server.app, FastAPI)
     assert server.app.state.runtime is runtime
@@ -25,7 +25,7 @@ def test_server_uses_models_dir(tmp_path):
     model_path = tmp_path / "naive.zip"
     model_path.write_bytes(b"")
 
-    _, bootstrap, _ = _server(load_models=["naive"], models_dir=tmp_path)
+    _, bootstrap, _ = _server(model=["naive"], models_dir=tmp_path)
 
     bootstrap.assert_called_once_with([model_path])
 

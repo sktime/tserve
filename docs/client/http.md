@@ -28,7 +28,7 @@ The point forecast examples use `chronos-bolt`. Quantile examples use
 does not:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --load-models chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
