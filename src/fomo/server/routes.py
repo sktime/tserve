@@ -113,8 +113,8 @@ def models(request: Request) -> ModelsResult:
     """List **loaded** models as ``GET /models``.
 
     Delegates to ``runtime.loaded_models()``. This is not the full
-    registry catalog: ids never passed to ``model`` /
-    ``--model`` do not appear.
+    registry catalog: extra ids never passed to ``model`` /
+    ``--model`` do not appear. ``naive`` is always loaded.
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def models(request: Request) -> ModelsResult:
     Returns
     -------
     ModelsResult
-        Currently loaded models (may be empty).
+        Currently loaded models, including ``naive``.
 
     See Also
     --------
