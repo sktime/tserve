@@ -33,8 +33,9 @@ class Runtime:
     """Process-local handle: loaded executors, listing, stats, scheduler.
 
     ``GET /models`` reads ``loaded_models()``, which returns only models
-    that ``bootstrap`` actually loaded. Registry catalog ids that were
-    never passed to ``model`` / ``--model`` do not appear.
+    that ``bootstrap`` actually loaded. ``Server`` always includes
+    ``naive``; extra catalog ids that were never passed to ``model`` /
+    ``--model`` do not appear.
 
     Attributes
     ----------
