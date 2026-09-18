@@ -1,8 +1,8 @@
 """HTTP inference server.
 
-``Server`` loads the models you name, then serves forecasts, a
-dashboard at ``/``, and OpenAPI at ``/docs``. CLI ``fomo serve``
-constructs this class and calls ``run``.
+``Server`` always loads ``naive``, plus the extra models you name, then
+serves forecasts, a dashboard at ``/``, and OpenAPI at ``/docs``. CLI
+``fomo serve`` constructs this class and calls ``run``.
 """
 
 import logging
@@ -20,6 +20,20 @@ from fomo.server.routes import router
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "naive"
+
+
+def _includes_default_model(model: list[str | Path | tuple[str, Any]]) -> bool:
+    """Return whether ``model`` already names the always-loaded ``naive`` id."""
+    for item in model:
+        if item == _DEFAULT_MODEL:
+            return True
+        if isinstance(item, Path) and item.stem == _DEFAULT_MODEL:
+            return True
+        if isinstance(item, tuple) and item[0] == _DEFAULT_MODEL:
+            return True
+    return False
+
 
 class Server:
     """Run a FoMo inference HTTP server.
@@ -27,10 +41,11 @@ class Server:
     Parameters
     ----------
     model : list of str or (str, object), optional
-        Registry ids to load, ``(id, estimator)`` pairs, or
-        ``(id, craft spec)`` string pairs. Default ``[]`` loads
-        nothing. When ``models_dir`` is set, matching ``.zip`` stems
-        already in this list are loaded from disk.
+        Extra registry ids to load, ``(id, estimator)`` pairs, or
+        ``(id, craft spec)`` string pairs. ``naive`` is always loaded.
+        Default ``[]`` loads only ``naive``. When ``models_dir`` is set,
+        matching ``.zip`` stems already in this list are loaded from
+        disk.
     models_dir : str or pathlib.Path, optional
         Directory of saved sktime ``.zip`` files. Not loaded wholesale.
     host : str, default ``"127.0.0.1"``
@@ -61,18 +76,17 @@ class Server:
     Examples
     --------
     >>> from fomo.server import Server
-    >>> Server(model=["naive"], host="127.0.0.1", port=8000).run()
+    >>> Server(host="127.0.0.1", port=8000).run()
     >>> Server(
     ...     model=[
-    ...         "naive",
+    ...         "chronos-bolt",
     ...         ("drift", 'NaiveForecaster(strategy="drift")'),
     ...     ]
     ... )
 
     Notes
     -----
-    Omitting ``model`` loads nothing. The Docker image separately
-    supplies ``--model naive`` through its default ``CMD``.
+    ``naive`` is always loaded. Extra ids in ``model`` load alongside it.
 
     See Also
     --------
@@ -113,6 +127,9 @@ class Server:
                 name = model_path.stem
                 if name in self.model:
                     self.model[self.model.index(name)] = model_path
+
+        if not _includes_default_model(self.model):
+            self.model = [_DEFAULT_MODEL, *self.model]
 
         # configure before bootstrap, so warmup progress is visible.
         # uvicorn's formatter makes FoMo lines look like uvicorn's own;
