@@ -20,7 +20,7 @@ Python >= 3.12, and a clone over HTTPS. FoMo is **not on PyPI yet**, so installs
 
     The `gpu` extra does not work with pip. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](#gpu).
 
-`server` is enough to serve `naive`. The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
+`server` is enough to serve `naive` (a test baseline). The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
 
 ## Dependencies
 
@@ -148,7 +148,7 @@ print(server.url)  # http://127.0.0.1:8000
 server.run()
 ```
 
-Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, exactly like a bare `fomo serve`.
+Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, enough to test the process, exactly like a bare `fomo serve`.
 
 `server.app` is the FastAPI app, for mounting it inside another application or handing it to uvicorn yourself:
 

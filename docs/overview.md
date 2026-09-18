@@ -20,7 +20,7 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded ids | `GET /models` |
 
-The [catalog](models/index.md) is the list of ids the process *can* load. `--model` names extra ids on top of `naive`. Predict `model` must be a loaded id.
+The [catalog](models/index.md) is the list of ids the process *can* load. `--model` names extra ids on top of `naive`, a test baseline. Predict `model` must be a loaded id.
 
 Install extras to match what you will load. `server` includes `sktime` (enough for [`naive`](models/base.md)). Hub families are separate extras ([`hub`](models/hub.md), [`chronos`](models/chronos.md), [`granite`](models/granite.md), …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies); each extra also has its own page under [Models](models/index.md).
 

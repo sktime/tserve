@@ -31,7 +31,8 @@ docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
 
 Choose an id and its matching image tag from the
 [model catalog](https://fomo.readthedocs.io/en/latest/models/). The process
-always loads `naive`; name extra ids to load alongside it.
+always loads `naive` for testing; name extra ids alongside it for a real
+forecast.
 
 ### From source
 
@@ -69,7 +70,7 @@ python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -e ".[server,hub]"
 ```
 
-The `server` extra alone is enough for `naive`. Do not install `client` on a
+The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a
 server-only machine. See [Server](https://fomo.readthedocs.io/en/latest/server/)
 for family extras, GPU installs, and Python-based server setup.
 
@@ -214,10 +215,10 @@ all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `fomo serve` still loads `naive`. Name extra registry ids as leftover
-positionals (`fomo serve chronos-bolt ttm-r3`) or with `--model`;
-`--models-dir` for selected sktime `.zip` files, `--host` and `--port` to
-change the binding, and `--log-level` to change verbosity.
+A bare `fomo serve` still loads `naive`, enough to test the process. Name extra
+registry ids as leftover positionals (`fomo serve chronos-bolt ttm-r3`) or with
+`--model` for a real forecast. `--models-dir` selects sktime `.zip` files,
+`--host` and `--port` change the binding, and `--log-level` changes verbosity.
 
 `GET /health` checks process liveness. `GET /models` lists loaded ids.
 `GET /stats` reports process and per-model metrics. See the

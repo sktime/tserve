@@ -1,8 +1,8 @@
 """HTTP inference server.
 
-``Server`` always loads ``naive``, plus the extra models you name, then
-serves forecasts, a dashboard at ``/``, and OpenAPI at ``/docs``. CLI
-``fomo serve`` constructs this class and calls ``run``.
+``Server`` always loads ``naive`` as a test baseline, plus extra models you
+name for real forecasts, then serves a dashboard at ``/`` and OpenAPI at
+``/docs``. CLI ``fomo serve`` constructs this class and calls ``run``.
 """
 
 import logging
@@ -42,10 +42,10 @@ class Server:
     ----------
     model : list of str or (str, object), optional
         Extra registry ids to load, ``(id, estimator)`` pairs, or
-        ``(id, craft spec)`` string pairs. ``naive`` is always loaded.
-        Default ``[]`` loads only ``naive``. When ``models_dir`` is set,
-        matching ``.zip`` stems already in this list are loaded from
-        disk.
+        ``(id, craft spec)`` string pairs. ``naive`` is always loaded as
+        a test baseline. Default ``[]`` loads only ``naive``. When
+        ``models_dir`` is set, matching ``.zip`` stems already in this
+        list are loaded from disk.
     models_dir : str or pathlib.Path, optional
         Directory of saved sktime ``.zip`` files. Not loaded wholesale.
     host : str, default ``"127.0.0.1"``
@@ -86,7 +86,8 @@ class Server:
 
     Notes
     -----
-    ``naive`` is always loaded. Extra ids in ``model`` load alongside it.
+    ``naive`` is always loaded as a test baseline. Extra ids in ``model``
+    load alongside it for real forecasts.
 
     See Also
     --------

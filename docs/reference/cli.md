@@ -22,7 +22,7 @@ A walkthrough with the startup output is on
 
 | flag | default | |
 | --- | --- | --- |
-| `--model` | none | extra catalog ids and/or `id=craft-spec` tokens; leftover positionals mean the same. `naive` is always loaded |
+| `--model` | none | extra catalog ids and/or `id=craft-spec` tokens; leftover positionals mean the same. `naive` is always loaded as a test baseline |
 | `MODEL …` | none | leftover positional ids; same as `--model` |
 | `--models-dir` | none | directory of saved sktime `.zip` files |
 | `--host` | `127.0.0.1` | bind address; `0.0.0.0` also accepts connections from the network |

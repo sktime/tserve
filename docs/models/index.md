@@ -1,9 +1,10 @@
 # Catalog
 
-110 ids a FoMo process *can* load. The server always loads `naive`; extra ids
-load when [`--model`](../reference/cli.md#flags) or leftover positionals name
-them. `GET /models` reports what did. The same id goes in `--model` and in a
-request's [`model`](../client/data.md#prediction-horizon-and-model) field.
+110 ids a FoMo process *can* load. The server always loads `naive`, a
+no-download baseline for testing. Name a catalog id with
+[`--model`](../reference/cli.md#flags) or leftover positionals for a real
+forecast. `GET /models` reports what did. The same id goes in `--model` and in
+a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -13,7 +14,7 @@ request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "base"
 
-    `naive` only, nothing downloaded. Full page: [base](base.md).
+    `naive` only — a test baseline, nothing downloaded. Full page: [base](base.md).
 
     === "uv"
 

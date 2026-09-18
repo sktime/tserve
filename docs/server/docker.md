@@ -1,6 +1,6 @@
 # Docker
 
-Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional ids it actually loads. `naive` is always loaded.
+Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional ids it actually loads. `naive` is always loaded as a test baseline.
 
 ## Pull an image
 

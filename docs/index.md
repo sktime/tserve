@@ -12,7 +12,7 @@ Time-series Foundation Models behind one server. Load extra models you name, kee
 
 FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
-The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, plus a naive baseline to sanity-check a pipeline before any weights are downloaded. You name extra ids you want; the server loads those alongside `naive` and leaves the rest alone.
+The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. The server always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra ids for a real forecast.
 
 Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 

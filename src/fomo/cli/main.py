@@ -61,7 +61,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
     ``serve`` flags: ``--model`` (``nargs="+"``, default ``[]``;
     extra catalog ids or ``id=spec`` craft tokens; ``naive`` is always
-    loaded), leftover positional ids (same meaning as ``--model``),
+    loaded as a test baseline), leftover positional ids (same meaning as
+    ``--model``),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
     ``--port`` (default 8000), ``--log-level`` (default ``info``;
@@ -86,7 +87,10 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs="+",
         dest="model",
         default=[],
-        help="extra registry ids or id=craft-spec to load (naive is always loaded)",
+        help=(
+            "extra catalog ids for real forecasts "
+            "(naive is a test baseline, always loaded)"
+        ),
     )
     serve.add_argument(
         "--models-dir",

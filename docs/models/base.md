@@ -1,6 +1,8 @@
 # base
 
-The `naive` baseline and nothing else. Downloads no weights.
+The `naive` baseline and nothing else. Downloads no weights. Use `:base` to
+test the server; load a [family extra](index.md#dependencies) for a real
+forecast.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
