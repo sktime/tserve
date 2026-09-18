@@ -20,7 +20,9 @@ docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
 
 The first start downloads model weights. See [Server](../server/index.md)
 for source installs and server options, or [Docker](../server/docker.md) for image
-tags, GPU support, Hugging Face tokens, and cache volumes.
+tags, GPU support, Hugging Face tokens, and cache volumes. Both ids come from
+the [`hub`](../models/hub.md) extra; for a model from another family, start
+from its extra's page in the [catalog](../models/index.md#dependencies).
 
 Check which ids this process loaded:
 

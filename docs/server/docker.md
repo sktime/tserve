@@ -8,7 +8,7 @@ Images ship Python, the FoMo package, and one set of model dependencies. The tag
 docker pull geetu040/fomo:hub
 ```
 
-`base` carries `naive` only. `hub` adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` (`chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`) include Hub plus one more stack. `kronos` sits on `base`, not `hub`. `full` has all of them, and every family tag has a `*-gpu` variant. The tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
+[`base`](../models/base.md) carries `naive` only. [`hub`](../models/hub.md) adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` ([`chronos`](../models/chronos.md), [`granite`](../models/granite.md), [`moirai`](../models/moirai.md), [`tirex`](../models/tirex.md), [`toto`](../models/toto.md), [`mantis`](../models/mantis.md)) include Hub plus one more stack. [`kronos`](../models/kronos.md) sits on `base`, not `hub`. [`full`](../models/full.md) has all of them, and every family tag has a `*-gpu` variant. Each of those pages carries the ids that tag can load, with a `docker run` for it; the tag-to-ids map lives on the [catalog](../models/index.md#dependencies).
 
 Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
 
