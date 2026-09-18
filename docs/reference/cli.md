@@ -5,6 +5,13 @@
 process stops.
 
 ```bash
+fomo serve chronos-bolt ttm-r3
+```
+
+`--model` is optional when the ids are leftover positionals. Both forms
+are equivalent, and they combine: flag tokens first, then positionals.
+
+```bash
 fomo serve --model chronos-bolt ttm-r3
 ```
 
@@ -15,15 +22,16 @@ A walkthrough with the startup output is on
 
 | flag | default | |
 | --- | --- | --- |
-| `--model` | none | catalog ids and/or `id=craft-spec` tokens; nothing loads without it |
+| `--model` | none | catalog ids and/or `id=craft-spec` tokens; leftover positionals mean the same |
+| `MODEL …` | none | leftover positional ids; same as `--model` |
 | `--models-dir` | none | directory of saved sktime `.zip` files |
 | `--host` | `127.0.0.1` | bind address; `0.0.0.0` also accepts connections from the network |
 | `--port` | `8000` | bind port |
 | `--log-level` | `info` | `debug`, `info`, `warning`, `error`, or `critical`, for FoMo and uvicorn |
 
-`--model` takes catalog ids, or craft specs as `id=spec` (split on
-the first `=`). Quote the whole token so constructor kwargs survive the
-shell:
+`--model` and leftover positionals take catalog ids, or craft specs as
+`id=spec` (split on the first `=`). Quote the whole token so constructor
+kwargs survive the shell:
 
 ```bash
 fomo serve --model chronos-bolt \
@@ -48,8 +56,8 @@ exceptions are listed under [Errors](errors.md#startup).
 
 In Docker the entrypoint is already `fomo serve --host 0.0.0.0 --port 8000`,
 and the image `CMD` is `--model naive`. Arguments after the image name
-replace that `CMD`, so every flag here works there too — see
-[Docker](../server/docker.md).
+replace that `CMD`, so leftover ids (`chronos-bolt ttm-r3`) or any flag
+here work there too — see [Docker](../server/docker.md).
 
 ## Python entry point
 

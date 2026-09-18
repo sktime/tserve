@@ -32,7 +32,7 @@ Server(
 
 ## From the command line
 
-`--model` splits each token on the first `=`. Catalog ids have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
+`--model` and leftover positionals split each token on the first `=`. Catalog ids have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
 fomo serve --model chronos-bolt \
