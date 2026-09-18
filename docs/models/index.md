@@ -4,10 +4,6 @@ FoMo ships **110 supported models**, pre-registered and ready to serve under the
 
 The name in the `model` column is what you pass to `--load-models` and to a predict request. `naive` needs no Hub download; every other model fetches a checkpoint on first load.
 
-## Dependencies
-
---8<-- "includes/model-dependencies.md"
-
 Pick a tab for the extra / image you want. Each one has source (`uv` / `pip`) and Docker commands, HTTP and Python predict snippets, and the model ids that extra can load. Token, cache, and GPU details: [Docker](../server/docker.md). Clone installs: [From source](../server/source.md#dependencies).
 
 === "base"
@@ -819,6 +815,12 @@ Pick a tab for the extra / image you want. Each one has source (`uv` / `pip`) an
     **Models**
 
     All **110** ids below. Mix families in `--load-models`, for example `chronos-2 tirex`.
+
+## Dependencies
+
+--8<-- "includes/model-dependencies.md"
+
+Install extras from a clone on [From source](../server/source.md#dependencies). Image tags, token, and cache: [Docker](../server/docker.md).
 
 ## Baseline
 
