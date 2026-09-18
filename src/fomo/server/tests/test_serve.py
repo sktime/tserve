@@ -21,6 +21,31 @@ def test_server():
     assert server.url == "http://127.0.0.1:8000"
 
 
+def test_server_loads_naive_by_default():
+    _, bootstrap, _ = _server()
+
+    bootstrap.assert_called_once_with(["naive"])
+
+
+def test_server_prepends_naive():
+    _, bootstrap, _ = _server(model=["chronos-2"])
+
+    bootstrap.assert_called_once_with(["naive", "chronos-2"])
+
+
+def test_server_does_not_duplicate_naive():
+    _, bootstrap, _ = _server(model=["naive", "chronos-2"])
+
+    bootstrap.assert_called_once_with(["naive", "chronos-2"])
+
+
+def test_server_does_not_duplicate_naive_craft():
+    spec = 'NaiveForecaster(strategy="drift")'
+    _, bootstrap, _ = _server(model=[("naive", spec)])
+
+    bootstrap.assert_called_once_with([("naive", spec)])
+
+
 def test_server_uses_models_dir(tmp_path):
     model_path = tmp_path / "naive.zip"
     model_path.write_bytes(b"")
