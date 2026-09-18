@@ -42,7 +42,7 @@ CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
 
-The commands above load `hub` ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md), read the extra and image tag listed with its family, then install that extra and name the id in `--load-models`. `moirai-2` sits in the `moirai` extra:
+The commands above load [`hub`](../models/hub.md) ids. Every other family follows the same three steps: find the id in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the id in `--load-models`. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
 
 === "uv"
 
@@ -58,7 +58,7 @@ The commands above load `hub` ids. Every other family follows the same three ste
     fomo serve --load-models moirai-2
     ```
 
-In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same id, as in [Choose which models to load](docker.md#choose-which-models-to-load).
+In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same id, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the ids it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
 
 Once the process is up, the terminal prints the URLs:
 
@@ -117,6 +117,14 @@ curl -s http://127.0.0.1:8000/models
     Load sktime `.zip` files by stem. Mix them with registry ids.
 
     [:octicons-arrow-right-24: Models from a directory](models-dir.md)
+
+-   :material-cube-outline:{ .lg .middle } **Which models to load**
+
+    ---
+
+    One page per extra and image tag, with the ids each one can serve.
+
+    [:octicons-arrow-right-24: Catalog](../models/index.md)
 
 -   :material-monitor-dashboard:{ .lg .middle } **Dashboard**
 

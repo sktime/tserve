@@ -170,6 +170,16 @@ nav:
       - Dashboard: server/dashboard.md
   - Models:
       - Catalog: models/index.md
+      - base: models/base.md
+      - hub: models/hub.md
+      - chronos: models/chronos.md
+      - kronos: models/kronos.md
+      - granite: models/granite.md
+      - moirai: models/moirai.md
+      - tirex: models/tirex.md
+      - toto: models/toto.md
+      - mantis: models/mantis.md
+      - full: models/full.md
   - Client:
       - client/index.md
       - HTTP: client/http.md
