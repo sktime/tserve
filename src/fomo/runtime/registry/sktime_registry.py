@@ -11,7 +11,10 @@ revision).
 
 Craft strings stay private to this catalog. ``ModelInfo`` is
 listing-only (``id``, ``executor``, ``source``) and does not expose
-specs. ``SktimeExecutor.load`` calls
+specs. Each entry also carries ``group``: the family extra and
+``full``, smallest first (e.g. ``moirai`` → ``("moirai", "full")``).
+The extra name is the CPU Docker tag except ``server`` → ``base``.
+``SktimeExecutor.load`` calls
 ``sktime.registry.craft(SKTIME_REGISTRY[model]["spec"])`` when
 ``source`` is ``registry``.
 
@@ -956,3 +959,31 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     # },
 }
 """Catalog of loadable sktime model ids; see the module docstring."""
+
+
+def _group_for(model_id: str) -> tuple[str, ...]:
+    if model_id == "naive":
+        family = "server"
+    elif model_id.startswith("chronos-2"):
+        family = "chronos"
+    elif model_id.startswith(("chronos-", "ttm", "timesfm-")):
+        family = "hub"
+    elif model_id.startswith(("kronos", "windfm")):
+        family = "kronos"
+    elif model_id.startswith("flowstate"):
+        family = "granite"
+    elif model_id.startswith(("moirai-", "lagllama")):
+        family = "moirai"
+    elif model_id.startswith("tirex"):
+        family = "tirex"
+    elif model_id.startswith("toto-"):
+        family = "toto"
+    elif model_id.startswith("mantis"):
+        family = "mantis"
+    else:
+        raise KeyError(f"no group mapping for registry id {model_id!r}")
+    return (family, "full")
+
+
+for _id, _meta in SKTIME_REGISTRY.items():
+    _meta["group"] = _group_for(_id)
