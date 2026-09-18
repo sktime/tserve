@@ -171,7 +171,7 @@ one:
 
 1. Find its exact id in the [catalog](https://fomo.readthedocs.io/en/latest/models/).
 2. Install the listed family extra, or pull the matching Docker tag.
-3. Name the id in `--model`.
+3. Name the id on `fomo serve` (leftover positionals or `--model`).
 
 The catalog is what a process *can* load. `GET /models` reports only what the
 current process *did* load.
@@ -214,7 +214,8 @@ all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `fomo serve` loads nothing. Use `--model` to select registry ids,
+A bare `fomo serve` loads nothing. Name registry ids as leftover
+positionals (`fomo serve chronos-bolt ttm-r3`) or with `--model`;
 `--models-dir` for selected sktime `.zip` files, `--host` and `--port` to
 change the binding, and `--log-level` to change verbosity. The image default
 that loads `naive` is not the Python or CLI default.
