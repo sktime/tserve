@@ -60,12 +60,12 @@ def _build_parser() -> argparse.ArgumentParser:
     """Build the ``fomo`` parser with a required ``serve`` subcommand.
 
     ``serve`` flags: ``--model`` (``nargs="+"``, default ``[]``;
-    catalog ids or ``id=spec`` craft tokens), leftover positional
-    ids (same meaning as ``--model``), ``--models-dir`` (rewrites
-    matching stems to paths; does not auto-load the directory),
-    ``--host`` (default ``127.0.0.1``), ``--port`` (default 8000),
-    ``--log-level`` (default ``info``; ``debug``, ``info``,
-    ``warning``, ``error``, or ``critical``).
+    extra catalog ids or ``id=spec`` craft tokens; ``naive`` is always
+    loaded), leftover positional ids (same meaning as ``--model``),
+    ``--models-dir`` (rewrites matching stems to paths; does not
+    auto-load the directory), ``--host`` (default ``127.0.0.1``),
+    ``--port`` (default 8000), ``--log-level`` (default ``info``;
+    ``debug``, ``info``, ``warning``, ``error``, or ``critical``).
 
     Returns
     -------
@@ -86,7 +86,7 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs="+",
         dest="model",
         default=[],
-        help="registry ids or id=craft-spec to load (default: none)",
+        help="extra registry ids or id=craft-spec to load (naive is always loaded)",
     )
     serve.add_argument(
         "--models-dir",
@@ -107,7 +107,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "positional_model",
         nargs="*",
         metavar="MODEL",
-        help="registry ids or id=craft-spec; same as --model",
+        help="extra registry ids or id=craft-spec; same as --model",
     )
     return parser
 
@@ -154,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     [Models catalog](../models/index.md)
         Registry ids accepted by ``--model`` or leftover positionals.
     [Docker](../server/docker.md)
-        Container entrypoint and default ``--model naive`` CMD.
+        Container entrypoint.
     [Startup errors](../reference/errors.md#startup)
         Failures that occur before uvicorn binds the port.
     """
