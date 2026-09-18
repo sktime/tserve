@@ -11,7 +11,7 @@ from fomo.types import HealthResult, ModelInfo, StatsResult
 
 
 def create_client(model=None):
-    server = Server(model=model or ["naive"])
+    server = Server(model=model)
     app = server.app
     httpx_client = TestClient(app)
     client = Client(
