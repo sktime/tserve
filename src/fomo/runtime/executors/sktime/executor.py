@@ -26,6 +26,48 @@ from fomo.runtime.executors.sktime.converters import from_request, to_response
 from fomo.runtime.registry import SKTIME_REGISTRY
 from fomo.types import CoercedPredictRequest, CoercedPredictResponse, ModelInfo
 
+_CATALOG_URL = "https://fomo.readthedocs.io/en/latest/models/"
+
+
+def _missing_dependency_message(model_id: str, error: ModuleNotFoundError) -> str:
+    """Name the extra and Docker tag that cover ``model_id``, with install commands."""
+    head = (
+        f"Model {model_id!r} could not be loaded: its sktime forecaster "
+        "needs soft dependencies that are missing from, or incompatible "
+        f"with, this environment.\n\nOriginal error: {error}"
+    )
+    group = SKTIME_REGISTRY.get(model_id, {}).get("group") or ()
+    if not group:
+        return (
+            f"{head}\n\nInstall the dependency extra that covers this model, "
+            'e.g. `pip install "fomo[<extra>]"` or `uv sync --extra <extra>`, '
+            "then load it again. The catalog lists the extra (and matching "
+            f"Docker tag) for every model id: {_CATALOG_URL}"
+        )
+
+    extra = group[0]
+    extras = ("server",) if extra == "server" else ("server", extra)
+    tag = "base" if extra == "server" else extra
+    tags = ", ".join(f":{'base' if name == 'server' else name}" for name in group)
+    return "\n".join(
+        [
+            head,
+            "",
+            "Install a compatible extra, then load it again:",
+            f"  uv sync {' '.join(f'--extra {name}' for name in extras)}",
+            f'  pip install -e ".[{",".join(extras)}]"',
+            "",
+            "Or pull a matching image:",
+            f"  docker run --rm -p 8000:8000 geetu040/fomo:{tag} "
+            f"--load-models {model_id}",
+            "",
+            f"Compatible extras: {', '.join(group)}",
+            f"Compatible tags: {tags}",
+            "",
+            f"The catalog has the full map: {_CATALOG_URL}",
+        ]
+    )
+
 
 @register("sktime")
 class SktimeExecutor(Executor):
@@ -80,8 +122,8 @@ class SktimeExecutor(Executor):
             ``BaseForecaster`` instance.
         ModuleNotFoundError
             If the forecaster needs soft dependencies this environment
-            does not satisfy. Re-raised from the underlying sktime error,
-            pointing at the catalog extra.
+            does not satisfy. Re-raised from the underlying sktime error
+            with the uv, pip, and Docker commands for this model id.
         Exception
             Other errors from ``sktime.registry.craft`` or
             ``sktime.base.load``.
@@ -118,13 +160,7 @@ class SktimeExecutor(Executor):
 
         except ModuleNotFoundError as error:
             raise ModuleNotFoundError(
-                f"Model {info.id!r} could not be loaded: its sktime forecaster "
-                "needs soft dependencies that are missing from, or incompatible "
-                f"with, this environment.\n\nOriginal error: {error}\n\nInstall "
-                "the dependency extra that covers this model, e.g. `pip install "
-                '"fomo[<extra>]"` or `uv sync --extra <extra>`, then load it '
-                "again. The catalog lists the extra (and matching Docker tag) "
-                "for every model id: https://fomo.readthedocs.io/en/latest/models/"
+                _missing_dependency_message(info.id, error)
             ) from error
 
     def warmup(self) -> None:
