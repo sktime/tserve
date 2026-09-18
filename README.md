@@ -30,8 +30,8 @@ docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
 ```
 
 Choose an id and its matching image tag from the
-[model catalog](https://fomo.readthedocs.io/en/latest/models/). With no
-arguments, an image loads `naive` through its image `CMD`.
+[model catalog](https://fomo.readthedocs.io/en/latest/models/). The process
+always loads `naive`; name extra ids to load alongside it.
 
 ### From source
 
@@ -214,11 +214,10 @@ all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `fomo serve` loads nothing. Name registry ids as leftover
+A bare `fomo serve` still loads `naive`. Name extra registry ids as leftover
 positionals (`fomo serve chronos-bolt ttm-r3`) or with `--model`;
 `--models-dir` for selected sktime `.zip` files, `--host` and `--port` to
-change the binding, and `--log-level` to change verbosity. The image default
-that loads `naive` is not the Python or CLI default.
+change the binding, and `--log-level` to change verbosity.
 
 `GET /health` checks process liveness. `GET /models` lists loaded ids.
 `GET /stats` reports process and per-model metrics. See the
