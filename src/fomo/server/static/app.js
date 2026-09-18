@@ -180,7 +180,7 @@
       if (!state.models.length) {
         select.innerHTML = '<option value="">no models loaded</option>';
         select.disabled = true;
-        $('#model-hint').textContent = 'start the server with --model <id> to load a model';
+        $('#model-hint').textContent = 'naive is always loaded; pass extra ids with --model <id>';
       } else {
         select.disabled = false;
         select.innerHTML = state.models
