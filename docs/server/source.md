@@ -148,7 +148,7 @@ print(server.url)  # http://127.0.0.1:8000
 server.run()
 ```
 
-Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` starts empty, exactly like a bare `fomo serve`.
+Models load during construction, so an unknown id or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, exactly like a bare `fomo serve`.
 
 `server.app` is the FastAPI app, for mounting it inside another application or handing it to uvicorn yourself:
 

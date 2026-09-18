@@ -20,7 +20,7 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded ids | `GET /models` |
 
-The [catalog](models/index.md) is the list of ids the process *can* load. `--model` is the list it *did* load. Predict `model` must be a loaded id.
+The [catalog](models/index.md) is the list of ids the process *can* load. `--model` names extra ids on top of `naive`. Predict `model` must be a loaded id.
 
 Install extras to match what you will load. `server` includes `sktime` (enough for `naive`). Hub families are separate extras (`hub`, `chronos`, `granite`, …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies).
 
@@ -33,7 +33,7 @@ A prediction request is tables plus column roles, not a 1-d `y` vector. The same
 | `past` | required. historical table: one row per timestamp, with a time column and target values |
 | `fh` | required. steps ahead (`> 0`) |
 | `time`, `target` | optional. omitted → first `past` column as time; remaining columns not present in `future` as targets |
-| `model` | optional. default `"naive"` — still must be loaded |
+| `model` | optional. default `"naive"` |
 | `future` | optional future timestamps |
 | `static` | optional one-row static values |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |

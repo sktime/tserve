@@ -12,7 +12,7 @@ them to Arrow.
 | `fh` | yes | Number of steps ahead. Must be greater than zero. |
 | `time` | no | Name of the time column. Defaults to the first column of `past`. |
 | `target` | no | Target column name or list of names. See [column inference](#column-inference). |
-| `model` | no | Loaded model id. Defaults to `naive`, which must still be loaded. |
+| `model` | no | Loaded model id. Defaults to `naive`. |
 | `future` | no | Future values of time-varying covariates. When present, it must contain the time column. |
 | `static` | no | One row of values that remain constant over time. |
 | `quantiles` | no | Quantile levels passed to models that support quantile forecasts. |
@@ -190,8 +190,7 @@ forecast.
 last row in `past`.
 
 `model` is a registry id loaded by the running process. It is not an executor
-name. If omitted, it defaults to `naive`; a server that did not load `naive`
-will reject that request. Use `GET /models` to see loaded ids and the
+name. If omitted, it defaults to `naive`. Use `GET /models` to see loaded ids and the
 [catalog](../models/index.md) to see available ids.
 
 ## Future and static data

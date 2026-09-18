@@ -54,6 +54,7 @@ from the registry, and `GET /models` labels them apart:
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "custom-model-1", "executor": "sktime", "source": "directory"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]

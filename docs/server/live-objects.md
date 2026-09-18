@@ -26,6 +26,7 @@ The id is what predict requests send as `model`:
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"},
     {"id": "bolt-mini-local", "executor": "sktime", "source": "object"}
   ]

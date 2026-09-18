@@ -24,6 +24,7 @@ Server(
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"},
     {"id": "ttm-local", "executor": "sktime", "source": "craft"}
   ]

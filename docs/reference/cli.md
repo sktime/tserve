@@ -22,7 +22,7 @@ A walkthrough with the startup output is on
 
 | flag | default | |
 | --- | --- | --- |
-| `--model` | none | catalog ids and/or `id=craft-spec` tokens; leftover positionals mean the same |
+| `--model` | none | extra catalog ids and/or `id=craft-spec` tokens; leftover positionals mean the same. `naive` is always loaded |
 | `MODEL …` | none | leftover positional ids; same as `--model` |
 | `--models-dir` | none | directory of saved sktime `.zip` files |
 | `--host` | `127.0.0.1` | bind address; `0.0.0.0` also accepts connections from the network |
@@ -54,10 +54,10 @@ exceptions are listed under [Errors](errors.md#startup).
 `Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit
 `2`. `fomo serve --help` prints the flags above.
 
-In Docker the entrypoint is already `fomo serve --host 0.0.0.0 --port 8000`,
-and the image `CMD` is `--model naive`. Arguments after the image name
-replace that `CMD`, so leftover ids (`chronos-bolt ttm-r3`) or any flag
-here work there too — see [Docker](../server/docker.md).
+In Docker the entrypoint is already `fomo serve --host 0.0.0.0 --port 8000`.
+Arguments after the image name are extra ids or flags, so leftover ids
+(`chronos-bolt ttm-r3`) or any flag here work there too — see
+[Docker](../server/docker.md).
 
 ## Python entry point
 

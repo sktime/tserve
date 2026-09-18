@@ -25,7 +25,7 @@ excluded from the OpenAPI schema.
 
 `Content-Type: application/json`. The body is
 [`PredictRequest`][fomo.types.models.PredictRequest] — `past` and `fh` are
-required, `model` defaults to `naive` and must be loaded. Field meanings,
+required, `model` defaults to `naive`. Field meanings,
 table shapes, and inference rules are in the
 [data specification](../client/data.md).
 
@@ -86,6 +86,7 @@ is unused.
 ```json
 {
   "models": [
+    {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
   ]
 }

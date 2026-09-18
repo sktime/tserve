@@ -20,8 +20,6 @@ The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything afte
 docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
 ```
 
-The image `CMD` is `--model naive`. Replacing it is how you pick ids; omitting arguments serves `naive` — that default belongs to the image, not to a bare `fomo serve`.
-
 Leave the container port at 8000 and remap the host side if that port is taken:
 
 ```bash
