@@ -2,7 +2,7 @@
 
 ``SKTIME_REGISTRY`` is a catalog of ids the server *can* load.
 ``GET /models`` lists **loaded** models only; nothing is instantiated
-until ``bootstrap(model)`` / ``--model``. Registry ids
+until ``bootstrap(model)`` / leftover CLI positionals. Registry ids
 (``naive``, ``chronos-2``, …) are not executor names (``sktime``,
 ``pytorch-forecasting``, ``custom``).
 

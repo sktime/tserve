@@ -13,7 +13,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra toto
-    uv run tserve serve --model toto-2.0-4m
+    uv run tserve serve toto-2.0-4m
     ```
 
 === "pip"
@@ -21,13 +21,13 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,toto]"
-    tserve serve --model toto-2.0-4m
+    tserve serve toto-2.0-4m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:toto --model toto-2.0-4m
+    docker run --rm -p 8000:8000 sktime/tserve:toto toto-2.0-4m
     ```
 
 GPU: swap in [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

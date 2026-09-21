@@ -1,6 +1,6 @@
 # Live objects
 
-Registry models cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][tserve.server.serve.Server]. This is Python-only: `--model` takes names, so a live object has no CLI equivalent. For a spec string instead of an instance, see [Craft specs](craft-specs.md).
+Registry models cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][tserve.server.serve.Server]. This is Python-only: leftover CLI positionals take names, so a live object has no CLI equivalent. For a spec string instead of an instance, see [Craft specs](craft-specs.md).
 
 ```python
 from tserve.server import Server

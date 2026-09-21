@@ -33,10 +33,10 @@ Server(
 
 ## From the command line
 
-`--model` and leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
+Leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
-tserve serve --model chronos-bolt \
+tserve serve chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 

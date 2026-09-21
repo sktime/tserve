@@ -112,13 +112,13 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run tserve serve --model chronos-bolt ttm-r3
+    uv run tserve serve chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    tserve serve --model chronos-bolt ttm-r3
+    tserve serve chronos-bolt ttm-r3
     ```
 
 Startup prints the URLs it binds:
@@ -130,7 +130,7 @@ Starting TServe
   ReDoc       http://127.0.0.1:8000/redoc
 ```
 
-`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models can also be leftover positionals (`tserve serve chronos-bolt ttm-r3`); `--model` still works and combines with them. Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
+`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models are leftover positionals (`tserve serve chronos-bolt ttm-r3`). Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
 
 ## Serve from Python
 

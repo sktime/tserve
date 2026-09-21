@@ -17,7 +17,7 @@ Executors only see ``CoercedPredictRequest`` /
 ``GET /models`` lists **loaded** models only. Registry ids (``naive``,
 ``chronos-2``, …) are not executor names (``sktime``,
 ``pytorch-forecasting``, ``custom``). ``SKTIME_REGISTRY`` is a catalog;
-nothing loads until ``bootstrap(model)`` / ``--model``.
+nothing loads until ``bootstrap(model)`` / leftover CLI positionals.
 
 TServe has no custom exception classes. ``HealthError`` is a Pydantic
 payload, not an exception.

@@ -15,13 +15,13 @@ TServe is a local inference server for time-series foundation models. Start the 
 The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and TimesFM 2.x. This command loads two registry models:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
 ```
 
 Tags cover other families too. For example, the `moirai` image can load `moirai-2`:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
 ```
 
 Choose a model and its matching image tag from the [model catalog](https://tserve.readthedocs.io/en/latest/models/). The process always loads `naive` for testing; name extra models alongside it for a real forecast.
@@ -36,7 +36,7 @@ TServe requires Python 3.12 or newer and is not on PyPI yet. Clone it over HTTPS
 git clone https://github.com/sktime/tserve.git
 cd tserve
 uv sync --extra server --extra hub
-uv run tserve serve --model chronos-bolt ttm-r3
+uv run tserve serve chronos-bolt ttm-r3
 ```
 
 **pip**
@@ -47,7 +47,7 @@ The `gpu` extra does not work with pip. Family extras already install CUDA torch
 git clone https://github.com/sktime/tserve.git
 cd tserve
 python -m pip install -e ".[server,hub]"
-tserve serve --model chronos-bolt ttm-r3
+tserve serve chronos-bolt ttm-r3
 ```
 
 To force a CPU wheel, install torch from the CPU index first, then TServe. If pip later replaces it with CUDA, run the torch line again.
@@ -145,7 +145,7 @@ TServe has named models for Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, T
 
 1. Find its exact name in the [catalog](https://tserve.readthedocs.io/en/latest/models/).
 2. Install the listed family extra, or pull the matching Docker tag.
-3. Name the model on `tserve serve` (leftover positionals or `--model`).
+3. Name the model on `tserve serve` as leftover positionals.
 
 The catalog is what a process *can* load. `GET /models` reports only what the current process *did* load.
 
@@ -162,26 +162,26 @@ Images are published as:
 GPU containers require an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu --model chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos-bolt ttm-r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
+docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub chronos-bolt ttm-r3
 ```
 
 The [Docker guide](https://tserve.readthedocs.io/en/latest/server/docker/) covers all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `tserve serve` still loads `naive`, enough to test the process. Name extra registry models as leftover positionals (`tserve serve chronos-bolt ttm-r3`) or with `--model` for a real forecast. `--models-dir` selects sktime `.zip` files, `--host` and `--port` change the binding, and `--log-level` changes verbosity.
+A bare `tserve serve` still loads `naive`, enough to test the process. Name extra registry models as leftover positionals (`tserve serve chronos-bolt ttm-r3`) for a real forecast. `--models-dir` selects sktime `.zip` files, `--host` and `--port` change the binding, and `--log-level` changes verbosity.
 
 `GET /health` checks process liveness. `GET /models` lists loaded models. `GET /stats` reports process and per-model metrics. See the [CLI reference](https://tserve.readthedocs.io/en/latest/reference/cli/), or serve [saved models](https://tserve.readthedocs.io/en/latest/server/models-dir/), [live estimator objects](https://tserve.readthedocs.io/en/latest/server/live-objects/), or [craft specs](https://tserve.readthedocs.io/en/latest/server/craft-specs/).
 

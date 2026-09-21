@@ -15,7 +15,7 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra kronos
-    uv run tserve serve --model kronos
+    uv run tserve serve kronos
     ```
 
 === "pip"
@@ -23,13 +23,13 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,kronos]"
-    tserve serve --model kronos
+    tserve serve kronos
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
+    docker run --rm -p 8000:8000 sktime/tserve:kronos kronos
     ```
 
 GPU: swap in [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

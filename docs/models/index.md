@@ -1,6 +1,6 @@
 # Catalog
 
-110 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model with [`--model`](../reference/cli.md#flags) or leftover positionals for a real forecast. `GET /models` reports what did. The same model goes in `--model` and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
+110 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model as a leftover positional for a real forecast. `GET /models` reports what did. The same model goes in leftover [CLI](../reference/cli.md#flags) positionals and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -40,20 +40,20 @@
 
         ```bash
         uv sync --extra server --extra hub
-        uv run tserve serve --model chronos-bolt
+        uv run tserve serve chronos-bolt
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,hub]"
-        tserve serve --model chronos-bolt
+        tserve serve chronos-bolt
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt
+        docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt
         ```
 
 === "chronos"
@@ -64,20 +64,20 @@
 
         ```bash
         uv sync --extra server --extra chronos
-        uv run tserve serve --model chronos-2
+        uv run tserve serve chronos-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,chronos]"
-        tserve serve --model chronos-2
+        tserve serve chronos-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
+        docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
         ```
 
 === "kronos"
@@ -88,20 +88,20 @@
 
         ```bash
         uv sync --extra server --extra kronos
-        uv run tserve serve --model kronos
+        uv run tserve serve kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,kronos]"
-        tserve serve --model kronos
+        tserve serve kronos
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
+        docker run --rm -p 8000:8000 sktime/tserve:kronos kronos
         ```
 
 === "granite"
@@ -112,20 +112,20 @@
 
         ```bash
         uv sync --extra server --extra granite
-        uv run tserve serve --model flowstate
+        uv run tserve serve flowstate
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,granite]"
-        tserve serve --model flowstate
+        tserve serve flowstate
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:granite --model flowstate
+        docker run --rm -p 8000:8000 sktime/tserve:granite flowstate
         ```
 
 === "moirai"
@@ -136,20 +136,20 @@
 
         ```bash
         uv sync --extra server --extra moirai
-        uv run tserve serve --model moirai-2
+        uv run tserve serve moirai-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,moirai]"
-        tserve serve --model moirai-2
+        tserve serve moirai-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
+        docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
         ```
 
 === "tirex"
@@ -160,20 +160,20 @@
 
         ```bash
         uv sync --extra server --extra tirex
-        uv run tserve serve --model tirex
+        uv run tserve serve tirex
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,tirex]"
-        tserve serve --model tirex
+        tserve serve tirex
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:tirex --model tirex
+        docker run --rm -p 8000:8000 sktime/tserve:tirex tirex
         ```
 
 === "toto"
@@ -184,20 +184,20 @@
 
         ```bash
         uv sync --extra server --extra toto
-        uv run tserve serve --model toto-2.0-4m
+        uv run tserve serve toto-2.0-4m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,toto]"
-        tserve serve --model toto-2.0-4m
+        tserve serve toto-2.0-4m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:toto --model toto-2.0-4m
+        docker run --rm -p 8000:8000 sktime/tserve:toto toto-2.0-4m
         ```
 
 === "mantis"
@@ -208,20 +208,20 @@
 
         ```bash
         uv sync --extra server --extra mantis
-        uv run tserve serve --model mantis-8m
+        uv run tserve serve mantis-8m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,mantis]"
-        tserve serve --model mantis-8m
+        tserve serve mantis-8m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
+        docker run --rm -p 8000:8000 sktime/tserve:mantis mantis-8m
         ```
 
 === "full"
@@ -232,21 +232,21 @@
 
         ```bash
         uv sync --extra server --extra full
-        uv run tserve serve --model chronos-2 tirex kronos
+        uv run tserve serve chronos-2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,full]"
-        tserve serve --model chronos-2 tirex kronos
+        tserve serve chronos-2 tirex kronos
         ```
 
     === "Docker"
 
         ```bash
         docker run --rm -p 8000:8000 sktime/tserve:full \
-          --model chronos-2 tirex kronos
+          chronos-2 tirex kronos
         ```
 
 - `uv` and `pip` assume a clone: [From source](../server/source.md#install).

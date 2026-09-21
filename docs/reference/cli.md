@@ -6,11 +6,7 @@
 tserve serve chronos-bolt ttm-r3
 ```
 
-`--model` is optional when the models are leftover positionals. Both forms are equivalent, and they combine: flag tokens first, then positionals.
-
-```bash
-tserve serve --model chronos-bolt ttm-r3
-```
+Catalog models are leftover positionals after `serve`. `naive` is always loaded as a test baseline.
 
 A walkthrough with the startup output is on [From source](../server/source.md#serve-from-the-command-line).
 
@@ -18,17 +14,16 @@ A walkthrough with the startup output is on [From source](../server/source.md#se
 
 | flag | default | |
 | --- | --- | --- |
-| `--model` | none | extra catalog models and/or `id=craft-spec` tokens; leftover positionals mean the same. `naive` is always loaded as a test baseline |
-| `MODEL …` | none | leftover positional models; same as `--model` |
+| `MODEL …` | none | extra catalog models and/or `id=craft-spec` tokens. `naive` is always loaded as a test baseline |
 | `--models-dir` | none | directory of saved sktime `.zip` files |
 | `--host` | `127.0.0.1` | bind address; `0.0.0.0` also accepts connections from the network |
 | `--port` | `8000` | bind port |
 | `--log-level` | `info` | `debug`, `info`, `warning`, `error`, or `critical`, for TServe and uvicorn |
 
-`--model` and leftover positionals take catalog models, or craft specs as `id=spec` (split on the first `=`). Quote the whole token so constructor kwargs survive the shell:
+Leftover positionals take catalog models, or craft specs as `id=spec` (split on the first `=`). Quote the whole token so constructor kwargs survive the shell:
 
 ```bash
-tserve serve --model chronos-bolt \
+tserve serve chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 

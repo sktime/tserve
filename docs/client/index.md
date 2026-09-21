@@ -12,7 +12,7 @@ TServe is not a hosted API. The URL points to a server process you started.
 For the examples in this section, start the `hub` image with `chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
 ```
 
 The first start downloads model weights. See [Server](../server/index.md) for source installs and server options, or [Docker](../server/docker.md) for image tags, GPU support, Hugging Face tokens, and cache volumes. Both models come from the [`hub`](../models/hub.md) extra; for a model from another family, start from its extra's page in the [catalog](../models/index.md#dependencies).

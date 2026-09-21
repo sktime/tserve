@@ -13,7 +13,7 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra chronos
-    uv run tserve serve --model chronos-2
+    uv run tserve serve chronos-2
     ```
 
 === "pip"
@@ -21,13 +21,13 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,chronos]"
-    tserve serve --model chronos-2
+    tserve serve chronos-2
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
+    docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
     ```
 
 GPU: swap in [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

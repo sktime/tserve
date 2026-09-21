@@ -1,7 +1,7 @@
 """Shared type alias for model catalogs.
 
 A registry maps a catalog id to a nested metadata dict. Nothing in a
-catalog is loaded until ``bootstrap(model)`` / ``--model``.
+catalog is loaded until ``bootstrap(model)`` / leftover CLI positionals.
 """
 
 from typing import Any

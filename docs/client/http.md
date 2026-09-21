@@ -21,7 +21,7 @@ Every route returns JSON except `/predict/bytes`, which speaks Arrow, and `/`, w
 The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server options. The URLs below belong to this local process; TServe does not provide a hosted API.

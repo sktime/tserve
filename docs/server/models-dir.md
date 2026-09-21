@@ -28,24 +28,24 @@ my-models/
 
 ## Load them
 
-Point `--models-dir` at the directory, then name the file stems in `--model` or as leftover positionals:
+Point `--models-dir` at the directory, then name the file stems as leftover positionals:
 
 === "uv"
 
     ```bash
-    uv run tserve serve --models-dir my-models --model custom-model-1 chronos-bolt
+    uv run tserve serve --models-dir my-models custom-model-1 chronos-bolt
     ```
 
 === "pip"
 
     ```bash
-    tserve serve --models-dir my-models --model custom-model-1 chronos-bolt
+    tserve serve --models-dir my-models custom-model-1 chronos-bolt
     ```
 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos-bolt
 ```
 
 Either way `custom-model-1` is served from the zip and `chronos-bolt` from the registry, and `GET /models` labels them apart:
@@ -62,7 +62,7 @@ Either way `custom-model-1` is served from the zip and `chronos-bolt` from the r
 
 ## Rules
 
-- `--models-dir` never loads a directory wholesale. It only rewrites models that are already in `--model` (or leftover positionals) and match a `.zip` stem in that directory.
+- `--models-dir` never loads a directory wholesale. It only rewrites models that are already leftover positionals and match a `.zip` stem in that directory.
 - A name that matches no file falls through to the registry, and fails there if it is not a registry model.
 - Other suffixes raise `ValueError`; a saved `.pkl` is not accepted.
 - The directory itself has to exist.

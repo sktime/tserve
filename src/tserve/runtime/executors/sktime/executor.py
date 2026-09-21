@@ -58,7 +58,7 @@ def _missing_dependency_message(model_id: str, error: ModuleNotFoundError) -> st
             f'  pip install -e ".[{",".join(extras)}]"',
             "",
             "Or pull a matching image:",
-            f"  docker run --rm -p 8000:8000 sktime/tserve:{tag} --model {model_id}",
+            f"  docker run --rm -p 8000:8000 sktime/tserve:{tag} {model_id}",
             "",
             f"Compatible extras: {', '.join(group)}",
             f"Compatible tags: {tags}",

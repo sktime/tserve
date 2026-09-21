@@ -17,7 +17,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra mantis
-    uv run tserve serve --model mantis-8m
+    uv run tserve serve mantis-8m
     ```
 
 === "pip"
@@ -25,13 +25,13 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,mantis]"
-    tserve serve --model mantis-8m
+    tserve serve mantis-8m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
+    docker run --rm -p 8000:8000 sktime/tserve:mantis mantis-8m
     ```
 
 GPU: swap in [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

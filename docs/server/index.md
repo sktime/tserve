@@ -11,7 +11,7 @@ Nothing extra loads unless you name it. A bare `tserve serve` still loads `naive
 The `hub` image can load both models used throughout the client guides. Extra models after the image name load alongside `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
@@ -25,7 +25,7 @@ Python >= 3.12. Clone over HTTPS. TServe is not on PyPI yet. The extras here mat
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve serve --model chronos-bolt ttm-r3
+    uv run tserve serve chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -33,7 +33,7 @@ Python >= 3.12. Clone over HTTPS. TServe is not on PyPI yet. The extras here mat
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve serve --model chronos-bolt ttm-r3
+    tserve serve chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
@@ -42,20 +42,20 @@ CLI flags, `Server`, and `server.app`: [From source](source.md).
 
 **Load a different family**
 
-The commands above load [`hub`](../models/hub.md) models. Every other family follows the same three steps: find the model in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the model in `--model` or as a leftover positional. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
+The commands above load [`hub`](../models/hub.md) models. Every other family follows the same three steps: find the model in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the model as a leftover positional. `moirai-2` sits in the [`moirai`](../models/moirai.md) extra:
 
 === "uv"
 
     ```bash
     uv sync --extra server --extra moirai
-    uv run tserve serve --model moirai-2
+    uv run tserve serve moirai-2
     ```
 
 === "pip"
 
     ```bash
     pip install -e ".[server,moirai]"
-    tserve serve --model moirai-2
+    tserve serve moirai-2
     ```
 
 In Docker the tag plays the role of the extra — `sktime/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
