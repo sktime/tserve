@@ -1,4 +1,4 @@
-"""argparse CLI for ``tserve serve``.
+"""argparse CLI for ``tserve``.
 
 Builds a ``Server`` from flags and calls ``run``. Returns 0 on
 normal exit and on ``KeyboardInterrupt``.
@@ -12,7 +12,7 @@ from tserve import __version__
 
 
 def parse_model(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
-    """Turn ``--model`` and leftover positional tokens into ``Server`` ``model`` items.
+    """Turn leftover positional tokens into ``Server`` ``model`` items.
 
     A token without ``=`` is a registry id (or ``--models-dir`` stem).
     A token with ``=`` is split on the first ``=`` into ``(id, spec)``.
@@ -21,7 +21,7 @@ def parse_model(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
     Parameters
     ----------
     tokens : list of str
-        Raw ``--model`` values and leftover positional ids.
+        Raw leftover positional ids.
 
     Returns
     -------
@@ -57,12 +57,10 @@ def parse_model(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    """Build the ``tserve`` parser with a required ``serve`` subcommand.
+    """Build the ``tserve`` parser.
 
-    ``serve`` flags: ``--model`` (``nargs="+"``, default ``[]``;
-    extra catalog ids or ``id=spec`` craft tokens; ``naive`` is always
-    loaded as a test baseline), leftover positional ids (same meaning as
-    ``--model``),
+    Flags: leftover positional ids (extra catalog ids or ``id=spec``
+    craft tokens; ``naive`` is always loaded as a test baseline),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
     ``--port`` (default 8000), ``--log-level`` (default ``info``;
@@ -71,7 +69,7 @@ def _build_parser() -> argparse.ArgumentParser:
     Returns
     -------
     argparse.ArgumentParser
-        Parser with ``prog="tserve"`` and required dest ``command``.
+        Parser with ``prog="tserve"``.
     """
     parser = argparse.ArgumentParser(prog="tserve", allow_abbrev=False)
     parser.add_argument(
@@ -79,39 +77,26 @@ def _build_parser() -> argparse.ArgumentParser:
         action="version",
         version=f"tserve {__version__}",
     )
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    serve = sub.add_parser("serve", help="run the inference server", allow_abbrev=False)
-    serve.add_argument(
-        "--model",
-        nargs="+",
-        dest="model",
-        default=[],
-        help=(
-            "extra catalog models for real forecasts "
-            "(naive is a test baseline, always loaded)"
-        ),
-    )
-    serve.add_argument(
+    parser.add_argument(
         "--models-dir",
         dest="models_dir",
         default=None,
         help="directory of models to load (default: none)",
     )
-    serve.add_argument("--host", default="127.0.0.1")
-    serve.add_argument("--port", type=int, default=8000)
-    serve.add_argument(
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument(
         "--log-level",
         default="info",
         dest="log_level",
         choices=["debug", "info", "warning", "error", "critical"],
         help="TServe and uvicorn verbosity (default: info)",
     )
-    serve.add_argument(
+    parser.add_argument(
         "positional_model",
         nargs="*",
         metavar="MODEL",
-        help="extra catalog models or id=craft-spec; same as --model",
+        help="extra catalog models or id=craft-spec",
     )
     return parser
 
@@ -119,8 +104,6 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Parse argv, construct ``Server``, and run it.
 
-    Requires subcommand ``serve``. Unknown ``command`` values call
-    ``parser.error`` (should not occur with the required subparser).
     ``KeyboardInterrupt`` from ``server.run`` returns 0.
 
     Parameters
@@ -139,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
     SystemExit
         From ``ArgumentParser.error`` or argparse usage errors.
     ValueError
-        If ``--model`` or positional tokens are malformed (empty ``id=spec``,
+        If positional tokens are malformed (empty ``id=spec``,
         a bare craft spec), or ``Server`` / ``bootstrap`` reject a
         load spec (duplicate id, unknown registry id, non-zip path,
         unknown executor).
@@ -151,12 +134,12 @@ def main(argv: list[str] | None = None) -> int:
     See Also
     --------
     tserve.server.serve.Server
-        Constructed from ``--model`` / leftover positionals, ``--models-dir``,
+        Constructed from leftover positionals, ``--models-dir``,
         ``--host``, ``--port``, and ``--log-level``.
     [Install and serve](../server/index.md)
         Install server and model-family dependencies.
     [Models catalog](../models/index.md)
-        Registry ids accepted by ``--model`` or leftover positionals.
+        Registry ids accepted as leftover positionals.
     [Docker](../server/docker.md)
         Container entrypoint.
     [Startup errors](../reference/errors.md#startup)
@@ -164,13 +147,11 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
-    if args.command != "serve":
-        parser.error(f"unknown command {args.command}")
 
     from tserve.server import Server
 
     server = Server(
-        model=parse_model([*args.model, *args.positional_model]),
+        model=parse_model(args.positional_model),
         models_dir=args.models_dir,
         host=args.host,
         port=args.port,

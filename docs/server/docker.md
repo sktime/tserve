@@ -14,16 +14,16 @@ Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on mac
 
 ## Run the server
 
-The image `ENTRYPOINT` is `tserve serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--model`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
+The image `ENTRYPOINT` is `tserve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
 ```
 
 Leave the container port at 8000 and remap the host side if that port is taken:
 
 ```bash
-docker run --rm -p 9000:8000 sktime/tserve:hub --model chronos-bolt
+docker run --rm -p 9000:8000 sktime/tserve:hub chronos-bolt
 ```
 
 The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (or `9000` in the example above). `docker run` without `--rm` keeps the stopped container around, which is worth it when you want `docker logs` after a crash.
@@ -35,13 +35,13 @@ Models must belong to the families baked into the tag. `chronos-bolt` and `ttm-r
 `:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
 ```
 
 When the models span more than one family, `:full` is the tag that carries all of them:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:full --model moirai-2 tirex
+docker run --rm -p 8000:8000 sktime/tserve:full moirai-2 tirex
 ```
 
 `naive` downloads nothing. Every other model fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 110 supported models are on the [catalog](../models/index.md).
@@ -54,14 +54,14 @@ Unauthenticated Hugging Face downloads are rate-limited. A read token avoids tha
 
     ```bash
     export HF_TOKEN=hf_your_token
-    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos-bolt
     ```
 
 === "PowerShell"
 
     ```powershell
     $env:HF_TOKEN = "hf_your_token"
-    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos-bolt
     ```
 
 ## Keep weights between runs
@@ -71,13 +71,13 @@ The container caches checkpoints in `/root/.cache/huggingface`, which disappears
 === "bash / zsh"
 
     ```bash
-    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" sktime/tserve:hub --model chronos-bolt ttm-r3
+    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" sktime/tserve:hub chronos-bolt ttm-r3
     ```
 
 === "PowerShell"
 
     ```powershell
-    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" sktime/tserve:hub --model chronos-bolt ttm-r3
+    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" sktime/tserve:hub chronos-bolt ttm-r3
     ```
 
 A named volume works too (`-v tserve-hf:/root/.cache/huggingface`) if you would rather not share the host cache.
@@ -87,7 +87,7 @@ A named volume works too (`-v tserve-hf:/root/.cache/huggingface`) if you would 
 The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They need an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host, and `--gpus all` on the command:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu --model chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos-bolt ttm-r3
 ```
 
 That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md#gpu).
@@ -97,10 +97,10 @@ That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrou
 Mount the directory and point `--models-dir` at the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos-bolt
 ```
 
-Only stems you also name in `--model` (or leftover positionals) are loaded from disk — the rules are on [Models from a directory](models-dir.md).
+Only stems you also name as leftover positionals are loaded from disk — the rules are on [Models from a directory](models-dir.md).
 
 ## Dashboard
 
@@ -132,7 +132,7 @@ docker build --build-arg TSERVE_EXTRAS="chronos gpu" -t tserve:chronos-gpu .
 This builds for the architecture of the machine you are on and leaves the image in the local store, which is all you need to run it locally:
 
 ```bash
-docker run --rm -p 8000:8000 tserve:hub --model chronos-bolt
+docker run --rm -p 8000:8000 tserve:hub chronos-bolt
 ```
 
 ### Set up buildx

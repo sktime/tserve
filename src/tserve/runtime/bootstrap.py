@@ -34,8 +34,8 @@ class Runtime:
 
     ``GET /models`` reads ``loaded_models()``, which returns only models
     that ``bootstrap`` actually loaded. ``Server`` always includes
-    ``naive``; extra catalog ids that were never passed to ``model`` /
-    ``--model`` do not appear.
+    ``naive``; extra catalog ids that were never passed to ``model``
+    (CLI leftover positionals) do not appear.
 
     Attributes
     ----------

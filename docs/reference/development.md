@@ -70,7 +70,7 @@ Targets are `linux/amd64` plus `linux/arm64`, so a plain multi-platform bake nee
 
 | path | |
 | --- | --- |
-| `src/tserve/cli` | `tserve serve` argument parsing |
+| `src/tserve/cli` | `tserve` argument parsing |
 | `src/tserve/server` | FastAPI app, routes, dashboard assets |
 | `src/tserve/client` | `Client` and its HTTP transport |
 | `src/tserve/types` | request/response models and the wire converters |

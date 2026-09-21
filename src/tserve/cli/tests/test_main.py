@@ -14,7 +14,7 @@ def _run(argv):
 
 
 def test_main():
-    code, Server, server = _run(["serve"])
+    code, Server, server = _run([])
 
     assert code == 0
     Server.assert_called_once_with(
@@ -30,8 +30,6 @@ def test_main():
 def test_main_forwards_flags():
     _, Server, _ = _run(
         [
-            "serve",
-            "--model",
             "naive",
             "chronos-2",
             "--models-dir",
@@ -57,8 +55,6 @@ def test_main_forwards_flags():
 def test_main_parses_craft_token():
     _, Server, _ = _run(
         [
-            "serve",
-            "--model",
             "naive",
             'drift=NaiveForecaster(strategy="drift")',
         ]
@@ -74,38 +70,12 @@ def test_main_parses_craft_token():
 
 
 def test_main_positional_models():
-    _, Server, _ = _run(["serve", "naive", "chronos-2"])
+    _, Server, _ = _run(["naive", "chronos-2"])
 
     Server.assert_called_once_with(
         model=["naive", "chronos-2"],
         models_dir=None,
         host="127.0.0.1",
-        port=8000,
-        log_level="info",
-    )
-
-
-def test_main_combines_flag_and_positional():
-    _, Server, _ = _run(
-        [
-            "serve",
-            "--model",
-            "naive",
-            "--host",
-            "0.0.0.0",
-            "chronos-2",
-            'drift=NaiveForecaster(strategy="drift")',
-        ]
-    )
-
-    Server.assert_called_once_with(
-        model=[
-            "naive",
-            "chronos-2",
-            ("drift", 'NaiveForecaster(strategy="drift")'),
-        ],
-        models_dir=None,
-        host="0.0.0.0",
         port=8000,
         log_level="info",
     )

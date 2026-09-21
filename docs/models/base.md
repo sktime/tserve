@@ -15,7 +15,7 @@ Every other page in this section layers on top of this one.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server
-    uv run tserve serve
+    uv run tserve
     ```
 
 === "pip"
@@ -23,7 +23,7 @@ Every other page in this section layers on top of this one.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server]"
-    tserve serve
+    tserve
     ```
 
 === "Docker"

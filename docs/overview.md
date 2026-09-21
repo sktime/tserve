@@ -10,7 +10,7 @@ Walk top to bottom. Three seams:
 
 ## What you run
 
-[`Server`][tserve.server.serve.Server] (or `tserve serve`) loads selected models, then serves:
+[`Server`][tserve.server.serve.Server] (or `tserve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |
@@ -20,7 +20,7 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded models | `GET /models` |
 
-The [catalog](models/index.md) is the list of models the process *can* load. `--model` names extra models on top of `naive`, a test baseline. Predict `model` must be a loaded model.
+The [catalog](models/index.md) is the list of models the process *can* load. Leftover CLI positionals name extra models on top of `naive`, a test baseline. Predict `model` must be a loaded model.
 
 Install extras to match what you will load. `server` includes `sktime` (enough for [`naive`](models/base.md)). Hub families are separate extras ([`hub`](models/hub.md), [`chronos`](models/chronos.md), [`granite`](models/granite.md), …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies); each extra also has its own page under [Models](models/index.md).
 

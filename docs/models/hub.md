@@ -15,7 +15,7 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve serve --model chronos-bolt
+    uv run tserve chronos-bolt
     ```
 
 === "pip"
@@ -23,13 +23,13 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve serve --model chronos-bolt
+    tserve chronos-bolt
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt
     ```
 
 GPU: swap in [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

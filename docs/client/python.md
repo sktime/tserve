@@ -20,7 +20,7 @@
 The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server options. The client URL points to this process, not a hosted TServe API.
@@ -262,7 +262,7 @@ Panel and hierarchical sktime data are not supported.
 Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos-2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
+docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
 ```
 
 ```python
