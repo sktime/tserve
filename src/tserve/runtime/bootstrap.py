@@ -28,6 +28,17 @@ from tserve.types import ModelInfo, ModelsResult
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "naive"
+
+
+def _item_id(item: str | Path | tuple[str, Any]) -> str:
+    """Return the listing id for a bootstrap item, before ``resolve_model``."""
+    if isinstance(item, tuple):
+        return item[0]
+    if isinstance(item, Path):
+        return item.stem
+    return item
+
 
 class Runtime:
     """Process-local handle: loaded executors, listing, stats, scheduler.
@@ -128,6 +139,11 @@ def bootstrap(model: list[str | Path | tuple[str, Any]]) -> Runtime:
     total = len(model)
     plural = "" if total == 1 else "s"
     logger.info(f"Loading {paint(str(total), '1;36')} model{plural}")
+    if any(_item_id(item) == _DEFAULT_MODEL for item in model):
+        logger.info(
+            f"{paint(_DEFAULT_MODEL, '36')} "
+            f"{paint('is always loaded as a baseline', '2')}"
+        )
 
     for position, item in enumerate(model, start=1):
         info = resolve_model(item)

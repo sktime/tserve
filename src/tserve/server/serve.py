@@ -180,6 +180,7 @@ class Server:
         ):
             logger.info(
                 f"  {paint(f'{label:<11}', '2')} {paint(f'{self.url}{path}', '1;36')}"
+                + ("\n" if path == "/redoc" else "")
             )
 
         uvicorn.run(
