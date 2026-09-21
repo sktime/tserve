@@ -1,7 +1,7 @@
 ### Kronos
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `KronosForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`KronosForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingkronoskronosforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`kronos`](kronos.md)</span>
 <span class="tserve-meta-item">:material-counter: 3 models</span>
 </div>

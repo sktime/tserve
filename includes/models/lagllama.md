@@ -1,7 +1,7 @@
 ### Lag-Llama
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `LagLlamaForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`LagLlamaForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastinglagllamalagllamaforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`moirai`](moirai.md)</span>
 <span class="tserve-meta-item">:material-counter: 1 model</span>
 </div>

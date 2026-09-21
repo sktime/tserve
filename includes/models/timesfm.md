@@ -1,7 +1,7 @@
 ### TimesFM
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `TimesFM2Forecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`TimesFM2Forecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingtimesfm2timesfm2forecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`hub`](hub.md)</span>
 <span class="tserve-meta-item">:material-counter: 2 models</span>
 </div>

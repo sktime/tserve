@@ -1,7 +1,7 @@
 ### Mantis
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `MantisForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`MantisForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingmantismantisforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`mantis`](mantis.md)</span>
 <span class="tserve-meta-item">:material-counter: 3 models</span>
 </div>

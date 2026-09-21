@@ -1,7 +1,7 @@
 ### FlowState
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `FlowStateForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`FlowStateForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingflowstateflowstateforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`granite`](granite.md)</span>
 <span class="tserve-meta-item">:material-counter: 2 models</span>
 </div>

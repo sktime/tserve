@@ -1,7 +1,7 @@
 ### TiRex
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `TiRexForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`TiRexForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingtirextirexforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`tirex`](tirex.md)</span>
 <span class="tserve-meta-item">:material-counter: 2 models</span>
 </div>

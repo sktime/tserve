@@ -1,7 +1,7 @@
 ### Toto-2
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `Toto2Forecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`Toto2Forecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingtoto2toto2forecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`toto`](toto.md)</span>
 <span class="tserve-meta-item">:material-counter: 5 models</span>
 </div>

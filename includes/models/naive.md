@@ -1,7 +1,7 @@
 ### Naive
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `NaiveForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`NaiveForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingnaivenaiveforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`server`](base.md)</span>
 <span class="tserve-meta-item">:material-counter: 1 model</span>
 </div>

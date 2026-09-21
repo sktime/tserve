@@ -1,7 +1,7 @@
 ### Moirai 1.x
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `MOIRAIForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`MOIRAIForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingmoiraimoiraiforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`moirai`](moirai.md)</span>
 <span class="tserve-meta-item">:material-counter: 6 models</span>
 </div>

@@ -1,7 +1,7 @@
 ### TTM
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `TinyTimeMixerForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`TinyTimeMixerForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingttmtinytimemixerforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`hub`](hub.md)</span>
 <span class="tserve-meta-item">:material-counter: 70 models</span>
 </div>

@@ -1,7 +1,7 @@
 ### WindFM
 
 <div class="tserve-meta" markdown="span">
-<span class="tserve-meta-item">:material-function-variant: `WindFMForecaster`</span>
+<span class="tserve-meta-item">:material-function-variant: [`WindFMForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingwindfmwindfmforecaster/)</span>
 <span class="tserve-meta-item">:material-package-variant: extra [`kronos`](kronos.md)</span>
 <span class="tserve-meta-item">:material-counter: 2 models</span>
 </div>
