@@ -6,7 +6,7 @@ forecast.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `server` | [`:base`](https://hub.docker.com/r/geetu040/tserve/tags?name=base) | none | Naive | 1 | `naive` |
+| `server` | [`:base`](https://hub.docker.com/r/sktime/tserve/tags?name=base) | none | Naive | 1 | `naive` |
 
 Every other page in this section layers on top of this one.
 
@@ -31,7 +31,7 @@ Every other page in this section layers on top of this one.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:base
+    docker run --rm -p 8000:8000 sktime/tserve:base
     ```
 
 There is no `:base-gpu` image.

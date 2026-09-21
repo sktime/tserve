@@ -4,7 +4,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `tirex` | [`:tirex`](https://hub.docker.com/r/geetu040/tserve/tags?name=tirex) | [`:tirex-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=tirex-gpu) | TiRex | 2 | `tirex` |
+| `tirex` | [`:tirex`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex) | [`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) | TiRex | 2 | `tirex` |
 
 !!! note "License"
 
@@ -32,11 +32,11 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:tirex --model tirex
+    docker run --rm -p 8000:8000 sktime/tserve:tirex --model tirex
     ```
 
 GPU: swap in
-[`:tirex-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=tirex-gpu) and
+[`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) and
 add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

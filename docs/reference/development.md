@@ -79,7 +79,7 @@ options in `mkdocs.yml`, and tooltip expansions in
 and `gpu` groups, with `TSERVE_IMAGE` defaulting to `sktime/tserve`.
 
 ```bash
-TSERVE_IMAGE=geetu040/tserve docker buildx bake --push hub
+TSERVE_IMAGE=sktime/tserve docker buildx bake --push hub
 TSERVE_IMAGE=local/tserve docker buildx bake --set hub.platform=linux/amd64 --load hub
 ```
 

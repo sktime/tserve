@@ -33,7 +33,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:base
+        docker run --rm -p 8000:8000 sktime/tserve:base
         ```
 
 === "hub"
@@ -58,7 +58,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt
+        docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt
         ```
 
 === "chronos"
@@ -82,7 +82,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:chronos --model chronos-2
+        docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
         ```
 
 === "kronos"
@@ -107,7 +107,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:kronos --model kronos
+        docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
         ```
 
 === "granite"
@@ -131,7 +131,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:granite --model flowstate
+        docker run --rm -p 8000:8000 sktime/tserve:granite --model flowstate
         ```
 
 === "moirai"
@@ -156,7 +156,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:moirai --model moirai-2
+        docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
         ```
 
 === "tirex"
@@ -180,7 +180,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:tirex --model tirex
+        docker run --rm -p 8000:8000 sktime/tserve:tirex --model tirex
         ```
 
 === "toto"
@@ -204,7 +204,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:toto --model toto-2.0-4m
+        docker run --rm -p 8000:8000 sktime/tserve:toto --model toto-2.0-4m
         ```
 
 === "mantis"
@@ -229,7 +229,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:mantis --model mantis-8m
+        docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
         ```
 
 === "full"
@@ -254,7 +254,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/tserve:full \
+        docker run --rm -p 8000:8000 sktime/tserve:full \
           --model chronos-2 tirex kronos
         ```
 

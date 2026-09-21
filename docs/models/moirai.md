@@ -4,7 +4,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `moirai` | [`:moirai`](https://hub.docker.com/r/geetu040/tserve/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai-2` |
+| `moirai` | [`:moirai`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai-2` |
 
 !!! note "Python pins"
 
@@ -32,11 +32,11 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:moirai --model moirai-2
+    docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
     ```
 
 GPU: swap in
-[`:moirai-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=moirai-gpu)
+[`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

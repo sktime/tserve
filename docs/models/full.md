@@ -5,7 +5,7 @@ extra.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `full` | [`:full`](https://hub.docker.com/r/geetu040/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=full-gpu) | all of them | 110 | `chronos-2` |
+| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 110 | `chronos-2` |
 
 `chronos` + `kronos` + `granite` + `moirai` + `tirex` + `toto` + `mantis`,
 which pulls in `hub` and `base`. It is also the largest install: for one
@@ -32,12 +32,12 @@ family, the extra on that family's page pulls far less.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:full \
+    docker run --rm -p 8000:8000 sktime/tserve:full \
       --model chronos-2 tirex kronos
     ```
 
 GPU: swap in
-[`:full-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=full-gpu) and
+[`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) and
 add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs
 a download at first start and stays in memory.
 

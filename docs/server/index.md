@@ -11,7 +11,7 @@ Nothing extra loads unless you name it. A bare `tserve serve` still loads `naive
 The `hub` image can load both models used throughout the client guides. Extra models after the image name load alongside `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
@@ -58,7 +58,7 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
     tserve serve --model moirai-2
     ```
 
-In Docker the tag plays the role of the extra — `geetu040/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
+In Docker the tag plays the role of the extra — `sktime/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
 
 Once the process is up, the terminal prints the URLs:
 

@@ -70,7 +70,7 @@ extra:
       link: https://github.com/sktime/tserve
       name: TServe on GitHub
     - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/r/geetu040/tserve
+      link: https://hub.docker.com/r/sktime/tserve
       name: TServe images on Docker Hub
     - icon: material/bug
       link: https://github.com/sktime/tserve/issues

@@ -4,7 +4,7 @@ Kronos and WindFM.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `kronos` | [`:kronos`](https://hub.docker.com/r/geetu040/tserve/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
+| `kronos` | [`:kronos`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
 
 Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos
 T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
@@ -30,11 +30,11 @@ T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:kronos --model kronos
+    docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
     ```
 
 GPU: swap in
-[`:kronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=kronos-gpu)
+[`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

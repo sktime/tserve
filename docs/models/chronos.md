@@ -4,7 +4,7 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `chronos` | [`:chronos`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
+| `chronos` | [`:chronos`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
 
 ## Start a server
 
@@ -27,11 +27,11 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:chronos --model chronos-2
+    docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
     ```
 
 GPU: swap in
-[`:chronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos-gpu)
+[`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

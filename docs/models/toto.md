@@ -4,7 +4,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `toto` | [`:toto`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
+| `toto` | [`:toto`](https://hub.docker.com/r/sktime/tserve/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
 
 ## Start a server
 
@@ -27,11 +27,11 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:toto --model toto-2.0-4m
+    docker run --rm -p 8000:8000 sktime/tserve:toto --model toto-2.0-4m
     ```
 
 GPU: swap in
-[`:toto-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto-gpu) and
+[`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) and
 add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

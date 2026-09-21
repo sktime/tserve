@@ -4,7 +4,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `mantis` | [`:mantis`](https://hub.docker.com/r/geetu040/tserve/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
+| `mantis` | [`:mantis`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
 
 !!! warning "`past` needs more than 127 rows"
 
@@ -32,11 +32,11 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:mantis --model mantis-8m
+    docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
     ```
 
 GPU: swap in
-[`:mantis-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=mantis-gpu)
+[`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

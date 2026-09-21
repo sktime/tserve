@@ -5,7 +5,7 @@ point.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `hub` | [`:hub`](https://hub.docker.com/r/geetu040/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
+| `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
 
 Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls
 `hf` builds on `hub`, so those pages can load these models as well.
@@ -31,11 +31,11 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt
     ```
 
 GPU: swap in
-[`:hub-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=hub-gpu) and add
+[`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add
 `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

@@ -4,7 +4,7 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `granite` | [`:granite`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite) | [`:granite-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite-gpu) | FlowState | 2 | `flowstate` |
+| `granite` | [`:granite`](https://hub.docker.com/r/sktime/tserve/tags?name=granite) | [`:granite-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=granite-gpu) | FlowState | 2 | `flowstate` |
 
 ## Start a server
 
@@ -27,11 +27,11 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/tserve:granite --model flowstate
+    docker run --rm -p 8000:8000 sktime/tserve:granite --model flowstate
     ```
 
 GPU: swap in
-[`:granite-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite-gpu)
+[`:granite-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=granite-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:

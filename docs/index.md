@@ -27,7 +27,7 @@ Models stay warm in the process, so the download and load cost is paid once at s
 Pull the `hub` image and load two registry models: `chronos-bolt` and `ttm-r3`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Every model except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).

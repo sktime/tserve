@@ -45,7 +45,7 @@ Point `--models-dir` at the directory, then name the file stems in `--model` or 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
 ```
 
 Either way `custom-model-1` is served from the zip and `chronos-bolt`

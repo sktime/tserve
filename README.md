@@ -8,7 +8,7 @@ process, load named registry models once, keep them warm, and predict through
 serves its own OpenAPI documentation. TServe does not provide a hosted API.
 
 - [Documentation](https://tserve.readthedocs.io)
-- [Docker Hub](https://hub.docker.com/r/geetu040/tserve)
+- [Docker Hub](https://hub.docker.com/r/sktime/tserve)
 - Clone: `https://github.com/sktime/tserve.git`
 
 ## Quick start
@@ -19,14 +19,14 @@ The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and
 TimesFM 2.x. This command loads two registry models:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Tags cover other families too. For example, the `moirai` image can load
 `moirai-2`:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/tserve:moirai --model moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
 ```
 
 Choose a model and its matching image tag from the
@@ -193,7 +193,7 @@ GPU containers require an NVIDIA GPU, the
 and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/tserve:hub-gpu --model chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu --model chronos-bolt ttm-r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward
@@ -201,13 +201,13 @@ it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use
 `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/tserve:hub --model chronos-bolt
+docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface geetu040/tserve:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 The [Docker guide](https://tserve.readthedocs.io/en/latest/server/docker/) covers
