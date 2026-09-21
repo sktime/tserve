@@ -1,7 +1,6 @@
 ### Toto-2
 
-`Toto2Forecaster` &middot; extra [`toto`](toto.md) &middot; 5 models &middot;
-[quantiles](../client/data.md#quantiles)
+`Toto2Forecaster` &middot; extra [`toto`](toto.md) &middot; 5 models &middot; [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

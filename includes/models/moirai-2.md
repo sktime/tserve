@@ -1,7 +1,6 @@
 ### Moirai 2
 
-`Moirai2Forecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model
-&middot; no [quantiles](../client/data.md#quantiles)
+`Moirai2Forecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model &middot; no [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

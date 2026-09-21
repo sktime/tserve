@@ -16,7 +16,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](
 
 Health and stats cards on the right poll `GET /health` and `GET /stats`. Toggle **Live** to refresh every 5 seconds.
 
-There is no authentication and no hosted FoMo API — these URLs are the process you started.
+There is no authentication and no hosted TServe API — these URLs are the process you started.
 
 ## Live OpenAPI
 

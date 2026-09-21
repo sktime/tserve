@@ -4,40 +4,37 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `mantis` | [`:mantis`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
+| `mantis` | [`:mantis`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
 
 !!! warning "`past` needs more than 127 rows"
 
-    `context_length` is 127. The examples below send 150 rows; the five-row
-    series used on other pages fails here.
+    `context_length` is 127. The examples below send 150 rows; the five-row series used on other pages fails here.
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra mantis
-    uv run fomo serve --model mantis-8m
+    uv run tserve serve --model mantis-8m
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,mantis]"
-    fomo serve --model mantis-8m
+    tserve serve --model mantis-8m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:mantis --model mantis-8m
+    docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
     ```
 
-GPU: swap in
-[`:mantis-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=mantis-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -47,8 +44,7 @@ curl -s http://127.0.0.1:8000/models
 
 ## Predict
 
-150 rows of history, because `context_length` is 127. Python needs the
-[`client`](../client/python.md#install) extra on the caller.
+150 rows of history, because `context_length` is 127. Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 === "bash / zsh"
 
@@ -84,7 +80,7 @@ curl -s http://127.0.0.1:8000/models
     ```python
     import datetime
 
-    from fomo.client import Client
+    from tserve.client import Client
 
     start = datetime.date(2024, 1, 1)
     past = {

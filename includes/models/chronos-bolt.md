@@ -1,7 +1,6 @@
 ### Chronos Bolt
 
-`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 4 models &middot;
-no [quantiles](../client/data.md#quantiles)
+`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 4 models &middot; no [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

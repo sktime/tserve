@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fomo"  # maybe fomo-ts (or fomots)?
+name = "tserve"
 version = "0.1.0"
 authors = [
   {name = "Tobias Pitters", email = "tobias.pitters@sktime.net"},
@@ -33,8 +33,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-client = ["fomo[http]"]
-server = ["fastapi", "python-multipart", "uvicorn", "fomo[sktime]"]
+client = ["tserve[http]"]
+server = ["fastapi", "python-multipart", "uvicorn", "tserve[sktime]"]
 # transports specific dependencies
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
@@ -44,27 +44,27 @@ sktime = [
 ]
 # estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
 hf = [
-  "fomo[sktime]",
+  "tserve[sktime]",
   "transformers",
   "accelerate>=0.26.0",
 ]
 # ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
-hub = ["fomo[hf]", "torch"]
+hub = ["tserve[hf]", "torch"]
 # Chronos2Forecaster
-chronos = ["fomo[hf]", "chronos-forecasting>=2.0.0", "torch"]
+chronos = ["tserve[hf]", "chronos-forecasting>=2.0.0", "torch"]
 # KronosForecaster/WindFMForecaster
 kronos = [
-  "fomo[sktime]",
+  "tserve[sktime]",
   "einops",
   "huggingface_hub",
   "safetensors",
   "torch",
 ]
 # FlowState/PatchTSMixer
-granite = ["fomo[hf]", "granite-tsfm>=0.3.5", "torch"]
+granite = ["tserve[hf]", "granite-tsfm>=0.3.5", "torch"]
 # MOIRAI/Moirai2/LagLlama
 moirai = [
-  "fomo[hf]",
+  "tserve[hf]",
   "gluonts>=0.14.0; python_version < '3.14'",
   "lightning>=2.0; python_version < '3.14'",
   "hydra-core; python_version < '3.14'",
@@ -72,14 +72,14 @@ moirai = [
   "torch",
 ]
 # TiRexForecaster
-tirex = ["fomo[hf]", "tirex-ts", "torch"]
+tirex = ["tserve[hf]", "tirex-ts", "torch"]
 # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
-toto = ["fomo[hf]", "toto-models", "skpro", "torch"]
+toto = ["tserve[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
-mantis = ["fomo[hf]", "mantis-tsfm>=1.0.0", "torch"]
-full = ["fomo[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+mantis = ["tserve[hf]", "mantis-tsfm>=1.0.0", "torch"]
+full = ["tserve[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
 # for pip (alternate for `uv sync --all-extras`)
-all-extras = ["fomo[client,server,full]"]
+all-extras = ["tserve[client,server,full]"]
 # pair with any extra above: `uv sync --extra hub --extra gpu`
 gpu = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
@@ -91,24 +91,24 @@ dev = [
   "codespell>=2.4.3",
 ]
 docs = [
-  "fomo[server,client]",
+  "tserve[server,client]",
   "mkdocs-material>=9.6",
   "mkdocstrings[python]>=0.30",
 ]
 
 [project.scripts]
-fomo = "fomo.cli.main:main"
+tserve = "tserve.cli.main:main"
 
 [project.urls]
-Homepage = "https://fomo.readthedocs.io"
-Documentation = "https://fomo.readthedocs.io"
-Repository = "https://github.com/sktime/fomo"
-Issues = "https://github.com/sktime/fomo/issues"
+Homepage = "https://tserve.readthedocs.io"
+Documentation = "https://tserve.readthedocs.io"
+Repository = "https://github.com/sktime/tserve"
+Issues = "https://github.com/sktime/tserve/issues"
 
 [dependency-groups]
 # same packages as the extras, so `uv sync --group dev` stays valid
-dev = ["fomo[dev]"]
-docs = ["fomo[docs]"]
+dev = ["tserve[dev]"]
+docs = ["tserve[docs]"]
 # empty, only exists so the lock can fork CPU vs GPU torch
 cpu-fork = []
 
@@ -145,17 +145,17 @@ allow-direct-references = true
 # repo .gitignore has `*.html`; hatchling would drop the dashboard from
 # pip wheels otherwise (uv editable installs still see the file on disk)
 artifacts = [
-  "src/fomo/server/static/*.html",
+  "src/tserve/server/static/*.html",
 ]
 
 [tool.hatch.build.targets.wheel]
-# src layout: the package lives at src/fomo, so once installed
-# (`pip install -e ".[server,full]"`) `from fomo.scheduling.scheduler import Scheduler`
+# src layout: the package lives at src/tserve, so once installed
+# (`pip install -e ".[server,full]"`) `from tserve.scheduling.scheduler import Scheduler`
 # works from anywhere
-packages = ["src/fomo"]
+packages = ["src/tserve"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/fomo/server/static/index.html" = "fomo/server/static/index.html"
+"src/tserve/server/static/index.html" = "tserve/server/static/index.html"
 
 [tool.ruff]
 line-length = 88
@@ -188,17 +188,17 @@ convention = "numpy"
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
 # craft strings are data (HF model paths); wrapping them hurts grep
-"src/fomo/runtime/registry/sktime_registry.py" = ["E501"]
+"src/tserve/runtime/registry/sktime_registry.py" = ["E501"]
 # D is phased: public API first (client, types, cli). sktime ignores D in tests.
 "**/tests/**" = ["S", "D"]
 "tests/**" = ["S", "D"]
-"src/fomo/runtime/**" = ["D"]
-"src/fomo/server/**" = ["D"]
-"src/fomo/scheduling/**" = ["D"]
-"src/fomo/logging/**" = ["D"]
+"src/tserve/runtime/**" = ["D"]
+"src/tserve/server/**" = ["D"]
+"src/tserve/scheduling/**" = ["D"]
+"src/tserve/logging/**" = ["D"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["fomo"]
+known-first-party = ["tserve"]
 
 [tool.ty.environment]
 python-version = "3.12"

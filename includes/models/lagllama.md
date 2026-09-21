@@ -1,7 +1,6 @@
 ### Lag-Llama
 
-`LagLlamaForecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model
-&middot; [quantiles](../client/data.md#quantiles)
+`LagLlamaForecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model &middot; [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

@@ -1,13 +1,13 @@
-site_name: FoMo
+site_name: TServe
 site_description: Time series foundation model inference server
-site_url: https://fomo.readthedocs.io
-site_author: FoMo authors
+site_url: https://tserve.readthedocs.io
+site_author: TServe authors
 
-repo_name: sktime/fomo
-repo_url: https://github.com/sktime/fomo
+repo_name: sktime/tserve
+repo_url: https://github.com/sktime/tserve
 edit_uri: edit/main/docs/
 
-copyright: Copyright &copy; FoMo authors
+copyright: Copyright &copy; TServe authors
 
 theme:
   name: material
@@ -67,13 +67,13 @@ extra_css:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/sktime/fomo
-      name: FoMo on GitHub
+      link: https://github.com/sktime/tserve
+      name: TServe on GitHub
     - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/r/geetu040/fomo
-      name: FoMo images on Docker Hub
+      link: https://hub.docker.com/r/sktime/tserve
+      name: TServe images on Docker Hub
     - icon: material/bug
-      link: https://github.com/sktime/fomo/issues
+      link: https://github.com/sktime/tserve/issues
       name: Report an issue
 
 plugins:

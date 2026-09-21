@@ -1,7 +1,6 @@
 ### TiRex
 
-`TiRexForecaster` &middot; extra [`tirex`](tirex.md) &middot; 2 models &middot;
-no [quantiles](../client/data.md#quantiles)
+`TiRexForecaster` &middot; extra [`tirex`](tirex.md) &middot; 2 models &middot; no [quantiles](../client/data.md#quantiles)
 
 The registry sets `license_accepted=True`.
 

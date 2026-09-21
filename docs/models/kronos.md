@@ -4,38 +4,35 @@ Kronos and WindFM.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `kronos` | [`:kronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
+| `kronos` | [`:kronos`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
 
-Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos
-T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
+Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra kronos
-    uv run fomo serve --model kronos
+    uv run tserve serve --model kronos
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,kronos]"
-    fomo serve --model kronos
+    tserve serve --model kronos
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:kronos --model kronos
+    docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
     ```
 
-GPU: swap in
-[`:kronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=kronos-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -71,7 +68,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

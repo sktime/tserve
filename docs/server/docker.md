@@ -1,11 +1,11 @@
 # Docker
 
-Images ship Python, the FoMo package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional models it actually loads. `naive` is always loaded as a test baseline.
+Images ship Python, the TServe package, and one set of model dependencies. The tag decides which model families the process *can* load; extra arguments decide which additional models it actually loads. `naive` is always loaded as a test baseline.
 
 ## Pull an image
 
 ```bash
-docker pull geetu040/fomo:hub
+docker pull sktime/tserve:hub
 ```
 
 [`base`](../models/base.md) carries `naive` only. [`hub`](../models/hub.md) adds Chronos Bolt/T5, TTM, and TimesFM 2.x. Family tags that pull `hf` ([`chronos`](../models/chronos.md), [`granite`](../models/granite.md), [`moirai`](../models/moirai.md), [`tirex`](../models/tirex.md), [`toto`](../models/toto.md), [`mantis`](../models/mantis.md)) include Hub plus one more stack. [`kronos`](../models/kronos.md) sits on `base`, not `hub`. [`full`](../models/full.md) has all of them, and every family tag has a `*-gpu` variant. Each of those pages carries the models that tag can load, with a `docker run` for it; the tag-to-models map lives on the [catalog](../models/index.md#dependencies).
@@ -14,16 +14,16 @@ Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on mac
 
 ## Run the server
 
-The image `ENTRYPOINT` is `fomo serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--model`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
+The image `ENTRYPOINT` is `tserve serve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos-bolt ttm-r3`), and every [CLI](../reference/cli.md) flag works here too: `--model`, `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [From source](source.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Leave the container port at 8000 and remap the host side if that port is taken:
 
 ```bash
-docker run --rm -p 9000:8000 geetu040/fomo:hub --model chronos-bolt
+docker run --rm -p 9000:8000 sktime/tserve:hub --model chronos-bolt
 ```
 
 The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (or `9000` in the example above). `docker run` without `--rm` keeps the stopped container around, which is worth it when you want `docker logs` after a crash.
@@ -35,13 +35,13 @@ Models must belong to the families baked into the tag. `chronos-bolt` and `ttm-r
 `:moirai` carries Moirai 2, Moirai 1.x, and Lag-Llama, so `moirai-2` loads there and not on `:hub`:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
 ```
 
 When the models span more than one family, `:full` is the tag that carries all of them:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:full --model moirai-2 tirex
+docker run --rm -p 8000:8000 sktime/tserve:full --model moirai-2 tirex
 ```
 
 `naive` downloads nothing. Every other model fetches a checkpoint from Hugging Face on first load, which is why the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below are worth setting. All 110 supported models are on the [catalog](../models/index.md).
@@ -54,14 +54,14 @@ Unauthenticated Hugging Face downloads are rate-limited. A read token avoids tha
 
     ```bash
     export HF_TOKEN=hf_your_token
-    docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
     ```
 
 === "PowerShell"
 
     ```powershell
     $env:HF_TOKEN = "hf_your_token"
-    docker run --rm -p 8000:8000 -e HF_TOKEN geetu040/fomo:hub --model chronos-bolt
+    docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub --model chronos-bolt
     ```
 
 ## Keep weights between runs
@@ -71,23 +71,23 @@ The container caches checkpoints in `/root/.cache/huggingface`, which disappears
 === "bash / zsh"
 
     ```bash
-    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" geetu040/fomo:hub --model chronos-bolt ttm-r3
+    docker run --rm -p 8000:8000 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" sktime/tserve:hub --model chronos-bolt ttm-r3
     ```
 
 === "PowerShell"
 
     ```powershell
-    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" geetu040/fomo:hub --model chronos-bolt ttm-r3
+    docker run --rm -p 8000:8000 -v "${env:USERPROFILE}\.cache\huggingface:/root/.cache/huggingface" sktime/tserve:hub --model chronos-bolt ttm-r3
     ```
 
-A named volume works too (`-v fomo-hf:/root/.cache/huggingface`) if you would rather not share the host cache.
+A named volume works too (`-v tserve-hf:/root/.cache/huggingface`) if you would rather not share the host cache.
 
 ## GPU images
 
 The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They need an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host, and `--gpus all` on the command:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 geetu040/fomo:hub-gpu --model chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu --model chronos-bolt ttm-r3
 ```
 
 That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means [installing from source](source.md#gpu).
@@ -97,7 +97,7 @@ That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrou
 Mount the directory and point `--models-dir` at the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --model custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
 ```
 
 Only stems you also name in `--model` (or leftover positionals) are loaded from disk — the rules are on [Models from a directory](models-dir.md).
@@ -111,28 +111,28 @@ The dashboard is part of the app, so there is nothing extra to enable; the `-p` 
 The build context is the repository, so start from a clone:
 
 ```bash
-git clone https://github.com/sktime/fomo.git
-cd fomo
+git clone https://github.com/sktime/tserve.git
+cd tserve
 ```
 
 ### One image with `docker build`
 
-The [Dockerfile](https://github.com/sktime/fomo/blob/main/Dockerfile) always installs `--extra server --extra sktime`; `FOMO_EXTRAS` adds the heavier ones:
+The [Dockerfile](https://github.com/sktime/tserve/blob/main/Dockerfile) always installs `--extra server --extra sktime`; `TSERVE_EXTRAS` adds the heavier ones:
 
 ```bash
-docker build --build-arg FOMO_EXTRAS=hub -t fomo:hub .
+docker build --build-arg TSERVE_EXTRAS=hub -t tserve:hub .
 ```
 
 Several extras go in one quoted argument:
 
 ```bash
-docker build --build-arg FOMO_EXTRAS="chronos gpu" -t fomo:chronos-gpu .
+docker build --build-arg TSERVE_EXTRAS="chronos gpu" -t tserve:chronos-gpu .
 ```
 
 This builds for the architecture of the machine you are on and leaves the image in the local store, which is all you need to run it locally:
 
 ```bash
-docker run --rm -p 8000:8000 fomo:hub --model chronos-bolt
+docker run --rm -p 8000:8000 tserve:hub --model chronos-bolt
 ```
 
 ### Set up buildx
@@ -149,26 +149,26 @@ If the command is missing, follow the [Buildx installation guide](https://github
 
 ```bash
 docker run --privileged --rm tonistiigi/binfmt --install all
-docker buildx create --name fomo --driver docker-container --bootstrap --use
+docker buildx create --name tserve --driver docker-container --bootstrap --use
 ```
 
 `--use` makes it the active builder; `docker buildx ls` shows the builders you have and `docker buildx use default` switches back. Background on the drivers and on cross-architecture builds is in the Docker docs on [builders](https://docs.docker.com/build/builders/) and [multi-platform builds](https://docs.docker.com/build/building/multi-platform/).
 
 ### The published matrix with `docker buildx bake`
 
-[`docker-bake.hcl`](https://github.com/sktime/fomo/blob/main/docker-bake.hcl) holds the published matrix — one target per tag (`base`, `hub`, the family tags, `full`, and every `*-gpu` variant), plus `cpu` and `gpu` groups that build all of them. `FOMO_IMAGE` sets the image name and defaults to `sktime/fomo`.
+[`docker-bake.hcl`](https://github.com/sktime/tserve/blob/main/docker-bake.hcl) holds the published matrix — one target per tag (`base`, `hub`, the family tags, `full`, and every `*-gpu` variant), plus `cpu` and `gpu` groups that build all of them. `TSERVE_IMAGE` sets the image name and defaults to `sktime/tserve`.
 
 Bake targets are multi-platform by default, and a multi-platform result cannot land in the local image store, so it has to be pushed to a registry:
 
 ```bash
-FOMO_IMAGE=local/fomo docker buildx bake --push hub
-FOMO_IMAGE=local/fomo docker buildx bake --push cpu
+TSERVE_IMAGE=local/tserve docker buildx bake --push hub
+TSERVE_IMAGE=local/tserve docker buildx bake --push cpu
 ```
 
 To keep an image on the machine instead, pin a single platform and `--load` it:
 
 ```bash
-FOMO_IMAGE=local/fomo docker buildx bake --set hub.platform=linux/amd64 --load hub
+TSERVE_IMAGE=local/tserve docker buildx bake --set hub.platform=linux/amd64 --load hub
 ```
 
 Release builds and the rest of the contributor workflow are in [Development](../reference/development.md#docker-images).

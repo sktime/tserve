@@ -1,7 +1,6 @@
 ### Chronos T5
 
-`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 5 models &middot;
-no [quantiles](../client/data.md#quantiles)
+`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 5 models &middot; no [quantiles](../client/data.md#quantiles)
 
 The original Chronos line.
 

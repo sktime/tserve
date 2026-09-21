@@ -1,45 +1,39 @@
 # full
 
-Every family in one extra. Use it when your models span more than one family
-extra.
+Every family in one extra. Use it when your models span more than one family extra.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `full` | [`:full`](https://hub.docker.com/r/geetu040/fomo/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) | all of them | 110 | `chronos-2` |
+| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 110 | `chronos-2` |
 
-`chronos` + `kronos` + `granite` + `moirai` + `tirex` + `toto` + `mantis`,
-which pulls in `hub` and `base`. It is also the largest install: for one
-family, the extra on that family's page pulls far less.
+`chronos` + `kronos` + `granite` + `moirai` + `tirex` + `toto` + `mantis`, which pulls in `hub` and `base`. It is also the largest install: for one family, the extra on that family's page pulls far less.
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra full
-    uv run fomo serve --model chronos-2 tirex kronos
+    uv run tserve serve --model chronos-2 tirex kronos
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,full]"
-    fomo serve --model chronos-2 tirex kronos
+    tserve serve --model chronos-2 tirex kronos
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:full \
+    docker run --rm -p 8000:8000 sktime/tserve:full \
       --model chronos-2 tirex kronos
     ```
 
-GPU: swap in
-[`:full-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=full-gpu) and
-add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs
-a download at first start and stays in memory.
+GPU: swap in [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs a download at first start and stays in memory.
 
 Check what loaded:
 
@@ -49,8 +43,7 @@ curl -s http://127.0.0.1:8000/models
 
 ## Predict
 
-One process answers for every loaded model; switch by changing `model`. Python
-needs the [`client`](../client/python.md#install) extra on the caller.
+One process answers for every loaded model; switch by changing `model`. Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 === "bash / zsh"
 
@@ -76,7 +69,7 @@ needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
@@ -97,8 +90,7 @@ needs the [`client`](../client/python.md#install) extra on the caller.
 
 ## Models
 
-All 110 models load here. Checkpoints for all of them:
-[All models](index.md#all-models).
+All 110 models load here. Checkpoints for all of them: [All models](index.md#all-models).
 
 | extra | families | models | catalog |
 | --- | --- | --- | --- |
@@ -114,11 +106,10 @@ All 110 models load here. Checkpoints for all of them:
 
 ## Also loadable here
 
-Combinations no single family extra allows. `kronos` alone cannot load a TTM
-model, `tirex` alone cannot load a Kronos model; `full` serves all three at once:
+Combinations no single family extra allows. `kronos` alone cannot load a TTM model, `tirex` alone cannot load a Kronos model; `full` serves all three at once:
 
 ```bash
-fomo serve --model kronos ttm-r3 tirex
+tserve serve --model kronos ttm-r3 tirex
 ```
 
 ## Next steps

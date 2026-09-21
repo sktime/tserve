@@ -1,7 +1,6 @@
 ### FlowState
 
-`FlowStateForecaster` &middot; extra [`granite`](granite.md) &middot; 2 models
-&middot; [quantiles](../client/data.md#quantiles)
+`FlowStateForecaster` &middot; extra [`granite`](granite.md) &middot; 2 models &middot; [quantiles](../client/data.md#quantiles)
 
 Revision pinned to `r1.1`.
 

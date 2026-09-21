@@ -3,11 +3,11 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from fomo.client import Client
-from fomo.client.transports.http import HttpTransport
-from fomo.runtime.registry import SKTIME_REGISTRY
-from fomo.server import Server
-from fomo.types import HealthResult, ModelInfo, StatsResult
+from tserve.client import Client
+from tserve.client.transports.http import HttpTransport
+from tserve.runtime.registry import SKTIME_REGISTRY
+from tserve.server import Server
+from tserve.types import HealthResult, ModelInfo, StatsResult
 
 
 def create_client(model=None):

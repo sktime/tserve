@@ -1,25 +1,25 @@
-# FoMo images: same Dockerfile, different FOMO_EXTRAS.
+# TServe images: same Dockerfile, different TSERVE_EXTRAS.
 # Every tag is linux/amd64 + linux/arm64 (Linux, Mac, Windows Docker Desktop).
 # `--extra gpu` is a torch index choice (PyPI / CUDA / MPS), not an arch pin.
 #
 # First time on a new machine:
 #   docker run --privileged --rm tonistiigi/binfmt --install all
-#   docker buildx create --name fomo --driver docker-container --bootstrap --use
+#   docker buildx create --name tserve --driver docker-container --bootstrap --use
 #
 # Build / Push / Load
 #   docker buildx bake granite                         # build
 #   docker buildx bake --push granite                  # build and push
 #   docker buildx bake --set granite.platform=linux/amd64 --load granite
-#   FOMO_IMAGE=sktime/fomo docker buildx bake --push cpu
-#   FOMO_IMAGE=local/fomo docker buildx bake --load granite
+#   TSERVE_IMAGE=sktime/tserve docker buildx bake --push cpu
+#   TSERVE_IMAGE=local/tserve docker buildx bake --load granite
 #
 # Groups:
 #   default  base image
 #   cpu      all CPU images
 #   gpu      all GPU images
 
-variable "FOMO_IMAGE" {
-  default = "sktime/fomo"
+variable "TSERVE_IMAGE" {
+  default = "sktime/tserve"
 }
 
 group "default" {
@@ -48,114 +48,114 @@ target "_common" {
 
 target "base" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "" }
-  tags     = ["${FOMO_IMAGE}:base"]
+  args     = { TSERVE_EXTRAS = "" }
+  tags     = ["${TSERVE_IMAGE}:base"]
 }
 
 target "hub" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "hub" }
-  tags     = ["${FOMO_IMAGE}:hub"]
+  args     = { TSERVE_EXTRAS = "hub" }
+  tags     = ["${TSERVE_IMAGE}:hub"]
 }
 
 target "chronos" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "chronos" }
-  tags     = ["${FOMO_IMAGE}:chronos"]
+  args     = { TSERVE_EXTRAS = "chronos" }
+  tags     = ["${TSERVE_IMAGE}:chronos"]
 }
 
 target "kronos" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "kronos" }
-  tags     = ["${FOMO_IMAGE}:kronos"]
+  args     = { TSERVE_EXTRAS = "kronos" }
+  tags     = ["${TSERVE_IMAGE}:kronos"]
 }
 
 target "granite" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "granite" }
-  tags     = ["${FOMO_IMAGE}:granite"]
+  args     = { TSERVE_EXTRAS = "granite" }
+  tags     = ["${TSERVE_IMAGE}:granite"]
 }
 
 target "moirai" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "moirai" }
-  tags     = ["${FOMO_IMAGE}:moirai"]
+  args     = { TSERVE_EXTRAS = "moirai" }
+  tags     = ["${TSERVE_IMAGE}:moirai"]
 }
 
 target "tirex" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "tirex" }
-  tags     = ["${FOMO_IMAGE}:tirex"]
+  args     = { TSERVE_EXTRAS = "tirex" }
+  tags     = ["${TSERVE_IMAGE}:tirex"]
 }
 
 target "toto" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "toto" }
-  tags     = ["${FOMO_IMAGE}:toto"]
+  args     = { TSERVE_EXTRAS = "toto" }
+  tags     = ["${TSERVE_IMAGE}:toto"]
 }
 
 target "mantis" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "mantis" }
-  tags     = ["${FOMO_IMAGE}:mantis"]
+  args     = { TSERVE_EXTRAS = "mantis" }
+  tags     = ["${TSERVE_IMAGE}:mantis"]
 }
 
 target "full" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "full" }
-  tags     = ["${FOMO_IMAGE}:full"]
+  args     = { TSERVE_EXTRAS = "full" }
+  tags     = ["${TSERVE_IMAGE}:full"]
 }
 
 target "hub-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "hub gpu" }
-  tags     = ["${FOMO_IMAGE}:hub-gpu"]
+  args     = { TSERVE_EXTRAS = "hub gpu" }
+  tags     = ["${TSERVE_IMAGE}:hub-gpu"]
 }
 
 target "chronos-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "chronos gpu" }
-  tags     = ["${FOMO_IMAGE}:chronos-gpu"]
+  args     = { TSERVE_EXTRAS = "chronos gpu" }
+  tags     = ["${TSERVE_IMAGE}:chronos-gpu"]
 }
 
 target "kronos-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "kronos gpu" }
-  tags     = ["${FOMO_IMAGE}:kronos-gpu"]
+  args     = { TSERVE_EXTRAS = "kronos gpu" }
+  tags     = ["${TSERVE_IMAGE}:kronos-gpu"]
 }
 
 target "granite-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "granite gpu" }
-  tags     = ["${FOMO_IMAGE}:granite-gpu"]
+  args     = { TSERVE_EXTRAS = "granite gpu" }
+  tags     = ["${TSERVE_IMAGE}:granite-gpu"]
 }
 
 target "moirai-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "moirai gpu" }
-  tags     = ["${FOMO_IMAGE}:moirai-gpu"]
+  args     = { TSERVE_EXTRAS = "moirai gpu" }
+  tags     = ["${TSERVE_IMAGE}:moirai-gpu"]
 }
 
 target "tirex-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "tirex gpu" }
-  tags     = ["${FOMO_IMAGE}:tirex-gpu"]
+  args     = { TSERVE_EXTRAS = "tirex gpu" }
+  tags     = ["${TSERVE_IMAGE}:tirex-gpu"]
 }
 
 target "toto-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "toto gpu" }
-  tags     = ["${FOMO_IMAGE}:toto-gpu"]
+  args     = { TSERVE_EXTRAS = "toto gpu" }
+  tags     = ["${TSERVE_IMAGE}:toto-gpu"]
 }
 
 target "mantis-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "mantis gpu" }
-  tags     = ["${FOMO_IMAGE}:mantis-gpu"]
+  args     = { TSERVE_EXTRAS = "mantis gpu" }
+  tags     = ["${TSERVE_IMAGE}:mantis-gpu"]
 }
 
 target "full-gpu" {
   inherits = ["_common"]
-  args     = { FOMO_EXTRAS = "full gpu" }
-  tags     = ["${FOMO_IMAGE}:full-gpu"]
+  args     = { TSERVE_EXTRAS = "full gpu" }
+  tags     = ["${TSERVE_IMAGE}:full-gpu"]
 }

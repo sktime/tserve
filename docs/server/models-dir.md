@@ -1,6 +1,6 @@
 # Models from a directory
 
-FoMo serves estimators that sktime saved to disk, as `.zip` files. That is how a model you fitted or configured elsewhere reaches a server you start from the CLI or from a container.
+TServe serves estimators that sktime saved to disk, as `.zip` files. That is how a model you fitted or configured elsewhere reaches a server you start from the CLI or from a container.
 
 ## Save a model
 
@@ -33,23 +33,22 @@ Point `--models-dir` at the directory, then name the file stems in `--model` or 
 === "uv"
 
     ```bash
-    uv run fomo serve --models-dir my-models --model custom-model-1 chronos-bolt
+    uv run tserve serve --models-dir my-models --model custom-model-1 chronos-bolt
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --models-dir my-models --model custom-model-1 chronos-bolt
+    tserve serve --models-dir my-models --model custom-model-1 chronos-bolt
     ```
 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" geetu040/fomo:hub --models-dir /models --model custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models --model custom-model-1 chronos-bolt
 ```
 
-Either way `custom-model-1` is served from the zip and `chronos-bolt`
-from the registry, and `GET /models` labels them apart:
+Either way `custom-model-1` is served from the zip and `chronos-bolt` from the registry, and `GET /models` labels them apart:
 
 ```json
 {
@@ -71,10 +70,10 @@ from the registry, and `GET /models` labels them apart:
 
 ## From Python
 
-[`Server`][fomo.server.serve.Server] takes the same `models_dir` argument:
+[`Server`][tserve.server.serve.Server] takes the same `models_dir` argument:
 
 ```python
-from fomo.server import Server
+from tserve.server import Server
 
 Server(
     models_dir="my-models",

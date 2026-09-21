@@ -4,40 +4,37 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `moirai` | [`:moirai`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai-2` |
+| `moirai` | [`:moirai`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai-2` |
 
 !!! note "Python pins"
 
-    `gluonts`, `lightning`, and `hydra-core` are pinned only for
-    `python_version < '3.14'`.
+    `gluonts`, `lightning`, and `hydra-core` are pinned only for `python_version < '3.14'`.
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra moirai
-    uv run fomo serve --model moirai-2
+    uv run tserve serve --model moirai-2
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,moirai]"
-    fomo serve --model moirai-2
+    tserve serve --model moirai-2
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
+    docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
     ```
 
-GPU: swap in
-[`:moirai-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=moirai-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -73,7 +70,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

@@ -1,22 +1,22 @@
 # Overview
 
-![FoMo architecture](assets/architecture.svg)
+![TServe architecture](assets/architecture.svg)
 
 Walk top to bottom. Three seams:
 
-- **Transports** do not import each other. JSON (`POST /predict`) coerces on the server. The Python [`Client`][fomo.client.client.Client] coerces locally and sends Arrow (`POST /predict/bytes`). A third lane is a new transport class, not a runtime change.
+- **Transports** do not import each other. JSON (`POST /predict`) coerces on the server. The Python [`Client`][tserve.client.client.Client] coerces locally and sends Arrow (`POST /predict/bytes`). A third lane is a new transport class, not a runtime change.
 - **Canonical frames** are `CoercedPredictRequest` / `CoercedPredictResponse` — Narwhals `DataFrame`. Callers pass a dict, pandas, polars, or pyarrow; they get the same type back.
 - **Executors** own convert → execute → convert back. The sktime executor maps Narwhals onto `y, X, fh`. Executors do not share converters. A `pytorch-forecasting` plugin slot exists in the tree but is not implemented.
 
 ## What you run
 
-[`Server`][fomo.server.serve.Server] (or `fomo serve`) loads selected models, then serves:
+[`Server`][tserve.server.serve.Server] (or `tserve serve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |
 | Browser console | [Dashboard](server/dashboard.md) at `GET /` |
 | JSON predictions | `POST /predict` — [HTTP](client/http.md) |
-| Python predictions | [`Client`][fomo.client.client.Client] — [Python](client/python.md) |
+| Python predictions | [`Client`][tserve.client.client.Client] — [Python](client/python.md) |
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded models | `GET /models` |
 
