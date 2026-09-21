@@ -15,13 +15,13 @@ TServe is a local inference server for time-series foundation models. Start the 
 The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and TimesFM 2.x. This command loads two registry models:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 ```
 
-Tags cover other families too. For example, the `moirai` image can load `moirai-2`:
+Tags cover other families too. For example, the `moirai` image can load `moirai_2`:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
 ```
 
 Choose a model and its matching image tag from the [model catalog](https://tserve.readthedocs.io/en/latest/models/). The process always loads `naive` for testing; name extra models alongside it for a real forecast.
@@ -36,7 +36,7 @@ TServe requires Python 3.12 or newer and is not on PyPI yet. Clone it over HTTPS
 git clone https://github.com/sktime/tserve.git
 cd tserve
 uv sync --extra server --extra hub
-uv run tserve chronos-bolt ttm-r3
+uv run tserve chronos_bolt ttm_r3
 ```
 
 **pip**
@@ -47,7 +47,7 @@ The `gpu` extra does not work with pip. Family extras already install CUDA torch
 git clone https://github.com/sktime/tserve.git
 cd tserve
 python -m pip install -e ".[server,hub]"
-tserve chronos-bolt ttm-r3
+tserve chronos_bolt ttm_r3
 ```
 
 To force a CPU wheel, install torch from the CPU index first, then TServe. If pip later replaces it with CUDA, run the torch line again.
@@ -69,18 +69,18 @@ A predict request describes a table and the roles of its columns:
 - `model` is a model already loaded by this server.
 - `future`, `static`, and `quantiles` are optional.
 
-`quantiles` requires an estimator that supports quantile prediction, such as `timesfm-2.5`; `ttm-r3` does not.
+`quantiles` requires an estimator that supports quantile prediction, such as `timesfm_2_5`; `ttm_r3` does not.
 
 `past` is not a one-dimensional vector. See the [data specification](https://tserve.readthedocs.io/en/latest/client/data/) for supported table shapes, inference rules, static data, quantiles, and current limitations.
 
 ### curl
 
-This sends five days of sales and asks `chronos-bolt` for the next three. The JSON after `-d` stays on one line for copy-paste reliability.
+This sends five days of sales and asks `chronos_bolt` for the next three. The JSON after `-d` stays on one line for copy-paste reliability.
 
 **macOS / Linux**
 
 ```bash
-curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
 ```
 
 **Windows PowerShell**
@@ -88,7 +88,7 @@ curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"
 Use `curl.exe` so PowerShell does not substitute `Invoke-WebRequest`.
 
 ```powershell
-curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
 ```
 
 `POST /predict` returns column-oriented JSON containing `predictions`, `quantiles`, `model`, and `request_id`.
@@ -131,7 +131,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
@@ -162,26 +162,26 @@ Images are published as:
 GPU containers require an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), and `--gpus all`:
 
 ```bash
-docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos-bolt ttm-r3
+docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos_bolt ttm_r3
 ```
 
 For Hugging Face rate limits, set a read token in your environment and forward it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use `$env:HF_TOKEN = "hf_your_token"`. Then run:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos-bolt
+docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos_bolt
 ```
 
 Keep downloaded weights across containers with a portable named volume:
 
 ```bash
-docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub chronos_bolt ttm_r3
 ```
 
 The [Docker guide](https://tserve.readthedocs.io/en/latest/server/docker/) covers all tags, host cache mounts, GPU constraints, saved models, and local builds.
 
 ## Server behavior and options
 
-A bare `tserve` still loads `naive`, enough to test the process. Name extra registry models as leftover positionals (`tserve chronos-bolt ttm-r3`) for a real forecast. `--models-dir` selects sktime `.zip` files, `--host` and `--port` change the binding, and `--log-level` changes verbosity.
+A bare `tserve` still loads `naive`, enough to test the process. Name extra registry models as leftover positionals (`tserve chronos_bolt ttm_r3`) for a real forecast. `--models-dir` selects sktime `.zip` files, `--host` and `--port` change the binding, and `--log-level` changes verbosity.
 
 `GET /health` checks process liveness. `GET /models` lists loaded models. `GET /stats` reports process and per-model metrics. See the [CLI reference](https://tserve.readthedocs.io/en/latest/reference/cli/), or serve [saved models](https://tserve.readthedocs.io/en/latest/server/models-dir/), [live estimator objects](https://tserve.readthedocs.io/en/latest/server/live-objects/), or [craft specs](https://tserve.readthedocs.io/en/latest/server/craft-specs/).
 

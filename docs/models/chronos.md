@@ -4,7 +4,7 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `chronos` | [`:chronos`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
+| `chronos` | [`:chronos`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos_2` |
 
 ## Start a server
 
@@ -13,7 +13,7 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra chronos
-    uv run tserve chronos-2
+    uv run tserve chronos_2
     ```
 
 === "pip"
@@ -21,13 +21,13 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,chronos]"
-    tserve chronos-2
+    tserve chronos_2
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
+    docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
     ```
 
 GPU: swap in [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
@@ -53,14 +53,14 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-2"
+      "model": "chronos_2"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-2"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_2"}'
     ```
 
 === "Python"
@@ -79,7 +79,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-2",
+            model="chronos_2",
         )
     print(result.predictions)
     ```

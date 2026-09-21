@@ -5,4 +5,4 @@
 | model | checkpoint |
 | --- | --- |
 | `windfm` | [NeoQuasar/WindFM](https://huggingface.co/NeoQuasar/WindFM) |
-| `windfm-robust` | [NeoQuasar/WindFM-robust](https://huggingface.co/NeoQuasar/WindFM-robust) |
+| `windfm_robust` | [NeoQuasar/WindFM-robust](https://huggingface.co/NeoQuasar/WindFM-robust) |

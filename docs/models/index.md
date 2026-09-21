@@ -40,20 +40,20 @@
 
         ```bash
         uv sync --extra server --extra hub
-        uv run tserve chronos-bolt
+        uv run tserve chronos_bolt
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,hub]"
-        tserve chronos-bolt
+        tserve chronos_bolt
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt
+        docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
         ```
 
 === "chronos"
@@ -64,20 +64,20 @@
 
         ```bash
         uv sync --extra server --extra chronos
-        uv run tserve chronos-2
+        uv run tserve chronos_2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,chronos]"
-        tserve chronos-2
+        tserve chronos_2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
+        docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
         ```
 
 === "kronos"
@@ -136,20 +136,20 @@
 
         ```bash
         uv sync --extra server --extra moirai
-        uv run tserve moirai-2
+        uv run tserve moirai_2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,moirai]"
-        tserve moirai-2
+        tserve moirai_2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
+        docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
         ```
 
 === "tirex"
@@ -184,20 +184,20 @@
 
         ```bash
         uv sync --extra server --extra toto
-        uv run tserve toto-2.0-4m
+        uv run tserve toto_2_0_4m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,toto]"
-        tserve toto-2.0-4m
+        tserve toto_2_0_4m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:toto toto-2.0-4m
+        docker run --rm -p 8000:8000 sktime/tserve:toto toto_2_0_4m
         ```
 
 === "mantis"
@@ -208,20 +208,20 @@
 
         ```bash
         uv sync --extra server --extra mantis
-        uv run tserve mantis-8m
+        uv run tserve mantis_8m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,mantis]"
-        tserve mantis-8m
+        tserve mantis_8m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:mantis mantis-8m
+        docker run --rm -p 8000:8000 sktime/tserve:mantis mantis_8m
         ```
 
 === "full"
@@ -232,21 +232,21 @@
 
         ```bash
         uv sync --extra server --extra full
-        uv run tserve chronos-2 tirex kronos
+        uv run tserve chronos_2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,full]"
-        tserve chronos-2 tirex kronos
+        tserve chronos_2 tirex kronos
         ```
 
     === "Docker"
 
         ```bash
         docker run --rm -p 8000:8000 sktime/tserve:full \
-          chronos-2 tirex kronos
+          chronos_2 tirex kronos
         ```
 
 - `uv` and `pip` assume a clone: [From source](../server/source.md#install).
@@ -267,14 +267,14 @@
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
     ```
 
 === "Python"
@@ -293,7 +293,7 @@
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
     print(result.predictions)
     ```

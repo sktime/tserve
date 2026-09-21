@@ -4,4 +4,4 @@
 
 | model | checkpoint |
 | --- | --- |
-| `moirai-2` | [Salesforce/moirai-2.0-R-small](https://huggingface.co/Salesforce/moirai-2.0-R-small) |
+| `moirai_2` | [Salesforce/moirai-2.0-R-small](https://huggingface.co/Salesforce/moirai-2.0-R-small) |

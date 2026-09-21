@@ -159,7 +159,7 @@ You may omit `time` and `target`:
     "sales": [120, 135, 128]
   },
   "fh": 3,
-  "model": "chronos-bolt"
+  "model": "chronos_bolt"
 }
 ```
 
@@ -214,14 +214,14 @@ Request quantile levels with a list:
 
 ```json
 {
-  "model": "timesfm-2.5",
+  "model": "timesfm_2_5",
   "quantiles": [0.1, 0.5, 0.9]
 }
 ```
 
-The loaded estimator must support quantile prediction. `timesfm-2.5` supports the levels above; Chronos Bolt and TTM do not. TServe forwards the values to the estimator, which may apply additional validation.
+The loaded estimator must support quantile prediction. `timesfm_2_5` supports the levels above; Chronos Bolt and TTM do not. TServe forwards the values to the estimator, which may apply additional validation.
 
-Point forecasts remain in `predictions`. Quantile forecasts are returned as a second table. Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`); `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
+Point forecasts remain in `predictions`. Quantile forecasts are returned as a second table. Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`); `timesfm_2_5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Response
 
@@ -234,7 +234,7 @@ Every successful prediction returns:
     "sales": [139.96]
   },
   "quantiles": null,
-  "model": "chronos-bolt",
+  "model": "chronos_bolt",
   "request_id": "…"
 }
 ```

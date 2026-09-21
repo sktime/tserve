@@ -112,13 +112,13 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run tserve chronos-bolt ttm-r3
+    uv run tserve chronos_bolt ttm_r3
     ```
 
 === "pip"
 
     ```bash
-    tserve chronos-bolt ttm-r3
+    tserve chronos_bolt ttm_r3
     ```
 
 Startup prints the URLs it binds:
@@ -130,7 +130,7 @@ Starting TServe
   ReDoc       http://127.0.0.1:8000/redoc
 ```
 
-`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models are leftover positionals (`tserve chronos-bolt ttm-r3`). Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
+`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models are leftover positionals (`tserve chronos_bolt ttm_r3`). Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
 
 ## Serve from Python
 
@@ -140,7 +140,7 @@ Starting TServe
 from tserve.server import Server
 
 server = Server(
-    model=["chronos-bolt", "ttm-r3"],
+    model=["chronos_bolt", "ttm_r3"],
     host="127.0.0.1",
     port=8000,
 )

@@ -6,6 +6,6 @@ Multivariate, with covariate support.
 
 | model | checkpoint |
 | --- | --- |
-| `chronos-2` | [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) |
-| `chronos-2-small` | [autogluon/chronos-2-small](https://huggingface.co/autogluon/chronos-2-small) |
-| `chronos-2-synth` | [autogluon/chronos-2-synth](https://huggingface.co/autogluon/chronos-2-synth) |
+| `chronos_2` | [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) |
+| `chronos_2_small` | [autogluon/chronos-2-small](https://huggingface.co/autogluon/chronos-2-small) |
+| `chronos_2_synth` | [autogluon/chronos-2-synth](https://huggingface.co/autogluon/chronos-2-synth) |

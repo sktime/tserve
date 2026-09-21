@@ -4,7 +4,7 @@ Four Hugging Face families, 81 of the catalog's 110 models. The usual starting p
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
+| `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos_bolt` |
 
 Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls `hf` builds on `hub`, so those pages can load these models as well.
 
@@ -15,7 +15,7 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve chronos-bolt
+    uv run tserve chronos_bolt
     ```
 
 === "pip"
@@ -23,13 +23,13 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve chronos-bolt
+    tserve chronos_bolt
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt
+    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
     ```
 
 GPU: swap in [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
@@ -55,14 +55,14 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
     ```
 
 === "Python"
@@ -81,7 +81,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
     print(result.predictions)
     ```

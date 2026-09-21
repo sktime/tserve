@@ -17,10 +17,10 @@
 
 ## Start a server
 
-The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
+The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2_5`, whose estimator supports quantile prediction; Chronos Bolt does not:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
 See [Server](../server/index.md) for source installs and server options. The client URL points to this process, not a hosted TServe API.
@@ -86,7 +86,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
@@ -132,7 +132,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # pandas.DataFrame
@@ -163,7 +163,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # polars.DataFrame
@@ -194,7 +194,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # pyarrow.Table
@@ -223,7 +223,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # narwhals.DataFrame
@@ -249,7 +249,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["passengers"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
@@ -259,10 +259,10 @@ Panel and hierarchical sktime data are not supported.
 
 ## Request static data
 
-Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos-2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
+Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos_2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
+docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
 ```
 
 ```python
@@ -286,7 +286,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="chronos-2",
+        model="chronos_2",
     )
 
 print(result.predictions)
@@ -296,7 +296,7 @@ See [Future and static data](data.md#future-and-static-data) for the current exe
 
 ## Request quantiles
 
-Add `quantiles` when the loaded estimator supports quantile prediction. This example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not support quantiles:
+Add `quantiles` when the loaded estimator supports quantile prediction. This example uses the compatible `timesfm_2_5` model; Chronos Bolt and TTM do not support quantiles:
 
 ```python
 from tserve.client import Client
@@ -318,7 +318,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="timesfm-2.5",
+        model="timesfm_2_5",
         quantiles=[0.1, 0.5, 0.9],
     )
 
@@ -326,7 +326,7 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
+`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm_2_5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Handle errors
 

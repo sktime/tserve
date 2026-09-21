@@ -13,7 +13,7 @@ bolt = ChronosForecaster(
 
 Server(
     model=[
-        "chronos-bolt",
+        "chronos_bolt",
         ("bolt-mini-local", bolt),
     ],
     host="127.0.0.1",
@@ -27,7 +27,7 @@ That name is what predict requests send as `model`:
 {
   "models": [
     {"id": "naive", "executor": "sktime", "source": "registry"},
-    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"},
+    {"id": "chronos_bolt", "executor": "sktime", "source": "registry"},
     {"id": "bolt-mini-local", "executor": "sktime", "source": "object"}
   ]
 }
@@ -55,7 +55,7 @@ ttm = TinyTimeMixerForecaster(
 )
 
 Server(
-    model=["chronos-bolt", ("ttm-local", ttm)],
+    model=["chronos_bolt", ("ttm-local", ttm)],
     host="127.0.0.1",
     port=8000,
 ).run()

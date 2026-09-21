@@ -79,7 +79,7 @@ class Server:
     >>> Server(host="127.0.0.1", port=8000).run()
     >>> Server(
     ...     model=[
-    ...         "chronos-bolt",
+    ...         "chronos_bolt",
     ...         ("drift", 'NaiveForecaster(strategy="drift")'),
     ...     ]
     ... )

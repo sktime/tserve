@@ -15,7 +15,7 @@ The split is where the failure happens. **422** is FastAPI rejecting the JSON bo
 ```json
 {
   "detail": {
-    "error": "model 'chronos-2' is not loaded on this server (loaded: 'chronos-bolt', 'ttm-r3')",
+    "error": "model 'chronos_2' is not loaded on this server (loaded: 'chronos_bolt', 'ttm_r3')",
     "code": "request_failed",
     "request_id": "…"
   }
@@ -28,12 +28,12 @@ Estimator failures are wrapped rather than passed through, because the library w
 
 | the step that failed | 400 opens with |
 | --- | --- |
-| the point forecast (`fit` then `predict`) | `Model 'chronos-bolt' failed to forecast 70 step(s) ahead from the 200 row(s) in past.` |
-| the quantiles | `Model 'timesfm-2.5' returned its point forecast but failed on the requested quantiles [0.1, 0.9].` |
+| the point forecast (`fit` then `predict`) | `Model 'chronos_bolt' failed to forecast 70 step(s) ahead from the 200 row(s) in past.` |
+| the quantiles | `Model 'timesfm_2_5' returned its point forecast but failed on the requested quantiles [0.1, 0.9].` |
 
 It does not try to diagnose the cause beyond that, so read the original error and compare the request against the context, horizon, and quantile support the catalog records for the model. An `fh` past the model's trained horizon and a `past` shorter than its context length both surface as the first one.
 
-Asking a model that cannot produce quantiles for them is the one case TServe does decide: it is rejected before the estimator runs, so it reads `Model 'chronos-bolt' cannot return quantile predictions, so the requested quantiles [0.1, 0.9] are unavailable.` with no `Original error:` at all.
+Asking a model that cannot produce quantiles for them is the one case TServe does decide: it is rejected before the estimator runs, so it reads `Model 'chronos_bolt' cannot return quantile predictions, so the requested quantiles [0.1, 0.9] are unavailable.` with no `Original error:` at all.
 
 `POST /predict/bytes` behaves the same way, with 422 reserved for a missing `metadata` field or `past` file.
 

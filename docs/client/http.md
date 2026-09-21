@@ -18,10 +18,10 @@ Every route returns JSON except `/predict/bytes`, which speaks Arrow, and `/`, w
 
 ## Start a server
 
-The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
+The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2_5`, whose estimator supports quantile prediction; Chronos Bolt does not:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
 See [Server](../server/index.md) for source installs and server options. The URLs below belong to this local process; TServe does not provide a hosted API.
@@ -41,14 +41,14 @@ See [Server](../server/index.md) for source installs and server options. The URL
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
     ```
 
 `POST /predict` returns a column-oriented JSON table:
@@ -64,7 +64,7 @@ See [Server](../server/index.md) for source installs and server options. The URL
     "sales": [139.96, 138.93, 138.26]
   },
   "quantiles": null,
-  "model": "chronos-bolt",
+  "model": "chronos_bolt",
   "request_id": "…"
 }
 ```
@@ -90,21 +90,21 @@ Tables can also use `columns` and `data`. Here `time` and `target` are omitted, 
         ]
       },
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"columns":["timestamp","sales"],"data":[["2024-01-01",120],["2024-01-02",135],["2024-01-03",128],["2024-01-04",142],["2024-01-05",138]]},"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"columns":["timestamp","sales"],"data":[["2024-01-01",120],["2024-01-02",135],["2024-01-03",128],["2024-01-04",142],["2024-01-05",138]]},"fh":3,"model":"chronos_bolt"}'
     ```
 
 The response is still column-oriented JSON. HTTP does not preserve the row-oriented request shape.
 
 ## Request quantiles
 
-Quantiles are a second result table. The estimator must support quantile prediction, so this example uses the loaded `timesfm-2.5` model:
+Quantiles are a second result table. The estimator must support quantile prediction, so this example uses the loaded `timesfm_2_5` model:
 
 === "bash / zsh"
 
@@ -117,7 +117,7 @@ Quantiles are a second result table. The estimator must support quantile predict
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "timesfm-2.5",
+      "model": "timesfm_2_5",
       "quantiles": [0.1, 0.5, 0.9]
     }'
     ```
@@ -125,10 +125,10 @@ Quantiles are a second result table. The estimator must support quantile predict
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-02-01","2024-03-01","2024-04-01","2024-05-01"],"sales":[120,135,128,142,150]},"time":"timestamp","target":["sales"],"fh":3,"model":"timesfm-2.5","quantiles":[0.1,0.5,0.9]}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-02-01","2024-03-01","2024-04-01","2024-05-01"],"sales":[120,135,128,142,150]},"time":"timestamp","target":["sales"],"fh":3,"model":"timesfm_2_5","quantiles":[0.1,0.5,0.9]}'
     ```
 
-Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`). See [Quantiles](data.md#quantiles) for the response shape and model limitation.
+Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm_2_5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`). See [Quantiles](data.md#quantiles) for the response shape and model limitation.
 
 ## Inspect the server
 

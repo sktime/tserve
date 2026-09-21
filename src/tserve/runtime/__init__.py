@@ -15,7 +15,7 @@ Executors only see ``CoercedPredictRequest`` /
   coerced request ↔ ``(y, X, X_future, fh)`` and back.
 
 ``GET /models`` lists **loaded** models only. Registry ids (``naive``,
-``chronos-2``, …) are not executor names (``sktime``,
+``chronos_2``, …) are not executor names (``sktime``,
 ``pytorch-forecasting``, ``custom``). ``SKTIME_REGISTRY`` is a catalog;
 nothing loads until ``bootstrap(model)`` / leftover CLI positionals.
 

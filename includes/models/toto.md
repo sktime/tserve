@@ -4,8 +4,8 @@
 
 | model | checkpoint |
 | --- | --- |
-| `toto-2.0-4m` | [Datadog/Toto-2.0-4m](https://huggingface.co/Datadog/Toto-2.0-4m) |
-| `toto-2.0-22m` | [Datadog/Toto-2.0-22m](https://huggingface.co/Datadog/Toto-2.0-22m) |
-| `toto-2.0-313m` | [Datadog/Toto-2.0-313m](https://huggingface.co/Datadog/Toto-2.0-313m) |
-| `toto-2.0-1b` | [Datadog/Toto-2.0-1B](https://huggingface.co/Datadog/Toto-2.0-1B) |
-| `toto-2.0-2.5b` | [Datadog/Toto-2.0-2.5B](https://huggingface.co/Datadog/Toto-2.0-2.5B) |
+| `toto_2_0_4m` | [Datadog/Toto-2.0-4m](https://huggingface.co/Datadog/Toto-2.0-4m) |
+| `toto_2_0_22m` | [Datadog/Toto-2.0-22m](https://huggingface.co/Datadog/Toto-2.0-22m) |
+| `toto_2_0_313m` | [Datadog/Toto-2.0-313m](https://huggingface.co/Datadog/Toto-2.0-313m) |
+| `toto_2_0_1b` | [Datadog/Toto-2.0-1B](https://huggingface.co/Datadog/Toto-2.0-1B) |
+| `toto_2_0_2_5b` | [Datadog/Toto-2.0-2.5B](https://huggingface.co/Datadog/Toto-2.0-2.5B) |

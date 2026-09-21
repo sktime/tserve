@@ -65,7 +65,7 @@ The part named `response` is JSON metadata (`model`, `request_id`). The remainin
 {
   "models": [
     {"id": "naive", "executor": "sktime", "source": "registry"},
-    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
+    {"id": "chronos_bolt", "executor": "sktime", "source": "registry"}
   ]
 }
 ```
@@ -79,7 +79,7 @@ The part named `response` is JSON metadata (`model`, `request_id`). The remainin
   "uptime_s": 3600.5,
   "memory": {"cpu_rss_mb": 512.25, "gpu_mb": 1024.0},
   "models": {
-    "chronos-bolt": {
+    "chronos_bolt": {
       "executor": "sktime",
       "load_s": 1.24,
       "warmup_s": 0.31,

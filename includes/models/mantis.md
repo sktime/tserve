@@ -7,5 +7,5 @@ Embeddings plus an sklearn head. `context_length` is 127, so `past` must be long
 | model | checkpoint |
 | --- | --- |
 | `mantis` | [paris-noah/MantisV2](https://huggingface.co/paris-noah/MantisV2) |
-| `mantis-8m` | [paris-noah/Mantis-8M](https://huggingface.co/paris-noah/Mantis-8M) |
-| `mantis-plus` | [paris-noah/MantisPlus](https://huggingface.co/paris-noah/MantisPlus) |
+| `mantis_8m` | [paris-noah/Mantis-8M](https://huggingface.co/paris-noah/Mantis-8M) |
+| `mantis_plus` | [paris-noah/MantisPlus](https://huggingface.co/paris-noah/MantisPlus) |

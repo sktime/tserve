@@ -28,15 +28,15 @@ def test_server_loads_naive_by_default():
 
 
 def test_server_prepends_naive():
-    _, bootstrap, _ = _server(model=["chronos-2"])
+    _, bootstrap, _ = _server(model=["chronos_2"])
 
-    bootstrap.assert_called_once_with(["naive", "chronos-2"])
+    bootstrap.assert_called_once_with(["naive", "chronos_2"])
 
 
 def test_server_does_not_duplicate_naive():
-    _, bootstrap, _ = _server(model=["naive", "chronos-2"])
+    _, bootstrap, _ = _server(model=["naive", "chronos_2"])
 
-    bootstrap.assert_called_once_with(["naive", "chronos-2"])
+    bootstrap.assert_called_once_with(["naive", "chronos_2"])
 
 
 def test_server_does_not_duplicate_naive_craft():

@@ -33,29 +33,29 @@ Point `--models-dir` at the directory, then name the file stems as leftover posi
 === "uv"
 
     ```bash
-    uv run tserve --models-dir my-models custom-model-1 chronos-bolt
+    uv run tserve --models-dir my-models custom-model-1 chronos_bolt
     ```
 
 === "pip"
 
     ```bash
-    tserve --models-dir my-models custom-model-1 chronos-bolt
+    tserve --models-dir my-models custom-model-1 chronos_bolt
     ```
 
 In Docker, mount the directory and use the container path:
 
 ```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos-bolt
+docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos_bolt
 ```
 
-Either way `custom-model-1` is served from the zip and `chronos-bolt` from the registry, and `GET /models` labels them apart:
+Either way `custom-model-1` is served from the zip and `chronos_bolt` from the registry, and `GET /models` labels them apart:
 
 ```json
 {
   "models": [
     {"id": "naive", "executor": "sktime", "source": "registry"},
     {"id": "custom-model-1", "executor": "sktime", "source": "directory"},
-    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"}
+    {"id": "chronos_bolt", "executor": "sktime", "source": "registry"}
   ]
 }
 ```
@@ -77,7 +77,7 @@ from tserve.server import Server
 
 Server(
     models_dir="my-models",
-    model=["custom-model-1", "chronos-bolt"],
+    model=["custom-model-1", "chronos_bolt"],
     host="127.0.0.1",
     port=8000,
 ).run()

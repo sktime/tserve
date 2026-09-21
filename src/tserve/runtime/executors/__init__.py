@@ -1,7 +1,7 @@
 """Executor plugins: ABC, lazy construction, and name registry.
 
 Executor names (``sktime``, ``pytorch-forecasting``, ``custom``) are not
-registry model ids (``naive``, ``chronos-2``, …). Executors only see
+registry model ids (``naive``, ``chronos_2``, …). Executors only see
 ``CoercedPredictRequest`` / ``CoercedPredictResponse``.
 
 See Also

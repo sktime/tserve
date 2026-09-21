@@ -9,7 +9,7 @@ from tserve.server import Server
 
 Server(
     model=[
-        "chronos-bolt",
+        "chronos_bolt",
         (
             "ttm-local",
             'TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", '
@@ -25,7 +25,7 @@ Server(
 {
   "models": [
     {"id": "naive", "executor": "sktime", "source": "registry"},
-    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"},
+    {"id": "chronos_bolt", "executor": "sktime", "source": "registry"},
     {"id": "ttm-local", "executor": "sktime", "source": "craft"}
   ]
 }
@@ -36,7 +36,7 @@ Server(
 Leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
-tserve chronos-bolt \
+tserve chronos_bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 

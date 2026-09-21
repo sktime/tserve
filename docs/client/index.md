@@ -9,10 +9,10 @@ TServe is not a hosted API. The URL points to a server process you started.
 
 ## Start a server
 
-For the examples in this section, start the `hub` image with `chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
+For the examples in this section, start the `hub` image with `chronos_bolt` for point forecasts and `timesfm_2_5` for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
 The first start downloads model weights. See [Server](../server/index.md) for source installs and server options, or [Docker](../server/docker.md) for image tags, GPU support, Hugging Face tokens, and cache volumes. Both models come from the [`hub`](../models/hub.md) extra; for a model from another family, start from its extra's page in the [catalog](../models/index.md#dependencies).
@@ -46,7 +46,7 @@ The HTTP endpoint accepts column-oriented and row-oriented JSON. The Python clie
 
 ## First prediction
 
-This request sends five days of sales and asks `chronos-bolt` for the next three days:
+This request sends five days of sales and asks `chronos_bolt` for the next three days:
 
 === "bash / zsh"
 
@@ -59,14 +59,14 @@ This request sends five days of sales and asks `chronos-bolt` for the next three
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
     ```
 
 The response contains a `predictions` table, the model, a request id, and optional quantiles. Continue with [HTTP](http.md) for JSON examples or [Python](python.md) for native Python tables.

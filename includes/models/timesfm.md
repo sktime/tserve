@@ -4,5 +4,5 @@
 
 | model | checkpoint |
 | --- | --- |
-| `timesfm-2.5` | [google/timesfm-2.5-200m-transformers](https://huggingface.co/google/timesfm-2.5-200m-transformers) |
-| `timesfm-2` | [google/timesfm-2.0-500m-pytorch](https://huggingface.co/google/timesfm-2.0-500m-pytorch) |
+| `timesfm_2_5` | [google/timesfm-2.5-200m-transformers](https://huggingface.co/google/timesfm-2.5-200m-transformers) |
+| `timesfm_2` | [google/timesfm-2.0-500m-pytorch](https://huggingface.co/google/timesfm-2.0-500m-pytorch) |

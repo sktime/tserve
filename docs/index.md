@@ -24,10 +24,10 @@ Models stay warm in the process, so the download and load cost is paid once at s
 
 **Use Docker**
 
-Pull the `hub` image and load two registry models: `chronos-bolt` and `ttm-r3`.
+Pull the `hub` image and load two registry models: `chronos_bolt` and `ttm_r3`.
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 ```
 
 Every model except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
@@ -41,7 +41,7 @@ Or clone the repo and start from source. Python >= 3.12, and TServe is not on Py
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve chronos-bolt ttm-r3
+    uv run tserve chronos_bolt ttm_r3
     ```
 
 === "pip"
@@ -49,7 +49,7 @@ Or clone the repo and start from source. Python >= 3.12, and TServe is not on Py
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve chronos-bolt ttm-r3
+    tserve chronos_bolt ttm_r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
@@ -71,7 +71,7 @@ A request is a table plus the roles of its columns:
 - `past` — history as a **table**: one row per timestamp, with a time column, one or more target columns, and any feature columns
 - `time`, `target` — which column holds timestamps, and which ones to forecast
 - `fh` — how many steps ahead
-- `model` — a model this process loaded (`chronos-bolt` here; `ttm-r3` is also loaded above)
+- `model` — a model this process loaded (`chronos_bolt` here; `ttm_r3` is also loaded above)
 
 Three more fields are optional. Add [`quantiles`](client/data.md#quantiles) for prediction intervals from models that support them, or [`future` and `static`](client/data.md#future-and-static-data) for covariates you already know. The full contract — formats, defaults, and limits — is the [data specification](client/data.md).
 
@@ -90,14 +90,14 @@ Five days of sales, three days ahead. Copy the tab for your shell (`curl.exe` on
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-bolt"
+      "model": "chronos_bolt"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
     ```
 
 Three predicted days come back, plus the model that served them:
@@ -109,7 +109,7 @@ Three predicted days come back, plus the model that served them:
     "sales": [139.96, 138.93, 138.26]
   },
   "quantiles": null,
-  "model": "chronos-bolt",
+  "model": "chronos_bolt",
   "request_id": "…"
 }
 ```
@@ -146,7 +146,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
