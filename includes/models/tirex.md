@@ -1,6 +1,10 @@
 ### TiRex
 
-`TiRexForecaster` &middot; extra [`tirex`](tirex.md) &middot; 2 models
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: `TiRexForecaster`</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`tirex`](tirex.md)</span>
+<span class="tserve-meta-item">:material-counter: 2 models</span>
+</div>
 
 <div class="tserve-caps" markdown="span">
 <span class="tserve-cap tserve-cap--off">:material-minus: [multivariate](../client/data.md#targets)</span>

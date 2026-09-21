@@ -1,6 +1,10 @@
 ### Chronos-2
 
-`Chronos2Forecaster` &middot; extra [`chronos`](chronos.md) &middot; 3 models
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: `Chronos2Forecaster`</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`chronos`](chronos.md)</span>
+<span class="tserve-meta-item">:material-counter: 3 models</span>
+</div>
 
 <div class="tserve-caps" markdown="span">
 <span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>

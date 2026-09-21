@@ -1,6 +1,10 @@
 ### Lag-Llama
 
-`LagLlamaForecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: `LagLlamaForecaster`</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`moirai`](moirai.md)</span>
+<span class="tserve-meta-item">:material-counter: 1 model</span>
+</div>
 
 <div class="tserve-caps" markdown="span">
 <span class="tserve-cap tserve-cap--off">:material-minus: [multivariate](../client/data.md#targets)</span>

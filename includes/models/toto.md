@@ -1,6 +1,10 @@
 ### Toto-2
 
-`Toto2Forecaster` &middot; extra [`toto`](toto.md) &middot; 5 models
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: `Toto2Forecaster`</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`toto`](toto.md)</span>
+<span class="tserve-meta-item">:material-counter: 5 models</span>
+</div>
 
 <div class="tserve-caps" markdown="span">
 <span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>

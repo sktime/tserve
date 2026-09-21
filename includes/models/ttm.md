@@ -1,6 +1,10 @@
 ### TTM
 
-`TinyTimeMixerForecaster` &middot; extra [`hub`](hub.md) &middot; 70 models
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: `TinyTimeMixerForecaster`</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`hub`](hub.md)</span>
+<span class="tserve-meta-item">:material-counter: 70 models</span>
+</div>
 
 <div class="tserve-caps" markdown="span">
 <span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>

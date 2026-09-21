@@ -7,6 +7,9 @@
   --tserve-cap-on-fg: #1b5e20;
   --tserve-cap-on-bg: rgba(46, 125, 50, 0.12);
   --tserve-cap-on-border: rgba(46, 125, 50, 0.35);
+  --tserve-meta-bg: rgba(68, 78, 88, 0.07);
+  --tserve-meta-border: rgba(68, 78, 88, 0.14);
+  --tserve-meta-icon: rgba(68, 78, 88, 0.55);
 }
 
 /* Slate ships a blue-grey base; nudge the hue towards the indigo accent. */
@@ -18,6 +21,9 @@
   --tserve-cap-on-fg: #a5d6a7;
   --tserve-cap-on-bg: rgba(129, 199, 132, 0.14);
   --tserve-cap-on-border: rgba(129, 199, 132, 0.35);
+  --tserve-meta-bg: rgba(255, 255, 255, 0.07);
+  --tserve-meta-border: rgba(255, 255, 255, 0.13);
+  --tserve-meta-icon: rgba(255, 255, 255, 0.5);
 }
 
 /* Headings ------------------------------------------------------------------ */
@@ -126,13 +132,67 @@
   color: var(--md-default-fg-color--light);
 }
 
+/* Model meta chips ---------------------------------------------------------- */
+
+.md-typeset .tserve-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: -0.3rem 0 0.25rem;
+}
+
+.md-typeset .tserve-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  background-color: var(--tserve-meta-bg);
+  border: 0.05rem solid var(--tserve-meta-border);
+  border-radius: 0.2rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.66rem;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+.md-typeset .tserve-meta-item .twemoji {
+  height: 0.95em;
+  width: 0.95em;
+  color: var(--tserve-meta-icon);
+}
+
+/* Chips carry their own surface; let code and links sit flat on it. */
+.md-typeset .tserve-meta-item code {
+  padding: 0;
+  background-color: transparent;
+  color: var(--md-default-fg-color);
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.md-typeset .tserve-meta-item a {
+  color: inherit;
+  text-decoration-color: currentcolor;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+}
+
+.md-typeset .tserve-meta-item a:focus,
+.md-typeset .tserve-meta-item a:hover {
+  text-decoration-style: solid;
+}
+
+.md-typeset .tserve-meta-item a code {
+  color: inherit;
+}
+
 /* Capability pills ---------------------------------------------------------- */
 
 .md-typeset .tserve-caps {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  margin: -0.4rem 0 0.8rem;
+  margin: 0 0 0.9rem;
 }
 
 .md-typeset .tserve-cap {
