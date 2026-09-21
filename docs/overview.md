@@ -10,7 +10,7 @@ Walk top to bottom. Three seams:
 
 ## What you run
 
-[`Server`][tserve.server.serve.Server] (or `tserve serve`) loads selected models, then serves:
+[`Server`][tserve.server.serve.Server] (or `tserve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |

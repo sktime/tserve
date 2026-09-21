@@ -33,13 +33,13 @@ Point `--models-dir` at the directory, then name the file stems as leftover posi
 === "uv"
 
     ```bash
-    uv run tserve serve --models-dir my-models custom-model-1 chronos-bolt
+    uv run tserve --models-dir my-models custom-model-1 chronos-bolt
     ```
 
 === "pip"
 
     ```bash
-    tserve serve --models-dir my-models custom-model-1 chronos-bolt
+    tserve --models-dir my-models custom-model-1 chronos-bolt
     ```
 
 In Docker, mount the directory and use the container path:

@@ -17,7 +17,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra mantis
-    uv run tserve serve mantis-8m
+    uv run tserve mantis-8m
     ```
 
 === "pip"
@@ -25,7 +25,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,mantis]"
-    tserve serve mantis-8m
+    tserve mantis-8m
     ```
 
 === "Docker"

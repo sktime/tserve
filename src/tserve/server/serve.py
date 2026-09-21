@@ -2,7 +2,7 @@
 
 ``Server`` always loads ``naive`` as a test baseline, plus extra models you
 name for real forecasts, then serves a dashboard at ``/`` and OpenAPI at
-``/docs``. CLI ``tserve serve`` constructs this class and calls ``run``.
+``/docs``. CLI ``tserve`` constructs this class and calls ``run``.
 """
 
 import logging
@@ -166,7 +166,7 @@ class Server:
         See Also
         --------
         [From source](../server/source.md)
-            Run the server from Python or ``tserve serve``.
+            Run the server from Python or ``tserve``.
         [HTTP API](../reference/http.md)
             Routes exposed by the running app.
         [Dashboard](../server/dashboard.md)

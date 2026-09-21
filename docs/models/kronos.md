@@ -15,7 +15,7 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra kronos
-    uv run tserve serve kronos
+    uv run tserve kronos
     ```
 
 === "pip"
@@ -23,7 +23,7 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,kronos]"
-    tserve serve kronos
+    tserve kronos
     ```
 
 === "Docker"

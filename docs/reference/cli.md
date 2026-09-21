@@ -1,12 +1,12 @@
 # CLI
 
-`tserve` has one subcommand. `tserve serve` builds [`Server`][tserve.server.serve.Server] and calls `run`, which blocks until the process stops.
+`tserve` builds [`Server`][tserve.server.serve.Server] and calls `run`, which blocks until the process stops.
 
 ```bash
-tserve serve chronos-bolt ttm-r3
+tserve chronos-bolt ttm-r3
 ```
 
-Catalog models are leftover positionals after `serve`. `naive` is always loaded as a test baseline.
+Catalog models are leftover positionals after `tserve`. `naive` is always loaded as a test baseline.
 
 A walkthrough with the startup output is on [From source](../server/source.md#serve-from-the-command-line).
 
@@ -23,7 +23,7 @@ A walkthrough with the startup output is on [From source](../server/source.md#se
 Leftover positionals take catalog models, or craft specs as `id=spec` (split on the first `=`). Quote the whole token so constructor kwargs survive the shell:
 
 ```bash
-tserve serve chronos-bolt \
+tserve chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 
@@ -33,9 +33,9 @@ tserve serve chronos-bolt \
 
 Models load while `Server` is constructed, so an unknown model, a missing dependency, or a duplicate model fails before uvicorn binds the port. Those exceptions are listed under [Errors](errors.md#startup).
 
-`Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit `2`. `tserve serve --help` prints the flags above.
+`Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit `2`. `tserve --help` prints the flags above.
 
-In Docker the entrypoint is already `tserve serve --host 0.0.0.0 --port 8000`. Arguments after the image name are extra models or flags, so leftover models (`chronos-bolt ttm-r3`) or any flag here work there too — see [Docker](../server/docker.md).
+In Docker the entrypoint is already `tserve --host 0.0.0.0 --port 8000`. Arguments after the image name are extra models or flags, so leftover models (`chronos-bolt ttm-r3`) or any flag here work there too — see [Docker](../server/docker.md).
 
 ## Python entry point
 

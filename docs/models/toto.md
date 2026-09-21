@@ -13,7 +13,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra toto
-    uv run tserve serve toto-2.0-4m
+    uv run tserve toto-2.0-4m
     ```
 
 === "pip"
@@ -21,7 +21,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,toto]"
-    tserve serve toto-2.0-4m
+    tserve toto-2.0-4m
     ```
 
 === "Docker"

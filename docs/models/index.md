@@ -16,14 +16,14 @@
 
         ```bash
         uv sync --extra server
-        uv run tserve serve
+        uv run tserve
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server]"
-        tserve serve
+        tserve
         ```
 
     === "Docker"
@@ -40,14 +40,14 @@
 
         ```bash
         uv sync --extra server --extra hub
-        uv run tserve serve chronos-bolt
+        uv run tserve chronos-bolt
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,hub]"
-        tserve serve chronos-bolt
+        tserve chronos-bolt
         ```
 
     === "Docker"
@@ -64,14 +64,14 @@
 
         ```bash
         uv sync --extra server --extra chronos
-        uv run tserve serve chronos-2
+        uv run tserve chronos-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,chronos]"
-        tserve serve chronos-2
+        tserve chronos-2
         ```
 
     === "Docker"
@@ -88,14 +88,14 @@
 
         ```bash
         uv sync --extra server --extra kronos
-        uv run tserve serve kronos
+        uv run tserve kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,kronos]"
-        tserve serve kronos
+        tserve kronos
         ```
 
     === "Docker"
@@ -112,14 +112,14 @@
 
         ```bash
         uv sync --extra server --extra granite
-        uv run tserve serve flowstate
+        uv run tserve flowstate
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,granite]"
-        tserve serve flowstate
+        tserve flowstate
         ```
 
     === "Docker"
@@ -136,14 +136,14 @@
 
         ```bash
         uv sync --extra server --extra moirai
-        uv run tserve serve moirai-2
+        uv run tserve moirai-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,moirai]"
-        tserve serve moirai-2
+        tserve moirai-2
         ```
 
     === "Docker"
@@ -160,14 +160,14 @@
 
         ```bash
         uv sync --extra server --extra tirex
-        uv run tserve serve tirex
+        uv run tserve tirex
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,tirex]"
-        tserve serve tirex
+        tserve tirex
         ```
 
     === "Docker"
@@ -184,14 +184,14 @@
 
         ```bash
         uv sync --extra server --extra toto
-        uv run tserve serve toto-2.0-4m
+        uv run tserve toto-2.0-4m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,toto]"
-        tserve serve toto-2.0-4m
+        tserve toto-2.0-4m
         ```
 
     === "Docker"
@@ -208,14 +208,14 @@
 
         ```bash
         uv sync --extra server --extra mantis
-        uv run tserve serve mantis-8m
+        uv run tserve mantis-8m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,mantis]"
-        tserve serve mantis-8m
+        tserve mantis-8m
         ```
 
     === "Docker"
@@ -232,14 +232,14 @@
 
         ```bash
         uv sync --extra server --extra full
-        uv run tserve serve chronos-2 tirex kronos
+        uv run tserve chronos-2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,full]"
-        tserve serve chronos-2 tirex kronos
+        tserve chronos-2 tirex kronos
         ```
 
     === "Docker"

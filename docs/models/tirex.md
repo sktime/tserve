@@ -17,7 +17,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra tirex
-    uv run tserve serve tirex
+    uv run tserve tirex
     ```
 
 === "pip"
@@ -25,7 +25,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,tirex]"
-    tserve serve tirex
+    tserve tirex
     ```
 
 === "Docker"

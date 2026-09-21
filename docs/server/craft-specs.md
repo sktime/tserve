@@ -1,6 +1,6 @@
 # Craft specs
 
-A craft spec is the same string you would pass to `sktime.registry.craft`: a class call, including constructor kwargs, with no imports. Pass it to [`Server`][tserve.server.serve.Server] as `(id, spec)`, or to `tserve serve` as `id=spec`. Predict uses that name as `model`, not the spec string.
+A craft spec is the same string you would pass to `sktime.registry.craft`: a class call, including constructor kwargs, with no imports. Pass it to [`Server`][tserve.server.serve.Server] as `(id, spec)`, or to `tserve` as `id=spec`. Predict uses that name as `model`, not the spec string.
 
 Catalog models cover published checkpoints. A spec is how you load a checkpoint, revision, or configuration the [catalog](../models/index.md) does not name.
 
@@ -36,7 +36,7 @@ Server(
 Leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
-tserve serve chronos-bolt \
+tserve chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 

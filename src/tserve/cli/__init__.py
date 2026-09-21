@@ -1,7 +1,7 @@
 """Command-line entry for TServe.
 
 TServe is a time-series foundation-model inference server. CLI
-``tserve serve`` builds ``Server`` and calls ``run``. Import ``main``
+``tserve`` builds ``Server`` and calls ``run``. Import ``main``
 from this package or invoke the console script.
 
 See Also
@@ -9,7 +9,7 @@ See Also
 tserve.cli.main.main
     argparse driver.
 tserve.server.serve.Server
-    Process started by ``serve``.
+    Process started by the CLI.
 """
 
 from tserve.cli.main import main

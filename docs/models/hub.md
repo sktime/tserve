@@ -15,7 +15,7 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve serve chronos-bolt
+    uv run tserve chronos-bolt
     ```
 
 === "pip"
@@ -23,7 +23,7 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve serve chronos-bolt
+    tserve chronos-bolt
     ```
 
 === "Docker"

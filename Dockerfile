@@ -49,4 +49,4 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
-ENTRYPOINT ["tserve", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["tserve", "--host", "0.0.0.0", "--port", "8000"]

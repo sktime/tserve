@@ -17,7 +17,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra moirai
-    uv run tserve serve moirai-2
+    uv run tserve moirai-2
     ```
 
 === "pip"
@@ -25,7 +25,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,moirai]"
-    tserve serve moirai-2
+    tserve moirai-2
     ```
 
 === "Docker"

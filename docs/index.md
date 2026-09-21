@@ -41,7 +41,7 @@ Or clone the repo and start from source. Python >= 3.12, and TServe is not on Py
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run tserve serve chronos-bolt ttm-r3
+    uv run tserve chronos-bolt ttm-r3
     ```
 
 === "pip"
@@ -49,7 +49,7 @@ Or clone the repo and start from source. Python >= 3.12, and TServe is not on Py
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    tserve serve chronos-bolt ttm-r3
+    tserve chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).

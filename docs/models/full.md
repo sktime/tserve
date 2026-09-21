@@ -15,7 +15,7 @@ Every family in one extra. Use it when your models span more than one family ext
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra full
-    uv run tserve serve chronos-2 tirex kronos
+    uv run tserve chronos-2 tirex kronos
     ```
 
 === "pip"
@@ -23,7 +23,7 @@ Every family in one extra. Use it when your models span more than one family ext
     ```bash
     git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,full]"
-    tserve serve chronos-2 tirex kronos
+    tserve chronos-2 tirex kronos
     ```
 
 === "Docker"
@@ -109,7 +109,7 @@ All 110 models load here. Checkpoints for all of them: [All models](index.md#all
 Combinations no single family extra allows. `kronos` alone cannot load a TTM model, `tirex` alone cannot load a Kronos model; `full` serves all three at once:
 
 ```bash
-tserve serve kronos ttm-r3 tirex
+tserve kronos ttm-r3 tirex
 ```
 
 ## Next steps

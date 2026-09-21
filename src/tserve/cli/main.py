@@ -1,4 +1,4 @@
-"""argparse CLI for ``tserve serve``.
+"""argparse CLI for ``tserve``.
 
 Builds a ``Server`` from flags and calls ``run``. Returns 0 on
 normal exit and on ``KeyboardInterrupt``.
@@ -57,11 +57,10 @@ def parse_model(tokens: list[str]) -> list[str | Path | tuple[str, Any]]:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    """Build the ``tserve`` parser with a required ``serve`` subcommand.
+    """Build the ``tserve`` parser.
 
-    ``serve`` flags: leftover positional ids (extra catalog ids or
-    ``id=spec`` craft tokens; ``naive`` is always loaded as a test
-    baseline),
+    Flags: leftover positional ids (extra catalog ids or ``id=spec``
+    craft tokens; ``naive`` is always loaded as a test baseline),
     ``--models-dir`` (rewrites matching stems to paths; does not
     auto-load the directory), ``--host`` (default ``127.0.0.1``),
     ``--port`` (default 8000), ``--log-level`` (default ``info``;
@@ -70,7 +69,7 @@ def _build_parser() -> argparse.ArgumentParser:
     Returns
     -------
     argparse.ArgumentParser
-        Parser with ``prog="tserve"`` and required dest ``command``.
+        Parser with ``prog="tserve"``.
     """
     parser = argparse.ArgumentParser(prog="tserve", allow_abbrev=False)
     parser.add_argument(
@@ -78,25 +77,22 @@ def _build_parser() -> argparse.ArgumentParser:
         action="version",
         version=f"tserve {__version__}",
     )
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    serve = sub.add_parser("serve", help="run the inference server", allow_abbrev=False)
-    serve.add_argument(
+    parser.add_argument(
         "--models-dir",
         dest="models_dir",
         default=None,
         help="directory of models to load (default: none)",
     )
-    serve.add_argument("--host", default="127.0.0.1")
-    serve.add_argument("--port", type=int, default=8000)
-    serve.add_argument(
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument(
         "--log-level",
         default="info",
         dest="log_level",
         choices=["debug", "info", "warning", "error", "critical"],
         help="TServe and uvicorn verbosity (default: info)",
     )
-    serve.add_argument(
+    parser.add_argument(
         "positional_model",
         nargs="*",
         metavar="MODEL",
@@ -108,8 +104,6 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Parse argv, construct ``Server``, and run it.
 
-    Requires subcommand ``serve``. Unknown ``command`` values call
-    ``parser.error`` (should not occur with the required subparser).
     ``KeyboardInterrupt`` from ``server.run`` returns 0.
 
     Parameters
@@ -153,8 +147,6 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
-    if args.command != "serve":
-        parser.error(f"unknown command {args.command}")
 
     from tserve.server import Server
 

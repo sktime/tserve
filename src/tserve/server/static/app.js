@@ -180,7 +180,7 @@
       if (!state.models.length) {
         select.innerHTML = '<option value="">no models loaded</option>';
         select.disabled = true;
-        $('#model-hint').textContent = 'naive is a test baseline; pass extra ids as leftover CLI positionals for a real forecast';
+        $('#model-hint').textContent = 'naive is a test baseline; pass extra ids after tserve for a real forecast';
       } else {
         select.disabled = false;
         select.innerHTML = state.models
