@@ -1,8 +1,12 @@
 ### Chronos-2
 
-`Chronos2Forecaster` &middot; extra [`chronos`](chronos.md) &middot; 3 models &middot; no [quantiles](../client/data.md#quantiles)
+`Chronos2Forecaster` &middot; extra [`chronos`](chronos.md) &middot; 3 models
 
-Multivariate, with covariate support.
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--on">:material-check: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 | model | checkpoint |
 | --- | --- |

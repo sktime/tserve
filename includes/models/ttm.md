@@ -1,6 +1,12 @@
 ### TTM
 
-`TinyTimeMixerForecaster` &middot; extra [`hub`](hub.md) &middot; 70 models &middot; no [quantiles](../client/data.md#quantiles)
+`TinyTimeMixerForecaster` &middot; extra [`hub`](hub.md) &middot; 70 models
+
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--on">:material-check: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 IBM Granite Tiny Time Mixers. Models are `{revision}-{context}-{horizon}`, with optional `-lite` or `-l1`. The four short models instead take the forecaster default revision, and `ttm` its default repo too.
 

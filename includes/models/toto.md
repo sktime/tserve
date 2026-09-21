@@ -1,6 +1,12 @@
 ### Toto-2
 
-`Toto2Forecaster` &middot; extra [`toto`](toto.md) &middot; 5 models &middot; [quantiles](../client/data.md#quantiles)
+`Toto2Forecaster` &middot; extra [`toto`](toto.md) &middot; 5 models
+
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--on">:material-check: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--on">:material-check: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 | model | checkpoint |
 | --- | --- |

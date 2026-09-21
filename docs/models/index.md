@@ -332,14 +332,27 @@ Only `model` changes between extras. Python needs the [`client`](../client/pytho
 
 --8<-- "includes/models/mantis.md"
 
-## Quantile support
+## Capabilities
 
-Read from the estimator, not a TServe flag. Ask for levels with the `quantiles` field: [HTTP](../client/http.md#request-quantiles), [Python](../client/python.md#request-quantiles).
+Every capability is read from the estimator, not set by a TServe flag. [Multivariate](../client/data.md#targets) is more than one `target`; [exogenous](../client/data.md#future-and-static-data) is a covariate the model actually uses instead of ignoring; [quantiles](../client/data.md#quantiles) are prediction intervals ([HTTP](../client/http.md#request-quantiles), [Python](../client/python.md#request-quantiles)).
 
-| | families |
-| --- | --- |
-| Returns quantiles | [Naive](#naive), [TimesFM](#timesfm), [WindFM](#windfm), [Lag-Llama](#lag-llama), [FlowState](#flowstate), [Toto-2](#toto-2) |
-| Point forecasts only | [Chronos-2](#chronos-2), [Chronos Bolt](#chronos-bolt), [Chronos T5](#chronos-t5), [TTM](#ttm), [Kronos](#kronos), [Moirai 2](#moirai-2), [Moirai 1.x](#moirai-1x), [TiRex](#tirex), [Mantis](#mantis) |
+| family | multivariate | exogenous | quantiles |
+| --- | :-: | :-: | :-: |
+| [Naive](#naive) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [Chronos-2](#chronos-2) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
+| [Chronos Bolt](#chronos-bolt) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
+| [Chronos T5](#chronos-t5) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
+| [TTM](#ttm) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
+| [TimesFM](#timesfm) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [Kronos](#kronos) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
+| [WindFM](#windfm) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
+| [FlowState](#flowstate) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [Moirai 2](#moirai-2) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
+| [Moirai 1.x](#moirai-1x) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
+| [Lag-Llama](#lag-llama) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [TiRex](#tirex) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
+| [Toto-2](#toto-2) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [Mantis](#mantis) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 
 ## Where to next
 

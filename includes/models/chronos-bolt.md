@@ -1,6 +1,12 @@
 ### Chronos Bolt
 
-`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 4 models &middot; no [quantiles](../client/data.md#quantiles)
+`ChronosForecaster` &middot; extra [`hub`](hub.md) &middot; 4 models
+
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--off">:material-minus: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 | model | checkpoint |
 | --- | --- |

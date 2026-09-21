@@ -4,6 +4,9 @@
   --tserve-hero-from: #3f51b5;
   --tserve-hero-to: #1a237e;
   --tserve-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.1);
+  --tserve-cap-on-fg: #1b5e20;
+  --tserve-cap-on-bg: rgba(46, 125, 50, 0.12);
+  --tserve-cap-on-border: rgba(46, 125, 50, 0.35);
 }
 
 /* Slate ships a blue-grey base; nudge the hue towards the indigo accent. */
@@ -12,6 +15,9 @@
   --tserve-hero-from: #26317a;
   --tserve-hero-to: #0d0d14;
   --tserve-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.4);
+  --tserve-cap-on-fg: #a5d6a7;
+  --tserve-cap-on-bg: rgba(129, 199, 132, 0.14);
+  --tserve-cap-on-border: rgba(129, 199, 132, 0.35);
 }
 
 /* Headings ------------------------------------------------------------------ */
@@ -118,6 +124,59 @@
 .md-typeset .grid.cards .twemoji {
   height: 1.4rem;
   color: var(--md-default-fg-color--light);
+}
+
+/* Capability pills ---------------------------------------------------------- */
+
+.md-typeset .tserve-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: -0.4rem 0 0.8rem;
+}
+
+.md-typeset .tserve-cap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.05rem 0.45rem;
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 1rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.62rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.md-typeset .tserve-cap--on {
+  background-color: var(--tserve-cap-on-bg);
+  border-color: var(--tserve-cap-on-border);
+  color: var(--tserve-cap-on-fg);
+}
+
+.md-typeset .tserve-cap .twemoji {
+  height: 0.9em;
+  width: 0.9em;
+}
+
+.md-typeset .tserve-cap a {
+  color: inherit;
+  text-decoration-color: currentcolor;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+}
+
+.md-typeset .tserve-cap a:focus,
+.md-typeset .tserve-cap a:hover {
+  text-decoration-style: solid;
+}
+
+.md-typeset .tserve-yes {
+  color: var(--tserve-cap-on-fg);
+}
+
+.md-typeset .tserve-no {
+  color: var(--md-default-fg-color--lighter);
 }
 
 /* Tables and code ----------------------------------------------------------- */

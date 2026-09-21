@@ -1,6 +1,12 @@
 ### Moirai 1.x
 
-`MOIRAIForecaster` &middot; extra [`moirai`](moirai.md) &middot; 6 models &middot; no [quantiles](../client/data.md#quantiles)
+`MOIRAIForecaster` &middot; extra [`moirai`](moirai.md) &middot; 6 models
+
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--off">:material-minus: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--on">:material-check: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 | model | checkpoint |
 | --- | --- |
