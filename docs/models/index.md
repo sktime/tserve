@@ -1,10 +1,6 @@
 # Catalog
 
-110 models a TServe process *can* load. The server always loads `naive`, a
-no-download baseline for testing. Name a catalog model with
-[`--model`](../reference/cli.md#flags) or leftover positionals for a real
-forecast. `GET /models` reports what did. The same model goes in `--model` and in
-a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
+110 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model with [`--model`](../reference/cli.md#flags) or leftover positionals for a real forecast. `GET /models` reports what did. The same model goes in `--model` and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -38,8 +34,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "hub"
 
-    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 models, plus `naive`. Full
-    page: [hub](hub.md).
+    Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 models, plus `naive`. Full page: [hub](hub.md).
 
     === "uv"
 
@@ -87,8 +82,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "kronos"
 
-    Kronos and WindFM. Sits on `base`, so **no** Hub models. Full page:
-    [kronos](kronos.md).
+    Kronos and WindFM. Sits on `base`, so **no** Hub models. Full page: [kronos](kronos.md).
 
     === "uv"
 
@@ -136,8 +130,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "moirai"
 
-    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) model. Full page:
-    [moirai](moirai.md).
+    Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) model. Full page: [moirai](moirai.md).
 
     === "uv"
 
@@ -209,8 +202,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "mantis"
 
-    Mantis, plus every [hub](hub.md) model. Needs `past` longer than 127 rows.
-    Full page: [mantis](mantis.md).
+    Mantis, plus every [hub](hub.md) model. Needs `past` longer than 127 rows. Full page: [mantis](mantis.md).
 
     === "uv"
 
@@ -234,8 +226,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 === "full"
 
-    All 110 models, and the only way to mix two family stacks. Full page:
-    [full](full.md).
+    All 110 models, and the only way to mix two family stacks. Full page: [full](full.md).
 
     === "uv"
 
@@ -307,9 +298,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
     print(result.predictions)
     ```
 
-Only `model` changes between extras. Python needs the
-[`client`](../client/python.md#install) extra on the caller. Every field,
-format, and response shape: [Data specification](../client/data.md).
+Only `model` changes between extras. Python needs the [`client`](../client/python.md#install) extra on the caller. Every field, format, and response shape: [Data specification](../client/data.md).
 
 ## All models
 
@@ -345,9 +334,7 @@ format, and response shape: [Data specification](../client/data.md).
 
 ## Quantile support
 
-Read from the estimator, not a TServe flag. Ask for levels with the `quantiles`
-field: [HTTP](../client/http.md#request-quantiles),
-[Python](../client/python.md#request-quantiles).
+Read from the estimator, not a TServe flag. Ask for levels with the `quantiles` field: [HTTP](../client/http.md#request-quantiles), [Python](../client/python.md#request-quantiles).
 
 | | families |
 | --- | --- |
@@ -380,8 +367,7 @@ field: [HTTP](../client/http.md#request-quantiles),
 
     JSON over `POST /predict`, or native tables from Python.
 
-    [:octicons-arrow-right-24: HTTP](../client/http.md) or
-    [Python](../client/python.md)
+    [:octicons-arrow-right-24: HTTP](../client/http.md) or [Python](../client/python.md)
 
 -   :material-text:{ .lg .middle } **Beyond the catalog**
 

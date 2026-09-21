@@ -1,28 +1,21 @@
 # Client
 
-Send predictions to a TServe server over HTTP or from Python. Both paths use the
-same request fields and return the same prediction content:
+Send predictions to a TServe server over HTTP or from Python. Both paths use the same request fields and return the same prediction content:
 
 - [HTTP](http.md) sends JSON to `POST /predict` from any language.
-- [Python](python.md) accepts native tables and sends Arrow to
-  `POST /predict/bytes`.
+- [Python](python.md) accepts native tables and sends Arrow to `POST /predict/bytes`.
 
 TServe is not a hosted API. The URL points to a server process you started.
 
 ## Start a server
 
-For the examples in this section, start the `hub` image with
-`chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
+For the examples in this section, start the `hub` image with `chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt timesfm-2.5
 ```
 
-The first start downloads model weights. See [Server](../server/index.md)
-for source installs and server options, or [Docker](../server/docker.md) for image
-tags, GPU support, Hugging Face tokens, and cache volumes. Both models come from
-the [`hub`](../models/hub.md) extra; for a model from another family, start
-from its extra's page in the [catalog](../models/index.md#dependencies).
+The first start downloads model weights. See [Server](../server/index.md) for source installs and server options, or [Docker](../server/docker.md) for image tags, GPU support, Hugging Face tokens, and cache volumes. Both models come from the [`hub`](../models/hub.md) extra; for a model from another family, start from its extra's page in the [catalog](../models/index.md#dependencies).
 
 Check which models this process loaded:
 
@@ -38,27 +31,22 @@ Check which models this process loaded:
     curl.exe -s http://127.0.0.1:8000/models
     ```
 
-`GET /models` lists loaded models, not every model in the
-[catalog](../models/index.md).
+`GET /models` lists loaded models, not every model in the [catalog](../models/index.md).
 
 ## Data at a glance
 
 A predict request combines a table with the roles of its columns:
 
-- `past` is the historical table. Time must be a column, alongside one or more
-  target columns.
+- `past` is the historical table. Time must be a column, alongside one or more target columns.
 - `time` names the time column and `target` names the columns to forecast.
 - `fh` is the number of steps ahead.
 - `model` is a model loaded by this server.
 
-The HTTP endpoint accepts column-oriented and row-oriented JSON. The Python
-client also accepts pandas, polars, pyarrow, and Narwhals tables. See
-[Data specification](data.md) for every field, format, default, and limitation.
+The HTTP endpoint accepts column-oriented and row-oriented JSON. The Python client also accepts pandas, polars, pyarrow, and Narwhals tables. See [Data specification](data.md) for every field, format, default, and limitation.
 
 ## First prediction
 
-This request sends five days of sales and asks `chronos-bolt` for the next
-three days:
+This request sends five days of sales and asks `chronos-bolt` for the next three days:
 
 === "bash / zsh"
 
@@ -81,9 +69,7 @@ three days:
     curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
     ```
 
-The response contains a `predictions` table, the model, a request id, and
-optional quantiles. Continue with [HTTP](http.md) for JSON examples or
-[Python](python.md) for native Python tables.
+The response contains a `predictions` table, the model, a request id, and optional quantiles. Continue with [HTTP](http.md) for JSON examples or [Python](python.md) for native Python tables.
 
 ## In this section
 

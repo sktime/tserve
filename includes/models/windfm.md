@@ -1,7 +1,6 @@
 ### WindFM
 
-`WindFMForecaster` &middot; extra [`kronos`](kronos.md) &middot; 2 models
-&middot; [quantiles](../client/data.md#quantiles)
+`WindFMForecaster` &middot; extra [`kronos`](kronos.md) &middot; 2 models &middot; [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

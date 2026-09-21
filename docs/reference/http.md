@@ -1,10 +1,6 @@
 # HTTP API
 
-Routes served by the running [`Server`][tserve.server.serve.Server]. The process
-publishes its own interactive copy of this page at
-[/docs](http://127.0.0.1:8000/docs) and the raw schema at
-[/openapi.json](http://127.0.0.1:8000/openapi.json). For worked requests, see
-[HTTP](../client/http.md).
+Routes served by the running [`Server`][tserve.server.serve.Server]. The process publishes its own interactive copy of this page at [/docs](http://127.0.0.1:8000/docs) and the raw schema at [/openapi.json](http://127.0.0.1:8000/openapi.json). For worked requests, see [HTTP](../client/http.md).
 
 | method | path | response |
 | --- | --- | --- |
@@ -16,21 +12,13 @@ publishes its own interactive copy of this page at
 | `GET` | `/` | [dashboard](../server/dashboard.md) HTML |
 | `GET` | `/docs`, `/redoc`, `/openapi.json` | OpenAPI |
 
-Prediction is POST only, so `GET /predict` is **405**. There is no path
-prefix, no versioning, and no authentication: the origin is the process you
-started. `/`, `/favicon.ico`, and the dashboard assets under `/static` are
-excluded from the OpenAPI schema.
+Prediction is POST only, so `GET /predict` is **405**. There is no path prefix, no versioning, and no authentication: the origin is the process you started. `/`, `/favicon.ico`, and the dashboard assets under `/static` are excluded from the OpenAPI schema.
 
 ## POST /predict
 
-`Content-Type: application/json`. The body is
-[`PredictRequest`][tserve.types.models.PredictRequest] — `past` and `fh` are
-required, `model` defaults to `naive`. Field meanings,
-table shapes, and inference rules are in the
-[data specification](../client/data.md).
+`Content-Type: application/json`. The body is [`PredictRequest`][tserve.types.models.PredictRequest] — `past` and `fh` are required, `model` defaults to `naive`. Field meanings, table shapes, and inference rules are in the [data specification](../client/data.md).
 
-The response is column-oriented JSON: `predictions`, `quantiles` (`null`
-unless requested and supported), `model`, and a server-assigned `request_id`.
+The response is column-oriented JSON: `predictions`, `quantiles` (`null` unless requested and supported), `model`, and a server-assigned `request_id`.
 
 | status | meaning |
 | --- | --- |
@@ -42,9 +30,7 @@ Bodies for both failures are in [Errors](errors.md#predict-requests).
 
 ## POST /predict/bytes
 
-The Arrow route used by [`Client`][tserve.client.client.Client]. It exists so
-tables cross the wire as Arrow IPC instead of JSON numbers; the fields are the
-same as `POST /predict`.
+The Arrow route used by [`Client`][tserve.client.client.Client]. It exists so tables cross the wire as Arrow IPC instead of JSON numbers; the fields are the same as `POST /predict`.
 
 The request is `multipart/form-data`:
 
@@ -54,8 +40,7 @@ The request is `multipart/form-data`:
 | `past` | file | Arrow IPC stream, `application/vnd.apache.arrow.stream` |
 | `future`, `static` | file | optional Arrow IPC streams; empty bodies are ignored |
 
-The response media type is `application/vnd.tserve.predict+arrow`, an envelope
-of length-prefixed parts:
+The response media type is `application/vnd.tserve.predict+arrow`, an envelope of length-prefixed parts:
 
 ```text
 b"TSRV"     magic, 4 bytes
@@ -68,20 +53,13 @@ per part:
   bytes     payload
 ```
 
-The part named `response` is JSON metadata (`model`, `request_id`). The
-remaining parts are Arrow IPC streams: `predictions`, plus `quantiles` when
-requested. Missing `metadata` or `past` parts are **422**; anything failing
-after that — unparsable metadata, an unreadable Arrow stream, a failed
-prediction — is **400** with the same body as the JSON route.
+The part named `response` is JSON metadata (`model`, `request_id`). The remaining parts are Arrow IPC streams: `predictions`, plus `quantiles` when requested. Missing `metadata` or `past` parts are **422**; anything failing after that — unparsable metadata, an unreadable Arrow stream, a failed prediction — is **400** with the same body as the JSON route.
 
 ## Status routes
 
-`GET /health` reports process liveness, not whether models are warm. It
-currently always returns `{"status": "ok"}`; the `error` field in the schema
-is unused.
+`GET /health` reports process liveness, not whether models are warm. It currently always returns `{"status": "ok"}`; the `error` field in the schema is unused.
 
-`GET /models` lists what this process loaded, not the registry
-[catalog](../models/index.md):
+`GET /models` lists what this process loaded, not the registry [catalog](../models/index.md):
 
 ```json
 {
@@ -92,10 +70,7 @@ is unused.
 }
 ```
 
-`source` is `registry`, `directory` (a saved `.zip`), `object` (a live
-estimator), or `craft` (a sktime craft spec). How to load a spec:
-[Craft specs](../server/craft-specs.md). `executor` is the plugin that
-loaded it, today always `sktime`.
+`source` is `registry`, `directory` (a saved `.zip`), `object` (a live estimator), or `craft` (a sktime craft spec). How to load a spec: [Craft specs](../server/craft-specs.md). `executor` is the plugin that loaded it, today always `sktime`.
 
 `GET /stats` is a snapshot of the process:
 
@@ -121,8 +96,4 @@ loaded it, today always `sktime`.
 }
 ```
 
-Keys under `models` are loaded models. Timings are wall-clock seconds, and
-failed predicts count in both `requests.failed` and `latency_s`. Either memory
-probe is `null` when it is unavailable — `gpu_mb` needs torch already imported
-with CUDA present. Field-by-field types are in
-[`StatsResult`][tserve.types.models.StatsResult].
+Keys under `models` are loaded models. Timings are wall-clock seconds, and failed predicts count in both `requests.failed` and `latency_s`. Either memory probe is `null` when it is unavailable — `gpu_mb` needs torch already imported with CUDA present. Field-by-field types are in [`StatsResult`][tserve.types.models.StatsResult].

@@ -1,8 +1,6 @@
 ### TimesFM
 
-`TimesFM2Forecaster` &middot; extra [`hub`](hub.md) &middot; 2 models &middot;
-[quantiles](../client/data.md#quantiles) at the levels the checkpoint config
-ships
+`TimesFM2Forecaster` &middot; extra [`hub`](hub.md) &middot; 2 models &middot; [quantiles](../client/data.md#quantiles) at the levels the checkpoint config ships
 
 | model | checkpoint |
 | --- | --- |

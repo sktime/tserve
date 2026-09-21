@@ -1,7 +1,6 @@
 # Python API
 
-Signatures for the public objects. Guides: [Python](../client/python.md) for
-calling a server, [From source](../server/source.md) for running one.
+Signatures for the public objects. Guides: [Python](../client/python.md) for calling a server, [From source](../server/source.md) for running one.
 
 ## Client
 
@@ -19,8 +18,7 @@ Import from `tserve.client`. Needs the `client` extra.
 
 ## Server
 
-Import from `tserve.server`. Needs the `server` extra and a family extra for the
-models you load.
+Import from `tserve.server`. Needs the `server` extra and a family extra for the models you load.
 
 ::: tserve.server.serve.Server
     options:
@@ -31,9 +29,7 @@ models you load.
 
 ## Predict request and response
 
-`PredictRequest` is both the JSON body of `POST /predict` and the keyword
-signature of `Client.predict`. Table formats and column rules are in the
-[data specification](../client/data.md).
+`PredictRequest` is both the JSON body of `POST /predict` and the keyword signature of `Client.predict`. Table formats and column rules are in the [data specification](../client/data.md).
 
 ::: tserve.types.models.PredictRequest
     options:
@@ -47,8 +43,7 @@ signature of `Client.predict`. Table formats and column rules are in the
 
 ## Status payloads
 
-Returned by `client.health()`, `client.models()`, and `client.stats()`, and by
-the [matching HTTP routes](http.md#status-routes).
+Returned by `client.health()`, `client.models()`, and `client.stats()`, and by the [matching HTTP routes](http.md#status-routes).
 
 ::: tserve.types.models.HealthResult
     options:

@@ -1,7 +1,6 @@
 ### Moirai 1.x
 
-`MOIRAIForecaster` &middot; extra [`moirai`](moirai.md) &middot; 6 models
-&middot; no [quantiles](../client/data.md#quantiles)
+`MOIRAIForecaster` &middot; extra [`moirai`](moirai.md) &middot; 6 models &middot; no [quantiles](../client/data.md#quantiles)
 
 | model | checkpoint |
 | --- | --- |

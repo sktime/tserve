@@ -8,8 +8,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 
 !!! note "License"
 
-    The registry crafts TiRex with `license_accepted=True`. Read the
-    [model card](https://huggingface.co/NX-AI/TiRex) terms first.
+    The registry crafts TiRex with `license_accepted=True`. Read the [model card](https://huggingface.co/NX-AI/TiRex) terms first.
 
 ## Start a server
 
@@ -35,9 +34,7 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
     docker run --rm -p 8000:8000 sktime/tserve:tirex --model tirex
     ```
 
-GPU: swap in
-[`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) and
-add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

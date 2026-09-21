@@ -30,9 +30,7 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
     docker run --rm -p 8000:8000 sktime/tserve:toto --model toto-2.0-4m
     ```
 
-GPU: swap in
-[`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) and
-add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

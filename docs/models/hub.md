@@ -1,14 +1,12 @@
 # hub
 
-Four Hugging Face families, 81 of the catalog's 110 models. The usual starting
-point.
+Four Hugging Face families, 81 of the catalog's 110 models. The usual starting point.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
 | `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos-bolt` |
 
-Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls
-`hf` builds on `hub`, so those pages can load these models as well.
+Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls `hf` builds on `hub`, so those pages can load these models as well.
 
 ## Start a server
 
@@ -34,9 +32,7 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt
     ```
 
-GPU: swap in
-[`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add
-`--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

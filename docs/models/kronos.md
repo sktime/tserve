@@ -6,8 +6,7 @@ Kronos and WindFM.
 | --- | --- | --- | --- | --- | --- |
 | `kronos` | [`:kronos`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos) | [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) | Kronos, WindFM | 5 | `kronos` |
 
-Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos
-T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
+Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
 
 ## Start a server
 
@@ -33,9 +32,7 @@ T5, TTM, or TimesFM here. To mix, use [`full`](full.md).
     docker run --rm -p 8000:8000 sktime/tserve:kronos --model kronos
     ```
 
-GPU: swap in
-[`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

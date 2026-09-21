@@ -1,22 +1,18 @@
 # CLI
 
-`tserve` has one subcommand. `tserve serve` builds
-[`Server`][tserve.server.serve.Server] and calls `run`, which blocks until the
-process stops.
+`tserve` has one subcommand. `tserve serve` builds [`Server`][tserve.server.serve.Server] and calls `run`, which blocks until the process stops.
 
 ```bash
 tserve serve chronos-bolt ttm-r3
 ```
 
-`--model` is optional when the models are leftover positionals. Both forms
-are equivalent, and they combine: flag tokens first, then positionals.
+`--model` is optional when the models are leftover positionals. Both forms are equivalent, and they combine: flag tokens first, then positionals.
 
 ```bash
 tserve serve --model chronos-bolt ttm-r3
 ```
 
-A walkthrough with the startup output is on
-[From source](../server/source.md#serve-from-the-command-line).
+A walkthrough with the startup output is on [From source](../server/source.md#serve-from-the-command-line).
 
 ## Flags
 
@@ -29,35 +25,22 @@ A walkthrough with the startup output is on
 | `--port` | `8000` | bind port |
 | `--log-level` | `info` | `debug`, `info`, `warning`, `error`, or `critical`, for TServe and uvicorn |
 
-`--model` and leftover positionals take catalog models, or craft specs as
-`id=spec` (split on the first `=`). Quote the whole token so constructor
-kwargs survive the shell:
+`--model` and leftover positionals take catalog models, or craft specs as `id=spec` (split on the first `=`). Quote the whole token so constructor kwargs survive the shell:
 
 ```bash
 tserve serve --model chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 
-`--models-dir` never loads a directory wholesale: it rewrites the models you
-already named when they match a `.zip` stem in that directory, and the rest
-fall through to the registry. Serving a live estimator you built in Python
-has no CLI form — see [Live objects](../server/live-objects.md). Craft specs
-are documented with quoting and `GET /models` source values on
-[Craft specs](../server/craft-specs.md).
+`--models-dir` never loads a directory wholesale: it rewrites the models you already named when they match a `.zip` stem in that directory, and the rest fall through to the registry. Serving a live estimator you built in Python has no CLI form — see [Live objects](../server/live-objects.md). Craft specs are documented with quoting and `GET /models` source values on [Craft specs](../server/craft-specs.md).
 
 ## Startup and exit
 
-Models load while `Server` is constructed, so an unknown model, a missing
-dependency, or a duplicate model fails before uvicorn binds the port. Those
-exceptions are listed under [Errors](errors.md#startup).
+Models load while `Server` is constructed, so an unknown model, a missing dependency, or a duplicate model fails before uvicorn binds the port. Those exceptions are listed under [Errors](errors.md#startup).
 
-`Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit
-`2`. `tserve serve --help` prints the flags above.
+`Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit `2`. `tserve serve --help` prints the flags above.
 
-In Docker the entrypoint is already `tserve serve --host 0.0.0.0 --port 8000`.
-Arguments after the image name are extra models or flags, so leftover models
-(`chronos-bolt ttm-r3`) or any flag here work there too — see
-[Docker](../server/docker.md).
+In Docker the entrypoint is already `tserve serve --host 0.0.0.0 --port 8000`. Arguments after the image name are extra models or flags, so leftover models (`chronos-bolt ttm-r3`) or any flag here work there too — see [Docker](../server/docker.md).
 
 ## Python entry point
 

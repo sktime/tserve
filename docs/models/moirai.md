@@ -8,8 +8,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 !!! note "Python pins"
 
-    `gluonts`, `lightning`, and `hydra-core` are pinned only for
-    `python_version < '3.14'`.
+    `gluonts`, `lightning`, and `hydra-core` are pinned only for `python_version < '3.14'`.
 
 ## Start a server
 
@@ -35,9 +34,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
     docker run --rm -p 8000:8000 sktime/tserve:moirai --model moirai-2
     ```
 
-GPU: swap in
-[`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

@@ -1,11 +1,8 @@
 ### TTM
 
-`TinyTimeMixerForecaster` &middot; extra [`hub`](hub.md) &middot; 70 models
-&middot; no [quantiles](../client/data.md#quantiles)
+`TinyTimeMixerForecaster` &middot; extra [`hub`](hub.md) &middot; 70 models &middot; no [quantiles](../client/data.md#quantiles)
 
-IBM Granite Tiny Time Mixers. Models are `{revision}-{context}-{horizon}`, with
-optional `-lite` or `-l1`. The four short models instead take the forecaster
-default revision, and `ttm` its default repo too.
+IBM Granite Tiny Time Mixers. Models are `{revision}-{context}-{horizon}`, with optional `-lite` or `-l1`. The four short models instead take the forecaster default revision, and `ttm` its default repo too.
 
 #### TTM defaults
 
@@ -63,8 +60,7 @@ Same Hub repo as [r2](#ttm-r2). `-l1` is the L1 checkpoint.
 
 #### TTM r3
 
-[ibm-granite/granite-timeseries-ttm-r3](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r3).
-Each model has a `-lite` sibling.
+[ibm-granite/granite-timeseries-ttm-r3](https://huggingface.co/ibm-granite/granite-timeseries-ttm-r3). Each model has a `-lite` sibling.
 
 | model | lite | context | horizon |
 | --- | --- | --- | --- |

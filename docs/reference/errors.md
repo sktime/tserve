@@ -1,8 +1,6 @@
 # Errors
 
-TServe defines no exception types of its own. The server answers with HTTP
-status codes, and the Python side raises built-ins plus Pydantic
-`ValidationError`.
+TServe defines no exception types of its own. The server answers with HTTP status codes, and the Python side raises built-ins plus Pydantic `ValidationError`.
 
 ## Predict requests
 
@@ -12,9 +10,7 @@ status codes, and the Python side raises built-ins plus Pydantic
 | **400** | the body was accepted but the request failed: the `model` is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
 | **405** | wrong method, such as `GET /predict` (the body says to use `POST /predict`) |
 
-The split is where the failure happens. **422** is FastAPI rejecting the
-JSON body before the handler runs, so the body is the usual FastAPI list of
-field errors. **400** is the handler wrapping everything after that:
+The split is where the failure happens. **422** is FastAPI rejecting the JSON body before the handler runs, so the body is the usual FastAPI list of field errors. **400** is the handler wrapping everything after that:
 
 ```json
 {
@@ -26,37 +22,22 @@ field errors. **400** is the handler wrapping everything after that:
 }
 ```
 
-A model that is missing from `GET /models` is 400, not 404. Missing columns read
-`past is missing columns: ['sales'] (available: ['timestamp', 'value'])`.
+A model that is missing from `GET /models` is 400, not 404. Missing columns read `past is missing columns: ['sales'] (available: ['timestamp', 'value'])`.
 
-Estimator failures are wrapped rather than passed through, because the library
-wording for the same mistake ranges from clear to unrecognizable — Chronos
-Bolt past 64 steps raises `'ChronosBoltPipeline' object has no attribute
-'quantiles'`. The message names the step that failed and the request values it
-failed on, quotes the estimator under `Original error:`, and points at the
-[catalog](../models/index.md):
+Estimator failures are wrapped rather than passed through, because the library wording for the same mistake ranges from clear to unrecognizable — Chronos Bolt past 64 steps raises `'ChronosBoltPipeline' object has no attribute 'quantiles'`. The message names the step that failed and the request values it failed on, quotes the estimator under `Original error:`, and points at the [catalog](../models/index.md):
 
 | the step that failed | 400 opens with |
 | --- | --- |
 | the point forecast (`fit` then `predict`) | `Model 'chronos-bolt' failed to forecast 70 step(s) ahead from the 200 row(s) in past.` |
 | the quantiles | `Model 'timesfm-2.5' returned its point forecast but failed on the requested quantiles [0.1, 0.9].` |
 
-It does not try to diagnose the cause beyond that, so read the original error
-and compare the request against the context, horizon, and quantile support the
-catalog records for the model. An `fh` past the model's trained horizon and a
-`past` shorter than its context length both surface as the first one.
+It does not try to diagnose the cause beyond that, so read the original error and compare the request against the context, horizon, and quantile support the catalog records for the model. An `fh` past the model's trained horizon and a `past` shorter than its context length both surface as the first one.
 
-Asking a model that cannot produce quantiles for them is the one case TServe does
-decide: it is rejected before the estimator runs, so it reads `Model
-'chronos-bolt' cannot return quantile predictions, so the requested quantiles
-[0.1, 0.9] are unavailable.` with no `Original error:` at all.
+Asking a model that cannot produce quantiles for them is the one case TServe does decide: it is rejected before the estimator runs, so it reads `Model 'chronos-bolt' cannot return quantile predictions, so the requested quantiles [0.1, 0.9] are unavailable.` with no `Original error:` at all.
 
-`POST /predict/bytes` behaves the same way, with 422 reserved for a missing
-`metadata` field or `past` file.
+`POST /predict/bytes` behaves the same way, with 422 reserved for a missing `metadata` field or `past` file.
 
-A **404** with `{"detail": "Not Found"}` is not a predict error: that path
-does not exist on this process. Check the URL, the port, and that you are
-posting to `/predict` — there is no version prefix.
+A **404** with `{"detail": "Not Found"}` is not a predict error: that path does not exist on this process. Check the URL, the port, and that you are posting to `/predict` — there is no version prefix.
 
 ## Python client
 
@@ -67,21 +48,13 @@ posting to `/predict` — there is no version prefix.
 | `httpx.RequestError` | connection refused, DNS failure, or timeout (default 60 s, set `timeout=` on `Client`) |
 | `ValueError` | empty inferred target (time-only `past`, `future` holding the value column, or time only on a pandas index); or the response envelope is truncated, has wrong magic bytes, or an unsupported version |
 
-`RuntimeError` is deliberately flat: the server-side type is gone by then, so
-read the message. Local `ValidationError`s never reach the network, which is
-why a wrong table shape fails instantly while an unloaded model needs a round
-trip.
+`RuntimeError` is deliberately flat: the server-side type is gone by then, so read the message. Local `ValidationError`s never reach the network, which is why a wrong table shape fails instantly while an unloaded model needs a round trip.
 
-The one surprising local failure is a pandas frame whose time axis is only the
-index. `time` then resolves to the first real column, target inference finds
-nothing left, and `coerce_request` raises `ValueError` before the request is
-sent. Call `reset_index()` first — see
-[Use an indexed pandas frame](../client/python.md#use-an-indexed-pandas-frame).
+The one surprising local failure is a pandas frame whose time axis is only the index. `time` then resolves to the first real column, target inference finds nothing left, and `coerce_request` raises `ValueError` before the request is sent. Call `reset_index()` first — see [Use an indexed pandas frame](../client/python.md#use-an-indexed-pandas-frame).
 
 ## Startup
 
-These stop [`Server`][tserve.server.serve.Server] construction, which means the
-CLI exits before uvicorn binds the port:
+These stop [`Server`][tserve.server.serve.Server] construction, which means the CLI exits before uvicorn binds the port:
 
 | exception | when |
 | --- | --- |
@@ -91,7 +64,4 @@ CLI exits before uvicorn binds the port:
 | `OSError` | `models_dir` does not exist or cannot be listed |
 | `RuntimeError` | the model loaded but failed its warmup forecast, so it would fail on every request |
 
-Whatever an estimator raises while loading propagates unchanged, so a failed
-Hugging Face download stops startup with that library's error. A
-[family extra](../models/index.md#dependencies) or image tag that matches
-the models you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).
+Whatever an estimator raises while loading propagates unchanged, so a failed Hugging Face download stops startup with that library's error. A [family extra](../models/index.md#dependencies) or image tag that matches the models you load is what avoids this. Loading a spec: [Craft specs](../server/craft-specs.md).

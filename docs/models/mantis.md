@@ -8,8 +8,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 !!! warning "`past` needs more than 127 rows"
 
-    `context_length` is 127. The examples below send 150 rows; the five-row
-    series used on other pages fails here.
+    `context_length` is 127. The examples below send 150 rows; the five-row series used on other pages fails here.
 
 ## Start a server
 
@@ -35,9 +34,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     docker run --rm -p 8000:8000 sktime/tserve:mantis --model mantis-8m
     ```
 
-GPU: swap in
-[`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -47,8 +44,7 @@ curl -s http://127.0.0.1:8000/models
 
 ## Predict
 
-150 rows of history, because `context_length` is 127. Python needs the
-[`client`](../client/python.md#install) extra on the caller.
+150 rows of history, because `context_length` is 127. Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 === "bash / zsh"
 

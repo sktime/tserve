@@ -1,8 +1,6 @@
 # Python
 
-[`Client`][tserve.client.client.Client] sends predictions to a running TServe
-server. It accepts native Python tables, converts them to Arrow, and posts to
-`/predict/bytes`.
+[`Client`][tserve.client.client.Client] sends predictions to a running TServe server. It accepts native Python tables, converts them to Arrow, and posts to `/predict/bytes`.
 
 ## Methods
 
@@ -15,26 +13,21 @@ server. It accepts native Python tables, converts them to Arrow, and posts to
 | `client.stats()` | uptime, memory, per-model metrics |
 | `client.close()` | closes the HTTP session |
 
-`predict` returns `predictions`, `quantiles`, `model`, and `request_id`. Full
-signatures are in the [Python API reference](../reference/api.md).
+`predict` returns `predictions`, `quantiles`, `model`, and `request_id`. Full signatures are in the [Python API reference](../reference/api.md).
 
 ## Start a server
 
-The point forecast examples use `chronos-bolt`. Quantile examples use
-`timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt
-does not:
+The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub --model chronos-bolt timesfm-2.5
 ```
 
-See [Server](../server/index.md) for source installs and server
-options. The client URL points to this process, not a hosted TServe API.
+See [Server](../server/index.md) for source installs and server options. The client URL points to this process, not a hosted TServe API.
 
 ## Install
 
-TServe is not on PyPI yet. Install the `client` extra from a clone. Python 3.12
-or newer is required.
+TServe is not on PyPI yet. Install the `client` extra from a clone. Python 3.12 or newer is required.
 
 === "uv"
 
@@ -50,9 +43,7 @@ or newer is required.
     pip install -e ".[client]"
     ```
 
-The `client` extra is enough on a machine that only calls a server. Add
-`server` and the required [family extra](../models/index.md#dependencies) only
-when the same environment also runs the server.
+The `client` extra is enough on a machine that only calls a server. Add `server` and the required [family extra](../models/index.md#dependencies) only when the same environment also runs the server.
 
 ## Connect
 
@@ -67,17 +58,13 @@ with Client("http://127.0.0.1:8000", timeout=120.0) as client:
     print(client.stats())
 ```
 
-`models()` reports what this process loaded, not the registry
-[catalog](../models/index.md), so it is the quickest way to check which
-`model` values a prediction can use.
+`models()` reports what this process loaded, not the registry [catalog](../models/index.md), so it is the quickest way to check which `model` values a prediction can use.
 
-The default timeout is 60 seconds. Increase it for forecasts that need more
-time.
+The default timeout is 60 seconds. Increase it for forecasts that need more time.
 
 ## Send a prediction
 
-The method takes the same fields as JSON `POST /predict`. This example sends
-five days of sales and requests the next three:
+The method takes the same fields as JSON `POST /predict`. This example sends five days of sales and requests the next three:
 
 ```python
 from tserve.client import Client
@@ -120,13 +107,11 @@ print(result.request_id)
 }
 ```
 
-See [Data specification](data.md) for all fields, inference rules, and table
-constraints.
+See [Data specification](data.md) for all fields, inference rules, and table constraints.
 
 ## Use native tables
 
-`predictions` and `quantiles` use the same table type as `past`. The following
-examples send the same data in four native formats.
+`predictions` and `quantiles` use the same table type as `past`. The following examples send the same data in four native formats.
 
 === "pandas"
 
@@ -244,9 +229,7 @@ examples send the same data in four native formats.
     print(type(result.predictions))  # narwhals.DataFrame
     ```
 
-pandas and polars are not installed by the `client` extra. Install either
-package separately if you use it. pyarrow and Narwhals are core TServe
-dependencies.
+pandas and polars are not installed by the `client` extra. Install either package separately if you use it. pyarrow and Narwhals are core TServe dependencies.
 
 ## Use an indexed pandas frame
 
@@ -276,10 +259,7 @@ Panel and hierarchical sktime data are not supported.
 
 ## Request static data
 
-Static values are supplied as a one-row table. A `future` table can provide
-the timestamps for the requested horizon. This example needs `chronos-2`,
-which supports covariates. Stop the starter server and restart with the
-`chronos` image:
+Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos-2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
@@ -312,14 +292,11 @@ with Client("http://127.0.0.1:8000") as client:
 print(result.predictions)
 ```
 
-See [Future and static data](data.md#future-and-static-data) for the current
-executor behavior, including the limitation on time-varying covariates.
+See [Future and static data](data.md#future-and-static-data) for the current executor behavior, including the limitation on time-varying covariates.
 
 ## Request quantiles
 
-Add `quantiles` when the loaded estimator supports quantile prediction. This
-example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not
-support quantiles:
+Add `quantiles` when the loaded estimator supports quantile prediction. This example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not support quantiles:
 
 ```python
 from tserve.client import Client
@@ -349,16 +326,10 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. Many estimators name quantile columns
-`{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`).
-`timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`,
-`0_0.9`).
+`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Handle errors
 
-Local request validation can raise Pydantic `ValidationError` before any HTTP
-call. Server responses with status 400 or higher become `RuntimeError`.
-Connection and timeout failures are `tserve.client.TransportError` (do not
-catch `httpx.RequestError` — TServe vendors `httpx2`).
+Local request validation can raise Pydantic `ValidationError` before any HTTP call. Server responses with status 400 or higher become `RuntimeError`. Connection and timeout failures are `tserve.client.TransportError` (do not catch `httpx.RequestError` — TServe vendors `httpx2`).
 
 See [Errors](../reference/errors.md) for the messages each case produces.

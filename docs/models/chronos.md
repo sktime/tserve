@@ -30,9 +30,7 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     docker run --rm -p 8000:8000 sktime/tserve:chronos --model chronos-2
     ```
 
-GPU: swap in
-[`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu)
-and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+GPU: swap in [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 

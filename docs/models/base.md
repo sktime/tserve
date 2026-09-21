@@ -1,8 +1,6 @@
 # base
 
-The `naive` baseline and nothing else. Downloads no weights. Use `:base` to
-test the server; load a [family extra](index.md#dependencies) for a real
-forecast.
+The `naive` baseline and nothing else. Downloads no weights. Use `:base` to test the server; load a [family extra](index.md#dependencies) for a real forecast.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
@@ -94,9 +92,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 ## Also loadable here
 
-Nothing. `:base` carries no Hugging Face stack, so any other model fails at
-startup ([Errors](../reference/errors.md#startup)). For Chronos Bolt, Chronos
-T5, TTM, and TimesFM, use [`hub`](hub.md).
+Nothing. `:base` carries no Hugging Face stack, so any other model fails at startup ([Errors](../reference/errors.md#startup)). For Chronos Bolt, Chronos T5, TTM, and TimesFM, use [`hub`](hub.md).
 
 ## Next steps
 

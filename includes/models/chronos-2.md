@@ -1,7 +1,6 @@
 ### Chronos-2
 
-`Chronos2Forecaster` &middot; extra [`chronos`](chronos.md) &middot; 3 models
-&middot; no [quantiles](../client/data.md#quantiles)
+`Chronos2Forecaster` &middot; extra [`chronos`](chronos.md) &middot; 3 models &middot; no [quantiles](../client/data.md#quantiles)
 
 Multivariate, with covariate support.
 
