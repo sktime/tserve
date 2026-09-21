@@ -2,7 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/tserve/badge/?version=latest)](https://tserve.readthedocs.io/en/latest/?badge=latest)
 
-TServe is a local inference server for time-series foundation models. Start the process, load named registry models once, keep them warm, and predict through `POST /predict`, the Python client, or the browser dashboard. The process also serves its own OpenAPI documentation. TServe does not provide a hosted API.
+TServe is a local inference server for time-series foundation models. Start the process, load named registry models once, keep them warm, and serve time series forecasts through `POST /predict`, the Python client, or the browser dashboard. TServe also serves its own OpenAPI documentation. It does not provide a hosted API.
 
 - [Documentation](https://tserve.readthedocs.io)
 - [Docker Hub](https://hub.docker.com/r/sktime/tserve)
@@ -147,7 +147,7 @@ TServe has named models for Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, T
 2. Install the listed family extra, or pull the matching Docker tag.
 3. Name the model on `tserve` as leftover positionals.
 
-The catalog is what a process *can* load. `GET /models` reports only what the current process *did* load.
+The catalog is what a TServe process *can* load. `GET /models` reports only what the current process *did* load.
 
 ## Docker images
 

@@ -2,7 +2,7 @@
 
 # TServe
 
-Time-series Foundation Models behind one server. Load extra models you name, keep them warm, and predict from `curl` or `python`.
+Time series serving for foundation models. Load extra models you name, keep them warm, and predict from `curl` or `python`.
 { .tserve-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }
@@ -12,9 +12,9 @@ Time-series Foundation Models behind one server. Load extra models you name, kee
 
 TServe is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
-The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. The server always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
+The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. TServe always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
 
-Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at the server for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
+Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at TServe for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
