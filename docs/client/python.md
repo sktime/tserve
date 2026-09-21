@@ -1,6 +1,6 @@
 # Python
 
-[`Client`][fomo.client.client.Client] sends predictions to a running FoMo
+[`Client`][tserve.client.client.Client] sends predictions to a running TServe
 server. It accepts native Python tables, converts them to Arrow, and posts to
 `/predict/bytes`.
 
@@ -25,28 +25,28 @@ The point forecast examples use `chronos-bolt`. Quantile examples use
 does not:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
-options. The client URL points to this process, not a hosted FoMo API.
+options. The client URL points to this process, not a hosted TServe API.
 
 ## Install
 
-FoMo is not on PyPI yet. Install the `client` extra from a clone. Python 3.12
+TServe is not on PyPI yet. Install the `client` extra from a clone. Python 3.12
 or newer is required.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra client
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[client]"
     ```
 
@@ -59,7 +59,7 @@ when the same environment also runs the server.
 Use the client as a context manager so its HTTP session is closed:
 
 ```python
-from fomo.client import Client
+from tserve.client import Client
 
 with Client("http://127.0.0.1:8000", timeout=120.0) as client:
     print(client.health())
@@ -80,7 +80,7 @@ The method takes the same fields as JSON `POST /predict`. This example sends
 five days of sales and requests the next three:
 
 ```python
-from fomo.client import Client
+from tserve.client import Client
 
 past = {
     "timestamp": [
@@ -132,7 +132,7 @@ examples send the same data in four native formats.
 
     ```python
     import pandas as pd
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = pd.DataFrame(
         {
@@ -157,7 +157,7 @@ examples send the same data in four native formats.
 
     ```python
     import polars as pl
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = pl.DataFrame(
         {
@@ -188,7 +188,7 @@ examples send the same data in four native formats.
 
     ```python
     import pyarrow as pa
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = pa.table(
         {
@@ -220,7 +220,7 @@ examples send the same data in four native formats.
     ```python
     import narwhals as nw
     import pandas as pd
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = nw.from_native(
         pd.DataFrame(
@@ -245,7 +245,7 @@ examples send the same data in four native formats.
     ```
 
 pandas and polars are not installed by the `client` extra. Install either
-package separately if you use it. pyarrow and Narwhals are core FoMo
+package separately if you use it. pyarrow and Narwhals are core TServe
 dependencies.
 
 ## Use an indexed pandas frame
@@ -253,7 +253,7 @@ dependencies.
 Time must be a column. Reset a pandas or sktime index before forecasting:
 
 ```python
-from fomo.client import Client
+from tserve.client import Client
 from sktime.datasets import load_airline
 
 past = load_airline().to_frame("passengers").reset_index()
@@ -282,12 +282,12 @@ which supports covariates. Stop the starter server and restart with the
 `chronos` image:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:chronos --model chronos-2
+docker run --rm -p 8000:8000 geetu040/tserve:chronos --model chronos-2
 ```
 
 ```python
 import pandas as pd
-from fomo.client import Client
+from tserve.client import Client
 
 past = pd.DataFrame(
     {
@@ -322,7 +322,7 @@ example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not
 support quantiles:
 
 ```python
-from fomo.client import Client
+from tserve.client import Client
 
 past = {
     "month": [
@@ -358,7 +358,7 @@ print(result.quantiles)
 
 Local request validation can raise Pydantic `ValidationError` before any HTTP
 call. Server responses with status 400 or higher become `RuntimeError`.
-Connection and timeout failures are `fomo.client.TransportError` (do not
-catch `httpx.RequestError` — FoMo vendors `httpx2`).
+Connection and timeout failures are `tserve.client.TransportError` (do not
+catch `httpx.RequestError` — TServe vendors `httpx2`).
 
 See [Errors](../reference/errors.md) for the messages each case produces.

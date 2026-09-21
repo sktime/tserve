@@ -1,5 +1,5 @@
 # we avoid using python3.13-bookworm-slim here
-# see https://github.com/sktime/fomo/issues/92
+# see https://github.com/sktime/tserve/issues/92
 FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 
 WORKDIR /app
@@ -19,9 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
 
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
 # come from the build arg, one word each, e.g.
-#   docker build --build-arg FOMO_EXTRAS=hub .
-#   docker build --build-arg FOMO_EXTRAS="chronos gpu" .
-ARG FOMO_EXTRAS=""
+#   docker build --build-arg TSERVE_EXTRAS=hub .
+#   docker build --build-arg TSERVE_EXTRAS="chronos gpu" .
+ARG TSERVE_EXTRAS=""
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
@@ -29,14 +29,14 @@ ARG FOMO_EXTRAS=""
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-install-project --no-editable \
-        $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
+        $(printf -- '--extra %s ' server sktime $TSERVE_EXTRAS)
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-editable \
-        $(printf -- '--extra %s ' server sktime $FOMO_EXTRAS)
+        $(printf -- '--extra %s ' server sktime $TSERVE_EXTRAS)
 
-# Runtime image: no uv, no git, no source tree. `--no-editable` baked fomo
+# Runtime image: no uv, no git, no source tree. `--no-editable` baked tserve
 # into the venv, so only `.venv` is copied. Python path must match the builder.
 FROM python:3.13-slim-trixie
 
@@ -49,4 +49,4 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
-ENTRYPOINT ["fomo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["tserve", "serve", "--host", "0.0.0.0", "--port", "8000"]

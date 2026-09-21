@@ -1,6 +1,6 @@
 # HTTP API
 
-Routes served by the running [`Server`][fomo.server.serve.Server]. The process
+Routes served by the running [`Server`][tserve.server.serve.Server]. The process
 publishes its own interactive copy of this page at
 [/docs](http://127.0.0.1:8000/docs) and the raw schema at
 [/openapi.json](http://127.0.0.1:8000/openapi.json). For worked requests, see
@@ -8,11 +8,11 @@ publishes its own interactive copy of this page at
 
 | method | path | response |
 | --- | --- | --- |
-| `POST` | `/predict` | [`PredictResponse`][fomo.types.models.PredictResponse] as JSON |
-| `POST` | `/predict/bytes` | [`FOMO` envelope](#post-predictbytes) |
-| `GET` | `/health` | [`HealthResult`][fomo.types.models.HealthResult] |
-| `GET` | `/models` | [`ModelsResult`][fomo.types.models.ModelsResult] |
-| `GET` | `/stats` | [`StatsResult`][fomo.types.models.StatsResult] |
+| `POST` | `/predict` | [`PredictResponse`][tserve.types.models.PredictResponse] as JSON |
+| `POST` | `/predict/bytes` | [`TServe` envelope](#post-predictbytes) |
+| `GET` | `/health` | [`HealthResult`][tserve.types.models.HealthResult] |
+| `GET` | `/models` | [`ModelsResult`][tserve.types.models.ModelsResult] |
+| `GET` | `/stats` | [`StatsResult`][tserve.types.models.StatsResult] |
 | `GET` | `/` | [dashboard](../server/dashboard.md) HTML |
 | `GET` | `/docs`, `/redoc`, `/openapi.json` | OpenAPI |
 
@@ -24,7 +24,7 @@ excluded from the OpenAPI schema.
 ## POST /predict
 
 `Content-Type: application/json`. The body is
-[`PredictRequest`][fomo.types.models.PredictRequest] — `past` and `fh` are
+[`PredictRequest`][tserve.types.models.PredictRequest] — `past` and `fh` are
 required, `model` defaults to `naive`. Field meanings,
 table shapes, and inference rules are in the
 [data specification](../client/data.md).
@@ -42,7 +42,7 @@ Bodies for both failures are in [Errors](errors.md#predict-requests).
 
 ## POST /predict/bytes
 
-The Arrow route used by [`Client`][fomo.client.client.Client]. It exists so
+The Arrow route used by [`Client`][tserve.client.client.Client]. It exists so
 tables cross the wire as Arrow IPC instead of JSON numbers; the fields are the
 same as `POST /predict`.
 
@@ -54,11 +54,11 @@ The request is `multipart/form-data`:
 | `past` | file | Arrow IPC stream, `application/vnd.apache.arrow.stream` |
 | `future`, `static` | file | optional Arrow IPC streams; empty bodies are ignored |
 
-The response media type is `application/vnd.fomo.predict+arrow`, an envelope
+The response media type is `application/vnd.tserve.predict+arrow`, an envelope
 of length-prefixed parts:
 
 ```text
-b"FOMO"     magic, 4 bytes
+b"TSRV"     magic, 4 bytes
 0x01        version, 1 byte
 uint32      number of parts        (little-endian, as are all lengths)
 per part:
@@ -125,4 +125,4 @@ Keys under `models` are loaded models. Timings are wall-clock seconds, and
 failed predicts count in both `requests.failed` and `latency_s`. Either memory
 probe is `null` when it is unavailable — `gpu_mb` needs torch already imported
 with CUDA present. Field-by-field types are in
-[`StatsResult`][fomo.types.models.StatsResult].
+[`StatsResult`][tserve.types.models.StatsResult].

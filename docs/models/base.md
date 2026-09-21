@@ -6,7 +6,7 @@ forecast.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `server` | [`:base`](https://hub.docker.com/r/geetu040/fomo/tags?name=base) | none | Naive | 1 | `naive` |
+| `server` | [`:base`](https://hub.docker.com/r/geetu040/tserve/tags?name=base) | none | Naive | 1 | `naive` |
 
 Every other page in this section layers on top of this one.
 
@@ -15,23 +15,23 @@ Every other page in this section layers on top of this one.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server
-    uv run fomo serve
+    uv run tserve serve
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server]"
-    fomo serve
+    tserve serve
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:base
+    docker run --rm -p 8000:8000 geetu040/tserve:base
     ```
 
 There is no `:base-gpu` image.
@@ -70,7 +70,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

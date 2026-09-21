@@ -1,6 +1,6 @@
 # Catalog
 
-110 models a FoMo process *can* load. The server always loads `naive`, a
+110 models a TServe process *can* load. The server always loads `naive`, a
 no-download baseline for testing. Name a catalog model with
 [`--model`](../reference/cli.md#flags) or leftover positionals for a real
 forecast. `GET /models` reports what did. The same model goes in `--model` and in
@@ -20,20 +20,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server
-        uv run fomo serve
+        uv run tserve serve
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server]"
-        fomo serve
+        tserve serve
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:base
+        docker run --rm -p 8000:8000 geetu040/tserve:base
         ```
 
 === "hub"
@@ -45,20 +45,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra hub
-        uv run fomo serve --model chronos-bolt
+        uv run tserve serve --model chronos-bolt
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,hub]"
-        fomo serve --model chronos-bolt
+        tserve serve --model chronos-bolt
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt
+        docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt
         ```
 
 === "chronos"
@@ -69,20 +69,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra chronos
-        uv run fomo serve --model chronos-2
+        uv run tserve serve --model chronos-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,chronos]"
-        fomo serve --model chronos-2
+        tserve serve --model chronos-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:chronos --model chronos-2
+        docker run --rm -p 8000:8000 geetu040/tserve:chronos --model chronos-2
         ```
 
 === "kronos"
@@ -94,20 +94,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra kronos
-        uv run fomo serve --model kronos
+        uv run tserve serve --model kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,kronos]"
-        fomo serve --model kronos
+        tserve serve --model kronos
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:kronos --model kronos
+        docker run --rm -p 8000:8000 geetu040/tserve:kronos --model kronos
         ```
 
 === "granite"
@@ -118,20 +118,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra granite
-        uv run fomo serve --model flowstate
+        uv run tserve serve --model flowstate
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,granite]"
-        fomo serve --model flowstate
+        tserve serve --model flowstate
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:granite --model flowstate
+        docker run --rm -p 8000:8000 geetu040/tserve:granite --model flowstate
         ```
 
 === "moirai"
@@ -143,20 +143,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra moirai
-        uv run fomo serve --model moirai-2
+        uv run tserve serve --model moirai-2
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,moirai]"
-        fomo serve --model moirai-2
+        tserve serve --model moirai-2
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:moirai --model moirai-2
+        docker run --rm -p 8000:8000 geetu040/tserve:moirai --model moirai-2
         ```
 
 === "tirex"
@@ -167,20 +167,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra tirex
-        uv run fomo serve --model tirex
+        uv run tserve serve --model tirex
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,tirex]"
-        fomo serve --model tirex
+        tserve serve --model tirex
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:tirex --model tirex
+        docker run --rm -p 8000:8000 geetu040/tserve:tirex --model tirex
         ```
 
 === "toto"
@@ -191,20 +191,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra toto
-        uv run fomo serve --model toto-2.0-4m
+        uv run tserve serve --model toto-2.0-4m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,toto]"
-        fomo serve --model toto-2.0-4m
+        tserve serve --model toto-2.0-4m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:toto --model toto-2.0-4m
+        docker run --rm -p 8000:8000 geetu040/tserve:toto --model toto-2.0-4m
         ```
 
 === "mantis"
@@ -216,20 +216,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra mantis
-        uv run fomo serve --model mantis-8m
+        uv run tserve serve --model mantis-8m
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,mantis]"
-        fomo serve --model mantis-8m
+        tserve serve --model mantis-8m
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:mantis --model mantis-8m
+        docker run --rm -p 8000:8000 geetu040/tserve:mantis --model mantis-8m
         ```
 
 === "full"
@@ -241,20 +241,20 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
         ```bash
         uv sync --extra server --extra full
-        uv run fomo serve --model chronos-2 tirex kronos
+        uv run tserve serve --model chronos-2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
         pip install -e ".[server,full]"
-        fomo serve --model chronos-2 tirex kronos
+        tserve serve --model chronos-2 tirex kronos
         ```
 
     === "Docker"
 
         ```bash
-        docker run --rm -p 8000:8000 geetu040/fomo:full \
+        docker run --rm -p 8000:8000 geetu040/tserve:full \
           --model chronos-2 tirex kronos
         ```
 
@@ -289,7 +289,7 @@ a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
@@ -345,7 +345,7 @@ format, and response shape: [Data specification](../client/data.md).
 
 ## Quantile support
 
-Read from the estimator, not a FoMo flag. Ask for levels with the `quantiles`
+Read from the estimator, not a TServe flag. Ask for levels with the `quantiles`
 field: [HTTP](../client/http.md#request-quantiles),
 [Python](../client/python.md#request-quantiles).
 

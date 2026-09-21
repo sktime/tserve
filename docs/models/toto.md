@@ -4,34 +4,34 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `toto` | [`:toto`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
+| `toto` | [`:toto`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra toto
-    uv run fomo serve --model toto-2.0-4m
+    uv run tserve serve --model toto-2.0-4m
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,toto]"
-    fomo serve --model toto-2.0-4m
+    tserve serve --model toto-2.0-4m
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:toto --model toto-2.0-4m
+    docker run --rm -p 8000:8000 geetu040/tserve:toto --model toto-2.0-4m
     ```
 
 GPU: swap in
-[`:toto-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=toto-gpu) and
+[`:toto-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=toto-gpu) and
 add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
@@ -68,7 +68,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

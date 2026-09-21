@@ -11,7 +11,7 @@ assignees: ''
 
 <!--
 Tell us about the confusion introduced in the documentation.
-Link the page on https://fomo.readthedocs.io when you can.
+Link the page on https://tserve.readthedocs.io when you can.
 -->
 
 #### Suggest a potential alternative/fix

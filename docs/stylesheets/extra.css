@@ -1,17 +1,17 @@
 /* Overrides on top of Material for MkDocs. */
 
 :root {
-  --fomo-hero-from: #3f51b5;
-  --fomo-hero-to: #1a237e;
-  --fomo-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.1);
+  --tserve-hero-from: #3f51b5;
+  --tserve-hero-to: #1a237e;
+  --tserve-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.1);
 }
 
 /* Slate ships a blue-grey base; nudge the hue towards the indigo accent. */
 [data-md-color-scheme="slate"] {
   --md-hue: 232;
-  --fomo-hero-from: #26317a;
-  --fomo-hero-to: #0d0d14;
-  --fomo-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.4);
+  --tserve-hero-from: #26317a;
+  --tserve-hero-to: #0d0d14;
+  --tserve-card-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.4);
 }
 
 /* Headings ------------------------------------------------------------------ */
@@ -39,59 +39,59 @@
 
 /* Landing hero -------------------------------------------------------------- */
 
-.fomo-hero {
+.tserve-hero {
   /* keep the floated edit/view actions off the gradient */
   clear: right;
   margin-bottom: 2rem;
   padding: 2.2rem 1.6rem;
   border-radius: 0.4rem;
-  background: linear-gradient(135deg, var(--fomo-hero-from), var(--fomo-hero-to));
+  background: linear-gradient(135deg, var(--tserve-hero-from), var(--tserve-hero-to));
   color: #fff;
 }
 
-.md-typeset .fomo-hero h1 {
+.md-typeset .tserve-hero h1 {
   margin: 0 0 0.4rem;
   color: #fff;
   font-size: 2.1rem;
   line-height: 1.2;
 }
 
-.fomo-hero__tagline {
+.tserve-hero__tagline {
   max-width: 34rem;
   margin-bottom: 1.4rem !important;
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.78rem;
 }
 
-.md-typeset .fomo-hero code {
+.md-typeset .tserve-hero code {
   background-color: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.md-typeset .fomo-hero .md-button {
+.md-typeset .tserve-hero .md-button {
   margin-top: 0.2rem;
   border-color: #fff;
   color: #fff;
 }
 
-.md-typeset .fomo-hero .md-button:focus,
-.md-typeset .fomo-hero .md-button:hover {
+.md-typeset .tserve-hero .md-button:focus,
+.md-typeset .tserve-hero .md-button:hover {
   background-color: rgba(255, 255, 255, 0.15);
   border-color: #fff;
   color: #fff;
 }
 
-.md-typeset .fomo-hero .md-button--primary {
+.md-typeset .tserve-hero .md-button--primary {
   background-color: #fff;
   border-color: #fff;
-  color: var(--fomo-hero-to);
+  color: var(--tserve-hero-to);
 }
 
-.md-typeset .fomo-hero .md-button--primary:focus,
-.md-typeset .fomo-hero .md-button--primary:hover {
+.md-typeset .tserve-hero .md-button--primary:focus,
+.md-typeset .tserve-hero .md-button--primary:hover {
   background-color: rgba(255, 255, 255, 0.85);
   border-color: #fff;
-  color: var(--fomo-hero-to);
+  color: var(--tserve-hero-to);
 }
 
 /* Grid cards ---------------------------------------------------------------- */
@@ -107,7 +107,7 @@
 .md-typeset .grid.cards > ul > li:focus-within,
 .md-typeset .grid.cards > ul > li:hover {
   border-color: var(--md-accent-fg-color);
-  box-shadow: var(--fomo-card-shadow);
+  box-shadow: var(--tserve-card-shadow);
   transform: translateY(-0.1rem);
 }
 

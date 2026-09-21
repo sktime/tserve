@@ -2,7 +2,7 @@
 
 The server is the process you start. It loads models, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
-Nothing extra loads unless you name it. A bare `fomo serve` still loads `naive`, enough to test the process. Name a catalog model for a real forecast. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which models exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
+Nothing extra loads unless you name it. A bare `tserve serve` still loads `naive`, enough to test the process. Name a catalog model for a real forecast. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which models exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
 
 ## Quick start
 
@@ -11,29 +11,29 @@ Nothing extra loads unless you name it. A bare `fomo serve` still loads `naive`,
 The `hub` image can load both models used throughout the client guides. Extra models after the image name load alongside `naive`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
 
 **From source**
 
-Python >= 3.12. Clone over HTTPS. FoMo is not on PyPI yet. The extras here match the `hub` image; swap them when you load other families.
+Python >= 3.12. Clone over HTTPS. TServe is not on PyPI yet. The extras here match the `hub` image; swap them when you load other families.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run fomo serve --model chronos-bolt ttm-r3
+    uv run tserve serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    fomo serve --model chronos-bolt ttm-r3
+    tserve serve --model chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
@@ -48,17 +48,17 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
 
     ```bash
     uv sync --extra server --extra moirai
-    uv run fomo serve --model moirai-2
+    uv run tserve serve --model moirai-2
     ```
 
 === "pip"
 
     ```bash
     pip install -e ".[server,moirai]"
-    fomo serve --model moirai-2
+    tserve serve --model moirai-2
     ```
 
-In Docker the tag plays the role of the extra — `geetu040/fomo:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
+In Docker the tag plays the role of the extra — `geetu040/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
 
 Once the process is up, the terminal prints the URLs:
 
@@ -90,7 +90,7 @@ curl -s http://127.0.0.1:8000/models
 
     ---
 
-    Install from a clone, then `fomo serve` or [`Server`][fomo.server.serve.Server].
+    Install from a clone, then `tserve serve` or [`Server`][tserve.server.serve.Server].
 
     [:octicons-arrow-right-24: From source](source.md)
 

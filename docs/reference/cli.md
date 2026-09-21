@@ -1,18 +1,18 @@
 # CLI
 
-`fomo` has one subcommand. `fomo serve` builds
-[`Server`][fomo.server.serve.Server] and calls `run`, which blocks until the
+`tserve` has one subcommand. `tserve serve` builds
+[`Server`][tserve.server.serve.Server] and calls `run`, which blocks until the
 process stops.
 
 ```bash
-fomo serve chronos-bolt ttm-r3
+tserve serve chronos-bolt ttm-r3
 ```
 
 `--model` is optional when the models are leftover positionals. Both forms
 are equivalent, and they combine: flag tokens first, then positionals.
 
 ```bash
-fomo serve --model chronos-bolt ttm-r3
+tserve serve --model chronos-bolt ttm-r3
 ```
 
 A walkthrough with the startup output is on
@@ -27,14 +27,14 @@ A walkthrough with the startup output is on
 | `--models-dir` | none | directory of saved sktime `.zip` files |
 | `--host` | `127.0.0.1` | bind address; `0.0.0.0` also accepts connections from the network |
 | `--port` | `8000` | bind port |
-| `--log-level` | `info` | `debug`, `info`, `warning`, `error`, or `critical`, for FoMo and uvicorn |
+| `--log-level` | `info` | `debug`, `info`, `warning`, `error`, or `critical`, for TServe and uvicorn |
 
 `--model` and leftover positionals take catalog models, or craft specs as
 `id=spec` (split on the first `=`). Quote the whole token so constructor
 kwargs survive the shell:
 
 ```bash
-fomo serve --model chronos-bolt \
+tserve serve --model chronos-bolt \
   'ttm-local=TinyTimeMixerForecaster(model_path="ibm-granite/granite-timeseries-ttm-r3", revision="52-16-dec-52-r3", fit_strategy="zero-shot")'
 ```
 
@@ -52,15 +52,15 @@ dependency, or a duplicate model fails before uvicorn binds the port. Those
 exceptions are listed under [Errors](errors.md#startup).
 
 `Ctrl+C` and a normal server exit both return `0`; argparse usage errors exit
-`2`. `fomo serve --help` prints the flags above.
+`2`. `tserve serve --help` prints the flags above.
 
-In Docker the entrypoint is already `fomo serve --host 0.0.0.0 --port 8000`.
+In Docker the entrypoint is already `tserve serve --host 0.0.0.0 --port 8000`.
 Arguments after the image name are extra models or flags, so leftover models
 (`chronos-bolt ttm-r3`) or any flag here work there too — see
 [Docker](../server/docker.md).
 
 ## Python entry point
 
-::: fomo.cli.main.main
+::: tserve.cli.main.main
     options:
       heading_level: 3

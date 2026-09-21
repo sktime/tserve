@@ -1,20 +1,20 @@
 # From source
 
-Python >= 3.12, and a clone over HTTPS. FoMo is **not on PyPI yet**, so installs come from the repo. [uv](https://docs.astral.sh/uv/) is the shorter path, pip works everywhere.
+Python >= 3.12, and a clone over HTTPS. TServe is **not on PyPI yet**, so installs come from the repo. [uv](https://docs.astral.sh/uv/) is the shorter path, pip works everywhere.
 
 ## Install
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
     ```
 
@@ -24,7 +24,7 @@ Python >= 3.12, and a clone over HTTPS. FoMo is **not on PyPI yet**, so installs
 
 ## Dependencies
 
-uv repeats `--extra`. pip takes one extras list. After uv, run `uv run fomo serve …`. After pip, with the venv on `PATH`, run `fomo serve …`.
+uv repeats `--extra`. pip takes one extras list. After uv, run `uv run tserve serve …`. After pip, with the venv on `PATH`, run `tserve serve …`.
 
 **Naive**
 
@@ -98,7 +98,7 @@ uv sync --extra server --extra hub --extra gpu
 
 **pip** does not honor the `gpu` extra. `pip install -e ".[server,hub,gpu]"` is the same as without `gpu`. A normal pip install always takes CUDA torch from PyPI (MPS on macOS).
 
-To **force CPU torch with pip**, install torch from the CPU index first, then FoMo. If a later `pip install` replaces that wheel with CUDA, run the torch line again.
+To **force CPU torch with pip**, install torch from the CPU index first, then TServe. If a later `pip install` replaces that wheel with CUDA, run the torch line again.
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -112,32 +112,32 @@ Swap `hub` for any other family extra from [Dependencies](#dependencies). Contai
 === "uv"
 
     ```bash
-    uv run fomo serve --model chronos-bolt ttm-r3
+    uv run tserve serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    fomo serve --model chronos-bolt ttm-r3
+    tserve serve --model chronos-bolt ttm-r3
     ```
 
 Startup prints the URLs it binds:
 
 ```text
-Starting FoMo
+Starting TServe
   Dashboard   http://127.0.0.1:8000/
   Swagger UI  http://127.0.0.1:8000/docs
   ReDoc       http://127.0.0.1:8000/redoc
 ```
 
-`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models can also be leftover positionals (`fomo serve chronos-bolt ttm-r3`); `--model` still works and combines with them. Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
+`--host` and `--port` move that binding; `127.0.0.1` accepts local connections only, `0.0.0.0` accepts them from your network. `--log-level debug` shows more, `--log-level warning` less. `Ctrl+C` stops the process and exits 0. Catalog models can also be leftover positionals (`tserve serve chronos-bolt ttm-r3`); `--model` still works and combines with them. Every flag is in the [CLI reference](../reference/cli.md). Craft specs as `id=spec`: [Craft specs](craft-specs.md).
 
 ## Serve from Python
 
-[`Server`][fomo.server.serve.Server] takes the same arguments as the CLI:
+[`Server`][tserve.server.serve.Server] takes the same arguments as the CLI:
 
 ```python
-from fomo.server import Server
+from tserve.server import Server
 
 server = Server(
     model=["chronos-bolt", "ttm-r3"],
@@ -148,7 +148,7 @@ print(server.url)  # http://127.0.0.1:8000
 server.run()
 ```
 
-Models load during construction, so an unknown model or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, enough to test the process, exactly like a bare `fomo serve`.
+Models load during construction, so an unknown model or a missing dependency raises before uvicorn binds the port. `run()` blocks until the process stops. Omitting `model` still loads `naive`, enough to test the process, exactly like a bare `tserve serve`.
 
 `server.app` is the FastAPI app, for mounting it inside another application or handing it to uvicorn yourself:
 

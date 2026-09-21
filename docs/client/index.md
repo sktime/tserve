@@ -1,13 +1,13 @@
 # Client
 
-Send predictions to a FoMo server over HTTP or from Python. Both paths use the
+Send predictions to a TServe server over HTTP or from Python. Both paths use the
 same request fields and return the same prediction content:
 
 - [HTTP](http.md) sends JSON to `POST /predict` from any language.
 - [Python](python.md) accepts native tables and sends Arrow to
   `POST /predict/bytes`.
 
-FoMo is not a hosted API. The URL points to a server process you started.
+TServe is not a hosted API. The URL points to a server process you started.
 
 ## Start a server
 
@@ -15,7 +15,7 @@ For the examples in this section, start the `hub` image with
 `chronos-bolt` for point forecasts and `timesfm-2.5` for quantiles:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt timesfm-2.5
 ```
 
 The first start downloads model weights. See [Server](../server/index.md)
@@ -101,7 +101,7 @@ optional quantiles. Continue with [HTTP](http.md) for JSON examples or
 
     ---
 
-    Pass native tables to [`Client`][fomo.client.client.Client]. It posts Arrow.
+    Pass native tables to [`Client`][tserve.client.client.Client]. It posts Arrow.
 
     [:octicons-arrow-right-24: Python](python.md)
 

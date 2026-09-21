@@ -4,34 +4,34 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `chronos` | [`:chronos`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
+| `chronos` | [`:chronos`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos) | [`:chronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos-gpu) | Chronos-2 | 3 | `chronos-2` |
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra chronos
-    uv run fomo serve --model chronos-2
+    uv run tserve serve --model chronos-2
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,chronos]"
-    fomo serve --model chronos-2
+    tserve serve --model chronos-2
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:chronos --model chronos-2
+    docker run --rm -p 8000:8000 geetu040/tserve:chronos --model chronos-2
     ```
 
 GPU: swap in
-[`:chronos-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=chronos-gpu)
+[`:chronos-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=chronos-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
@@ -68,7 +68,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

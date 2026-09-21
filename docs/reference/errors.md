@@ -1,6 +1,6 @@
 # Errors
 
-FoMo defines no exception types of its own. The server answers with HTTP
+TServe defines no exception types of its own. The server answers with HTTP
 status codes, and the Python side raises built-ins plus Pydantic
 `ValidationError`.
 
@@ -8,7 +8,7 @@ status codes, and the Python side raises built-ins plus Pydantic
 
 | status | when |
 | --- | --- |
-| **422** | the body does not match [`PredictRequest`][fomo.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
+| **422** | the body does not match [`PredictRequest`][tserve.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
 | **400** | the body was accepted but the request failed: the `model` is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
 | **405** | wrong method, such as `GET /predict` (the body says to use `POST /predict`) |
 
@@ -46,7 +46,7 @@ and compare the request against the context, horizon, and quantile support the
 catalog records for the model. An `fh` past the model's trained horizon and a
 `past` shorter than its context length both surface as the first one.
 
-Asking a model that cannot produce quantiles for them is the one case FoMo does
+Asking a model that cannot produce quantiles for them is the one case TServe does
 decide: it is rejected before the estimator runs, so it reads `Model
 'chronos-bolt' cannot return quantile predictions, so the requested quantiles
 [0.1, 0.9] are unavailable.` with no `Original error:` at all.
@@ -80,7 +80,7 @@ sent. Call `reset_index()` first — see
 
 ## Startup
 
-These stop [`Server`][fomo.server.serve.Server] construction, which means the
+These stop [`Server`][tserve.server.serve.Server] construction, which means the
 CLI exits before uvicorn binds the port:
 
 | exception | when |

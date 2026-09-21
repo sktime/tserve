@@ -67,7 +67,7 @@ in JSON and Python.
 
 ### Python tables
 
-[`Client.predict(...)`][fomo.client.client.Client.predict] also accepts
+[`Client.predict(...)`][tserve.client.client.Client.predict] also accepts
 pandas, polars, pyarrow, and Narwhals tables:
 
 === "pandas"
@@ -141,7 +141,7 @@ two dictionary shapes above.
 }
 ```
 
-If `time` is omitted, FoMo uses the first column of `past`. The same column
+If `time` is omitted, TServe uses the first column of `past`. The same column
 must also exist in `future` when a future table is supplied.
 
 The sktime executor preserves valid integer and datetime indexes. String time
@@ -175,7 +175,7 @@ You may omit `time` and `target`:
 }
 ```
 
-FoMo then uses:
+TServe then uses:
 
 1. the first `past` column as `time`;
 2. every other `past` column as a target, except columns also present in
@@ -249,7 +249,7 @@ Request quantile levels with a list:
 ```
 
 The loaded estimator must support quantile prediction. `timesfm-2.5` supports
-the levels above; Chronos Bolt and TTM do not. FoMo forwards the values to the
+the levels above; Chronos Bolt and TTM do not. TServe forwards the values to the
 estimator, which may apply additional validation.
 
 Point forecasts remain in `predictions`. Quantile forecasts are returned as a
@@ -287,7 +287,7 @@ DataFrame.
 
 ## Validation and limits
 
-FoMo rejects requests when:
+TServe rejects requests when:
 
 - `past` or `fh` is missing;
 - `fh` is not greater than zero;

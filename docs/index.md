@@ -1,16 +1,16 @@
-<div class="fomo-hero" markdown>
+<div class="tserve-hero" markdown>
 
-# FoMo
+# TServe
 
 Time-series Foundation Models behind one server. Load extra models you name, keep them warm, and predict from `curl` or `python`.
-{ .fomo-hero__tagline }
+{ .tserve-hero__tagline }
 
 [Quick start](#quick-start){ .md-button .md-button--primary }
 [How it fits together](overview.md){ .md-button }
 
 </div>
 
-FoMo is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
+TServe is a process you start, not a hosted API. It loads time-series foundation models into one server and answers predict requests from a browser, `curl` or `python`. Dashboard, OpenAPI, and `/predict` all belong to that process.
 
 The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. The server always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
 
@@ -27,29 +27,29 @@ Models stay warm in the process, so the download and load cost is paid once at s
 Pull the `hub` image and load two registry models: `chronos-bolt` and `ttm-r3`.
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt ttm-r3
+docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt ttm-r3
 ```
 
 Every model except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
 
 **Build from source**
 
-Or clone the repo and start from source. Python >= 3.12, and FoMo is not on PyPI yet. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
+Or clone the repo and start from source. Python >= 3.12, and TServe is not on PyPI yet. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra hub
-    uv run fomo serve --model chronos-bolt ttm-r3
+    uv run tserve serve --model chronos-bolt ttm-r3
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,hub]"
-    fomo serve --model chronos-bolt ttm-r3
+    tserve serve --model chronos-bolt ttm-r3
     ```
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
@@ -114,7 +114,7 @@ Three predicted days come back, plus the model that served them:
 }
 ```
 
-`past` can also be [row-oriented](client/data.md#table-formats), with `columns` and `data` instead of one list per column. Leave out `time` and `target` and FoMo [infers them](client/data.md#column-inference) from column order. A request it cannot serve comes back as a 400 or 422 [error](reference/errors.md) carrying a message and the `request_id`.
+`past` can also be [row-oriented](client/data.md#table-formats), with `columns` and `data` instead of one list per column. Leave out `time` and `target` and TServe [infers them](client/data.md#column-inference) from column order. A request it cannot serve comes back as a 400 or 422 [error](reference/errors.md) carrying a message and the `request_id`.
 
 **From `python`**
 
@@ -133,7 +133,7 @@ The client takes the same fields as keywords and sends Arrow instead of JSON. In
     ```
 
 ```python
-from fomo.client import Client
+from tserve.client import Client
 
 past = {
     "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],

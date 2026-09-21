@@ -38,7 +38,7 @@ jobs:
       - name: Bake base
         uses: docker/bake-action@v6
         env:
-          FOMO_IMAGE: fomo
+          TSERVE_IMAGE: tserve
         with:
           source: .
           files: ./docker-bake.hcl
@@ -54,8 +54,8 @@ jobs:
       # Always dump logs and remove the container, including on timeout.
       - name: Health check
         run: |
-          docker run -d --name fomo -p 127.0.0.1:8000:8000 fomo:base
-          trap 'docker logs fomo; docker rm -f fomo' EXIT
+          docker run -d --name tserve -p 127.0.0.1:8000:8000 tserve:base
+          trap 'docker logs tserve; docker rm -f tserve' EXIT
 
           for _ in $(seq 1 60); do
             if curl -sf http://127.0.0.1:8000/health | jq -e '.status == "ok"' >/dev/null 2>&1; then

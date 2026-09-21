@@ -1,10 +1,10 @@
 # Development
 
-Working on FoMo itself, from a clone of
-[sktime/fomo](https://github.com/sktime/fomo). Python >= 3.12.
+Working on TServe itself, from a clone of
+[sktime/tserve](https://github.com/sktime/tserve). Python >= 3.12.
 
 ```bash
-git clone https://github.com/sktime/fomo.git && cd fomo
+git clone https://github.com/sktime/tserve.git && cd tserve
 ```
 
 `server` and `client` are enough for the test suite and the docs; add a
@@ -52,7 +52,7 @@ uv run --group dev pre-commit run --files docs/reference/errors.md
 uv run pytest
 ```
 
-Unit tests sit next to the code in `src/fomo/**/tests/`; `tests/` holds the
+Unit tests sit next to the code in `src/tserve/**/tests/`; `tests/` holds the
 end-to-end pass. Everything runs in-process through FastAPI's `TestClient`
 against `naive`, so no server, network, or GPU is needed.
 
@@ -74,13 +74,13 @@ options in `mkdocs.yml`, and tooltip expansions in
 ## Docker images
 
 `Dockerfile` always installs `--extra server --extra sktime` and adds whatever
-`FOMO_EXTRAS` names, which is how one file produces every tag.
+`TSERVE_EXTRAS` names, which is how one file produces every tag.
 `docker-bake.hcl` holds the published matrix: one target per tag, plus `cpu`
-and `gpu` groups, with `FOMO_IMAGE` defaulting to `sktime/fomo`.
+and `gpu` groups, with `TSERVE_IMAGE` defaulting to `sktime/tserve`.
 
 ```bash
-FOMO_IMAGE=geetu040/fomo docker buildx bake --push hub
-FOMO_IMAGE=local/fomo docker buildx bake --set hub.platform=linux/amd64 --load hub
+TSERVE_IMAGE=geetu040/tserve docker buildx bake --push hub
+TSERVE_IMAGE=local/tserve docker buildx bake --set hub.platform=linux/amd64 --load hub
 ```
 
 Targets are `linux/amd64` plus `linux/arm64`, so a plain multi-platform bake
@@ -93,12 +93,12 @@ building single images by hand, is on
 
 | path | |
 | --- | --- |
-| `src/fomo/cli` | `fomo serve` argument parsing |
-| `src/fomo/server` | FastAPI app, routes, dashboard assets |
-| `src/fomo/client` | `Client` and its HTTP transport |
-| `src/fomo/types` | request/response models and the wire converters |
-| `src/fomo/runtime` | registry, bootstrap, executors |
-| `src/fomo/scheduling` | dispatch by loaded model |
-| `src/fomo/logging` | stats collected for `GET /stats` |
+| `src/tserve/cli` | `tserve serve` argument parsing |
+| `src/tserve/server` | FastAPI app, routes, dashboard assets |
+| `src/tserve/client` | `Client` and its HTTP transport |
+| `src/tserve/types` | request/response models and the wire converters |
+| `src/tserve/runtime` | registry, bootstrap, executors |
+| `src/tserve/scheduling` | dispatch by loaded model |
+| `src/tserve/logging` | stats collected for `GET /stats` |
 
 How those pieces fit together is on [Overview](../overview.md).

@@ -28,11 +28,11 @@ The point forecast examples use `chronos-bolt`. Quantile examples use
 does not:
 
 ```bash
-docker run --rm -p 8000:8000 geetu040/fomo:hub --model chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 geetu040/tserve:hub --model chronos-bolt timesfm-2.5
 ```
 
 See [Server](../server/index.md) for source installs and server
-options. The URLs below belong to this local process; FoMo does not provide a
+options. The URLs below belong to this local process; TServe does not provide a
 hosted API.
 
 ## Send a prediction
@@ -84,7 +84,7 @@ See [Data specification](data.md) for every request and response field.
 ## Use row-oriented JSON
 
 Tables can also use `columns` and `data`. Here `time` and `target` are omitted,
-so FoMo uses the first column as time and the other column as the target:
+so TServe uses the first column as time and the other column as the target:
 
 === "bash / zsh"
 
@@ -175,8 +175,8 @@ to try the endpoints from Swagger.
 ## Arrow endpoint
 
 `POST /predict/bytes` accepts multipart metadata and Arrow IPC tables and
-returns a `FOMO` envelope with media type
-`application/vnd.fomo.predict+arrow`. This is the route used by the
+returns a `TServe` envelope with media type
+`application/vnd.tserve.predict+arrow`. This is the route used by the
 [Python client](python.md); you normally do not construct its body yourself.
 
 ## Errors

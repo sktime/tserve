@@ -17,7 +17,7 @@ Dockerfile
 .docker
 .dockerignore
 
-# Docs, community files, and local quality tooling — not used by `fomo serve`
+# Docs, community files, and local quality tooling — not used by `tserve serve`
 docs/
 site/
 doc/_build/
@@ -105,7 +105,7 @@ instance/
 
 # HTML dumps are gitignored; keep the dashboard page
 **/*.html
-!src/fomo/server/static/index.html
+!src/tserve/server/static/index.html
 
 # PyBuilder
 target/

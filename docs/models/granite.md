@@ -4,34 +4,34 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `granite` | [`:granite`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite) | [`:granite-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite-gpu) | FlowState | 2 | `flowstate` |
+| `granite` | [`:granite`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite) | [`:granite-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite-gpu) | FlowState | 2 | `flowstate` |
 
 ## Start a server
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     uv sync --extra server --extra granite
-    uv run fomo serve --model flowstate
+    uv run tserve serve --model flowstate
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/fomo.git && cd fomo
+    git clone https://github.com/sktime/tserve.git && cd tserve
     pip install -e ".[server,granite]"
-    fomo serve --model flowstate
+    tserve serve --model flowstate
     ```
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 geetu040/fomo:granite --model flowstate
+    docker run --rm -p 8000:8000 geetu040/tserve:granite --model flowstate
     ```
 
 GPU: swap in
-[`:granite-gpu`](https://hub.docker.com/r/geetu040/fomo/tags?name=granite-gpu)
+[`:granite-gpu`](https://hub.docker.com/r/geetu040/tserve/tags?name=granite-gpu)
 and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
@@ -68,7 +68,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 === "Python"
 
     ```python
-    from fomo.client import Client
+    from tserve.client import Client
 
     past = {
         "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
