@@ -4,9 +4,9 @@ Every family in one extra. Use it when your models span more than one family ext
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 111 | `chronos_2` |
+| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 117 | `chronos_2` |
 
-`chronos` + `kronos` + `granite` + `moirai` + `tirex` + `toto` + `mantis` + `timesfm3`, which pulls in `hub` and `base`. It is also the largest install: for one family, the extra on that family's page pulls far less.
+`chronos` + `kronos` + `granite` + `moirai` + `tirex` + `tirex2` + `toto` + `mantis` + `timesfm3` + `t0` + `tafsut`, which pulls in `hub` and `base`. It is also the largest install: for one family, the extra on that family's page pulls far less.
 
 ## Start a server
 
@@ -94,7 +94,7 @@ One process answers for every loaded model; switch by changing `model`. Python n
 
 ## Models
 
-All 111 models load here. Checkpoints for all of them: [All models](index.md#all-models).
+All 117 models load here. Checkpoints for all of them: [All models](index.md#all-models).
 
 | extra | families | models | catalog |
 | --- | --- | --- | --- |
@@ -105,9 +105,12 @@ All 111 models load here. Checkpoints for all of them: [All models](index.md#all
 | `granite` | FlowState | 2 | [granite](granite.md#models) |
 | `moirai` | Moirai 2, Moirai 1.x, Lag-Llama | 8 | [moirai](moirai.md#models) |
 | `tirex` | TiRex | 2 | [tirex](tirex.md#models) |
+| `tirex2` | TiRex-2 | 4 | [tirex2](tirex2.md#models) |
 | `toto` | Toto-2 | 5 | [toto](toto.md#models) |
 | `mantis` | Mantis | 3 | [mantis](mantis.md#models) |
 | `timesfm3` | TimesFM 3 | 1 | [timesfm3](timesfm3.md#models) |
+| `t0` | T0 | 1 | [t0](t0.md#models) |
+| `tafsut` | Tafsut | 1 | [tafsut](tafsut.md#models) |
 
 ## Also loadable here
 
