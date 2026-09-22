@@ -1,8 +1,10 @@
 # Overview
 
+TServe separates the interface used to submit a forecast from the runtime that executes it. One server can keep several models loaded while HTTP and Python clients send the same logical request in different formats.
+
 ![TServe architecture](assets/architecture.svg)
 
-Walk top to bottom. Three seams:
+Read the architecture from top to bottom. It has three main boundaries:
 
 - **Transports** do not import each other. JSON (`POST /predict`) coerces on the server. The Python [`Client`][tserve.client.client.Client] coerces locally and sends Arrow (`POST /predict/bytes`). A third lane is a new transport class, not a runtime change.
 - **Canonical frames** are `CoercedPredictRequest` / `CoercedPredictResponse` — Narwhals `DataFrame`. Callers pass a dict, pandas, polars, or pyarrow; they get the same type back.
@@ -44,6 +46,7 @@ Panel (multi-series) and hierarchical input are not supported.
 
 ## Next
 
-1. [Start a server](server/index.md) (extras and tags: [Dependencies](models/index.md#dependencies))
-2. [Catalog](models/index.md)
-3. [Send predictions](client/index.md) over HTTP or from Python
+1. [Install TServe](installation.md)
+2. [Complete the quick start](quick-start.md)
+3. [Choose a model](models/index.md)
+4. [Send predictions](client/index.md) over HTTP or from Python

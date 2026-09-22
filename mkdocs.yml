@@ -158,8 +158,10 @@ validation:
 
 nav:
   - Home:
-      - Getting started: index.md
+      - TServe: index.md
       - Overview: overview.md
+      - Installation: installation.md
+      - Quick start: quick-start.md
   - Server:
       - server/index.md
       - Docker: server/docker.md
