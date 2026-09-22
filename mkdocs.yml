@@ -162,6 +162,7 @@ nav:
       - Overview: overview.md
   - Server:
       - server/index.md
+      - uv / pip: server/pip.md
       - Docker: server/docker.md
       - From source: server/source.md
       - Live objects: server/live-objects.md

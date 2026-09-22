@@ -15,14 +15,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server
+        uv pip install "tserve[server]"
         uv run tserve
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server]"
+        pip install "tserve[server]"
         tserve
         ```
 
@@ -39,14 +39,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra hub
+        uv pip install "tserve[server,hub]"
         uv run tserve chronos_bolt
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,hub]"
+        pip install "tserve[server,hub]"
         tserve chronos_bolt
         ```
 
@@ -63,14 +63,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra chronos
+        uv pip install "tserve[server,chronos]"
         uv run tserve chronos_2
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,chronos]"
+        pip install "tserve[server,chronos]"
         tserve chronos_2
         ```
 
@@ -87,14 +87,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra kronos
+        uv pip install "tserve[server,kronos]"
         uv run tserve kronos
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,kronos]"
+        pip install "tserve[server,kronos]"
         tserve kronos
         ```
 
@@ -111,14 +111,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra granite
+        uv pip install "tserve[server,granite]"
         uv run tserve flowstate
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,granite]"
+        pip install "tserve[server,granite]"
         tserve flowstate
         ```
 
@@ -135,14 +135,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra moirai
+        uv pip install "tserve[server,moirai]"
         uv run tserve moirai_2
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,moirai]"
+        pip install "tserve[server,moirai]"
         tserve moirai_2
         ```
 
@@ -159,14 +159,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra tirex
+        uv pip install "tserve[server,tirex]"
         uv run tserve tirex
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,tirex]"
+        pip install "tserve[server,tirex]"
         tserve tirex
         ```
 
@@ -183,14 +183,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra toto
+        uv pip install "tserve[server,toto]"
         uv run tserve toto_2_0_4m
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,toto]"
+        pip install "tserve[server,toto]"
         tserve toto_2_0_4m
         ```
 
@@ -207,14 +207,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra mantis
+        uv pip install "tserve[server,mantis]"
         uv run tserve mantis_8m
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,mantis]"
+        pip install "tserve[server,mantis]"
         tserve mantis_8m
         ```
 
@@ -231,14 +231,14 @@
     === "uv"
 
         ```bash
-        uv sync --extra server --extra full
+        uv pip install "tserve[server,full]"
         uv run tserve chronos_2 tirex kronos
         ```
 
     === "pip"
 
         ```bash
-        pip install -e ".[server,full]"
+        pip install "tserve[server,full]"
         tserve chronos_2 tirex kronos
         ```
 
@@ -249,7 +249,7 @@
           chronos_2 tirex kronos
         ```
 
-- `uv` and `pip` assume a clone: [From source](../server/source.md#install).
+- `uv` and `pip` install from PyPI: [uv / pip](../server/pip.md#install). From a clone: [From source](../server/source.md#install).
 - GPU: swap in the `-gpu` tag and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 - Token and cache volume: [Docker](../server/docker.md).
 - Ids not listed here: [craft specs](../server/craft-specs.md), [live objects](../server/live-objects.md), [a directory of `.zip` files](../server/models-dir.md).

@@ -15,16 +15,14 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra mantis
+    uv pip install "tserve[server,mantis]"
     uv run tserve mantis_8m
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,mantis]"
+    pip install "tserve[server,mantis]"
     tserve mantis_8m
     ```
 

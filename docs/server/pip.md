@@ -1,43 +1,41 @@
-# From source
+# uv / pip
 
-Python >= 3.12, and a clone over HTTPS. [uv](https://docs.astral.sh/uv/) is the shorter path, pip works everywhere. For the published package, see [uv / pip](pip.md).
+Python >= 3.12. Install TServe from PyPI with [uv](https://docs.astral.sh/uv/) or pip, then start `tserve`. Editable installs from a clone stay on [From source](source.md).
 
 ## Install
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra hub
+    uv pip install "tserve[server,hub]"
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,hub]"
+    pip install "tserve[server,hub]"
     ```
 
-    The `gpu` extra does not work with pip. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](#gpu).
+    The `gpu` extra does not change a pip install. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](#gpu).
 
 `server` is enough to serve `naive` (a test baseline). The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
 
 ## Dependencies
 
-uv repeats `--extra`. pip takes one extras list. After uv, run `uv run tserve …`. After pip, with the venv on `PATH`, run `tserve …`.
+uv and pip both take an extras list on the package. After uv, run `uv run tserve …`. After pip, with the venv on `PATH`, run `tserve …`.
 
 **Naive**
 
 === "uv"
 
     ```bash
-    uv sync --extra server
+    uv pip install "tserve[server]"
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[server]"
+    pip install "tserve[server]"
     ```
 
 **Hub**
@@ -45,13 +43,13 @@ uv repeats `--extra`. pip takes one extras list. After uv, run `uv run tserve �
 === "uv"
 
     ```bash
-    uv sync --extra server --extra hub
+    uv pip install "tserve[server,hub]"
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[server,hub]"
+    pip install "tserve[server,hub]"
     ```
 
 **Chronos-2**
@@ -59,13 +57,13 @@ uv repeats `--extra`. pip takes one extras list. After uv, run `uv run tserve �
 === "uv"
 
     ```bash
-    uv sync --extra server --extra chronos
+    uv pip install "tserve[server,chronos]"
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[server,chronos]"
+    pip install "tserve[server,chronos]"
     ```
 
 **All families** (`full` is the union extra, not `all-extras`. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag.)
@@ -73,13 +71,13 @@ uv repeats `--extra`. pip takes one extras list. After uv, run `uv run tserve �
 === "uv"
 
     ```bash
-    uv sync --extra server --extra full
+    uv pip install "tserve[server,full]"
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[server,full]"
+    pip install "tserve[server,full]"
     ```
 
 --8<-- "includes/model-dependencies.md"
@@ -88,24 +86,18 @@ All 110 supported models are on the [catalog](../models/index.md), and each extr
 
 ## GPU
 
-Family extras pull `torch`. Which wheel you get depends on the installer.
+Family extras pull `torch`. A PyPI install takes the CUDA wheel from PyPI (MPS on macOS).
 
-**uv** defaults to the CPU index. Add `--extra gpu` for the PyPI wheel: CUDA on Linux and Windows, MPS on Apple silicon. Pair it with the family extras you need.
-
-```bash
-uv sync --extra server --extra hub --extra gpu
-```
-
-**pip** does not honor the `gpu` extra. `pip install -e ".[server,hub,gpu]"` is the same as without `gpu`. A normal pip install always takes CUDA torch from PyPI (MPS on macOS).
-
-To **force CPU torch with pip**, install torch from the CPU index first, then TServe. If a later `pip install` replaces that wheel with CUDA, run the torch line again.
+To **force CPU torch**, install torch from the CPU index first, then TServe. If a later install replaces that wheel with CUDA, run the torch line again.
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install -e ".[server,hub]"
+pip install "tserve[server,hub]"
 ```
 
-Swap `hub` for any other family extra from [Dependencies](#dependencies). Containers use `*-gpu` tags instead: [Docker](docker.md#gpu-images).
+The same order works with `uv pip install`. Swap `hub` for any other family extra from [Dependencies](#dependencies).
+
+The `gpu` extra only selects the torch index in a clone's uv lockfile: [From source](source.md#gpu). Containers use `*-gpu` tags instead: [Docker](docker.md#gpu-images).
 
 ## Serve from the command line
 
@@ -162,6 +154,7 @@ Keep it to one worker per process: each worker would load its own copy of every 
 
 ## Next
 
+- [From source](source.md) — editable install from a clone
 - [Live objects](live-objects.md) — Python can also serve estimators you configured in the session
 - [Craft specs](craft-specs.md) — load a sktime craft spec as `(id, spec)` or CLI `id=spec`
 - [Models from a directory](models-dir.md) — serve saved sktime `.zip` files

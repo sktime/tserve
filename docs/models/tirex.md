@@ -15,16 +15,14 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra tirex
+    uv pip install "tserve[server,tirex]"
     uv run tserve tirex
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,tirex]"
+    pip install "tserve[server,tirex]"
     tserve tirex
     ```
 

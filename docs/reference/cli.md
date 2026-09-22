@@ -8,7 +8,7 @@ tserve chronos_bolt ttm_r3
 
 Catalog models are leftover positionals after `tserve`. `naive` is always loaded as a test baseline.
 
-A walkthrough with the startup output is on [From source](../server/source.md#serve-from-the-command-line).
+A walkthrough with the startup output is on [uv / pip](../server/pip.md#serve-from-the-command-line).
 
 ## Flags
 

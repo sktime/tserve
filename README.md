@@ -26,9 +26,38 @@ docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
 
 Choose a model and its matching image tag from the [model catalog](https://tserve.readthedocs.io/en/latest/models/). The process always loads `naive` for testing; name extra models alongside it for a real forecast.
 
+### uv / pip
+
+TServe requires Python 3.12 or newer. Install `server` plus the family extra for the models you need, and start the process. These commands work line by line in macOS/Linux shells and Windows PowerShell.
+
+**uv**
+
+```bash
+uv pip install "tserve[server,hub]"
+uv run tserve chronos_bolt ttm_r3
+```
+
+**pip**
+
+The `gpu` extra does not work with pip. Family extras already install CUDA torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
+
+```bash
+python -m pip install "tserve[server,hub]"
+tserve chronos_bolt ttm_r3
+```
+
+To force a CPU wheel, install torch from the CPU index first, then TServe. If pip later replaces it with CUDA, run the torch line again.
+
+```bash
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install "tserve[server,hub]"
+```
+
+The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a server-only machine. See [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/) for family extras, GPU installs, and Python-based server setup.
+
 ### From source
 
-TServe requires Python 3.12 or newer and is not on PyPI yet. Clone it over HTTPS, install `server` plus the family extra for the models you need, and start the process. These commands work line by line in macOS/Linux shells and Windows PowerShell.
+Clone over HTTPS for an editable install. These commands work line by line in macOS/Linux shells and Windows PowerShell.
 
 **uv**
 
@@ -57,7 +86,7 @@ python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -e ".[server,hub]"
 ```
 
-The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a server-only machine. See [Server](https://tserve.readthedocs.io/en/latest/server/) for family extras, GPU installs, and Python-based server setup.
+See [From source](https://tserve.readthedocs.io/en/latest/server/source/) for the clone walkthrough.
 
 ## Predict
 
@@ -95,18 +124,18 @@ curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d
 
 ### Python
 
-Install the client extra in a clone:
+Install the client extra:
 
 **uv**
 
 ```bash
-uv sync --extra client
+uv pip install "tserve[client]"
 ```
 
 **pip**
 
 ```bash
-python -m pip install -e ".[client]"
+python -m pip install "tserve[client]"
 ```
 
 Then send the same fields:
@@ -205,6 +234,7 @@ The [dashboard](https://tserve.readthedocs.io/en/latest/server/dashboard/) can l
 ## Documentation
 
 - [Server](https://tserve.readthedocs.io/en/latest/server/)
+- [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/)
 - [Docker](https://tserve.readthedocs.io/en/latest/server/docker/)
 - [From source](https://tserve.readthedocs.io/en/latest/server/source/)
 - [Model catalog and dependencies](https://tserve.readthedocs.io/en/latest/models/)

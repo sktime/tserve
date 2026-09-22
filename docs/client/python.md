@@ -23,24 +23,22 @@ The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-See [Server](../server/index.md) for source installs and server options. The client URL points to this process, not a hosted TServe API.
+See [Server](../server/index.md) for uv / pip, Docker, and server options. The client URL points to this process, not a hosted TServe API.
 
 ## Install
 
-TServe is not on PyPI yet. Install the `client` extra from a clone. Python 3.12 or newer is required.
+Install the `client` extra. Python 3.12 or newer is required.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra client
+    uv pip install "tserve[client]"
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[client]"
+    pip install "tserve[client]"
     ```
 
 The `client` extra is enough on a machine that only calls a server. Add `server` and the required [family extra](../models/index.md#dependencies) only when the same environment also runs the server.

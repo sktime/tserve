@@ -13,16 +13,14 @@ Every family in one extra. Use it when your models span more than one family ext
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra full
+    uv pip install "tserve[server,full]"
     uv run tserve chronos_2 tirex kronos
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,full]"
+    pip install "tserve[server,full]"
     tserve chronos_2 tirex kronos
     ```
 

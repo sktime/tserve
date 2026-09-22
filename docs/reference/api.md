@@ -1,6 +1,6 @@
 # Python API
 
-Signatures for the public objects. Guides: [Python](../client/python.md) for calling a server, [From source](../server/source.md) for running one.
+Signatures for the public objects. Guides: [Python](../client/python.md) for calling a server, [uv / pip](../server/pip.md) for running one.
 
 ## Client
 

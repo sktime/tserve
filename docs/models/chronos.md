@@ -11,16 +11,14 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra chronos
+    uv pip install "tserve[server,chronos]"
     uv run tserve chronos_2
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,chronos]"
+    pip install "tserve[server,chronos]"
     tserve chronos_2
     ```
 

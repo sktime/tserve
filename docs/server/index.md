@@ -16,29 +16,27 @@ docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
 
-**From source**
+**uv / pip**
 
-Python >= 3.12. Clone over HTTPS. TServe is not on PyPI yet. The extras here match the `hub` image; swap them when you load other families.
+Python >= 3.12. The extras here match the `hub` image; swap them when you load other families.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra hub
+    uv pip install "tserve[server,hub]"
     uv run tserve chronos_bolt ttm_r3
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,hub]"
+    pip install "tserve[server,hub]"
     tserve chronos_bolt ttm_r3
     ```
 
-    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](source.md#gpu).
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](pip.md#gpu).
 
-CLI flags, `Server`, and `server.app`: [From source](source.md).
+CLI flags, `Server`, and `server.app`: [uv / pip](pip.md). Editable installs from a clone: [From source](source.md).
 
 **Load a different family**
 
@@ -47,14 +45,14 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
 === "uv"
 
     ```bash
-    uv sync --extra server --extra moirai
+    uv pip install "tserve[server,moirai]"
     uv run tserve moirai_2
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[server,moirai]"
+    pip install "tserve[server,moirai]"
     tserve moirai_2
     ```
 
@@ -77,6 +75,14 @@ curl -s http://127.0.0.1:8000/models
 ## In this section
 
 <div class="grid cards" markdown>
+
+-   :material-language-python:{ .lg .middle } **uv / pip**
+
+    ---
+
+    Install from PyPI, then `tserve` or [`Server`][tserve.server.serve.Server].
+
+    [:octicons-arrow-right-24: uv / pip](pip.md)
 
 -   :material-docker:{ .lg .middle } **Docker**
 

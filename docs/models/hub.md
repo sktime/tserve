@@ -13,16 +13,14 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra hub
+    uv pip install "tserve[server,hub]"
     uv run tserve chronos_bolt
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,hub]"
+    pip install "tserve[server,hub]"
     tserve chronos_bolt
     ```
 

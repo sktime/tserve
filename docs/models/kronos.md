@@ -13,16 +13,14 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra kronos
+    uv pip install "tserve[server,kronos]"
     uv run tserve kronos
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,kronos]"
+    pip install "tserve[server,kronos]"
     tserve kronos
     ```
 

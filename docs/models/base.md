@@ -13,16 +13,14 @@ Every other page in this section layers on top of this one.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server
+    uv pip install "tserve[server]"
     uv run tserve
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server]"
+    pip install "tserve[server]"
     tserve
     ```
 

@@ -14,7 +14,7 @@ TServe is a process you start, not a hosted API. It loads time-series foundation
 
 The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. TServe always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
 
-Start it [from source](server/source.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at TServe for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
+Start it with [uv or pip](server/pip.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at TServe for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
@@ -32,27 +32,25 @@ docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 
 Every model except `naive` downloads a checkpoint from Hugging Face on first load. Pass [`-e HF_TOKEN`](server/docker.md#hugging-face-token) so that download is not rate-limited, [mount the Hub cache](server/docker.md#keep-weights-between-runs) to reuse the weights next time, and reach for a [`*-gpu` tag](server/docker.md#gpu-images) with `--gpus all` on an NVIDIA host. `:hub` is one tag; Chronos-2, Moirai, and the rest need a [different image](server/docker.md#choose-which-models-to-load).
 
-**Build from source**
+**Install with uv or pip**
 
-Or clone the repo and start from source. Python >= 3.12, and TServe is not on PyPI yet. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models.
+Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](models/index.md#dependencies) for Hub models. Editable installs from a clone: [From source](server/source.md).
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra hub
+    uv pip install "tserve[server,hub]"
     uv run tserve chronos_bolt ttm_r3
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,hub]"
+    pip install "tserve[server,hub]"
     tserve chronos_bolt ttm_r3
     ```
 
-    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/source.md#gpu).
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](server/pip.md#gpu).
 
 Once the process is up, the terminal prints the URLs:
 
@@ -123,13 +121,13 @@ The client takes the same fields as keywords and sends Arrow instead of JSON. In
 === "uv"
 
     ```bash
-    uv sync --extra client
+    uv pip install "tserve[client]"
     ```
 
 === "pip"
 
     ```bash
-    pip install -e ".[client]"
+    pip install "tserve[client]"
     ```
 
 ```python

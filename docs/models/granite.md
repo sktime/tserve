@@ -11,16 +11,14 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra granite
+    uv pip install "tserve[server,granite]"
     uv run tserve flowstate
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,granite]"
+    pip install "tserve[server,granite]"
     tserve flowstate
     ```
 
