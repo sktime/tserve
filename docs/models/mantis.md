@@ -4,7 +4,7 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `mantis` | [`:mantis`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) | Mantis | 3 | `mantis-8m` |
+| `mantis` | [`:mantis`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis) | [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) | Mantis | 3 | `mantis_8m` |
 
 !!! warning "`past` needs more than 127 rows"
 
@@ -12,29 +12,31 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:mantis mantis_8m
+    ```
+
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra mantis
-    uv run tserve mantis-8m
+    uv pip install "tserve[server,mantis]"
+    ```
+
+    ```bash
+    uv run tserve mantis_8m
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,mantis]"
-    tserve mantis-8m
+    pip install "tserve[server,mantis]"
     ```
-
-=== "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:mantis mantis-8m
+    tserve mantis_8m
     ```
-
-GPU: swap in [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -58,7 +60,7 @@ curl -s http://127.0.0.1:8000/models
         "sales": [120 + (i % 7) * 3 for i in range(150)],
     }
     payload = {"past": past, "time": "timestamp", "target": ["sales"], "fh": 3,
-               "model": "mantis-8m"}
+               "model": "mantis_8m"}
     json.dump(payload, open("mantis.json", "w"))
     PY
 
@@ -94,7 +96,7 @@ curl -s http://127.0.0.1:8000/models
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="mantis-8m",
+            model="mantis_8m",
         )
     print(result.predictions)
     ```

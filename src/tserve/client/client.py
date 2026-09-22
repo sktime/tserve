@@ -98,14 +98,17 @@ class Client:
             Time-index column. When omitted, the first column of
             ``past`` is used.
         target : str or list of str, optional
-            Target column names. When omitted, remaining ``past``
-            columns are used.
+            Columns to forecast. When omitted, every other ``past``
+            column is a target, except columns also present in
+            ``future``.
         model : str, default ``"naive"``
             Loaded model id (see ``GET /models``).
         future : any, optional
-            Future timestamps when using ``static``.
+            Known future values of time-varying covariates. Must
+            include the time column and cover the forecast horizon.
         static : any, optional
-            One-row static features, broadcast over time.
+            One row of values that stay constant over time. Broadcast
+            across history and the forecast. Does not require ``future``.
         quantiles : list of float, optional
             Quantile alphas, e.g. ``[0.1, 0.5, 0.9]``.
 

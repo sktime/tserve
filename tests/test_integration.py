@@ -95,13 +95,13 @@ def test_predict():
 
 
 def test_predict_unknown_model():
-    with pytest.raises(RuntimeError, match="chronos-2"):
+    with pytest.raises(RuntimeError, match="chronos_2"):
         client.predict(
             past=PAST,
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-2",
+            model="chronos_2",
         )
 
 
@@ -151,7 +151,7 @@ def test_predict_parity_sktime_exog():
     from sktime.registry import craft
     from sktime.split import temporal_train_test_split
 
-    model = "ttm-r3"
+    model = "ttm_r3"
     fh = 2
     y, X = load_longley()
     y_train, _, X_train, X_future = temporal_train_test_split(y, X, test_size=fh)

@@ -1,6 +1,6 @@
 # Live objects
 
-Registry models cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][tserve.server.serve.Server]. This is Python-only: leftover CLI positionals take names, so a live object has no CLI equivalent. For a spec string instead of an instance, see [Craft specs](craft-specs.md).
+Registry models cover published checkpoints. To serve an estimator you configured yourself, pass `(id, estimator)` pairs to [`Server`][tserve.server.serve.Server]. The CLI only accepts names, so this is Python-only. For a spec string instead of an instance, see [Craft specs](craft-specs.md).
 
 ```python
 from tserve.server import Server
@@ -13,7 +13,7 @@ bolt = ChronosForecaster(
 
 Server(
     model=[
-        "chronos-bolt",
+        "chronos_bolt",
         ("bolt-mini-local", bolt),
     ],
     host="127.0.0.1",
@@ -27,7 +27,7 @@ That name is what predict requests send as `model`:
 {
   "models": [
     {"id": "naive", "executor": "sktime", "source": "registry"},
-    {"id": "chronos-bolt", "executor": "sktime", "source": "registry"},
+    {"id": "chronos_bolt", "executor": "sktime", "source": "registry"},
     {"id": "bolt-mini-local", "executor": "sktime", "source": "object"}
   ]
 }
@@ -55,7 +55,7 @@ ttm = TinyTimeMixerForecaster(
 )
 
 Server(
-    model=["chronos-bolt", ("ttm-local", ttm)],
+    model=["chronos_bolt", ("ttm-local", ttm)],
     host="127.0.0.1",
     port=8000,
 ).run()

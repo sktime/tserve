@@ -28,6 +28,4 @@ Same origin, generated from the FastAPI app:
 | ReDoc | [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) |
 | Schema | [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json) |
 
-Use Swagger to try `POST /predict` from the browser. The dashboard is the friendlier console; Swagger is the contract.
-
-Static assets live under `/static` (`index.html`, CSS, JS, favicon).
+Use Swagger to try `POST /predict` from the browser. The dashboard is the console; Swagger is the contract.

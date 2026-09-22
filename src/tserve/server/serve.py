@@ -79,7 +79,7 @@ class Server:
     >>> Server(host="127.0.0.1", port=8000).run()
     >>> Server(
     ...     model=[
-    ...         "chronos-bolt",
+    ...         "chronos_bolt",
     ...         ("drift", 'NaiveForecaster(strategy="drift")'),
     ...     ]
     ... )
@@ -180,6 +180,7 @@ class Server:
         ):
             logger.info(
                 f"  {paint(f'{label:<11}', '2')} {paint(f'{self.url}{path}', '1;36')}"
+                + ("\n" if path == "/redoc" else "")
             )
 
         uvicorn.run(

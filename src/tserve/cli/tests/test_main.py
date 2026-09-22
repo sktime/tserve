@@ -31,7 +31,7 @@ def test_main_forwards_flags():
     _, Server, _ = _run(
         [
             "naive",
-            "chronos-2",
+            "chronos_2",
             "--models-dir",
             "/models",
             "--host",
@@ -44,7 +44,7 @@ def test_main_forwards_flags():
     )
 
     Server.assert_called_once_with(
-        model=["naive", "chronos-2"],
+        model=["naive", "chronos_2"],
         models_dir="/models",
         host="0.0.0.0",
         port=9000,
@@ -70,10 +70,10 @@ def test_main_parses_craft_token():
 
 
 def test_main_positional_models():
-    _, Server, _ = _run(["naive", "chronos-2"])
+    _, Server, _ = _run(["naive", "chronos_2"])
 
     Server.assert_called_once_with(
-        model=["naive", "chronos-2"],
+        model=["naive", "chronos_2"],
         models_dir=None,
         host="127.0.0.1",
         port=8000,
@@ -82,7 +82,7 @@ def test_main_positional_models():
 
 
 def test_parse_model():
-    assert parse_model(["naive", "chronos-2"]) == ["naive", "chronos-2"]
+    assert parse_model(["naive", "chronos_2"]) == ["naive", "chronos_2"]
     assert parse_model(
         ['ttm-local=TinyTimeMixerForecaster(model_path="x", revision="a=b")']
     ) == [("ttm-local", 'TinyTimeMixerForecaster(model_path="x", revision="a=b")')]

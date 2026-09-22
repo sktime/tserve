@@ -1,6 +1,4 @@
-- [Docker](../server/docker.md): tags, Hugging Face token, cache volume, GPU.
-- [From source](../server/source.md#dependencies): extras from a clone.
-- [CLI](../reference/cli.md#flags): every `tserve` flag.
-- [Data specification](../client/data.md): request fields, table formats, response shape.
-- [Craft specs](../server/craft-specs.md), [Live objects](../server/live-objects.md), [Models from a directory](../server/models-dir.md): checkpoints no catalog model names.
-- [Errors](../reference/errors.md#startup): a load that failed at startup.
+- [Docker](../server/docker.md), [UV / Pip](../server/pip.md), [From source](../server/source.md): run the server.
+- [Data specification](../client/data.md): the predict request.
+- [Craft specs](../server/craft-specs.md), [Live objects](../server/live-objects.md), [Models from a directory](../server/models-dir.md): a checkpoint no catalog name covers.
+- [Errors](../reference/errors.md#startup): a model that failed to load.

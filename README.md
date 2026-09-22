@@ -2,223 +2,148 @@
 
 [![Documentation Status](https://readthedocs.org/projects/tserve/badge/?version=latest)](https://tserve.readthedocs.io/en/latest/?badge=latest)
 
-TServe is a local inference server for time-series foundation models. Start the process, load named registry models once, keep them warm, and predict through `POST /predict`, the Python client, or the browser dashboard. The process also serves its own OpenAPI documentation. TServe does not provide a hosted API.
+Time series serving for foundation models. You start a TServe process, name the models to load, and they stay in memory until the process stops.
 
-- [Documentation](https://tserve.readthedocs.io)
-- [Docker Hub](https://hub.docker.com/r/sktime/tserve)
-- Clone: `https://github.com/sktime/tserve.git`
+A forecast is a request to that process. JSON goes to `POST /predict` from any HTTP client. The Python [`Client`](https://tserve.readthedocs.io/en/latest/client/python/#connect) posts Arrow to `POST /predict/bytes` and returns the same kind of table you sent: a dict, pandas, polars, or pyarrow. The dashboard at `GET /` plots a forecast in the browser. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
 
-## Quick start
+Chronos, TTM, TimesFM, Moirai, and the other families are in the [catalog](https://tserve.readthedocs.io/en/latest/models/#dependencies). `naive` loads with every process and needs no download, so you can check that the server answers before any checkpoint. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
 
-### Docker
+![TServe architecture](docs/assets/architecture.svg)
 
-The `hub` image includes the dependencies for Chronos Bolt/T5, TTM, and TimesFM 2.x. This command loads two registry models:
+JSON is coerced on the server. The Python client coerces locally and restores your table type on the way back. Both paths reach the same loaded model. The fields on a request, and the path in the diagram: [Overview](https://tserve.readthedocs.io/en/latest/overview/) · [Request](https://tserve.readthedocs.io/en/latest/overview/#request). Images: [Docker Hub](https://hub.docker.com/r/sktime/tserve).
 
-```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt ttm-r3
-```
+## First forecast
 
-Tags cover other families too. For example, the `moirai` image can load `moirai-2`:
+Docker is the short path. This image can load Chronos Bolt, Chronos T5, TTM, and TimesFM. The first start downloads the weights you name.
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 ```
 
-Choose a model and its matching image tag from the [model catalog](https://tserve.readthedocs.io/en/latest/models/). The process always loads `naive` for testing; name extra models alongside it for a real forecast.
-
-### From source
-
-TServe requires Python 3.12 or newer and is not on PyPI yet. Clone it over HTTPS, install `server` plus the family extra for the models you need, and start the process. These commands work line by line in macOS/Linux shells and Windows PowerShell.
-
-**uv**
+When the log prints the local URLs, the models are warm. Five days of sales, three steps ahead:
 
 ```bash
-git clone https://github.com/sktime/tserve.git
-cd tserve
-uv sync --extra server --extra hub
-uv run tserve chronos-bolt ttm-r3
+curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+  "past": {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138]
+  },
+  "fh": 3,
+  "model": "chronos_bolt"
+}'
 ```
 
-**pip**
+```json
+{
+  "predictions": {
+    "timestamp": ["2024-01-06T00:00:00", "2024-01-07T00:00:00", "2024-01-08T00:00:00"],
+    "sales": [139.96, 138.93, 138.26]
+  },
+  "quantiles": null,
+  "model": "chronos_bolt",
+  "request_id": "…"
+}
+```
 
-The `gpu` extra does not work with pip. Family extras already install CUDA torch from PyPI (MPS on macOS). Do not add `gpu` to the extras list.
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/), pick `chronos_bolt`, and plot the same series. The page can also take a pasted or dropped CSV. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
+
+The same call from Python. The client posts Arrow, and `predictions` comes back as the same kind of table you sent:
 
 ```bash
-git clone https://github.com/sktime/tserve.git
-cd tserve
-python -m pip install -e ".[server,hub]"
-tserve chronos-bolt ttm-r3
+pip install "tserve[client]"
 ```
-
-To force a CPU wheel, install torch from the CPU index first, then TServe. If pip later replaces it with CUDA, run the torch line again.
-
-```bash
-python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-python -m pip install -e ".[server,hub]"
-```
-
-The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a server-only machine. See [Server](https://tserve.readthedocs.io/en/latest/server/) for family extras, GPU installs, and Python-based server setup.
-
-## Predict
-
-A predict request describes a table and the roles of its columns:
-
-- `past` is the historical table: one row per timestamp, with time, target, and optional feature columns. Time must be a column, not a pandas index.
-- `time` names the time column, and `target` names the column or columns to forecast.
-- `fh` is the number of steps ahead and must be greater than zero.
-- `model` is a model already loaded by this server.
-- `future`, `static`, and `quantiles` are optional.
-
-`quantiles` requires an estimator that supports quantile prediction, such as `timesfm-2.5`; `ttm-r3` does not.
-
-`past` is not a one-dimensional vector. See the [data specification](https://tserve.readthedocs.io/en/latest/client/data/) for supported table shapes, inference rules, static data, quantiles, and current limitations.
-
-### curl
-
-This sends five days of sales and asks `chronos-bolt` for the next three. The JSON after `-d` stays on one line for copy-paste reliability.
-
-**macOS / Linux**
-
-```bash
-curl -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
-```
-
-**Windows PowerShell**
-
-Use `curl.exe` so PowerShell does not substitute `Invoke-WebRequest`.
-
-```powershell
-curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-bolt"}'
-```
-
-`POST /predict` returns column-oriented JSON containing `predictions`, `quantiles`, `model`, and `request_id`.
-
-### Python
-
-Install the client extra in a clone:
-
-**uv**
-
-```bash
-uv sync --extra client
-```
-
-**pip**
-
-```bash
-python -m pip install -e ".[client]"
-```
-
-Then send the same fields:
 
 ```python
 from tserve.client import Client
 
 past = {
-    "timestamp": [
-        "2024-01-01",
-        "2024-01-02",
-        "2024-01-03",
-        "2024-01-04",
-        "2024-01-05",
-    ],
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
     "sales": [120, 135, 128, 142, 138],
 }
 
 with Client("http://127.0.0.1:8000") as client:
-    result = client.predict(
-        past=past,
-        time="timestamp",
-        target=["sales"],
-        fh=3,
-        model="chronos-bolt",
-    )
+    result = client.predict(past=past, fh=3, model="chronos_bolt")
 
 print(result.predictions)
 ```
 
-The client accepts dictionaries, pandas, polars, pyarrow, and Narwhals tables, posts Arrow to `/predict/bytes`, and restores results to the input table type. See the [Python guide](https://tserve.readthedocs.io/en/latest/client/python/).
+The walkthrough, including `GET /models` and PowerShell: [Quick start](https://tserve.readthedocs.io/en/latest/quick-start/). A GPU host adds `--gpus all` and uses `sktime/tserve:hub-gpu`. [GPU images](https://tserve.readthedocs.io/en/latest/server/docker/#gpu-images)
 
-## Choose and load models
+## Models
 
-TServe has named models for Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama, and the `naive` baseline. To load one:
+110 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
 
-1. Find its exact name in the [catalog](https://tserve.readthedocs.io/en/latest/models/).
-2. Install the listed family extra, or pull the matching Docker tag.
-3. Name the model on `tserve` as leftover positionals.
+`naive` always loads, so you can try the process before any download. `GET /models` lists what this process loaded, which is smaller than the catalog. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
 
-The catalog is what a process *can* load. `GET /models` reports only what the current process *did* load.
+| extra | families | added | example |
+| --- | --- | ---: | --- |
+| [`server`](https://tserve.readthedocs.io/en/latest/models/base/) | Naive | 1 | `naive` |
+| [`hub`](https://tserve.readthedocs.io/en/latest/models/hub/) | Chronos Bolt, Chronos T5, TTM, TimesFM | 81 | `chronos_bolt` |
+| [`chronos`](https://tserve.readthedocs.io/en/latest/models/chronos/) | Chronos-2 | 3 | `chronos_2` |
+| [`kronos`](https://tserve.readthedocs.io/en/latest/models/kronos/) | Kronos, WindFM | 5 | `kronos` |
+| [`granite`](https://tserve.readthedocs.io/en/latest/models/granite/) | FlowState | 2 | `flowstate` |
+| [`moirai`](https://tserve.readthedocs.io/en/latest/models/moirai/) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai_2` |
+| [`tirex`](https://tserve.readthedocs.io/en/latest/models/tirex/) | TiRex | 2 | `tirex` |
+| [`toto`](https://tserve.readthedocs.io/en/latest/models/toto/) | Toto-2 | 5 | `toto_2_0_4m` |
+| [`mantis`](https://tserve.readthedocs.io/en/latest/models/mantis/) | Mantis | 3 | `mantis_8m` |
+| [`full`](https://tserve.readthedocs.io/en/latest/models/full/) | all of the above | 110 | `chronos_2` |
 
-## Docker images
+`kronos` is built on `base`. Chronos Bolt, TTM, and TimesFM load on the images that include `hub`: `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and `full`. Tags, GPU variants, and how the extras stack: [Dependencies](https://tserve.readthedocs.io/en/latest/models/#dependencies).
 
-Images are published as:
-
-- `base` for `naive`;
-- `hub` for the shared Chronos Bolt/T5, TTM, and TimesFM stack;
-- family tags such as `chronos`, `granite`, `kronos`, `moirai`, `tirex`, `toto`, and `mantis` (`kronos` sits on `base`, not `hub`);
-- `full` for every family;
-- matching `*-gpu` variants for every family tag and `full`.
-
-GPU containers require an NVIDIA GPU, the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), and `--gpus all`:
-
-```bash
-docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos-bolt ttm-r3
-```
-
-For Hugging Face rate limits, set a read token in your environment and forward it. In bash/zsh use `export HF_TOKEN=hf_your_token`; in PowerShell use `$env:HF_TOKEN = "hf_your_token"`. Then run:
+Each family page has its own start command. The catalog collects them under [Start a server](https://tserve.readthedocs.io/en/latest/models/#start-a-server). Switching images is the tag plus the example from that row:
 
 ```bash
-docker run --rm -p 8000:8000 -e HF_TOKEN sktime/tserve:hub chronos-bolt
+docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
 ```
 
-Keep downloaded weights across containers with a portable named volume:
+Multivariate series, covariates, and quantiles differ by family: [Capabilities](https://tserve.readthedocs.io/en/latest/models/#capabilities). Every checkpoint name: [All models](https://tserve.readthedocs.io/en/latest/models/#all-models). `mantis` needs more than 127 rows of `past`: [mantis](https://tserve.readthedocs.io/en/latest/models/mantis/).
 
-```bash
-docker run --rm -p 8000:8000 -v tserve-hf:/root/.cache/huggingface sktime/tserve:hub chronos-bolt ttm-r3
-```
+## Install
 
-The [Docker guide](https://tserve.readthedocs.io/en/latest/server/docker/) covers all tags, host cache mounts, GPU constraints, saved models, and local builds.
+Docker needs no local Python. uv and pip need Python 3.12 or newer. Install the extra, or pull the tag, for the family in the table above.
 
-## Server behavior and options
+- **Docker.** [Pull an image](https://tserve.readthedocs.io/en/latest/server/docker/#pull-an-image), then [run the server](https://tserve.readthedocs.io/en/latest/server/docker/#run-the-server). CPU and GPU are separate tags.
+- **uv or pip.** [UV / Pip](https://tserve.readthedocs.io/en/latest/installation/#uv-pip). A PyPI install takes CUDA torch (MPS on macOS). A CPU wheel: [CPU-only install](https://tserve.readthedocs.io/en/latest/server/pip/#cpu-only-install).
+- **A clone.** [From source](https://tserve.readthedocs.io/en/latest/installation/#from-source). On a clone, uv selects the torch index with the [`gpu` extra](https://tserve.readthedocs.io/en/latest/server/source/#gpu).
 
-A bare `tserve` still loads `naive`, enough to test the process. Name extra registry models as leftover positionals (`tserve chronos-bolt ttm-r3`) for a real forecast. `--models-dir` selects sktime `.zip` files, `--host` and `--port` change the binding, and `--log-level` changes verbosity.
+## Load a model
 
-`GET /health` checks process liveness. `GET /models` lists loaded models. `GET /stats` reports process and per-model metrics. See the [CLI reference](https://tserve.readthedocs.io/en/latest/reference/cli/), or serve [saved models](https://tserve.readthedocs.io/en/latest/server/models-dir/), [live estimator objects](https://tserve.readthedocs.io/en/latest/server/live-objects/), or [craft specs](https://tserve.readthedocs.io/en/latest/server/craft-specs/).
+A bare `tserve` loads `naive` only. Name the models you want beside it. Flags are `--host`, `--port`, and `--log-level`: [Flags](https://tserve.readthedocs.io/en/latest/reference/cli/#flags) · [Startup and exit](https://tserve.readthedocs.io/en/latest/reference/cli/#startup-and-exit).
 
-## HTTP and Python clients
+- **On the command line.** [Start](https://tserve.readthedocs.io/en/latest/server/#start) · [Serve from the command line](https://tserve.readthedocs.io/en/latest/server/pip/#serve-from-the-command-line)
+- **From Python.** [`Server`](https://tserve.readthedocs.io/en/latest/server/pip/#serve-from-python) loads models before the port is bound. The same entry point from code: [Python entry point](https://tserve.readthedocs.io/en/latest/reference/cli/#python-entry-point).
+- **In Docker, with a token and a weight cache.** [Hugging Face token](https://tserve.readthedocs.io/en/latest/server/docker/#hugging-face-token) · [Keep weights between runs](https://tserve.readthedocs.io/en/latest/server/docker/#keep-weights-between-runs) · [Choose which models to load](https://tserve.readthedocs.io/en/latest/server/docker/#choose-which-models-to-load)
+- **An estimator you already built.** Pass `(id, estimator)`. Predict requests use that id as `model`. [Live objects](https://tserve.readthedocs.io/en/latest/server/live-objects/) · [Configured Hub estimators](https://tserve.readthedocs.io/en/latest/server/live-objects/#configured-hub-estimators)
+- **A craft spec.** A class call with constructor kwargs and no imports. On the CLI it is `id=spec`. [From the command line](https://tserve.readthedocs.io/en/latest/server/craft-specs/#from-the-command-line) · [Rules](https://tserve.readthedocs.io/en/latest/server/craft-specs/#rules)
+- **A saved sktime `.zip`.** [Save a model](https://tserve.readthedocs.io/en/latest/server/models-dir/#save-a-model) · [Load them](https://tserve.readthedocs.io/en/latest/server/models-dir/#load-them) · in Docker: [Models from a directory](https://tserve.readthedocs.io/en/latest/server/docker/#models-from-a-directory)
 
-Use JSON `POST /predict` from any language. The Python `Client` sends the same fields as Arrow to `POST /predict/bytes`. Prediction is POST-only: `GET /predict` returns 405 Method Not Allowed.
+Startup prints the dashboard, Swagger, and ReDoc. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do) · [Live OpenAPI](https://tserve.readthedocs.io/en/latest/server/dashboard/#live-openapi)
 
-Every URL in this README belongs to the TServe process you started; there is no hosted TServe endpoint. See the [HTTP guide](https://tserve.readthedocs.io/en/latest/client/http/) and [Python guide](https://tserve.readthedocs.io/en/latest/client/python/) for complete examples.
+## Send a forecast
 
-## Dashboard and OpenAPI
+JSON goes to `POST /predict`. The Python client posts Arrow to `POST /predict/bytes`. Both send the same fields. [Request fields](https://tserve.readthedocs.io/en/latest/client/data/#request-fields)
 
-After the server starts, open:
+`past` is one row per timestamp, `fh` is how many steps ahead, and the forecast continues from the last row. Omit `time` and the first column is time. Omit `target` and the other columns are the series, except any you also put in `future`. [Column roles](https://tserve.readthedocs.io/en/latest/client/data/#column-roles) · [Column inference](https://tserve.readthedocs.io/en/latest/client/data/#column-inference) · [Prediction horizon and model](https://tserve.readthedocs.io/en/latest/client/data/#prediction-horizon-and-model)
 
-- Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-- OpenAPI schema: [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
+| you want | read |
+| --- | --- |
+| JSON from any language | [Send a prediction](https://tserve.readthedocs.io/en/latest/client/http/#send-a-prediction) · [Endpoints](https://tserve.readthedocs.io/en/latest/client/http/#endpoints) |
+| Row-oriented JSON, or Arrow | [Use row-oriented JSON](https://tserve.readthedocs.io/en/latest/client/http/#use-row-oriented-json) · [Arrow endpoint](https://tserve.readthedocs.io/en/latest/client/http/#arrow-endpoint) · [Table formats](https://tserve.readthedocs.io/en/latest/client/data/#table-formats) |
+| pandas, polars, or pyarrow | [Use native tables](https://tserve.readthedocs.io/en/latest/client/python/#use-native-tables) · [Connect](https://tserve.readthedocs.io/en/latest/client/python/#connect) |
+| A pandas `DatetimeIndex` | [Use an indexed pandas frame](https://tserve.readthedocs.io/en/latest/client/python/#use-an-indexed-pandas-frame) · [Time](https://tserve.readthedocs.io/en/latest/client/data/#time) |
+| Covariates or a static row | [Future and static data](https://tserve.readthedocs.io/en/latest/client/data/#future-and-static-data) · [Request covariates](https://tserve.readthedocs.io/en/latest/client/python/#request-covariates) |
+| Quantiles | [Quantiles](https://tserve.readthedocs.io/en/latest/client/data/#quantiles) · [HTTP](https://tserve.readthedocs.io/en/latest/client/http/#request-quantiles) · [Python](https://tserve.readthedocs.io/en/latest/client/python/#request-quantiles) |
+| The response shape | [Response](https://tserve.readthedocs.io/en/latest/client/data/#response) |
+| Health, loaded models, latency | [Inspect the server](https://tserve.readthedocs.io/en/latest/client/http/#inspect-the-server) · [Status routes](https://tserve.readthedocs.io/en/latest/reference/http/#status-routes) |
 
-The [dashboard](https://tserve.readthedocs.io/en/latest/server/dashboard/) can load sample or CSV data, select a loaded model, plot forecasts, show health and stats, and download results.
+A body the schema rejects is **422**. An unloaded model or a missing column is **400**. [Predict requests](https://tserve.readthedocs.io/en/latest/reference/errors/#predict-requests) · [Python client errors](https://tserve.readthedocs.io/en/latest/reference/errors/#python-client) · [Startup](https://tserve.readthedocs.io/en/latest/reference/errors/#startup)
 
-## Documentation
+Which families can take more than one target, a covariate, or a quantile: [Capabilities](https://tserve.readthedocs.io/en/latest/models/#capabilities). Panel and hierarchical input are outside this contract. [Validation and limits](https://tserve.readthedocs.io/en/latest/client/data/#validation-and-limits)
 
-- [Server](https://tserve.readthedocs.io/en/latest/server/)
-- [Docker](https://tserve.readthedocs.io/en/latest/server/docker/)
-- [From source](https://tserve.readthedocs.io/en/latest/server/source/)
-- [Model catalog and dependencies](https://tserve.readthedocs.io/en/latest/models/)
-- [HTTP client](https://tserve.readthedocs.io/en/latest/client/http/)
-- [Python client](https://tserve.readthedocs.io/en/latest/client/python/)
-- [Data specification](https://tserve.readthedocs.io/en/latest/client/data/)
-- [HTTP API reference](https://tserve.readthedocs.io/en/latest/reference/http/)
-- [CLI reference](https://tserve.readthedocs.io/en/latest/reference/cli/)
-- [Python API reference](https://tserve.readthedocs.io/en/latest/reference/api/)
-- [Errors](https://tserve.readthedocs.io/en/latest/reference/errors/)
-- [Development](https://tserve.readthedocs.io/en/latest/reference/development/)
+The generated reference for the same surface: [HTTP API](https://tserve.readthedocs.io/en/latest/reference/http/) · [`POST /predict`](https://tserve.readthedocs.io/en/latest/reference/http/#post-predict) · [Python API](https://tserve.readthedocs.io/en/latest/reference/api/).
 
-## Contributing and license
+## License
 
-See the [development guide](https://tserve.readthedocs.io/en/latest/reference/development/) for setup, checks, tests, documentation, and image builds. Issues are tracked on [GitHub](https://github.com/sktime/tserve/issues).
+BSD 3-Clause. See [LICENSE](LICENSE).
 
-TServe is licensed under the BSD 3-Clause License. See [LICENSE](LICENSE).
+Development setup, checks, tests, and image builds: [Development](https://tserve.readthedocs.io/en/latest/reference/development/) · [Checks](https://tserve.readthedocs.io/en/latest/reference/development/#checks) · [Tests](https://tserve.readthedocs.io/en/latest/reference/development/#tests) · [Docker images](https://tserve.readthedocs.io/en/latest/reference/development/#docker-images).

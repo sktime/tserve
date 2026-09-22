@@ -4,36 +4,40 @@ Every family in one extra. Use it when your models span more than one family ext
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 110 | `chronos-2` |
+| `full` | [`:full`](https://hub.docker.com/r/sktime/tserve/tags?name=full) | [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) | all of them | 110 | `chronos_2` |
 
 `chronos` + `kronos` + `granite` + `moirai` + `tirex` + `toto` + `mantis`, which pulls in `hub` and `base`. It is also the largest install: for one family, the extra on that family's page pulls far less.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:full \
+      chronos_2 tirex kronos
+    ```
+
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra full
-    uv run tserve chronos-2 tirex kronos
+    uv pip install "tserve[server,full]"
+    ```
+
+    ```bash
+    uv run tserve chronos_2 tirex kronos
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,full]"
-    tserve chronos-2 tirex kronos
+    pip install "tserve[server,full]"
     ```
-
-=== "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:full \
-      chronos-2 tirex kronos
+    tserve chronos_2 tirex kronos
     ```
 
-GPU: swap in [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs a download at first start and stays in memory.
+Each model costs a download at first start and stays in memory.
 
 Check what loaded:
 
@@ -56,14 +60,14 @@ One process answers for every loaded model; switch by changing `model`. Python n
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos-2"
+      "model": "chronos_2"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos-2"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_2"}'
     ```
 
 === "Python"
@@ -77,7 +81,7 @@ One process answers for every loaded model; switch by changing `model`. Python n
     }
 
     with Client("http://127.0.0.1:8000") as client:
-        for model in ("chronos-2", "tirex", "kronos"):
+        for model in ("chronos_2", "tirex", "kronos"):
             result = client.predict(
                 past=past,
                 time="timestamp",
@@ -109,7 +113,7 @@ All 110 models load here. Checkpoints for all of them: [All models](index.md#all
 Combinations no single family extra allows. `kronos` alone cannot load a TTM model, `tirex` alone cannot load a Kronos model; `full` serves all three at once:
 
 ```bash
-tserve kronos ttm-r3 tirex
+tserve kronos ttm_r3 tirex
 ```
 
 ## Next steps

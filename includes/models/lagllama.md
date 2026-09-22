@@ -1,6 +1,16 @@
 ### Lag-Llama
 
-`LagLlamaForecaster` &middot; extra [`moirai`](moirai.md) &middot; 1 model &middot; [quantiles](../client/data.md#quantiles)
+<div class="tserve-meta" markdown="span">
+<span class="tserve-meta-item">:material-function-variant: [`LagLlamaForecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastinglagllamalagllamaforecaster/)</span>
+<span class="tserve-meta-item">:material-package-variant: extra [`moirai`](moirai.md)</span>
+<span class="tserve-meta-item">:material-counter: 1 model</span>
+</div>
+
+<div class="tserve-caps" markdown="span">
+<span class="tserve-cap tserve-cap--off">:material-minus: [multivariate](../client/data.md#targets)</span>
+<span class="tserve-cap tserve-cap--off">:material-minus: [exogenous](../client/data.md#future-and-static-data)</span>
+<span class="tserve-cap tserve-cap--on">:material-check: [quantiles](../client/data.md#quantiles)</span>
+</div>
 
 | model | checkpoint |
 | --- | --- |

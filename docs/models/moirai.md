@@ -4,7 +4,7 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `moirai` | [`:moirai`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai-2` |
+| `moirai` | [`:moirai`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai) | [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai_2` |
 
 !!! note "Python pins"
 
@@ -12,29 +12,31 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
+    ```
+
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra moirai
-    uv run tserve moirai-2
+    uv pip install "tserve[server,moirai]"
+    ```
+
+    ```bash
+    uv run tserve moirai_2
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,moirai]"
-    tserve moirai-2
+    pip install "tserve[server,moirai]"
     ```
-
-=== "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai-2
+    tserve moirai_2
     ```
-
-GPU: swap in [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -57,14 +59,14 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "moirai-2"
+      "model": "moirai_2"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"moirai-2"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"moirai_2"}'
     ```
 
 === "Python"
@@ -83,7 +85,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="moirai-2",
+            model="moirai_2",
         )
     print(result.predictions)
     ```

@@ -10,29 +10,31 @@ Every other page in this section layers on top of this one.
 
 ## Start a server
 
-=== "uv"
-
-    ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server
-    uv run tserve
-    ```
-
-=== "pip"
-
-    ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server]"
-    tserve
-    ```
-
 === "Docker"
 
     ```bash
     docker run --rm -p 8000:8000 sktime/tserve:base
     ```
 
-There is no `:base-gpu` image.
+=== "uv"
+
+    ```bash
+    uv pip install "tserve[server]"
+    ```
+
+    ```bash
+    uv run tserve
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install "tserve[server]"
+    ```
+
+    ```bash
+    tserve
+    ```
 
 Check what loaded:
 

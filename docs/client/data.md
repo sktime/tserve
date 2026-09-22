@@ -39,7 +39,7 @@ Each key is a column name. Each value is a list, and all lists must have the sam
 }
 ```
 
-This format works in JSON and Python.
+JSON and Python both accept this shape.
 
 ### Row-oriented dictionaries
 
@@ -56,7 +56,7 @@ Use `columns` plus a list of rows. Each row must have one value for every column
 }
 ```
 
-The dictionary must contain only `columns` and `data`. This format also works in JSON and Python.
+The dictionary must contain only `columns` and `data`. JSON and Python both accept this shape.
 
 ### Python tables
 
@@ -124,29 +124,13 @@ These native frames are Python inputs. JSON `POST /predict` uses one of the two 
 
 ### Time
 
-`time` identifies the time column:
+`time` names the time column. Omitted, it is the first column of `past`. When you send `future`, that column has to be there too.
 
-```json
-{
-  "time": "timestamp"
-}
-```
-
-If `time` is omitted, TServe uses the first column of `past`. The same column must also exist in `future` when a future table is supplied.
-
-The sktime executor preserves valid integer and datetime indexes. String time values, such as dates in JSON, are parsed as datetimes.
+Integer and datetime values are kept. Strings, including JSON dates, are parsed as datetimes.
 
 ### Targets
 
-`target` accepts one name or a list:
-
-```json
-{
-  "target": ["sales", "returns"]
-}
-```
-
-A single string is normalized to a one-element list. Multiple targets work only when the loaded estimator supports multivariate forecasting.
+`target` is one name or a list. A string becomes a one-element list. More than one target needs an estimator that supports multivariate forecasting. Which families do: [Capabilities](../models/index.md#capabilities).
 
 ### Column inference
 
@@ -159,7 +143,7 @@ You may omit `time` and `target`:
     "sales": [120, 135, 128]
   },
   "fh": 3,
-  "model": "chronos-bolt"
+  "model": "chronos_bolt"
 }
 ```
 
@@ -178,35 +162,30 @@ Specify `target` explicitly when a table contains columns that should not be for
 
 ## Future and static data
 
-`static` represents values that do not change over time. Supply one row:
+`static` is one row of values that do not change. The sktime executor broadcasts that row across history and the forecast.
+
+`future` is values you already know for the steps being forecast, such as a planned promotion. A non-target column is passed through only when it is in **both** `past` and `future`. A `past`-only column has no future values; a `future`-only column has no history. Estimators tagged `capability:exogenous` use the column; others ignore it.
+
+`fh` stays relative: the forecast is the next `fh` steps after the last `past` row. `future` must hold a row for each of those steps. Extra rows are ignored. A `future` that skips the horizon is rejected. Omit `future` and the executor builds that index, so `static` alone needs no `future` table.
 
 ```json
 {
-  "static": {
-    "store_type": ["urban"],
-    "region": ["EU-west"]
-  }
-}
-```
-
-The current sktime executor takes the first `static` row and broadcasts it across the historical and forecast horizons.
-
-`future` carries time-varying covariates: values you already know for the steps being forecast, such as a planned promotion or a published price.
-
-```json
-{
+  "past": {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138],
+    "promo": [0, 1, 0, 0, 1]
+  },
   "future": {
     "timestamp": ["2024-01-06", "2024-01-07", "2024-01-08"],
     "promo": [1, 0, 0]
-  }
+  },
+  "static": {"store_type": ["urban"]},
+  "time": "timestamp",
+  "target": ["sales"],
+  "fh": 3,
+  "model": "chronos_2"
 }
 ```
-
-A non-target column is passed to the estimator as an exogenous feature when it appears in **both** `past` and `future`. The estimator needs its history to fit and its future values to predict, so a column found in only one of the two tables is left out: a `past`-only column has no future values, and a `future`-only column has no history.
-
-Whether a covariate changes the forecast depends on the model. Estimators carrying the sktime tag `capability:exogenous` use it; others ignore it.
-
-`fh` remains relative. The forecast timestamps are always the next `fh` steps after the last `past` row, so `future` must hold a row for each of them; extra rows outside the horizon are ignored. A `future` table that skips the horizon is rejected rather than silently ignored. When `future` is omitted, the executor derives the next `fh` index values, so `static` alone needs no `future` table.
 
 ## Quantiles
 
@@ -214,14 +193,14 @@ Request quantile levels with a list:
 
 ```json
 {
-  "model": "timesfm-2.5",
+  "model": "timesfm_2_5",
   "quantiles": [0.1, 0.5, 0.9]
 }
 ```
 
-The loaded estimator must support quantile prediction. `timesfm-2.5` supports the levels above; Chronos Bolt and TTM do not. TServe forwards the values to the estimator, which may apply additional validation.
+The loaded estimator must support quantile prediction. `timesfm_2_5` supports the levels above; Chronos Bolt and TTM do not. TServe forwards the values to the estimator, which may apply additional validation.
 
-Point forecasts remain in `predictions`. Quantile forecasts are returned as a second table. Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`); `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
+Point forecasts remain in `predictions`. Quantile forecasts are returned as a second table. Many estimators name those columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`); `timesfm_2_5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Response
 
@@ -234,7 +213,7 @@ Every successful prediction returns:
     "sales": [139.96]
   },
   "quantiles": null,
-  "model": "chronos-bolt",
+  "model": "chronos_bolt",
   "request_id": "…"
 }
 ```

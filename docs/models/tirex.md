@@ -12,29 +12,31 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 
 ## Start a server
 
-=== "uv"
-
-    ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra tirex
-    uv run tserve tirex
-    ```
-
-=== "pip"
-
-    ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,tirex]"
-    tserve tirex
-    ```
-
 === "Docker"
 
     ```bash
     docker run --rm -p 8000:8000 sktime/tserve:tirex tirex
     ```
 
-GPU: swap in [`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+=== "uv"
+
+    ```bash
+    uv pip install "tserve[server,tirex]"
+    ```
+
+    ```bash
+    uv run tserve tirex
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install "tserve[server,tirex]"
+    ```
+
+    ```bash
+    tserve tirex
+    ```
 
 Check what loaded:
 

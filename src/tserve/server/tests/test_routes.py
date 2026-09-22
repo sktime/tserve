@@ -159,7 +159,7 @@ def test_predict_bytes():
     [
         pytest.param(ValueError("past is missing columns: ['date']"), id="value_error"),
         pytest.param(
-            RuntimeError("model 'chronos-2' is not loaded on this server"),
+            RuntimeError("model 'chronos_2' is not loaded on this server"),
             id="runtime_error",
         ),
         pytest.param(TypeError("boom"), id="type_error"),

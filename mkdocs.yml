@@ -1,13 +1,13 @@
 site_name: TServe
 site_description: Time series foundation model inference server
 site_url: https://tserve.readthedocs.io
-site_author: TServe authors
+site_author: The sktime developers
 
 repo_name: sktime/tserve
 repo_url: https://github.com/sktime/tserve
 edit_uri: edit/main/docs/
 
-copyright: Copyright &copy; TServe authors
+copyright: Copyright &copy; The sktime developers
 
 theme:
   name: material
@@ -158,11 +158,14 @@ validation:
 
 nav:
   - Home:
-      - Getting started: index.md
+      - TServe: index.md
       - Overview: overview.md
+      - Installation: installation.md
+      - Quick start: quick-start.md
   - Server:
       - server/index.md
       - Docker: server/docker.md
+      - UV / Pip: server/pip.md
       - From source: server/source.md
       - Live objects: server/live-objects.md
       - Craft specs: server/craft-specs.md

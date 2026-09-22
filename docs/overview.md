@@ -1,16 +1,8 @@
 # Overview
 
+TServe is a process you run. It loads named models once, keeps them warm, and answers forecast requests. There is no hosted API.
+
 ![TServe architecture](assets/architecture.svg)
-
-Walk top to bottom. Three seams:
-
-- **Transports** do not import each other. JSON (`POST /predict`) coerces on the server. The Python [`Client`][tserve.client.client.Client] coerces locally and sends Arrow (`POST /predict/bytes`). A third lane is a new transport class, not a runtime change.
-- **Canonical frames** are `CoercedPredictRequest` / `CoercedPredictResponse` — Narwhals `DataFrame`. Callers pass a dict, pandas, polars, or pyarrow; they get the same type back.
-- **Executors** own convert → execute → convert back. The sktime executor maps Narwhals onto `y, X, fh`. Executors do not share converters. A `pytorch-forecasting` plugin slot exists in the tree but is not implemented.
-
-## What you run
-
-[`Server`][tserve.server.serve.Server] (or `tserve`) loads selected models, then serves:
 
 | you want | where |
 | --- | --- |
@@ -20,30 +12,44 @@ Walk top to bottom. Three seams:
 | Live OpenAPI | `/docs`, `/redoc` |
 | Loaded models | `GET /models` |
 
-The [catalog](models/index.md) is the list of models the process *can* load. Leftover CLI positionals name extra models on top of `naive`, a test baseline. Predict `model` must be a loaded model.
+JSON and Python send the same fields. JSON is coerced on the server. The Python client coerces locally and posts Arrow to `POST /predict/bytes`.
 
-Install extras to match what you will load. `server` includes `sktime` (enough for [`naive`](models/base.md)). Hub families are separate extras ([`hub`](models/hub.md), [`chronos`](models/chronos.md), [`granite`](models/granite.md), …) and matching [Docker tags](server/docker.md). See [Dependencies](models/index.md#dependencies); each extra also has its own page under [Models](models/index.md).
+## What gets loaded
 
-## Request shape
+The [catalog](models/index.md) is what a process *can* load. You name the models to load. `naive` always loads, so you can test the process without a download. `GET /models` lists what this process loaded.
 
-A prediction request is tables plus column roles, not a 1-d `y` vector. The same fields go on JSON and `Client.predict(...)`:
+Install the extra, or pull the Docker tag, that matches the family. [`server`](models/base.md) is enough for `naive`. Hub families are separate extras and tags: [Dependencies](models/index.md#dependencies).
+
+## Request
+
+A prediction is tables plus column roles. The same fields go on JSON and `Client.predict(...)`:
 
 | field | |
 | --- | --- |
-| `past` | required. historical table: one row per timestamp, with a time column and target values |
+| `past` | required. one row per timestamp, with a time column and the targets |
 | `fh` | required. steps ahead (`> 0`) |
-| `time`, `target` | optional. omitted → first `past` column as time; remaining columns not present in `future` as targets |
-| `model` | optional. default `"naive"` |
-| `future` | optional future timestamps |
-| `static` | optional one-row static values |
+| `time`, `target` | optional. omitted: first column is time; other columns not in `future` are targets |
+| `model` | optional. default `"naive"`, and it must be loaded |
+| `future` | optional. known future values of covariates |
+| `static` | optional. one row of values that stay constant |
 | `quantiles` | optional, e.g. `[0.1, 0.5, 0.9]` |
 
-Tables may be a column dict, a `{columns, data}` row matrix, pandas, polars, pyarrow, or Narwhals — see the [data specification](client/data.md). Time must be a **column**. A pandas `DatetimeIndex` or an sktime Series is not enough; call `reset_index()` first.
+```json
+{
+  "past": {
+    "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
+    "sales": [120, 135, 128, 142, 138]
+  },
+  "fh": 3,
+  "model": "chronos_bolt"
+}
+```
 
-Panel (multi-series) and hierarchical input are not supported.
+Time is a column. Call `reset_index()` before sending a pandas `DatetimeIndex` or an sktime Series. Panel and hierarchical input are not supported. Every format and rule: [data specification](client/data.md).
 
 ## Next
 
-1. [Start a server](server/index.md) (extras and tags: [Dependencies](models/index.md#dependencies))
-2. [Catalog](models/index.md)
-3. [Send predictions](client/index.md) over HTTP or from Python
+1. [Install](installation.md)
+2. [Quick start](quick-start.md)
+3. [Choose a model](models/index.md)
+4. [Send a prediction](client/index.md)

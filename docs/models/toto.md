@@ -4,33 +4,35 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `toto` | [`:toto`](https://hub.docker.com/r/sktime/tserve/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) | Toto-2 | 5 | `toto-2.0-4m` |
+| `toto` | [`:toto`](https://hub.docker.com/r/sktime/tserve/tags?name=toto) | [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) | Toto-2 | 5 | `toto_2_0_4m` |
 
 ## Start a server
+
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:toto toto_2_0_4m
+    ```
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra server --extra toto
-    uv run tserve toto-2.0-4m
+    uv pip install "tserve[server,toto]"
+    ```
+
+    ```bash
+    uv run tserve toto_2_0_4m
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[server,toto]"
-    tserve toto-2.0-4m
+    pip install "tserve[server,toto]"
     ```
-
-=== "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:toto toto-2.0-4m
+    tserve toto_2_0_4m
     ```
-
-GPU: swap in [`:toto-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=toto-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 
 Check what loaded:
 
@@ -53,14 +55,14 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "toto-2.0-4m"
+      "model": "toto_2_0_4m"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"toto-2.0-4m"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"toto_2_0_4m"}'
     ```
 
 === "Python"
@@ -79,7 +81,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="toto-2.0-4m",
+            model="toto_2_0_4m",
         )
     print(result.predictions)
     ```

@@ -17,30 +17,28 @@
 
 ## Start a server
 
-The point forecast examples use `chronos-bolt`. Quantile examples use `timesfm-2.5`, whose estimator supports quantile prediction; Chronos Bolt does not:
+Point forecasts use `chronos_bolt`. Quantiles use `timesfm_2_5`, because Chronos Bolt cannot return them:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos-bolt timesfm-2.5
+docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-See [Server](../server/index.md) for source installs and server options. The client URL points to this process, not a hosted TServe API.
+Other ways to start: [Server](../server/index.md). The client calls this process.
 
 ## Install
 
-TServe is not on PyPI yet. Install the `client` extra from a clone. Python 3.12 or newer is required.
+Install the `client` extra. Python 3.12 or newer is required.
 
 === "uv"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    uv sync --extra client
+    uv pip install "tserve[client]"
     ```
 
 === "pip"
 
     ```bash
-    git clone https://github.com/sktime/tserve.git && cd tserve
-    pip install -e ".[client]"
+    pip install "tserve[client]"
     ```
 
 The `client` extra is enough on a machine that only calls a server. Add `server` and the required [family extra](../models/index.md#dependencies) only when the same environment also runs the server.
@@ -86,7 +84,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["sales"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
@@ -132,7 +130,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # pandas.DataFrame
@@ -163,7 +161,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # polars.DataFrame
@@ -194,7 +192,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # pyarrow.Table
@@ -223,7 +221,7 @@ See [Data specification](data.md) for all fields, inference rules, and table con
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos-bolt",
+            model="chronos_bolt",
         )
 
     print(type(result.predictions))  # narwhals.DataFrame
@@ -249,7 +247,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="timestamp",
         target=["passengers"],
         fh=3,
-        model="chronos-bolt",
+        model="chronos_bolt",
     )
 
 print(result.predictions)
@@ -257,12 +255,12 @@ print(result.predictions)
 
 Panel and hierarchical sktime data are not supported.
 
-## Request static data
+## Request covariates
 
-Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos-2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
+A covariate is used only when it is in both `past` and `future`. `static` is one row and does not need `future`. This example needs `chronos_2`. Stop the starter server and restart with the `chronos` image:
 
 ```bash
-docker run --rm -p 8000:8000 sktime/tserve:chronos chronos-2
+docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
 ```
 
 ```python
@@ -273,10 +271,16 @@ past = pd.DataFrame(
     {
         "month": pd.date_range("2024-01-01", periods=5, freq="MS"),
         "sales": [120, 135, 128, 142, 150],
+        "promo": [0, 1, 0, 0, 1],
     }
 )
-future = pd.DataFrame({"month": pd.date_range("2024-06-01", periods=3, freq="MS")})
-static = pd.DataFrame({"store_type": ["urban"], "region": ["EU-west"]})
+future = pd.DataFrame(
+    {
+        "month": pd.date_range("2024-06-01", periods=3, freq="MS"),
+        "promo": [1, 0, 0],
+    }
+)
+static = pd.DataFrame({"store_type": ["urban"]})
 
 with Client("http://127.0.0.1:8000") as client:
     result = client.predict(
@@ -286,17 +290,17 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="chronos-2",
+        model="chronos_2",
     )
 
 print(result.predictions)
 ```
 
-See [Future and static data](data.md#future-and-static-data) for the current executor behavior, including the limitation on time-varying covariates.
+Rules: [Future and static data](data.md#future-and-static-data). The forecast timestamps are the next `fh` steps after the last `past` row. `future` has to cover those steps; it does not choose different ones.
 
 ## Request quantiles
 
-Add `quantiles` when the loaded estimator supports quantile prediction. This example uses the compatible `timesfm-2.5` model; Chronos Bolt and TTM do not support quantiles:
+Add `quantiles` when the loaded estimator supports quantile prediction. This example uses the compatible `timesfm_2_5` model; Chronos Bolt and TTM do not support quantiles:
 
 ```python
 from tserve.client import Client
@@ -318,7 +322,7 @@ with Client("http://127.0.0.1:8000") as client:
         time="month",
         target=["sales"],
         fh=3,
-        model="timesfm-2.5",
+        model="timesfm_2_5",
         quantiles=[0.1, 0.5, 0.9],
     )
 
@@ -326,10 +330,10 @@ print(result.predictions)
 print(result.quantiles)
 ```
 
-`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm-2.5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
+`predictions` remains the point forecast. Many estimators name quantile columns `{target}_{level}` (`sales_0.1`, `sales_0.5`, `sales_0.9`). `timesfm_2_5` currently uses a positional prefix (`0_0.1`, `0_0.5`, `0_0.9`).
 
 ## Handle errors
 
-Local request validation can raise Pydantic `ValidationError` before any HTTP call. Server responses with status 400 or higher become `RuntimeError`. Connection and timeout failures are `tserve.client.TransportError` (do not catch `httpx.RequestError` — TServe vendors `httpx2`).
+Local checks raise Pydantic `ValidationError` before any HTTP call. Server responses with status 400 or higher become `RuntimeError`. Connection and timeout failures raise `httpx2.RequestError` (`import httpx2`; the PyPI package `httpx` is a different module).
 
 See [Errors](../reference/errors.md) for the messages each case produces.
