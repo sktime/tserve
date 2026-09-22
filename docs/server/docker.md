@@ -14,7 +14,7 @@ Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on mac
 
 ## Run the server
 
-The image `ENTRYPOINT` is `tserve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos_bolt ttm_r3`), and every [CLI](../reference/cli.md) flag works here too: `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [uv / pip](pip.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
+The image `ENTRYPOINT` is `tserve --host 0.0.0.0 --port 8000`. Anything after the image name is extra arguments to that command, so leftover catalog models are enough (`chronos_bolt ttm_r3`), and every [CLI](../reference/cli.md) flag works here too: `--models-dir`, `--log-level`, and `--host` / `--port` if you need to change the bind inside the container. Walkthrough of those flags: [UV / Pip](pip.md#serve-from-the-command-line). Quote craft tokens the same way as on the host — [Craft specs](craft-specs.md).
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
@@ -90,7 +90,7 @@ The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They ne
 docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos_bolt ttm_r3
 ```
 
-That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means a [local uv / pip install](pip.md#gpu).
+That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means a [local UV / Pip install](pip.md#gpu).
 
 ## Models from a directory
 

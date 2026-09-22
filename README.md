@@ -26,7 +26,7 @@ docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
 
 Choose a model and its matching image tag from the [model catalog](https://tserve.readthedocs.io/en/latest/models/). The process always loads `naive` for testing; name extra models alongside it for a real forecast.
 
-### uv / pip
+### UV / Pip
 
 TServe requires Python 3.12 or newer. Install `server` plus the family extra for the models you need, and start the process. These commands work line by line in macOS/Linux shells and Windows PowerShell.
 
@@ -53,7 +53,7 @@ python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 python -m pip install "tserve[server,hub]"
 ```
 
-The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a server-only machine. See [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/) for family extras, GPU installs, and Python-based server setup.
+The `server` extra alone is enough for `naive` (a test baseline). Do not install `client` on a server-only machine. See [UV / Pip](https://tserve.readthedocs.io/en/latest/server/pip/) for family extras, GPU installs, and Python-based server setup.
 
 ### From source
 
@@ -235,7 +235,7 @@ The [dashboard](https://tserve.readthedocs.io/en/latest/server/dashboard/) can l
 
 - [Server](https://tserve.readthedocs.io/en/latest/server/)
 - [Docker](https://tserve.readthedocs.io/en/latest/server/docker/)
-- [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/)
+- [UV / Pip](https://tserve.readthedocs.io/en/latest/server/pip/)
 - [From source](https://tserve.readthedocs.io/en/latest/server/source/)
 - [Model catalog and dependencies](https://tserve.readthedocs.io/en/latest/models/)
 - [HTTP client](https://tserve.readthedocs.io/en/latest/client/http/)

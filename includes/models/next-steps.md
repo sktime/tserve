@@ -1,5 +1,5 @@
 - [Docker](../server/docker.md): tags, Hugging Face token, cache volume, GPU.
-- [uv / pip](../server/pip.md#dependencies): extras from PyPI.
+- [UV / Pip](../server/pip.md#dependencies): extras from PyPI.
 - [From source](../server/source.md#dependencies): extras from a clone.
 - [CLI](../reference/cli.md#flags): every `tserve` flag.
 - [Data specification](../client/data.md): request fields, table formats, response shape.

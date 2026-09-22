@@ -15,7 +15,7 @@ For the examples in this section, start the `hub` image with `chronos_bolt` for 
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-The first start downloads model weights. See [Docker](../server/docker.md) for image tags, GPU support, Hugging Face tokens, and cache volumes, or [Server](../server/index.md) for uv / pip installs and server options. Both models come from the [`hub`](../models/hub.md) extra; for a model from another family, start from its extra's page in the [catalog](../models/index.md#dependencies).
+The first start downloads model weights. See [Docker](../server/docker.md) for image tags, GPU support, Hugging Face tokens, and cache volumes, or [Server](../server/index.md) for UV / Pip installs and server options. Both models come from the [`hub`](../models/hub.md) extra; for a model from another family, start from its extra's page in the [catalog](../models/index.md#dependencies).
 
 Check which models this process loaded:
 

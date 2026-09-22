@@ -163,7 +163,7 @@ nav:
   - Server:
       - server/index.md
       - Docker: server/docker.md
-      - uv / pip: server/pip.md
+      - UV / Pip: server/pip.md
       - From source: server/source.md
       - Live objects: server/live-objects.md
       - Craft specs: server/craft-specs.md

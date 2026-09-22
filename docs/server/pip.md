@@ -1,4 +1,4 @@
-# uv / pip
+# UV / Pip
 
 Python >= 3.12. Install TServe from PyPI with [uv](https://docs.astral.sh/uv/) or pip, then start `tserve`. Editable installs from a clone stay on [From source](source.md).
 

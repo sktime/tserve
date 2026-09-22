@@ -16,7 +16,7 @@ docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
 
 Token, cache volume, GPU, and tags: [Docker](docker.md).
 
-**uv / pip**
+**UV / Pip**
 
 Python >= 3.12. The extras here match the `hub` image; swap them when you load other families.
 
@@ -36,7 +36,7 @@ Python >= 3.12. The extras here match the `hub` image; swap them when you load o
 
     The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](pip.md#gpu).
 
-CLI flags, `Server`, and `server.app`: [uv / pip](pip.md). Editable installs from a clone: [From source](source.md).
+CLI flags, `Server`, and `server.app`: [UV / Pip](pip.md). Editable installs from a clone: [From source](source.md).
 
 **Load a different family**
 
@@ -90,13 +90,13 @@ curl -s http://127.0.0.1:8000/models
 
     [:octicons-arrow-right-24: Docker](docker.md)
 
--   :material-language-python:{ .lg .middle } **uv / pip**
+-   :material-language-python:{ .lg .middle } **UV / Pip**
 
     ---
 
     Install from PyPI, then `tserve` or [`Server`][tserve.server.serve.Server].
 
-    [:octicons-arrow-right-24: uv / pip](pip.md)
+    [:octicons-arrow-right-24: UV / Pip](pip.md)
 
 -   :material-console:{ .lg .middle } **From source**
 

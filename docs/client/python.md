@@ -23,7 +23,7 @@ The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-See [Server](../server/index.md) for Docker, uv / pip, and server options. The client URL points to this process, not a hosted TServe API.
+See [Server](../server/index.md) for Docker, UV / Pip, and server options. The client URL points to this process, not a hosted TServe API.
 
 ## Install
 

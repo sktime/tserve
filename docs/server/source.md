@@ -1,6 +1,6 @@
 # From source
 
-Python >= 3.12, and a clone over HTTPS. [uv](https://docs.astral.sh/uv/) is the shorter path, pip works everywhere. For the published package, see [uv / pip](pip.md).
+Python >= 3.12, and a clone over HTTPS. [uv](https://docs.astral.sh/uv/) is the shorter path, pip works everywhere. For the published package, see [UV / Pip](pip.md).
 
 ## Install
 
