@@ -801,6 +801,13 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'revision="r1.1")'
         )
     },
+    # TimesFM 3. Non-commercial weights; license_accepted is required.
+    "timesfm_3": {
+        "spec": (
+            'TimesFM3Forecaster(model_path="google/timesfm-3.0-pytorch", '
+            'license_accepted=True)'
+        )
+    },
     # TimesFM 2.x (transformers).
     "timesfm_2_5": {
         "spec": (
@@ -966,6 +973,8 @@ def _group_for(model_id: str) -> tuple[str, ...]:
         family = "server"
     elif model_id.startswith("chronos_2"):
         family = "chronos"
+    elif model_id.startswith("timesfm_3"):
+        family = "timesfm3"
     elif model_id.startswith(("chronos_", "ttm", "timesfm")):
         family = "hub"
     elif model_id.startswith(("kronos", "windfm")):
