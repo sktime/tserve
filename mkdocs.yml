@@ -182,6 +182,7 @@ nav:
       - tirex: models/tirex.md
       - toto: models/toto.md
       - mantis: models/mantis.md
+      - timesfm3: models/timesfm3.md
       - full: models/full.md
   - Client:
       - client/index.md
