@@ -1,16 +1,24 @@
 # Quick start
 
-Start a server with two models, confirm that it is ready, and send a forecast. If TServe is not installed yet, begin with [Installation](installation.md). Docker is the fastest and recommended way.
+Start a server with two models, confirm that it is ready, and send a forecast. If TServe is not installed yet, begin with [Installation](installation.md).
 
 ## 1. Start the server
 
-The `hub` image can load both models used below. The UV and Pip tabs assume you already installed `tserve[server,hub]`.
+**Docker is faster and preferred.** The image already carries the dependencies, and CPU vs GPU is a tag. The UV and Pip tabs assume you already installed `tserve[server,hub]`.
 
 === "Docker"
 
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
-    ```
+    === "CPU"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
+        ```
+
+    === "GPU"
+
+        ```bash
+        docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos_bolt ttm_r3
+        ```
 
 === "uv"
 
