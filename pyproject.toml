@@ -77,7 +77,9 @@ tirex = ["tserve[hf]", "tirex-ts", "torch"]
 toto = ["tserve[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
 mantis = ["tserve[hf]", "mantis-tsfm>=1.0.0", "torch"]
-full = ["tserve[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+# TimesFM3Forecaster
+timesfm3 = ["tserve[hf]", "timesfm[torch]>=3.0.0,<4.0.0", "torch"]
+full = ["tserve[chronos,kronos,granite,moirai,tirex,toto,mantis,timesfm3]", "torch"]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["tserve[client,server,full]"]
 # pair with any extra above: `uv sync --extra hub --extra gpu`
