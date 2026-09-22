@@ -71,7 +71,7 @@ The walkthrough, including `GET /models` and PowerShell: [Quick start](https://t
 
 ## Models
 
-111 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
+117 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
 
 `naive` always loads, so you can try the process before any download. `GET /models` lists what this process loaded, which is smaller than the catalog. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
 
@@ -84,12 +84,15 @@ The walkthrough, including `GET /models` and PowerShell: [Quick start](https://t
 | [`granite`](https://tserve.readthedocs.io/en/latest/models/granite/) | FlowState | 2 | `flowstate` |
 | [`moirai`](https://tserve.readthedocs.io/en/latest/models/moirai/) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai_2` |
 | [`tirex`](https://tserve.readthedocs.io/en/latest/models/tirex/) | TiRex | 2 | `tirex` |
+| [`tirex2`](https://tserve.readthedocs.io/en/latest/models/tirex2/) | TiRex-2 | 4 | `tirex_2` |
 | [`toto`](https://tserve.readthedocs.io/en/latest/models/toto/) | Toto-2 | 5 | `toto_2_0_4m` |
 | [`mantis`](https://tserve.readthedocs.io/en/latest/models/mantis/) | Mantis | 3 | `mantis_8m` |
 | [`timesfm3`](https://tserve.readthedocs.io/en/latest/models/timesfm3/) | TimesFM 3 | 1 | `timesfm_3` |
-| [`full`](https://tserve.readthedocs.io/en/latest/models/full/) | all of the above | 111 | `chronos_2` |
+| [`t0`](https://tserve.readthedocs.io/en/latest/models/t0/) | T0 | 1 | `t0` |
+| [`tafsut`](https://tserve.readthedocs.io/en/latest/models/tafsut/) | Tafsut | 1 | `tafsut` |
+| [`full`](https://tserve.readthedocs.io/en/latest/models/full/) | all of the above | 117 | `chronos_2` |
 
-`kronos` is built on `base`. Chronos Bolt, TTM, and TimesFM 2.x load on the images that include `hub`: `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, `timesfm3`, and `full`. TimesFM 3 loads on `timesfm3` and `full`. Tags, GPU variants, and how the extras stack: [Dependencies](https://tserve.readthedocs.io/en/latest/models/#dependencies).
+`kronos` is built on `base`. Chronos Bolt, TTM, and TimesFM 2.x load on the images that include `hub`: `chronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, `tafsut`, and `full`. TimesFM 3, TiRex-2, T0, and Tafsut load on their own extras and on `full`. Tags, GPU variants, and how the extras stack: [Dependencies](https://tserve.readthedocs.io/en/latest/models/#dependencies).
 
 Each family page has its own start command. The catalog collects them under [Start a server](https://tserve.readthedocs.io/en/latest/models/#start-a-server). Switching images is the tag plus the example from that row:
 
