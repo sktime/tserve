@@ -1,6 +1,6 @@
 # hub
 
-Four Hugging Face families, 81 of the catalog's 110 models. The usual starting point.
+Four Hugging Face families, 81 of the catalog's 111 models. The usual starting point.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |

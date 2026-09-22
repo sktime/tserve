@@ -8,7 +8,7 @@ The image tag chooses which families can load. Arguments after the image name ch
 docker pull sktime/tserve:hub
 ```
 
-Tags, families, and an example model are on [Dependencies](../models/index.md#dependencies). `hub` is Chronos Bolt/T5, TTM, and TimesFM. `chronos`, `granite`, `moirai`, `tirex`, `toto`, and `mantis` include Hub plus one more stack. `kronos` is built on `base`, not `hub`. `full` has every family. Each of those has a `*-gpu` tag. There is no `:base-gpu`.
+Tags, families, and an example model are on [Dependencies](../models/index.md#dependencies). `hub` is Chronos Bolt/T5, TTM, and TimesFM 2.x. `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and `timesfm3` include Hub plus one more stack. `kronos` is built on `base`, not `hub`. `full` has every family. Each of those has a `*-gpu` tag. There is no `:base-gpu`.
 
 Tags are published for `linux/amd64` and `linux/arm64`, so Docker Desktop on macOS and Windows uses the same commands as Linux.
 
@@ -44,7 +44,7 @@ When the models span more than one family, `:full` is the tag that carries all o
 docker run --rm -p 8000:8000 sktime/tserve:full moirai_2 tirex
 ```
 
-`naive` downloads nothing. Every other model fetches a checkpoint on first load, so set the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below. All 110 models: [catalog](../models/index.md).
+`naive` downloads nothing. Every other model fetches a checkpoint on first load, so set the [token](#hugging-face-token) and [cache mount](#keep-weights-between-runs) below. All 111 models: [catalog](../models/index.md).
 
 ## Hugging Face token
 

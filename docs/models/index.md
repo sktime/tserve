@@ -1,6 +1,6 @@
 # Catalog
 
-110 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model as a leftover positional for a real forecast. `GET /models` reports what did. The same model goes in leftover [CLI](../reference/cli.md#flags) positionals and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
+111 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model as a leftover positional for a real forecast. `GET /models` reports what did. The same model goes in leftover [CLI](../reference/cli.md#flags) positionals and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -278,9 +278,39 @@
         tserve mantis_8m
         ```
 
+=== "timesfm3"
+
+    TimesFM 3, plus every [hub](hub.md) model. Full page: [timesfm3](timesfm3.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:timesfm3 timesfm_3
+        ```
+
+    === "uv"
+
+        ```bash
+        uv pip install "tserve[server,timesfm3]"
+        ```
+
+        ```bash
+        uv run tserve timesfm_3
+        ```
+
+    === "pip"
+
+        ```bash
+        pip install "tserve[server,timesfm3]"
+        ```
+
+        ```bash
+        tserve timesfm_3
+        ```
+
 === "full"
 
-    All 110 models, and the only way to mix two family stacks. Full page: [full](full.md).
+    All 111 models, and the only way to mix two family stacks. Full page: [full](full.md).
 
     === "Docker"
 
@@ -371,6 +401,8 @@ Only `model` changes between extras. Python needs the [`client`](../client/pytho
 
 --8<-- "includes/models/timesfm.md"
 
+--8<-- "includes/models/timesfm-3.md"
+
 --8<-- "includes/models/chronos-2.md"
 
 --8<-- "includes/models/kronos.md"
@@ -402,7 +434,8 @@ Every capability is read from the estimator, not set by a TServe flag. [Multivar
 | [Chronos Bolt](#chronos-bolt) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [Chronos T5](#chronos-t5) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [TTM](#ttm) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
-| [TimesFM](#timesfm) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [TimesFM 2.x](#timesfm-2x) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [TimesFM 3](#timesfm-3) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
 | [Kronos](#kronos) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [WindFM](#windfm) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
 | [FlowState](#flowstate) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
