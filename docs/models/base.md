@@ -10,6 +10,12 @@ Every other page in this section layers on top of this one.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:base
+    ```
+
 === "uv"
 
     ```bash
@@ -22,12 +28,6 @@ Every other page in this section layers on top of this one.
     ```bash
     pip install "tserve[server]"
     tserve
-    ```
-
-=== "Docker"
-
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:base
     ```
 
 There is no `:base-gpu` image.

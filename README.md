@@ -234,8 +234,8 @@ The [dashboard](https://tserve.readthedocs.io/en/latest/server/dashboard/) can l
 ## Documentation
 
 - [Server](https://tserve.readthedocs.io/en/latest/server/)
-- [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/)
 - [Docker](https://tserve.readthedocs.io/en/latest/server/docker/)
+- [uv / pip](https://tserve.readthedocs.io/en/latest/server/pip/)
 - [From source](https://tserve.readthedocs.io/en/latest/server/source/)
 - [Model catalog and dependencies](https://tserve.readthedocs.io/en/latest/models/)
 - [HTTP client](https://tserve.readthedocs.io/en/latest/client/http/)

@@ -10,6 +10,12 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
+    ```
+
 === "uv"
 
     ```bash
@@ -22,12 +28,6 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     ```bash
     pip install "tserve[server,hub]"
     tserve chronos_bolt
-    ```
-
-=== "Docker"
-
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
     ```
 
 GPU: swap in [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

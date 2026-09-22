@@ -162,8 +162,8 @@ nav:
       - Overview: overview.md
   - Server:
       - server/index.md
-      - uv / pip: server/pip.md
       - Docker: server/docker.md
+      - uv / pip: server/pip.md
       - From source: server/source.md
       - Live objects: server/live-objects.md
       - Craft specs: server/craft-specs.md

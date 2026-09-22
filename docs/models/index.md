@@ -12,6 +12,12 @@
 
     `naive` only — a test baseline, nothing downloaded. Full page: [base](base.md).
 
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:base
+        ```
+
     === "uv"
 
         ```bash
@@ -26,15 +32,15 @@
         tserve
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:base
-        ```
-
 === "hub"
 
     Chronos Bolt, Chronos T5, TTM, TimesFM 2.x: 81 models, plus `naive`. Full page: [hub](hub.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
+        ```
 
     === "uv"
 
@@ -50,15 +56,15 @@
         tserve chronos_bolt
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
-        ```
-
 === "chronos"
 
     Chronos-2, plus every [hub](hub.md) model. Full page: [chronos](chronos.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
+        ```
 
     === "uv"
 
@@ -74,15 +80,15 @@
         tserve chronos_2
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
-        ```
-
 === "kronos"
 
     Kronos and WindFM. Sits on `base`, so **no** Hub models. Full page: [kronos](kronos.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:kronos kronos
+        ```
 
     === "uv"
 
@@ -98,15 +104,15 @@
         tserve kronos
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:kronos kronos
-        ```
-
 === "granite"
 
     FlowState, plus every [hub](hub.md) model. Full page: [granite](granite.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:granite flowstate
+        ```
 
     === "uv"
 
@@ -122,15 +128,15 @@
         tserve flowstate
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:granite flowstate
-        ```
-
 === "moirai"
 
     Moirai 2, Moirai 1.x, Lag-Llama, plus every [hub](hub.md) model. Full page: [moirai](moirai.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
+        ```
 
     === "uv"
 
@@ -146,15 +152,15 @@
         tserve moirai_2
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
-        ```
-
 === "tirex"
 
     TiRex, plus every [hub](hub.md) model. Full page: [tirex](tirex.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:tirex tirex
+        ```
 
     === "uv"
 
@@ -170,15 +176,15 @@
         tserve tirex
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:tirex tirex
-        ```
-
 === "toto"
 
     Toto-2, plus every [hub](hub.md) model. Full page: [toto](toto.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:toto toto_2_0_4m
+        ```
 
     === "uv"
 
@@ -194,15 +200,15 @@
         tserve toto_2_0_4m
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:toto toto_2_0_4m
-        ```
-
 === "mantis"
 
     Mantis, plus every [hub](hub.md) model. Needs `past` longer than 127 rows. Full page: [mantis](mantis.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:mantis mantis_8m
+        ```
 
     === "uv"
 
@@ -218,15 +224,16 @@
         tserve mantis_8m
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:mantis mantis_8m
-        ```
-
 === "full"
 
     All 110 models, and the only way to mix two family stacks. Full page: [full](full.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:full \
+          chronos_2 tirex kronos
+        ```
 
     === "uv"
 
@@ -242,16 +249,8 @@
         tserve chronos_2 tirex kronos
         ```
 
-    === "Docker"
-
-        ```bash
-        docker run --rm -p 8000:8000 sktime/tserve:full \
-          chronos_2 tirex kronos
-        ```
-
+- Docker tags, token, and cache volume: [Docker](../server/docker.md). GPU: swap in the `-gpu` tag and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
 - `uv` and `pip` install from PyPI: [uv / pip](../server/pip.md#install). From a clone: [From source](../server/source.md#install).
-- GPU: swap in the `-gpu` tag and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-- Token and cache volume: [Docker](../server/docker.md).
 - Ids not listed here: [craft specs](../server/craft-specs.md), [live objects](../server/live-objects.md), [a directory of `.zip` files](../server/models-dir.md).
 
 ## Predict

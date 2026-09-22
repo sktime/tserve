@@ -30,6 +30,12 @@ my-models/
 
 Point `--models-dir` at the directory, then name the file stems as leftover positionals:
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos_bolt
+    ```
+
 === "uv"
 
     ```bash
@@ -41,12 +47,6 @@ Point `--models-dir` at the directory, then name the file stems as leftover posi
     ```bash
     tserve --models-dir my-models custom-model-1 chronos_bolt
     ```
-
-In Docker, mount the directory and use the container path:
-
-```bash
-docker run --rm -p 8000:8000 -v "$PWD/my-models:/models" sktime/tserve:hub --models-dir /models custom-model-1 chronos_bolt
-```
 
 Either way `custom-model-1` is served from the zip and `chronos_bolt` from the registry, and `GET /models` labels them apart:
 

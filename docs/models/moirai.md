@@ -12,6 +12,12 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
+    ```
+
 === "uv"
 
     ```bash
@@ -24,12 +30,6 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
     ```bash
     pip install "tserve[server,moirai]"
     tserve moirai_2
-    ```
-
-=== "Docker"
-
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
     ```
 
 GPU: swap in [`:moirai-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=moirai-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

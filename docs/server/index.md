@@ -42,6 +42,12 @@ CLI flags, `Server`, and `server.app`: [uv / pip](pip.md). Editable installs fro
 
 The commands above load [`hub`](../models/hub.md) models. Every other family follows the same three steps: find the model in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the model as a leftover positional. `moirai_2` sits in the [`moirai`](../models/moirai.md) extra:
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
+    ```
+
 === "uv"
 
     ```bash
@@ -56,7 +62,7 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
     tserve moirai_2
     ```
 
-In Docker the tag plays the role of the extra — `sktime/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
+The Docker tag plays the role of the extra — `sktime/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
 
 Once the process is up, the terminal prints the URLs:
 
@@ -76,14 +82,6 @@ curl -s http://127.0.0.1:8000/models
 
 <div class="grid cards" markdown>
 
--   :material-language-python:{ .lg .middle } **uv / pip**
-
-    ---
-
-    Install from PyPI, then `tserve` or [`Server`][tserve.server.serve.Server].
-
-    [:octicons-arrow-right-24: uv / pip](pip.md)
-
 -   :material-docker:{ .lg .middle } **Docker**
 
     ---
@@ -91,6 +89,14 @@ curl -s http://127.0.0.1:8000/models
     Pull a tag, mount the Hub cache, pass a token, or build the image yourself.
 
     [:octicons-arrow-right-24: Docker](docker.md)
+
+-   :material-language-python:{ .lg .middle } **uv / pip**
+
+    ---
+
+    Install from PyPI, then `tserve` or [`Server`][tserve.server.serve.Server].
+
+    [:octicons-arrow-right-24: uv / pip](pip.md)
 
 -   :material-console:{ .lg .middle } **From source**
 

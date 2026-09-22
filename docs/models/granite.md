@@ -8,6 +8,12 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 
 ## Start a server
 
+=== "Docker"
+
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:granite flowstate
+    ```
+
 === "uv"
 
     ```bash
@@ -20,12 +26,6 @@ IBM FlowState, plus every [`hub`](hub.md) model.
     ```bash
     pip install "tserve[server,granite]"
     tserve flowstate
-    ```
-
-=== "Docker"
-
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:granite flowstate
     ```
 
 GPU: swap in [`:granite-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=granite-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).

@@ -14,7 +14,7 @@ TServe is a process you start, not a hosted API. It loads time-series foundation
 
 The [catalog](models/index.md) covers the families you would reach for first: Chronos, Chronos Bolt, TTM, TimesFM, Moirai, Toto, TiRex, FlowState, Kronos, Mantis, Lag-Llama. TServe always loads a `naive` baseline so you can sanity-check a pipeline before any weights are downloaded; name extra models for a real forecast.
 
-Start it with [uv or pip](server/pip.md) or from a [Docker image](server/docker.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at TServe for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
+Start it from a [Docker image](server/docker.md) or with [uv or pip](server/pip.md), on CPU or GPU. Then predict over [HTTP](client/http.md) from any language, or from Python with the [client](client/python.md), which takes your dict, pandas, polars, or pyarrow table and hands the same type back. Point a browser at TServe for a [dashboard](server/dashboard.md) that plots predictions and shows what is loaded.
 
 Models stay warm in the process, so the download and load cost is paid once at startup rather than on every request.
 
@@ -172,7 +172,7 @@ The process answers more than `/predict`. Its browser [dashboard](server/dashboa
 
     ---
 
-    Install extras, pick a Docker tag, and check the flags.
+    Pick a Docker tag, install extras, and check the flags.
 
     [:octicons-arrow-right-24: Install and serve](server/index.md)
 
