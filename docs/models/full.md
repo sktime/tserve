@@ -21,6 +21,9 @@ Every family in one extra. Use it when your models span more than one family ext
 
     ```bash
     uv pip install "tserve[server,full]"
+    ```
+
+    ```bash
     uv run tserve chronos_2 tirex kronos
     ```
 
@@ -28,6 +31,9 @@ Every family in one extra. Use it when your models span more than one family ext
 
     ```bash
     pip install "tserve[server,full]"
+    ```
+
+    ```bash
     tserve chronos_2 tirex kronos
     ```
 

@@ -18,6 +18,9 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,granite]"
+    ```
+
+    ```bash
     uv run tserve flowstate
     ```
 
@@ -25,6 +28,9 @@ IBM FlowState, plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,granite]"
+    ```
+
+    ```bash
     tserve flowstate
     ```
 

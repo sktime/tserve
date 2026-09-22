@@ -20,6 +20,9 @@ Every other page in this section layers on top of this one.
 
     ```bash
     uv pip install "tserve[server]"
+    ```
+
+    ```bash
     uv run tserve
     ```
 
@@ -27,6 +30,9 @@ Every other page in this section layers on top of this one.
 
     ```bash
     pip install "tserve[server]"
+    ```
+
+    ```bash
     tserve
     ```
 

@@ -20,6 +20,9 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
 
     ```bash
     uv pip install "tserve[server,kronos]"
+    ```
+
+    ```bash
     uv run tserve kronos
     ```
 
@@ -27,6 +30,9 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
 
     ```bash
     pip install "tserve[server,kronos]"
+    ```
+
+    ```bash
     tserve kronos
     ```
 

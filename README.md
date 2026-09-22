@@ -34,6 +34,9 @@ TServe requires Python 3.12 or newer. Install `server` plus the family extra for
 
 ```bash
 uv pip install "tserve[server,hub]"
+```
+
+```bash
 uv run tserve chronos_bolt ttm_r3
 ```
 
@@ -43,6 +46,9 @@ The `gpu` extra does not work with pip. Family extras already install CUDA torch
 
 ```bash
 python -m pip install "tserve[server,hub]"
+```
+
+```bash
 tserve chronos_bolt ttm_r3
 ```
 
@@ -65,6 +71,9 @@ Clone over HTTPS for an editable install. These commands work line by line in ma
 git clone https://github.com/sktime/tserve.git
 cd tserve
 uv sync --extra server --extra hub
+```
+
+```bash
 uv run tserve chronos_bolt ttm_r3
 ```
 
@@ -76,6 +85,9 @@ The `gpu` extra does not work with pip. Family extras already install CUDA torch
 git clone https://github.com/sktime/tserve.git
 cd tserve
 python -m pip install -e ".[server,hub]"
+```
+
+```bash
 tserve chronos_bolt ttm_r3
 ```
 

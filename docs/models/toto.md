@@ -18,6 +18,9 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,toto]"
+    ```
+
+    ```bash
     uv run tserve toto_2_0_4m
     ```
 
@@ -25,6 +28,9 @@ Datadog Toto-2, 4M to 2.5B parameters, plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,toto]"
+    ```
+
+    ```bash
     tserve toto_2_0_4m
     ```
 

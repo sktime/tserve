@@ -22,6 +22,9 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,moirai]"
+    ```
+
+    ```bash
     uv run tserve moirai_2
     ```
 
@@ -29,6 +32,9 @@ Moirai 2, Moirai 1.x, and Lag-Llama, plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,moirai]"
+    ```
+
+    ```bash
     tserve moirai_2
     ```
 

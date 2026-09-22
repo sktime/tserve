@@ -20,6 +20,9 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
 
     ```bash
     uv pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     uv run tserve chronos_bolt
     ```
 
@@ -27,6 +30,9 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
 
     ```bash
     pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     tserve chronos_bolt
     ```
 

@@ -22,6 +22,9 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,tirex]"
+    ```
+
+    ```bash
     uv run tserve tirex
     ```
 
@@ -29,6 +32,9 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,tirex]"
+    ```
+
+    ```bash
     tserve tirex
     ```
 

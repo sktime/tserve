@@ -22,6 +22,9 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,mantis]"
+    ```
+
+    ```bash
     uv run tserve mantis_8m
     ```
 
@@ -29,6 +32,9 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,mantis]"
+    ```
+
+    ```bash
     tserve mantis_8m
     ```
 

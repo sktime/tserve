@@ -40,6 +40,9 @@ Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](m
 
     ```bash
     uv pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     uv run tserve chronos_bolt ttm_r3
     ```
 
@@ -47,6 +50,9 @@ Python >= 3.12. The `server` extra is enough for `naive`; add a [family extra](m
 
     ```bash
     pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     tserve chronos_bolt ttm_r3
     ```
 

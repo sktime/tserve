@@ -18,6 +18,9 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
     ```bash
     uv pip install "tserve[server,chronos]"
+    ```
+
+    ```bash
     uv run tserve chronos_2
     ```
 
@@ -25,6 +28,9 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
 
     ```bash
     pip install "tserve[server,chronos]"
+    ```
+
+    ```bash
     tserve chronos_2
     ```
 

@@ -22,6 +22,9 @@
 
         ```bash
         uv pip install "tserve[server]"
+        ```
+
+        ```bash
         uv run tserve
         ```
 
@@ -29,6 +32,9 @@
 
         ```bash
         pip install "tserve[server]"
+        ```
+
+        ```bash
         tserve
         ```
 
@@ -46,6 +52,9 @@
 
         ```bash
         uv pip install "tserve[server,hub]"
+        ```
+
+        ```bash
         uv run tserve chronos_bolt
         ```
 
@@ -53,6 +62,9 @@
 
         ```bash
         pip install "tserve[server,hub]"
+        ```
+
+        ```bash
         tserve chronos_bolt
         ```
 
@@ -70,6 +82,9 @@
 
         ```bash
         uv pip install "tserve[server,chronos]"
+        ```
+
+        ```bash
         uv run tserve chronos_2
         ```
 
@@ -77,6 +92,9 @@
 
         ```bash
         pip install "tserve[server,chronos]"
+        ```
+
+        ```bash
         tserve chronos_2
         ```
 
@@ -94,6 +112,9 @@
 
         ```bash
         uv pip install "tserve[server,kronos]"
+        ```
+
+        ```bash
         uv run tserve kronos
         ```
 
@@ -101,6 +122,9 @@
 
         ```bash
         pip install "tserve[server,kronos]"
+        ```
+
+        ```bash
         tserve kronos
         ```
 
@@ -118,6 +142,9 @@
 
         ```bash
         uv pip install "tserve[server,granite]"
+        ```
+
+        ```bash
         uv run tserve flowstate
         ```
 
@@ -125,6 +152,9 @@
 
         ```bash
         pip install "tserve[server,granite]"
+        ```
+
+        ```bash
         tserve flowstate
         ```
 
@@ -142,6 +172,9 @@
 
         ```bash
         uv pip install "tserve[server,moirai]"
+        ```
+
+        ```bash
         uv run tserve moirai_2
         ```
 
@@ -149,6 +182,9 @@
 
         ```bash
         pip install "tserve[server,moirai]"
+        ```
+
+        ```bash
         tserve moirai_2
         ```
 
@@ -166,6 +202,9 @@
 
         ```bash
         uv pip install "tserve[server,tirex]"
+        ```
+
+        ```bash
         uv run tserve tirex
         ```
 
@@ -173,6 +212,9 @@
 
         ```bash
         pip install "tserve[server,tirex]"
+        ```
+
+        ```bash
         tserve tirex
         ```
 
@@ -190,6 +232,9 @@
 
         ```bash
         uv pip install "tserve[server,toto]"
+        ```
+
+        ```bash
         uv run tserve toto_2_0_4m
         ```
 
@@ -197,6 +242,9 @@
 
         ```bash
         pip install "tserve[server,toto]"
+        ```
+
+        ```bash
         tserve toto_2_0_4m
         ```
 
@@ -214,6 +262,9 @@
 
         ```bash
         uv pip install "tserve[server,mantis]"
+        ```
+
+        ```bash
         uv run tserve mantis_8m
         ```
 
@@ -221,6 +272,9 @@
 
         ```bash
         pip install "tserve[server,mantis]"
+        ```
+
+        ```bash
         tserve mantis_8m
         ```
 
@@ -239,6 +293,9 @@
 
         ```bash
         uv pip install "tserve[server,full]"
+        ```
+
+        ```bash
         uv run tserve chronos_2 tirex kronos
         ```
 
@@ -246,6 +303,9 @@
 
         ```bash
         pip install "tserve[server,full]"
+        ```
+
+        ```bash
         tserve chronos_2 tirex kronos
         ```
 

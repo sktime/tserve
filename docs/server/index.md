@@ -24,6 +24,9 @@ Python >= 3.12. The extras here match the `hub` image; swap them when you load o
 
     ```bash
     uv pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     uv run tserve chronos_bolt ttm_r3
     ```
 
@@ -31,6 +34,9 @@ Python >= 3.12. The extras here match the `hub` image; swap them when you load o
 
     ```bash
     pip install "tserve[server,hub]"
+    ```
+
+    ```bash
     tserve chronos_bolt ttm_r3
     ```
 
@@ -52,6 +58,9 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
 
     ```bash
     uv pip install "tserve[server,moirai]"
+    ```
+
+    ```bash
     uv run tserve moirai_2
     ```
 
@@ -59,6 +68,9 @@ The commands above load [`hub`](../models/hub.md) models. Every other family fol
 
     ```bash
     pip install "tserve[server,moirai]"
+    ```
+
+    ```bash
     tserve moirai_2
     ```
 
