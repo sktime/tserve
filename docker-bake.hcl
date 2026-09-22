@@ -29,14 +29,14 @@ group "default" {
 group "cpu" {
   targets = [
     "base", "hub", "chronos", "kronos", "granite",
-    "moirai", "tirex", "toto", "mantis", "full",
+    "moirai", "tirex", "toto", "mantis", "timesfm3", "full",
   ]
 }
 
 group "gpu" {
   targets = [
     "hub-gpu", "chronos-gpu", "kronos-gpu", "granite-gpu",
-    "moirai-gpu", "tirex-gpu", "toto-gpu", "mantis-gpu", "full-gpu",
+    "moirai-gpu", "tirex-gpu", "toto-gpu", "mantis-gpu", "timesfm3-gpu", "full-gpu",
   ]
 }
 
@@ -100,6 +100,12 @@ target "mantis" {
   tags     = ["${TSERVE_IMAGE}:mantis"]
 }
 
+target "timesfm3" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "timesfm3" }
+  tags     = ["${TSERVE_IMAGE}:timesfm3"]
+}
+
 target "full" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "full" }
@@ -152,6 +158,12 @@ target "mantis-gpu" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "mantis gpu" }
   tags     = ["${TSERVE_IMAGE}:mantis-gpu"]
+}
+
+target "timesfm3-gpu" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "timesfm3 gpu" }
+  tags     = ["${TSERVE_IMAGE}:timesfm3-gpu"]
 }
 
 target "full-gpu" {
