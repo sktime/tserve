@@ -16,7 +16,7 @@ Python >= 3.12. Install TServe from PyPI with [uv](https://docs.astral.sh/uv/) o
     pip install "tserve[server,hub]"
     ```
 
-    The `gpu` extra does not change a pip install. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](#gpu).
+    The `gpu` extra does not change a pip install. Family extras already install CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [CPU-only install](#cpu-only-install).
 
 `server` is enough to serve `naive` (a test baseline). The `hub` extra above covers Chronos Bolt/T5, TTM, and TimesFM 2.x. Do not add `client` on a machine that only serves.
 
@@ -82,22 +82,25 @@ uv and pip both take an extras list on the package. After uv, run `uv run tserve
 
 --8<-- "includes/model-dependencies.md"
 
-All 110 supported models are on the [catalog](../models/index.md), and each extra above has a page with its models and a worked `uv` / `pip` install: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md). `gpu` is not a model family; torch CPU vs GPU is in [GPU](#gpu).
+All 110 supported models are on the [catalog](../models/index.md), and each extra above has a page with its models and a worked `uv` / `pip` install: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md). `gpu` is not a model family; skipping the CUDA download is in [CPU-only install](#cpu-only-install).
 
-## GPU
+## CPU-only install
 
-Family extras pull `torch`. A PyPI install takes the CUDA wheel from PyPI (MPS on macOS).
+Family extras pull `torch`, and every install here takes the CUDA wheel from PyPI (MPS on macOS). On a GPU host that is already what you want, so nothing below is needed.
 
-To **force CPU torch**, install torch from the CPU index first, then TServe. If a later install replaces that wheel with CUDA, run the torch line again.
+Without a GPU, that wheel is a large download you will never use. Install torch from the CPU index first, then TServe. If a later install replaces that wheel with CUDA, run the torch line again.
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+```bash
 pip install "tserve[server,hub]"
 ```
 
 The same order works with `uv pip install`. Swap `hub` for any other family extra from [Dependencies](#dependencies).
 
-The `gpu` extra only selects the torch index in a clone's uv lockfile: [From source](source.md#gpu). Containers use `*-gpu` tags instead: [Docker](docker.md#gpu-images).
+The `gpu` extra only selects the torch index in a clone's uv lockfile: [From source](source.md#gpu). Containers pick the wheel through the tag instead: [Docker](docker.md#gpu-images).
 
 ## Serve from the command line
 

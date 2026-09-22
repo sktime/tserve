@@ -36,8 +36,6 @@ Every other page in this section layers on top of this one.
     tserve
     ```
 
-There is no `:base-gpu` image.
-
 Check what loaded:
 
 ```bash

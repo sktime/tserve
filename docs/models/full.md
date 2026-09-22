@@ -37,7 +37,7 @@ Every family in one extra. Use it when your models span more than one family ext
     tserve chronos_2 tirex kronos
     ```
 
-GPU: swap in [`:full-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=full-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)). Each model costs a download at first start and stays in memory.
+Each model costs a download at first start and stays in memory.
 
 Check what loaded:
 

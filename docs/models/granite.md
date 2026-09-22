@@ -34,8 +34,6 @@ IBM FlowState, plus every [`hub`](hub.md) model.
     tserve flowstate
     ```
 
-GPU: swap in [`:granite-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=granite-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

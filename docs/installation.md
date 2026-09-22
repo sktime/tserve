@@ -1,6 +1,6 @@
 # Installation
 
-Choose how you want to run the TServe server. **Docker is recommended** because each image already contains the dependencies for its model family.
+Choose how you want to run the TServe server. **Docker is the fastest and recommended way**: each image already contains the dependencies for its model family, and separate CPU and GPU tags remove any torch setup work.
 
 ## Docker
 
@@ -12,11 +12,11 @@ Pull the `hub` image, which supports Chronos Bolt/T5, TTM, and TimesFM 2.x:
 docker pull sktime/tserve:hub
 ```
 
-Other model families use different image tags. Choose the model first, then use its tag from the [model catalog](models/index.md#dependencies). For GPU images, Hugging Face tokens, cache volumes, and all Docker options, see [Docker](server/docker.md).
+Other model families use different image tags. Choose the model first, then use its tag from the [model catalog](models/index.md#dependencies). Every tag has a `-gpu` variant for NVIDIA hosts. For GPU images, Hugging Face tokens, cache volumes, and all Docker options, see [Docker](server/docker.md).
 
 ## UV / Pip
 
-TServe requires Python 3.12 or newer. Install the `server` extra and the extra for the model family you need. The examples below install the `hub` family.
+TServe requires Python 3.12 or newer. Install the `server` extra and the extra for the model family you need. The examples below install the `hub` family, and they pull the CUDA build of torch by default (MPS on macOS).
 
 === "uv"
 
@@ -52,11 +52,11 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
     python -m pip install "tserve[server,hub]"
     ```
 
-The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family. GPU selection and CPU-only torch installs are covered in [UV / Pip](server/pip.md#gpu).
+The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family. To avoid the CUDA download on a machine without a GPU, see [CPU-only install](server/pip.md#cpu-only-install).
 
 ## From source
 
-Use a source install when developing TServe or testing unreleased changes. The existing [From source](server/source.md) guide covers cloning the repository, editable installs, dependency extras, and GPU setup.
+Use a source install when developing TServe or testing unreleased changes. It is also the only path where the `gpu` extra selects the torch index, because that choice lives in the repository's uv lockfile. The [From source](server/source.md) guide covers cloning the repository, editable installs, dependency extras, and GPU setup.
 
 ## Next
 

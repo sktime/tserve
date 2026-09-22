@@ -34,8 +34,6 @@ Chronos-2: multivariate, with covariates. Plus every [`hub`](hub.md) model.
     tserve chronos_2
     ```
 
-GPU: swap in [`:chronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=chronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

@@ -36,8 +36,6 @@ Builds on [`base`](base.md), **not** [`hub`](hub.md): no Chronos Bolt, Chronos T
     tserve kronos
     ```
 
-GPU: swap in [`:kronos-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=kronos-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

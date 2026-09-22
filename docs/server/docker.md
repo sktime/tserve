@@ -90,7 +90,7 @@ The `*-gpu` tags install torch from PyPI instead of the CPU wheel index. They ne
 docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos_bolt ttm_r3
 ```
 
-That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means a [local UV / Pip install](pip.md#gpu).
+That covers Linux and Windows through WSL2. Docker on macOS has no GPU passthrough, so Apple silicon acceleration means a [local UV / Pip install](pip.md#install), which takes the MPS build of torch.
 
 ## Models from a directory
 

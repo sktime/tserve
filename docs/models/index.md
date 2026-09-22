@@ -309,7 +309,7 @@
         tserve chronos_2 tirex kronos
         ```
 
-- Docker tags, token, and cache volume: [Docker](../server/docker.md). GPU: swap in the `-gpu` tag and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
+- Docker tags, token, and cache volume: [Docker](../server/docker.md). Each CPU tag above has a `-gpu` variant for NVIDIA hosts ([GPU images](../server/docker.md#gpu-images)).
 - `uv` and `pip` install from PyPI: [UV / Pip](../server/pip.md#install). From a clone: [From source](../server/source.md#install).
 - Ids not listed here: [craft specs](../server/craft-specs.md), [live objects](../server/live-objects.md), [a directory of `.zip` files](../server/models-dir.md).
 

@@ -38,8 +38,6 @@ NX-AI TiRex, plus every [`hub`](hub.md) model.
     tserve tirex
     ```
 
-GPU: swap in [`:tirex-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

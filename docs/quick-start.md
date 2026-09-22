@@ -1,10 +1,10 @@
 # Quick start
 
-Start a server with two models, confirm that it is ready, and send a forecast. If TServe is not installed yet, begin with [Installation](installation.md).
+Start a server with two models, confirm that it is ready, and send a forecast.
 
 ## 1. Start the server
 
-Docker is the recommended path. The `hub` image can load both models used below.
+Docker is the fastest and recommended way, because the image already carries the dependencies. The `hub` image can load both models used below. The UV and Pip tabs install TServe first.
 
 === "Docker"
 
@@ -12,7 +12,29 @@ Docker is the recommended path. The `hub` image can load both models used below.
     docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
     ```
 
+    On an NVIDIA host, use the `-gpu` tag instead and pass `--gpus all`:
+
+    ```bash
+    docker run --rm --gpus all -p 8000:8000 sktime/tserve:hub-gpu chronos_bolt ttm_r3
+    ```
+
 === "uv"
+
+    === "GPU (default)"
+
+        ```bash
+        uv pip install "tserve[server,hub]"
+        ```
+
+    === "CPU only"
+
+        ```bash
+        uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+        ```
+
+        ```bash
+        uv pip install "tserve[server,hub]"
+        ```
 
     ```bash
     uv run tserve chronos_bolt ttm_r3
@@ -20,9 +42,27 @@ Docker is the recommended path. The `hub` image can load both models used below.
 
 === "pip"
 
+    === "GPU (default)"
+
+        ```bash
+        pip install "tserve[server,hub]"
+        ```
+
+    === "CPU only"
+
+        ```bash
+        pip install torch --index-url https://download.pytorch.org/whl/cpu
+        ```
+
+        ```bash
+        pip install "tserve[server,hub]"
+        ```
+
     ```bash
     tserve chronos_bolt ttm_r3
     ```
+
+A plain install pulls the CUDA build of torch (MPS on macOS), so the CPU tabs above are only needed to avoid that download on a machine without a GPU — see [CPU-only install](server/pip.md#cpu-only-install).
 
 The first start downloads model weights from Hugging Face. The terminal then prints the local URLs for the dashboard, Swagger UI, and ReDoc.
 

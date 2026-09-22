@@ -40,7 +40,7 @@ Python >= 3.12. The extras here match the `hub` image; swap them when you load o
     tserve chronos_bolt ttm_r3
     ```
 
-    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [GPU](pip.md#gpu).
+    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [CPU-only install](pip.md#cpu-only-install).
 
 CLI flags, `Server`, and `server.app`: [UV / Pip](pip.md). Editable installs from a clone: [From source](source.md).
 

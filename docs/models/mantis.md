@@ -38,8 +38,6 @@ Mantis embeddings with an sklearn head, plus every [`hub`](hub.md) model.
     tserve mantis_8m
     ```
 
-GPU: swap in [`:mantis-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=mantis-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

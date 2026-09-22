@@ -36,8 +36,6 @@ Builds on [`base`](base.md), so `naive` is available here too. Every extra that 
     tserve chronos_bolt
     ```
 
-GPU: swap in [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) and add `--gpus all` ([GPU images](../server/docker.md#gpu-images)).
-
 Check what loaded:
 
 ```bash

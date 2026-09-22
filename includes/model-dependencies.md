@@ -1,6 +1,6 @@
 Pick the smallest extra (or image tag) that **adds** the family you want. Extra name matches the CPU tag. GPU tags are `{extra}-gpu`; there is no `:base-gpu`. `kronos` sits on `base`, not `hub`, so it cannot load Chronos Bolt, TTM, or TimesFM. Any extra that pulls `hf` (`hub`, `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and therefore `full`) can also load those Hub families.
 
-`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`. `client`, `http`, `gpu`, `dev`, `docs`, and `all-extras` are not model families. `gpu` selects the torch index for **uv** on a clone only. Pip ignores it and always installs CUDA torch from PyPI (MPS on macOS); for a CPU wheel, install torch separately first — see [GPU](../server/pip.md#gpu). Moirai's `gluonts` / `lightning` / `hydra-core` pins apply when `python_version < '3.14'`.
+`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`. `client`, `http`, `gpu`, `dev`, `docs`, and `all-extras` are not model families. `gpu` selects the torch index for **uv** on a clone only. Pip ignores it and always installs CUDA torch from PyPI (MPS on macOS); for a CPU wheel, install torch separately first — see [CPU-only install](../server/pip.md#cpu-only-install). Moirai's `gluonts` / `lightning` / `hydra-core` pins apply when `python_version < '3.14'`.
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
