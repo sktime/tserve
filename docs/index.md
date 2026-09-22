@@ -64,7 +64,7 @@ TServe is a server you run, not a hosted API. It loads named time-series models 
 
     ---
 
-    Understand servers, transports, canonical frames, and executors.
+    What the server loads, and the shape of a predict request.
 
     [:octicons-arrow-right-24: How TServe works](overview.md)
 

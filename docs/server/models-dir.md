@@ -28,7 +28,7 @@ my-models/
 
 ## Load them
 
-Point `--models-dir` at the directory, then name the file stems as leftover positionals:
+Point `--models-dir` at the directory, then name the file stems on the command line:
 
 === "Docker"
 
@@ -62,7 +62,7 @@ Either way `custom-model-1` is served from the zip and `chronos_bolt` from the r
 
 ## Rules
 
-- `--models-dir` never loads a directory wholesale. It only rewrites models that are already leftover positionals and match a `.zip` stem in that directory.
+- `--models-dir` never loads a directory wholesale. It only loads names you already passed that match a `.zip` stem in that directory.
 - A name that matches no file falls through to the registry, and fails there if it is not a registry model.
 - Other suffixes raise `ValueError`; a saved `.pkl` is not accepted.
 - The directory itself has to exist.

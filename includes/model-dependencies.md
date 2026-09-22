@@ -1,8 +1,12 @@
-Pick the smallest extra (or image tag) that **adds** the family you want. Extra name matches the CPU tag. GPU tags are `{extra}-gpu`; there is no `:base-gpu`. `kronos` sits on `base`, not `hub`, so it cannot load Chronos Bolt, TTM, or TimesFM. Any extra that pulls `hf` (`hub`, `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and therefore `full`) can also load those Hub families.
+The extra name is the CPU image tag. GPU tags are `{extra}-gpu`. There is no `:base-gpu`.
 
-`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`. `client`, `http`, `gpu`, `dev`, `docs`, and `all-extras` are not model families. `gpu` selects the torch index for **uv** on a clone only. Pip ignores it and always installs CUDA torch from PyPI (MPS on macOS); for a CPU wheel, install torch separately first — see [CPU-only install](../server/pip.md#cpu-only-install). Moirai's `gluonts` / `lightning` / `hydra-core` pins apply when `python_version < '3.14'`.
+`kronos` is built on `base`, so it cannot load Chronos Bolt, TTM, or TimesFM. Every extra that pulls `hf` — `hub`, `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and `full` — can.
 
-| extra | CPU tag | GPU tag | families | models | example |
+`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `toto`, and `mantis`. `client`, `http`, `gpu`, `dev`, `docs`, and `all-extras` are not model families. `gpu` selects the torch index for uv on a clone only. Pip ignores `gpu` and installs CUDA torch from PyPI (MPS on macOS). Moirai pins `gluonts`, `lightning`, and `hydra-core` when `python_version < '3.14'`.
+
+**added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
+
+| extra | CPU tag | GPU tag | families | added | example |
 | --- | --- | --- | --- | --- | --- |
 | `server` | [`:base`](https://hub.docker.com/r/sktime/tserve/tags?name=base) | — | Naive | 1 | `naive` |
 | `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos_bolt` |

@@ -1,6 +1,6 @@
 # HTTP
 
-Send JSON to `POST /predict` from any language. The request fields are the same as [`Client.predict(...)`](python.md), but the Python client uses Arrow instead of this JSON route.
+Send JSON to `POST /predict` from any language. The fields match [`Client.predict(...)`](python.md). The Python client posts Arrow to `/predict/bytes` instead of this route.
 
 ## Endpoints
 
@@ -18,17 +18,17 @@ Every route returns JSON except `/predict/bytes`, which speaks Arrow, and `/`, w
 
 ## Start a server
 
-The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2_5`, whose estimator supports quantile prediction; Chronos Bolt does not:
+Point forecasts use `chronos_bolt`. Quantiles use `timesfm_2_5`, because Chronos Bolt cannot return them:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-See [Server](../server/index.md) for Docker, UV / Pip, and server options. The URLs below belong to this local process; TServe does not provide a hosted API.
+Other ways to start: [Server](../server/index.md).
 
 ## Send a prediction
 
-`past` is a table, not a 1-d vector. This example sends five days of sales and asks for the next three:
+`past` is a table, one row per timestamp:
 
 === "bash / zsh"
 

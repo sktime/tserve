@@ -33,7 +33,7 @@ Server(
 
 ## From the command line
 
-Leftover positionals split each token on the first `=`. Catalog models have no `=`; everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
+A token with `=` is a craft spec, split on the first `=`. Catalog models have no `=`. Everything after the first `=` is the spec, so kwargs may contain `=` too. Quote the whole token so constructor quotes survive the shell:
 
 ```bash
 tserve chronos_bolt \

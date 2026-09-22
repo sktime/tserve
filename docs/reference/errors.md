@@ -45,7 +45,7 @@ A **404** with `{"detail": "Not Found"}` is not a predict error: that path does 
 | --- | --- |
 | `ValidationError` | local, before any HTTP call: unsupported table shape, `fh` not `> 0`, missing time or target column |
 | `RuntimeError` | the server answered 400 or higher; the message is `detail["error"]` when present, else the raw body |
-| `httpx.RequestError` | connection refused, DNS failure, or timeout (default 60 s, set `timeout=` on `Client`) |
+| `httpx2.RequestError` | connection refused, DNS failure, or timeout (default 60 s, set `timeout=` on `Client`). Import `httpx2`, not `httpx` |
 | `ValueError` | empty inferred target (time-only `past`, `future` holding the value column, or time only on a pandas index); or the response envelope is truncated, has wrong magic bytes, or an unsupported version |
 
 `RuntimeError` is deliberately flat: the server-side type is gone by then, so read the message. Local `ValidationError`s never reach the network, which is why a wrong table shape fails instantly while an unloaded model needs a round trip.

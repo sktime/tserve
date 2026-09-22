@@ -78,4 +78,8 @@ Targets are `linux/amd64` plus `linux/arm64`, so a plain multi-platform bake nee
 | `src/tserve/scheduling` | dispatch by loaded model |
 | `src/tserve/logging` | stats collected for `GET /stats` |
 
-How those pieces fit together is on [Overview](../overview.md).
+## Request path
+
+`POST /predict` is JSON, coerced on the server. [`Client`][tserve.client.client.Client] coerces locally and posts Arrow to `POST /predict/bytes`. Both become Narwhals frames. The sktime executor maps those onto `y`, `X`, and `fh`. Executors do not share converters. A `pytorch-forecasting` slot exists and is not implemented.
+
+The user-facing picture is [Overview](../overview.md).

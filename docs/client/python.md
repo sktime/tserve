@@ -17,13 +17,13 @@
 
 ## Start a server
 
-The point forecast examples use `chronos_bolt`. Quantile examples use `timesfm_2_5`, whose estimator supports quantile prediction; Chronos Bolt does not:
+Point forecasts use `chronos_bolt`. Quantiles use `timesfm_2_5`, because Chronos Bolt cannot return them:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt timesfm_2_5
 ```
 
-See [Server](../server/index.md) for Docker, UV / Pip, and server options. The client URL points to this process, not a hosted TServe API.
+Other ways to start: [Server](../server/index.md). The client calls this process.
 
 ## Install
 
@@ -255,9 +255,9 @@ print(result.predictions)
 
 Panel and hierarchical sktime data are not supported.
 
-## Request static data
+## Request covariates
 
-Static values are supplied as a one-row table. A `future` table can provide the timestamps for the requested horizon. This example needs `chronos_2`, which supports covariates. Stop the starter server and restart with the `chronos` image:
+A covariate is used only when it is in both `past` and `future`. `static` is one row and does not need `future`. This example needs `chronos_2`. Stop the starter server and restart with the `chronos` image:
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:chronos chronos_2
@@ -271,10 +271,16 @@ past = pd.DataFrame(
     {
         "month": pd.date_range("2024-01-01", periods=5, freq="MS"),
         "sales": [120, 135, 128, 142, 150],
+        "promo": [0, 1, 0, 0, 1],
     }
 )
-future = pd.DataFrame({"month": pd.date_range("2024-06-01", periods=3, freq="MS")})
-static = pd.DataFrame({"store_type": ["urban"], "region": ["EU-west"]})
+future = pd.DataFrame(
+    {
+        "month": pd.date_range("2024-06-01", periods=3, freq="MS"),
+        "promo": [1, 0, 0],
+    }
+)
+static = pd.DataFrame({"store_type": ["urban"]})
 
 with Client("http://127.0.0.1:8000") as client:
     result = client.predict(
@@ -290,7 +296,7 @@ with Client("http://127.0.0.1:8000") as client:
 print(result.predictions)
 ```
 
-See [Future and static data](data.md#future-and-static-data) for the current executor behavior, including the limitation on time-varying covariates.
+Rules: [Future and static data](data.md#future-and-static-data). The forecast timestamps are the next `fh` steps after the last `past` row. `future` has to cover those steps; it does not choose different ones.
 
 ## Request quantiles
 
@@ -328,6 +334,6 @@ print(result.quantiles)
 
 ## Handle errors
 
-Local request validation can raise Pydantic `ValidationError` before any HTTP call. Server responses with status 400 or higher become `RuntimeError`. Connection and timeout failures are `tserve.client.TransportError` (do not catch `httpx.RequestError` — TServe vendors `httpx2`).
+Local checks raise Pydantic `ValidationError` before any HTTP call. Server responses with status 400 or higher become `RuntimeError`. Connection and timeout failures raise `httpx2.RequestError` (`import httpx2`; the PyPI package `httpx` is a different module).
 
 See [Errors](../reference/errors.md) for the messages each case produces.

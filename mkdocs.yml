@@ -1,13 +1,13 @@
 site_name: TServe
 site_description: Time series foundation model inference server
 site_url: https://tserve.readthedocs.io
-site_author: TServe authors
+site_author: The sktime developers
 
 repo_name: sktime/tserve
 repo_url: https://github.com/sktime/tserve
 edit_uri: edit/main/docs/
 
-copyright: Copyright &copy; TServe authors
+copyright: Copyright &copy; The sktime developers
 
 theme:
   name: material

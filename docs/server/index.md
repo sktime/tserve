@@ -1,32 +1,23 @@
 # Server
 
-The server is the process you start. It loads models, keeps them warm, and answers predict requests. Dashboard, OpenAPI, and `/predict` all belong to that process.
+The server is the process you start. It loads models, keeps them warm, and answers predict requests. The dashboard, OpenAPI, and `/predict` are that process.
 
-Nothing extra loads unless you name it. A bare `tserve` still loads `naive`, enough to test the process. Name a catalog model for a real forecast. `GET /models` lists what this process loaded, not the [catalog](../models/index.md). Which models exist, and which extra or image tag each one needs, is on [Dependencies](../models/index.md#dependencies).
+A bare `tserve` loads `naive` only. Name models to load them too. `GET /models` lists what loaded, not the [catalog](../models/index.md). Which extra or image each model needs: [Dependencies](../models/index.md#dependencies).
 
-## Quick start
+## Start
 
-**Docker**
+=== "Docker"
 
-The `hub` image can load both models used throughout the client guides. Extra models after the image name load alongside `naive`.
+    ```bash
+    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
+    ```
 
-```bash
-docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
-```
-
-Token, cache volume, GPU, and tags: [Docker](docker.md).
-
-**UV / Pip**
-
-Python >= 3.12. The extras here match the `hub` image; swap them when you load other families.
+    Token, cache, GPU, other tags: [Docker](docker.md).
 
 === "uv"
 
     ```bash
     uv pip install "tserve[server,hub]"
-    ```
-
-    ```bash
     uv run tserve chronos_bolt ttm_r3
     ```
 
@@ -34,61 +25,30 @@ Python >= 3.12. The extras here match the `hub` image; swap them when you load o
 
     ```bash
     pip install "tserve[server,hub]"
-    ```
-
-    ```bash
     tserve chronos_bolt ttm_r3
     ```
 
-    The `gpu` extra does not work with pip. This install already pulls CUDA torch from PyPI (MPS on macOS). To force a CPU wheel, install torch separately first — [CPU-only install](pip.md#cpu-only-install).
+    This installs CUDA torch (MPS on macOS). A CPU wheel: [CPU-only install](pip.md#cpu-only-install).
 
-CLI flags, `Server`, and `server.app`: [UV / Pip](pip.md). Editable installs from a clone: [From source](source.md).
+Another family is the same command with that row's tag and model. `moirai_2`:
 
-**Load a different family**
+```bash
+docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
+```
 
-The commands above load [`hub`](../models/hub.md) models. Every other family follows the same three steps: find the model in the [catalog](../models/index.md#all-models), read the extra and image tag listed with its family, then install that extra and name the model as a leftover positional. `moirai_2` sits in the [`moirai`](../models/moirai.md) extra:
-
-=== "Docker"
-
-    ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:moirai moirai_2
-    ```
-
-=== "uv"
-
-    ```bash
-    uv pip install "tserve[server,moirai]"
-    ```
-
-    ```bash
-    uv run tserve moirai_2
-    ```
-
-=== "pip"
-
-    ```bash
-    pip install "tserve[server,moirai]"
-    ```
-
-    ```bash
-    tserve moirai_2
-    ```
-
-The Docker tag plays the role of the extra — `sktime/tserve:moirai` for that same model, as in [Choose which models to load](docker.md#choose-which-models-to-load). Each extra has its own catalog page with both forms of that command and the models it can load: [base](../models/base.md), [hub](../models/hub.md), [chronos](../models/chronos.md), [kronos](../models/kronos.md), [granite](../models/granite.md), [moirai](../models/moirai.md), [tirex](../models/tirex.md), [toto](../models/toto.md), [mantis](../models/mantis.md), [full](../models/full.md).
-
-Once the process is up, the terminal prints the URLs:
+Startup prints:
 
 - Dashboard: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-Confirm what loaded:
-
 ```bash
 curl -s http://127.0.0.1:8000/models
 ```
 
-`GET /health` is liveness, not “models are warm”. Then [predict](../client/http.md).
+`GET /health` is liveness. Then [predict](../client/http.md).
+
+CLI flags and [`Server`][tserve.server.serve.Server]: [UV / Pip](pip.md). A clone: [From source](source.md). Each family's command: [catalog](../models/index.md#start).
 
 ## In this section
 
