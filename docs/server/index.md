@@ -48,7 +48,7 @@ curl -s http://127.0.0.1:8000/models
 
 `GET /health` is liveness. Then [predict](../client/http.md).
 
-CLI flags and [`Server`][tserve.server.serve.Server]: [UV / Pip](pip.md). A clone: [From source](source.md). Each family's command: [catalog](../models/index.md#start).
+CLI flags and [`Server`][tserve.server.serve.Server]: [UV / Pip](pip.md). A clone: [From source](source.md). Each family's command: [catalog](../models/index.md#start-a-server).
 
 ## In this section
 

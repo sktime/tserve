@@ -26,7 +26,7 @@ Python >= 3.12, and a clone over HTTPS. [uv](https://docs.astral.sh/uv/) is the 
 
 --8<-- "includes/model-dependencies.md"
 
-Replace `hub` in the install above with another extra from the table. uv repeats `--extra` (`uv sync --extra server --extra chronos`). pip takes one list (`".[server,chronos]"`). `full` is the union extra. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag. Each extra's command and models: [catalog](../models/index.md#start).
+Replace `hub` in the install above with another extra from the table. uv repeats `--extra` (`uv sync --extra server --extra chronos`). pip takes one list (`".[server,chronos]"`). `full` is the union extra. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag. Each extra's command and models: [catalog](../models/index.md#start-a-server).
 
 `gpu` is not a model family. Torch CPU vs GPU: [GPU](#gpu).
 

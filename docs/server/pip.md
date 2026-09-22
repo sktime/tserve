@@ -24,7 +24,7 @@ Python >= 3.12. Install TServe from PyPI with [uv](https://docs.astral.sh/uv/) o
 
 --8<-- "includes/model-dependencies.md"
 
-Replace `hub` in the install above with another extra from the table. `full` is the union extra. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag. Each extra's command and models: [catalog](../models/index.md#start).
+Replace `hub` in the install above with another extra from the table. `full` is the union extra. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag. Each extra's command and models: [catalog](../models/index.md#start-a-server).
 
 `gpu` is not a model family. A CPU wheel: [CPU-only install](#cpu-only-install).
 
