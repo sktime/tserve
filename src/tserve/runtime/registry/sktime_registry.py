@@ -731,9 +731,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
         )
     },
     # TiRex-2. The three decontaminated checkpoints are gated on Hugging Face.
-    "tirex_2": {
-        "spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2", device="auto")'
-    },
+    "tirex_2": {"spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2", device="auto")'},
     "tirex_2_gifteval_zs": {
         "spec": (
             'TiRex2Forecaster(model_path="NX-AI/TiRex-2-gifteval-zs", device="auto")'
@@ -752,7 +750,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "t0": {
         "spec": (
             'T0Forecaster(model_path="theforecastingcompany/t0-alpha", '
-            'license_accepted=True)'
+            "license_accepted=True)"
         )
     },
     # Tafsut.
@@ -816,7 +814,7 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
     "timesfm_3": {
         "spec": (
             'TimesFM3Forecaster(model_path="google/timesfm-3.0-pytorch", '
-            'license_accepted=True)'
+            "license_accepted=True)"
         )
     },
     # TimesFM 2.x (transformers).
