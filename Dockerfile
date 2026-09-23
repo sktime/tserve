@@ -14,7 +14,7 @@ ENV UV_LINK_MODE=copy \
     UV_HTTP_TIMEOUT=300 \
     UV_HTTP_RETRIES=10
 
-RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 git \
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-editable \
         $(printf -- '--extra %s ' server sktime $TSERVE_EXTRAS)
 
-# Runtime image: no uv, no git, no source tree. `--no-editable` baked tserve
+# Runtime image: no uv, no source tree. `--no-editable` baked tserve
 # into the venv, so only `.venv` is copied. Python path must match the builder.
 FROM python:3.13-slim-trixie
 
