@@ -180,8 +180,12 @@ nav:
       - granite: models/granite.md
       - moirai: models/moirai.md
       - tirex: models/tirex.md
+      - tirex2: models/tirex2.md
       - toto: models/toto.md
       - mantis: models/mantis.md
+      - timesfm3: models/timesfm3.md
+      - t0: models/t0.md
+      - tafsut: models/tafsut.md
       - full: models/full.md
   - Client:
       - client/index.md

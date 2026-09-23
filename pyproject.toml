@@ -39,7 +39,7 @@ server = ["fastapi", "python-multipart", "uvicorn", "tserve[sktime]"]
 http = ["httpx2", "python-multipart"]
 # executors specific dependencies
 sktime = [
-  "sktime @ git+https://github.com/sktime/sktime.git@533b622d206e149f26476153aa43c6a380bceac9",
+  "sktime @ git+https://github.com/sktime/sktime.git@d6a069461306b0184f7d22184cd2483ddc116cb2",
   "skpro",
 ]
 # estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
@@ -73,11 +73,22 @@ moirai = [
 ]
 # TiRexForecaster
 tirex = ["tserve[hf]", "tirex-ts", "torch"]
+# TiRex2Forecaster
+tirex2 = ["tserve[hf]", "tirex-2", "torch"]
 # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
 toto = ["tserve[hf]", "toto-models", "skpro", "torch"]
 # MantisForecaster
 mantis = ["tserve[hf]", "mantis-tsfm>=1.0.0", "torch"]
-full = ["tserve[chronos,kronos,granite,moirai,tirex,toto,mantis]", "torch"]
+# TimesFM3Forecaster
+timesfm3 = ["tserve[hf]", "timesfm[torch]>=3.0.0,<4.0.0", "torch"]
+# T0Forecaster
+t0 = ["tserve[hf]", "tfc-t0", "torch"]
+# TafsutForecaster
+tafsut = ["tserve[hf]", "tafsut>=0.1.0", "torch"]
+full = [
+  "tserve[chronos,kronos,granite,moirai,tirex,tirex2,toto,mantis,timesfm3,t0,tafsut]",
+  "torch",
+]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["tserve[client,server,full]"]
 # pair with any extra above: `uv sync --extra hub --extra gpu`

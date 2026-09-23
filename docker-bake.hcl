@@ -29,14 +29,15 @@ group "default" {
 group "cpu" {
   targets = [
     "base", "hub", "chronos", "kronos", "granite",
-    "moirai", "tirex", "toto", "mantis", "full",
+    "moirai", "tirex", "tirex2", "toto", "mantis", "timesfm3", "t0", "tafsut", "full",
   ]
 }
 
 group "gpu" {
   targets = [
     "hub-gpu", "chronos-gpu", "kronos-gpu", "granite-gpu",
-    "moirai-gpu", "tirex-gpu", "toto-gpu", "mantis-gpu", "full-gpu",
+    "moirai-gpu", "tirex-gpu", "tirex2-gpu", "toto-gpu", "mantis-gpu",
+    "timesfm3-gpu", "t0-gpu", "tafsut-gpu", "full-gpu",
   ]
 }
 
@@ -88,6 +89,12 @@ target "tirex" {
   tags     = ["${TSERVE_IMAGE}:tirex"]
 }
 
+target "tirex2" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "tirex2" }
+  tags     = ["${TSERVE_IMAGE}:tirex2"]
+}
+
 target "toto" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "toto" }
@@ -98,6 +105,24 @@ target "mantis" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "mantis" }
   tags     = ["${TSERVE_IMAGE}:mantis"]
+}
+
+target "timesfm3" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "timesfm3" }
+  tags     = ["${TSERVE_IMAGE}:timesfm3"]
+}
+
+target "t0" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "t0" }
+  tags     = ["${TSERVE_IMAGE}:t0"]
+}
+
+target "tafsut" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "tafsut" }
+  tags     = ["${TSERVE_IMAGE}:tafsut"]
 }
 
 target "full" {
@@ -142,6 +167,12 @@ target "tirex-gpu" {
   tags     = ["${TSERVE_IMAGE}:tirex-gpu"]
 }
 
+target "tirex2-gpu" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "tirex2 gpu" }
+  tags     = ["${TSERVE_IMAGE}:tirex2-gpu"]
+}
+
 target "toto-gpu" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "toto gpu" }
@@ -152,6 +183,24 @@ target "mantis-gpu" {
   inherits = ["_common"]
   args     = { TSERVE_EXTRAS = "mantis gpu" }
   tags     = ["${TSERVE_IMAGE}:mantis-gpu"]
+}
+
+target "timesfm3-gpu" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "timesfm3 gpu" }
+  tags     = ["${TSERVE_IMAGE}:timesfm3-gpu"]
+}
+
+target "t0-gpu" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "t0 gpu" }
+  tags     = ["${TSERVE_IMAGE}:t0-gpu"]
+}
+
+target "tafsut-gpu" {
+  inherits = ["_common"]
+  args     = { TSERVE_EXTRAS = "tafsut gpu" }
+  tags     = ["${TSERVE_IMAGE}:tafsut-gpu"]
 }
 
 target "full-gpu" {

@@ -14,7 +14,7 @@ JSON is coerced on the server. The Python client coerces locally and restores yo
 
 ## First forecast
 
-Docker is the short path. This image can load Chronos Bolt, Chronos T5, TTM, and TimesFM. The first start downloads the weights you name.
+Docker is the short path. This image can load Chronos Bolt, Chronos T5, TTM, and TimesFM 2.x. The first start downloads the weights you name.
 
 ```bash
 docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt ttm_r3
@@ -71,24 +71,28 @@ The walkthrough, including `GET /models` and PowerShell: [Quick start](https://t
 
 ## Models
 
-110 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
+117 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
 
 `naive` always loads, so you can try the process before any download. `GET /models` lists what this process loaded, which is smaller than the catalog. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
 
 | extra | families | added | example |
 | --- | --- | ---: | --- |
 | [`server`](https://tserve.readthedocs.io/en/latest/models/base/) | Naive | 1 | `naive` |
-| [`hub`](https://tserve.readthedocs.io/en/latest/models/hub/) | Chronos Bolt, Chronos T5, TTM, TimesFM | 81 | `chronos_bolt` |
+| [`hub`](https://tserve.readthedocs.io/en/latest/models/hub/) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos_bolt` |
 | [`chronos`](https://tserve.readthedocs.io/en/latest/models/chronos/) | Chronos-2 | 3 | `chronos_2` |
 | [`kronos`](https://tserve.readthedocs.io/en/latest/models/kronos/) | Kronos, WindFM | 5 | `kronos` |
 | [`granite`](https://tserve.readthedocs.io/en/latest/models/granite/) | FlowState | 2 | `flowstate` |
 | [`moirai`](https://tserve.readthedocs.io/en/latest/models/moirai/) | Moirai 2, Moirai 1.x, Lag-Llama | 8 | `moirai_2` |
 | [`tirex`](https://tserve.readthedocs.io/en/latest/models/tirex/) | TiRex | 2 | `tirex` |
+| [`tirex2`](https://tserve.readthedocs.io/en/latest/models/tirex2/) | TiRex-2 | 4 | `tirex_2` |
 | [`toto`](https://tserve.readthedocs.io/en/latest/models/toto/) | Toto-2 | 5 | `toto_2_0_4m` |
 | [`mantis`](https://tserve.readthedocs.io/en/latest/models/mantis/) | Mantis | 3 | `mantis_8m` |
-| [`full`](https://tserve.readthedocs.io/en/latest/models/full/) | all of the above | 110 | `chronos_2` |
+| [`timesfm3`](https://tserve.readthedocs.io/en/latest/models/timesfm3/) | TimesFM 3 | 1 | `timesfm_3` |
+| [`t0`](https://tserve.readthedocs.io/en/latest/models/t0/) | T0 | 1 | `t0` |
+| [`tafsut`](https://tserve.readthedocs.io/en/latest/models/tafsut/) | Tafsut | 1 | `tafsut` |
+| [`full`](https://tserve.readthedocs.io/en/latest/models/full/) | all of the above | 117 | `chronos_2` |
 
-`kronos` is built on `base`. Chronos Bolt, TTM, and TimesFM load on the images that include `hub`: `chronos`, `granite`, `moirai`, `tirex`, `toto`, `mantis`, and `full`. Tags, GPU variants, and how the extras stack: [Dependencies](https://tserve.readthedocs.io/en/latest/models/#dependencies).
+`kronos` is built on `base`. Chronos Bolt, TTM, and TimesFM 2.x load on the images that include `hub`: `chronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, `tafsut`, and `full`. TimesFM 3, TiRex-2, T0, and Tafsut load on their own extras and on `full`. Tags, GPU variants, and how the extras stack: [Dependencies](https://tserve.readthedocs.io/en/latest/models/#dependencies).
 
 Each family page has its own start command. The catalog collects them under [Start a server](https://tserve.readthedocs.io/en/latest/models/#start-a-server). Switching images is the tag plus the example from that row:
 
