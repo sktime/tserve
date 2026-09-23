@@ -1,39 +1,41 @@
-# hub
+# tirex2
 
-Four Hugging Face families, 81 of the catalog's 117 models. The usual starting point.
+NX-AI TiRex-2, plus every [`hub`](hub.md) model. TiRex v1 stays on [`tirex`](tirex.md).
 
 | extra | CPU tag | GPU tag | families | models | example |
 | --- | --- | --- | --- | --- | --- |
-| `hub` | [`:hub`](https://hub.docker.com/r/sktime/tserve/tags?name=hub) | [`:hub-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=hub-gpu) | Chronos Bolt, Chronos T5, TTM, TimesFM 2.x | 81 | `chronos_bolt` |
+| `tirex2` | [`:tirex2`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex2) | [`:tirex2-gpu`](https://hub.docker.com/r/sktime/tserve/tags?name=tirex2-gpu) | TiRex-2 | 4 | `tirex_2` |
 
-Builds on [`base`](base.md), so `naive` is available here too. Every extra that pulls `hf` builds on `hub`, so those pages can load these models as well.
+!!! note "Gated checkpoints"
+
+    `tirex_2` is public. `tirex_2_gifteval_zs`, `tirex_2_gifteval_pretrain`, and `tirex_2_fevbench` are gated. Accept the model card and set a [Hugging Face token](../server/docker.md#hugging-face-token) before loading those three.
 
 ## Start a server
 
 === "Docker"
 
     ```bash
-    docker run --rm -p 8000:8000 sktime/tserve:hub chronos_bolt
+    docker run --rm -p 8000:8000 sktime/tserve:tirex2 tirex_2
     ```
 
 === "uv"
 
     ```bash
-    uv pip install "tserve[server,hub]"
+    uv pip install "tserve[server,tirex2]"
     ```
 
     ```bash
-    uv run tserve chronos_bolt
+    uv run tserve tirex_2
     ```
 
 === "pip"
 
     ```bash
-    pip install "tserve[server,hub]"
+    pip install "tserve[server,tirex2]"
     ```
 
     ```bash
-    tserve chronos_bolt
+    tserve tirex_2
     ```
 
 Check what loaded:
@@ -57,14 +59,14 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
       "time": "timestamp",
       "target": ["sales"],
       "fh": 3,
-      "model": "chronos_bolt"
+      "model": "tirex_2"
     }'
     ```
 
 === "PowerShell"
 
     ```powershell
-    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"chronos_bolt"}'
+    curl.exe -s http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"past":{"timestamp":["2024-01-01","2024-01-02","2024-01-03","2024-01-04","2024-01-05"],"sales":[120,135,128,142,138]},"time":"timestamp","target":["sales"],"fh":3,"model":"tirex_2"}'
     ```
 
 === "Python"
@@ -83,24 +85,19 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
             time="timestamp",
             target=["sales"],
             fh=3,
-            model="chronos_bolt",
+            model="tirex_2",
         )
     print(result.predictions)
     ```
 
 ## Models
 
---8<-- "includes/models/chronos-bolt.md"
-
---8<-- "includes/models/chronos-t5.md"
-
---8<-- "includes/models/ttm.md"
-
---8<-- "includes/models/timesfm.md"
+--8<-- "includes/models/tirex-2.md"
 
 ## Also loadable here
 
 - [Naive](base.md#naive): `naive`, from [`base`](base.md).
+- [Chronos Bolt](hub.md#chronos-bolt), [Chronos T5](hub.md#chronos-t5), [TTM](hub.md#ttm), [TimesFM 2.x](hub.md#timesfm-2x): 81 models, from [`hub`](hub.md).
 
 ## Next steps
 

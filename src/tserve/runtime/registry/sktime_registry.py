@@ -730,24 +730,33 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             'TiRexForecaster(model="NX-AI/TiRex-1.1-gifteval", license_accepted=True)'
         )
     },
-    # TiRex-2. Ignored: not yet released in sktime.
-    # "tirex_2": {
-    #     "spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2", device="auto")'
-    # },
-    # "tirex_2_gifteval_zs": {
-    #     "spec": (
-    #         'TiRex2Forecaster(model_path="NX-AI/TiRex-2-gifteval-zs", device="auto")'
-    #     )
-    # },
-    # "tirex_2_gifteval_pretrain": {
-    #     "spec": (
-    #         'TiRex2Forecaster(model_path="NX-AI/TiRex-2-gifteval-pretrain", '
-    #         'device="auto")'
-    #     )
-    # },
-    # "tirex_2_fevbench": {
-    #     "spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2-fevbench", device="auto")'
-    # },
+    # TiRex-2. The three decontaminated checkpoints are gated on Hugging Face.
+    "tirex_2": {"spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2", device="auto")'},
+    "tirex_2_gifteval_zs": {
+        "spec": (
+            'TiRex2Forecaster(model_path="NX-AI/TiRex-2-gifteval-zs", device="auto")'
+        )
+    },
+    "tirex_2_gifteval_pretrain": {
+        "spec": (
+            'TiRex2Forecaster(model_path="NX-AI/TiRex-2-gifteval-pretrain", '
+            'device="auto")'
+        )
+    },
+    "tirex_2_fevbench": {
+        "spec": 'TiRex2Forecaster(model_path="NX-AI/TiRex-2-fevbench", device="auto")'
+    },
+    # T0. Gated checkpoint; license_accepted is required.
+    "t0": {
+        "spec": (
+            'T0Forecaster(model_path="theforecastingcompany/t0-alpha", '
+            "license_accepted=True)"
+        )
+    },
+    # Tafsut.
+    "tafsut": {
+        "spec": 'TafsutForecaster(model_path="Tafsut-FM/tafsut-univariate-base")'
+    },
     # MOIRAI 1.0 / 1.1. Salesforce safetensors path; map_location auto-picks device.
     "moirai_1_0_r_small": {
         "spec": (
@@ -799,6 +808,13 @@ SKTIME_REGISTRY: BASE_REGISTRY_TYPE = {
             "FlowStateForecaster("
             'model_path="ibm-granite/granite-timeseries-flowstate-r1", '
             'revision="r1.1")'
+        )
+    },
+    # TimesFM 3. Non-commercial weights; license_accepted is required.
+    "timesfm_3": {
+        "spec": (
+            'TimesFM3Forecaster(model_path="google/timesfm-3.0-pytorch", '
+            "license_accepted=True)"
         )
     },
     # TimesFM 2.x (transformers).
@@ -966,6 +982,8 @@ def _group_for(model_id: str) -> tuple[str, ...]:
         family = "server"
     elif model_id.startswith("chronos_2"):
         family = "chronos"
+    elif model_id.startswith("timesfm_3"):
+        family = "timesfm3"
     elif model_id.startswith(("chronos_", "ttm", "timesfm")):
         family = "hub"
     elif model_id.startswith(("kronos", "windfm")):
@@ -974,8 +992,14 @@ def _group_for(model_id: str) -> tuple[str, ...]:
         family = "granite"
     elif model_id.startswith(("moirai_", "lagllama")):
         family = "moirai"
+    elif model_id.startswith("tirex_2"):
+        family = "tirex2"
     elif model_id.startswith("tirex"):
         family = "tirex"
+    elif model_id.startswith("t0"):
+        family = "t0"
+    elif model_id.startswith("tafsut"):
+        family = "tafsut"
     elif model_id.startswith("toto_"):
         family = "toto"
     elif model_id.startswith("mantis"):

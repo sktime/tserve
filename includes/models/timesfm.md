@@ -1,4 +1,4 @@
-### TimesFM
+### TimesFM 2.x
 
 <div class="tserve-meta" markdown="span">
 <span class="tserve-meta-item">:material-function-variant: [`TimesFM2Forecaster`](https://www.sktime.net/docs/api-reference/sktimeforecastingtimesfm2timesfm2forecaster/)</span>

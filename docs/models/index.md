@@ -1,6 +1,6 @@
 # Catalog
 
-110 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model as a leftover positional for a real forecast. `GET /models` reports what did. The same model goes in leftover [CLI](../reference/cli.md#flags) positionals and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
+117 models a TServe process *can* load. The server always loads `naive`, a no-download baseline for testing. Name a catalog model as a leftover positional for a real forecast. `GET /models` reports what did. The same model goes in leftover [CLI](../reference/cli.md#flags) positionals and in a request's [`model`](../client/data.md#prediction-horizon-and-model) field.
 
 ## Dependencies
 
@@ -278,9 +278,129 @@
         tserve mantis_8m
         ```
 
+=== "timesfm3"
+
+    TimesFM 3, plus every [hub](hub.md) model. Full page: [timesfm3](timesfm3.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:timesfm3 timesfm_3
+        ```
+
+    === "uv"
+
+        ```bash
+        uv pip install "tserve[server,timesfm3]"
+        ```
+
+        ```bash
+        uv run tserve timesfm_3
+        ```
+
+    === "pip"
+
+        ```bash
+        pip install "tserve[server,timesfm3]"
+        ```
+
+        ```bash
+        tserve timesfm_3
+        ```
+
+=== "tirex2"
+
+    TiRex-2, plus every [hub](hub.md) model. Full page: [tirex2](tirex2.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:tirex2 tirex_2
+        ```
+
+    === "uv"
+
+        ```bash
+        uv pip install "tserve[server,tirex2]"
+        ```
+
+        ```bash
+        uv run tserve tirex_2
+        ```
+
+    === "pip"
+
+        ```bash
+        pip install "tserve[server,tirex2]"
+        ```
+
+        ```bash
+        tserve tirex_2
+        ```
+
+=== "t0"
+
+    T0, plus every [hub](hub.md) model. The checkpoint is gated. Full page: [t0](t0.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:t0 t0
+        ```
+
+    === "uv"
+
+        ```bash
+        uv pip install "tserve[server,t0]"
+        ```
+
+        ```bash
+        uv run tserve t0
+        ```
+
+    === "pip"
+
+        ```bash
+        pip install "tserve[server,t0]"
+        ```
+
+        ```bash
+        tserve t0
+        ```
+
+=== "tafsut"
+
+    Tafsut, plus every [hub](hub.md) model. Full page: [tafsut](tafsut.md).
+
+    === "Docker"
+
+        ```bash
+        docker run --rm -p 8000:8000 sktime/tserve:tafsut tafsut
+        ```
+
+    === "uv"
+
+        ```bash
+        uv pip install "tserve[server,tafsut]"
+        ```
+
+        ```bash
+        uv run tserve tafsut
+        ```
+
+    === "pip"
+
+        ```bash
+        pip install "tserve[server,tafsut]"
+        ```
+
+        ```bash
+        tserve tafsut
+        ```
+
 === "full"
 
-    All 110 models, and the only way to mix two family stacks. Full page: [full](full.md).
+    All 117 models, and the only way to mix two family stacks. Full page: [full](full.md).
 
     === "Docker"
 
@@ -371,6 +491,12 @@ Only `model` changes between extras. Python needs the [`client`](../client/pytho
 
 --8<-- "includes/models/timesfm.md"
 
+--8<-- "includes/models/timesfm-3.md"
+
+--8<-- "includes/models/t0.md"
+
+--8<-- "includes/models/tafsut.md"
+
 --8<-- "includes/models/chronos-2.md"
 
 --8<-- "includes/models/kronos.md"
@@ -387,6 +513,8 @@ Only `model` changes between extras. Python needs the [`client`](../client/pytho
 
 --8<-- "includes/models/tirex.md"
 
+--8<-- "includes/models/tirex-2.md"
+
 --8<-- "includes/models/toto.md"
 
 --8<-- "includes/models/mantis.md"
@@ -402,7 +530,10 @@ Every capability is read from the estimator, not set by a TServe flag. [Multivar
 | [Chronos Bolt](#chronos-bolt) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [Chronos T5](#chronos-t5) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [TTM](#ttm) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
-| [TimesFM](#timesfm) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [TimesFM 2.x](#timesfm-2x) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
+| [TimesFM 3](#timesfm-3) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
+| [T0](#t0) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
+| [Tafsut](#tafsut) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
 | [Kronos](#kronos) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 | [WindFM](#windfm) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
 | [FlowState](#flowstate) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
@@ -410,6 +541,7 @@ Every capability is read from the estimator, not set by a TServe flag. [Multivar
 | [Moirai 1.x](#moirai-1x) | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } |
 | [Lag-Llama](#lag-llama) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
 | [TiRex](#tirex) | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
+| [TiRex-2](#tirex-2) | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } | :material-check:{ .tserve-yes } |
 | [Toto-2](#toto-2) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-check:{ .tserve-yes } |
 | [Mantis](#mantis) | :material-check:{ .tserve-yes } | :material-minus:{ .tserve-no } | :material-minus:{ .tserve-no } |
 

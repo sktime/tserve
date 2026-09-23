@@ -94,7 +94,7 @@ Python needs the [`client`](../client/python.md#install) extra on the caller.
 
 ## Also loadable here
 
-Nothing. `:base` carries no Hugging Face stack, so any other model fails at startup ([Errors](../reference/errors.md#startup)). For Chronos Bolt, Chronos T5, TTM, and TimesFM, use [`hub`](hub.md).
+Nothing. `:base` carries no Hugging Face stack, so any other model fails at startup ([Errors](../reference/errors.md#startup)). For Chronos Bolt, Chronos T5, TTM, and TimesFM 2.x, use [`hub`](hub.md). For TimesFM 3, use [`timesfm3`](timesfm3.md).
 
 ## Next steps
 
