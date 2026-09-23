@@ -150,4 +150,6 @@ The generated reference for the same surface: [HTTP API](https://tserve.readthed
 
 BSD 3-Clause. See [LICENSE](LICENSE).
 
+License covers only the model server, not the models themselves or distributions pathways such as Hugging Face. Third party model weights, model code, or distribution pathways may create their own implications via licenses or T&C. While we try to make it easy for users to gain a transparent picture of legal implications, we do not assume any liability or guarantee correctness of metadata related to third party licenses or T&C.
+
 Development setup, checks, tests, and image builds: [Development](https://tserve.readthedocs.io/en/latest/reference/development/) · [Checks](https://tserve.readthedocs.io/en/latest/reference/development/#checks) · [Tests](https://tserve.readthedocs.io/en/latest/reference/development/#tests) · [Docker images](https://tserve.readthedocs.io/en/latest/reference/development/#docker-images).
