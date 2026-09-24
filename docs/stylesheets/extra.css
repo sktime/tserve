@@ -242,6 +242,14 @@
   color: var(--md-default-fg-color--lighter);
 }
 
+/* Screenshots --------------------------------------------------------------- */
+
+.md-typeset img.tserve-shot {
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+  box-shadow: var(--tserve-card-shadow);
+}
+
 /* Tables and code ----------------------------------------------------------- */
 
 .md-typeset table:not([class]) th {
