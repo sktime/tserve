@@ -11,9 +11,7 @@ A forecast is a request to that process. JSON goes to `POST /predict` from any H
 
 Chronos, TTM, TimesFM, Moirai, and the other families are in the [catalog](https://tserve.readthedocs.io/en/latest/models/#dependencies). `naive` loads with every process and needs no download, so you can check that the server answers before any checkpoint. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
 
-![TServe architecture](docs/assets/architecture.svg)
-
-JSON is coerced on the server. The Python client coerces locally and restores your table type on the way back. Both paths reach the same loaded model. The fields on a request, and the path in the diagram: [Overview](https://tserve.readthedocs.io/en/latest/overview/) · [Request](https://tserve.readthedocs.io/en/latest/overview/#request). Images: [Docker Hub](https://hub.docker.com/r/sktime/tserve).
+JSON is coerced on the server. The Python client coerces locally and restores your table type on the way back. Both paths reach the same loaded model. The fields on a request: [Overview](https://tserve.readthedocs.io/en/latest/overview/) · [Request](https://tserve.readthedocs.io/en/latest/overview/#request). Images: [Docker Hub](https://hub.docker.com/r/sktime/tserve).
 
 ## First forecast
 
