@@ -164,7 +164,7 @@ The generated reference for the same surface: [HTTP API](https://tserve.readthed
 
 ## License
 
-BSD 3-Clause. See [LICENSE](LICENSE).
+BSD 3-Clause. See [LICENSE](https://github.com/sktime/tserve/blob/main/LICENSE).
 
 License covers only the model server, not the models themselves or distributions pathways such as Hugging Face. Third party model weights, model code, or distribution pathways may create their own implications via licenses or T&C. While we try to make it easy for users to gain a transparent picture of legal implications, we do not assume any liability or guarantee correctness of metadata related to third party licenses or T&C.
 
