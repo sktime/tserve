@@ -16,7 +16,7 @@ Each model family ships its own package, input format, and loading code. [sktime
 - **A dashboard in the browser.** `GET /` plots a forecast from a sample series or your own CSV. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
 - **Your own sktime models.** Serve a [configured forecaster](https://tserve.readthedocs.io/en/latest/server/live-objects/), a [saved `.zip`](https://tserve.readthedocs.io/en/latest/server/models-dir/), or a [craft spec](https://tserve.readthedocs.io/en/latest/server/craft-specs/) next to the catalog models.
 
-![TServe demo: start the server, query /models and /predict, then forecast in the dashboard](docs/assets/demo.svg)
+![TServe demo: start the server, query /models and /predict, then forecast in the dashboard](https://raw.githubusercontent.com/sktime/tserve/main/docs/assets/demo.svg)
 
 TServe is a server you run on your own hardware, not a hosted API. [How it works](https://tserve.readthedocs.io/en/latest/overview/) · [Docker Hub](https://hub.docker.com/r/sktime/tserve)
 
@@ -83,7 +83,7 @@ The running server serves a browser console at `GET /`. The model list is whatev
 
 Below, [`timesfm_3`](https://tserve.readthedocs.io/en/latest/models/timesfm3/) forecasts retail sales with 90% prediction interval.
 
-![TServe dashboard: timesfm_3 with a 90% prediction interval](docs/assets/dashboard.png)
+![TServe dashboard: timesfm_3 with a 90% prediction interval](https://raw.githubusercontent.com/sktime/tserve/main/docs/assets/dashboard.png)
 
 ## Models
 
