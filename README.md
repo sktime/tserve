@@ -1,16 +1,24 @@
 # TServe
 
-[![Documentation Status](https://readthedocs.org/projects/tserve/badge/?version=latest)](https://tserve.readthedocs.io/en/latest/?badge=latest)
+| | **[Documentation](https://tserve.readthedocs.io/en/latest/)** · **[Quick start](https://tserve.readthedocs.io/en/latest/quick-start/)** · **[Models](https://tserve.readthedocs.io/en/latest/models/)** · **[API](https://tserve.readthedocs.io/en/latest/reference/http/)** |
+| --- | --- |
+| **Project** | [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/sktime/tserve/blob/main/LICENSE) [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![PyPI](https://img.shields.io/pypi/v/tserve?color=orange)](https://pypi.org/project/tserve/) |
+| **Status** | [![Tests](https://img.shields.io/github/actions/workflow/status/sktime/tserve/test.yml?branch=main&label=tests&logo=github)](https://github.com/sktime/tserve/actions/workflows/test.yml) [![Docs](https://img.shields.io/readthedocs/tserve?logo=readthedocs)](https://tserve.readthedocs.io/en/latest/?badge=latest) [![Docker](https://img.shields.io/docker/pulls/sktime/tserve?logo=docker)](https://hub.docker.com/r/sktime/tserve) |
 
-Time series serving for foundation models. You start a TServe process, name the models to load, and they stay in memory until the process stops.
+**Time series serving for foundation models.** TServe loads models such as Chronos, TimesFM, Moirai, TTM, and TiRex once, keeps them in memory, and answers forecast requests over HTTP.
 
-A forecast is a request to that process. JSON goes to `POST /predict` from any HTTP client. The Python [`Client`](https://tserve.readthedocs.io/en/latest/client/python/#connect) posts Arrow to `POST /predict/bytes` and returns the same kind of table you sent: a dict, pandas, polars, or pyarrow. The dashboard at `GET /` plots a forecast in the browser. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
+Each model family ships its own package, input format, and loading code. [sktime](https://www.sktime.net/) wraps them as forecasters with one common interface, and TServe runs those forecasters as a server behind a single request: a table of past values and a horizon. Trying another model means changing one field, not rewriting your pipeline.
 
-Chronos, TTM, TimesFM, Moirai, and the other families are in the [catalog](https://tserve.readthedocs.io/en/latest/models/#dependencies). `naive` loads with every process and needs no download, so you can check that the server answers before any checkpoint. [What gets loaded](https://tserve.readthedocs.io/en/latest/overview/#what-gets-loaded)
+- **Over 100 checkpoints.** Each family has its own Docker tag or pip extra, for CPU or GPU. [Catalog](https://tserve.readthedocs.io/en/latest/models/) · [Capabilities](https://tserve.readthedocs.io/en/latest/models/#capabilities)
+- **Loaded once, kept warm.** Weights download and load at startup, so each request pays only for inference.
+- **JSON from anywhere.** `POST /predict` works from curl or any language. [Send a prediction](https://tserve.readthedocs.io/en/latest/client/http/#send-a-prediction)
+- **Native tables in Python.** The [`Client`](https://tserve.readthedocs.io/en/latest/client/python/#connect) takes a dict, pandas, polars, or pyarrow table and returns predictions in the same type.
+- **A dashboard in the browser.** `GET /` plots a forecast from a sample series or your own CSV. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
+- **Your own sktime models.** Serve a [configured forecaster](https://tserve.readthedocs.io/en/latest/server/live-objects/), a [saved `.zip`](https://tserve.readthedocs.io/en/latest/server/models-dir/), or a [craft spec](https://tserve.readthedocs.io/en/latest/server/craft-specs/) next to the catalog models.
 
-![TServe architecture](docs/assets/architecture.svg)
+![TServe demo: start the server, query /models and /predict, then forecast in the dashboard](docs/assets/demo.svg)
 
-JSON is coerced on the server. The Python client coerces locally and restores your table type on the way back. Both paths reach the same loaded model. The fields on a request, and the path in the diagram: [Overview](https://tserve.readthedocs.io/en/latest/overview/) · [Request](https://tserve.readthedocs.io/en/latest/overview/#request). Images: [Docker Hub](https://hub.docker.com/r/sktime/tserve).
+TServe is a server you run on your own hardware, not a hosted API. [How it works](https://tserve.readthedocs.io/en/latest/overview/) · [Docker Hub](https://hub.docker.com/r/sktime/tserve)
 
 ## First forecast
 
@@ -68,6 +76,14 @@ print(result.predictions)
 ```
 
 The walkthrough, including `GET /models` and PowerShell: [Quick start](https://tserve.readthedocs.io/en/latest/quick-start/). A GPU host adds `--gpus all` and uses `sktime/tserve:hub-gpu`. [GPU images](https://tserve.readthedocs.io/en/latest/server/docker/#gpu-images)
+
+## Dashboard
+
+The running server serves a browser console at `GET /`. The model list is whatever this process loaded. You set a horizon, optionally a prediction interval, and a series (a built-in sample, pasted CSV, or a dropped file, parsed in the browser), then the page posts `POST /predict` and plots the result. Health and runtime stats sit on the right. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
+
+Below, [`timesfm_3`](https://tserve.readthedocs.io/en/latest/models/timesfm3/) forecasts retail sales with 90% prediction interval.
+
+![TServe dashboard: timesfm_3 with a 90% prediction interval](docs/assets/dashboard.png)
 
 ## Models
 

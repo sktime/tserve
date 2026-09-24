@@ -4,6 +4,10 @@ The running server serves a browser console at `GET /`. It talks only to the JSO
 
 Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) after [starting a server](index.md). The process prints this URL on startup.
 
+[`timesfm_3`](../models/timesfm3.md) forecasts retail sales with a 90% prediction interval.
+
+![TServe dashboard: timesfm_3 with a 90% prediction interval](../assets/dashboard.png){ .tserve-shot }
+
 ## What you can do
 
 - Pick a **loaded** model (the dropdown is `GET /models`, not the full catalog)

@@ -131,6 +131,14 @@ print(result.predictions)
 
 The input may also be a pandas, polars, or pyarrow table. See the [Python client](client/python.md) for type-preserving responses and the [data specification](client/data.md) for every request field and table format.
 
+## 5. Open the dashboard
+
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Pick a loaded model, a horizon, and a sample series or your own CSV. The page posts `POST /predict` and plots the result. [What you can do](server/dashboard.md#what-you-can-do)
+
+[`timesfm_3`](models/timesfm3.md) forecasts retail sales with a 90% prediction interval.
+
+![TServe dashboard: timesfm_3 with a 90% prediction interval](assets/dashboard.png){ .tserve-shot }
+
 ## Next
 
 - [Choose another model](models/index.md)
