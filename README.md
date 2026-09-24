@@ -1,6 +1,9 @@
 # TServe
 
-[![Documentation Status](https://readthedocs.org/projects/tserve/badge/?version=latest)](https://tserve.readthedocs.io/en/latest/?badge=latest)
+| | **[Documentation](https://tserve.readthedocs.io/en/latest/)** · **[Quick start](https://tserve.readthedocs.io/en/latest/quick-start/)** · **[Models](https://tserve.readthedocs.io/en/latest/models/)** · **[API](https://tserve.readthedocs.io/en/latest/reference/http/)** |
+| --- | --- |
+| **Project** | [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/sktime/tserve/blob/main/LICENSE) [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/) [![PyPI](https://img.shields.io/pypi/v/tserve?color=orange)](https://pypi.org/project/tserve/) |
+| **Status** | [![Tests](https://img.shields.io/github/actions/workflow/status/sktime/tserve/test.yml?branch=main&label=tests&logo=github)](https://github.com/sktime/tserve/actions/workflows/test.yml) [![Docs](https://img.shields.io/readthedocs/tserve?logo=readthedocs)](https://tserve.readthedocs.io/en/latest/?badge=latest) [![Docker](https://img.shields.io/docker/pulls/sktime/tserve?logo=docker)](https://hub.docker.com/r/sktime/tserve) |
 
 Time series serving for foundation models. You start a TServe process, name the models to load, and they stay in memory until the process stops.
 
