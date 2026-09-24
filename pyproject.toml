@@ -115,6 +115,7 @@ Homepage = "https://tserve.readthedocs.io"
 Documentation = "https://tserve.readthedocs.io"
 Repository = "https://github.com/sktime/tserve"
 Issues = "https://github.com/sktime/tserve/issues"
+Changelog = "https://tserve.readthedocs.io/en/latest/reference/changelog/"
 
 [dependency-groups]
 # same packages as the extras, so `uv sync --group dev` stays valid
