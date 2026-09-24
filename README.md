@@ -72,6 +72,14 @@ print(result.predictions)
 
 The walkthrough, including `GET /models` and PowerShell: [Quick start](https://tserve.readthedocs.io/en/latest/quick-start/). A GPU host adds `--gpus all` and uses `sktime/tserve:hub-gpu`. [GPU images](https://tserve.readthedocs.io/en/latest/server/docker/#gpu-images)
 
+## Dashboard
+
+The running server serves a browser console at `GET /`. The model list is whatever this process loaded. You set a horizon, optionally a prediction interval, and a series (a built-in sample, pasted CSV, or a dropped file, parsed in the browser), then the page posts `POST /predict` and plots the result. Health and runtime stats sit on the right. [What you can do](https://tserve.readthedocs.io/en/latest/server/dashboard/#what-you-can-do)
+
+Below, [`timesfm_3`](https://tserve.readthedocs.io/en/latest/models/timesfm3/) forecasts retail sales with 90% prediction interval.
+
+![TServe dashboard: timesfm_3 with a 90% prediction interval](docs/assets/dashboard.png)
+
 ## Models
 
 117 checkpoints. The extra name is the image tag, `sktime/tserve:<tag>`, and `server` publishes as `:base`. GPU tags append `-gpu`. `base` has no GPU tag. **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
