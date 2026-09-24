@@ -10,6 +10,8 @@ Time series serving for foundation models. Load models once, keep them warm, and
 
 </div>
 
+![TServe demo: start the server, query /models and /predict, then forecast in the dashboard](assets/demo.svg){ .tserve-shot }
+
 TServe is a server you run, not a hosted API. It loads named time-series models and exposes predictions through JSON, a type-preserving Python client, and a browser dashboard.
 
 <div class="grid cards" markdown>
