@@ -42,11 +42,12 @@ sktime = [
   "sktime>=1.2.0",
   "skpro",
 ]
-# estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
-hf = [
+# ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster. Also shared stack for the families below.
+hub = [
   "tserve[sktime]",
   "transformers",
   "accelerate>=0.26.0",
+"torch",
 ]
 # ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
 hub = ["tserve[hf]", "torch"]
