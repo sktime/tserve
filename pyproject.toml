@@ -119,33 +119,6 @@ Changelog = "https://tserve.readthedocs.io/en/latest/reference/changelog/"
 # same packages as the extras, so `uv sync --group dev` stays valid
 dev = ["tserve[dev]"]
 docs = ["tserve[docs]"]
-# empty, only exists so the lock can fork CPU vs GPU torch
-cpu-fork = []
-
-[tool.uv]
-# pytorch-cpu also mirrors a few generic wheels at old versions; consider
-# both indexes so those packages still resolve from PyPI.
-index-strategy = "unsafe-best-match"
-# fork the lock: default extras use the CPU index, `--extra gpu` uses PyPI
-conflicts = [
-  [{ extra = "gpu" }, { group = "cpu-fork" }],
-]
-
-[tool.uv.sources]
-# `--extra gpu` takes PyPI torch (CUDA on Linux/Windows, MPS on macOS).
-# Without it, the extra CPU index below supplies the +cpu wheel.
-torch = [
-  { index = "pypi", extra = "gpu" },
-]
-
-[[tool.uv.index]]
-name = "pypi"
-url = "https://pypi.org/simple"
-default = true
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
 
 [tool.hatch.build]
 # repo .gitignore has `*.html`; hatchling would drop the dashboard from
