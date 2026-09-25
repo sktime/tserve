@@ -37,14 +37,19 @@ ENV SYNC_EXTRAS="${TSERVE_EXTRAS:+--extra ${TSERVE_EXTRAS}}"
 COPY docker/pytorch-cpu.toml /pytorch-cpu.toml
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev --no-install-project --no-editable \
+    uv sync \
+        --no-dev \
+        --no-install-project \
+        --no-editable \
         $CPU_CONFIG \
         --extra server \
         $SYNC_EXTRAS
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev --no-editable \
+    uv sync \
+        --no-dev \
+        --no-editable \
         $CPU_CONFIG \
         --extra server \
         $SYNC_EXTRAS
