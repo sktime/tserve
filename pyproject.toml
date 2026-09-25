@@ -47,13 +47,11 @@ hub = [
   "tserve[sktime]",
   "transformers",
   "accelerate>=0.26.0",
-"torch",
+  "torch",
 ]
-# ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
-hub = ["tserve[hf]", "torch"]
 # Chronos2Forecaster
-chronos = ["tserve[hf]", "chronos-forecasting>=2.0.0", "torch"]
-# KronosForecaster/WindFMForecaster
+chronos = ["tserve[hub]", "chronos-forecasting>=2.0.0"]
+# KronosForecaster/WindFMForecaster. Not built on hub.
 kronos = [
   "tserve[sktime]",
   "einops",
@@ -62,33 +60,31 @@ kronos = [
   "torch",
 ]
 # FlowState/PatchTSMixer
-granite = ["tserve[hf]", "granite-tsfm>=0.3.5", "torch"]
+granite = ["tserve[hub]", "granite-tsfm>=0.3.5"]
 # MOIRAI/Moirai2/LagLlama
 moirai = [
-  "tserve[hf]",
+  "tserve[hub]",
   "gluonts>=0.14.0; python_version < '3.14'",
   "lightning>=2.0; python_version < '3.14'",
   "hydra-core; python_version < '3.14'",
   "einops",
-  "torch",
 ]
 # TiRexForecaster
-tirex = ["tserve[hf]", "tirex-ts", "torch"]
+tirex = ["tserve[hub]", "tirex-ts"]
 # TiRex2Forecaster
-tirex2 = ["tserve[hf]", "tirex-2", "torch"]
+tirex2 = ["tserve[hub]", "tirex-2"]
 # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
-toto = ["tserve[hf]", "toto-models", "skpro", "torch"]
+toto = ["tserve[hub]", "toto-models", "skpro"]
 # MantisForecaster
-mantis = ["tserve[hf]", "mantis-tsfm>=1.0.0", "torch"]
+mantis = ["tserve[hub]", "mantis-tsfm>=1.0.0"]
 # TimesFM3Forecaster
-timesfm3 = ["tserve[hf]", "timesfm[torch]>=3.0.0,<4.0.0", "torch"]
+timesfm3 = ["tserve[hub]", "timesfm[torch]>=3.0.0,<4.0.0"]
 # T0Forecaster
-t0 = ["tserve[hf]", "tfc-t0", "torch"]
+t0 = ["tserve[hub]", "tfc-t0"]
 # TafsutForecaster
-tafsut = ["tserve[hf]", "tafsut>=0.1.0", "torch"]
+tafsut = ["tserve[hub]", "tafsut>=0.1.0"]
 full = [
   "tserve[chronos,kronos,granite,moirai,tirex,tirex2,toto,mantis,timesfm3,t0,tafsut]",
-  "torch",
 ]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["tserve[client,server,full]"]
