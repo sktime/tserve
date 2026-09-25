@@ -17,6 +17,15 @@ ENV UV_LINK_MODE=copy \
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
+# Empty keeps PyPI torch (CUDA on Linux). Any value installs the CPU wheel
+# into its own layer, e.g. docker build --build-arg TSERVE_CPU=1 .
+ARG TSERVE_CPU=""
+RUN --mount=type=cache,target=/root/.cache/uv \
+    if [ -n "$TSERVE_CPU" ]; then \
+         uv venv \
+         && uv pip install torch --index-url https://download.pytorch.org/whl/cpu; \
+       fi
+
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
 # come from the build arg, one word each, e.g.
 #   docker build --build-arg TSERVE_EXTRAS=hub .
