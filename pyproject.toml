@@ -42,17 +42,16 @@ sktime = [
   "sktime>=1.2.0",
   "skpro",
 ]
-# estimators-general-deps, torch excluded so CPU vs `--extra gpu` can pick an index
-hf = [
+# ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster. Also shared stack for the families below.
+hub = [
   "tserve[sktime]",
   "transformers",
   "accelerate>=0.26.0",
+  "torch",
 ]
-# ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster
-hub = ["tserve[hf]", "torch"]
 # Chronos2Forecaster
-chronos = ["tserve[hf]", "chronos-forecasting>=2.0.0", "torch"]
-# KronosForecaster/WindFMForecaster
+chronos = ["tserve[hub]", "chronos-forecasting>=2.0.0"]
+# KronosForecaster/WindFMForecaster. Not built on hub.
 kronos = [
   "tserve[sktime]",
   "einops",
@@ -61,38 +60,34 @@ kronos = [
   "torch",
 ]
 # FlowState/PatchTSMixer
-granite = ["tserve[hf]", "granite-tsfm>=0.3.5", "torch"]
+granite = ["tserve[hub]", "granite-tsfm>=0.3.5"]
 # MOIRAI/Moirai2/LagLlama
 moirai = [
-  "tserve[hf]",
+  "tserve[hub]",
   "gluonts>=0.14.0; python_version < '3.14'",
   "lightning>=2.0; python_version < '3.14'",
   "hydra-core; python_version < '3.14'",
   "einops",
-  "torch",
 ]
 # TiRexForecaster
-tirex = ["tserve[hf]", "tirex-ts", "torch"]
+tirex = ["tserve[hub]", "tirex-ts"]
 # TiRex2Forecaster
-tirex2 = ["tserve[hf]", "tirex-2", "torch"]
+tirex2 = ["tserve[hub]", "tirex-2"]
 # Toto2Forecaster (toto-ts for Toto v1 pins transformers and is omitted)
-toto = ["tserve[hf]", "toto-models", "skpro", "torch"]
+toto = ["tserve[hub]", "toto-models", "skpro"]
 # MantisForecaster
-mantis = ["tserve[hf]", "mantis-tsfm>=1.0.0", "torch"]
+mantis = ["tserve[hub]", "mantis-tsfm>=1.0.0"]
 # TimesFM3Forecaster
-timesfm3 = ["tserve[hf]", "timesfm[torch]>=3.0.0,<4.0.0", "torch"]
+timesfm3 = ["tserve[hub]", "timesfm[torch]>=3.0.0,<4.0.0"]
 # T0Forecaster
-t0 = ["tserve[hf]", "tfc-t0", "torch"]
+t0 = ["tserve[hub]", "tfc-t0"]
 # TafsutForecaster
-tafsut = ["tserve[hf]", "tafsut>=0.1.0", "torch"]
+tafsut = ["tserve[hub]", "tafsut>=0.1.0"]
 full = [
   "tserve[chronos,kronos,granite,moirai,tirex,tirex2,toto,mantis,timesfm3,t0,tafsut]",
-  "torch",
 ]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["tserve[client,server,full]"]
-# pair with any extra above: `uv sync --extra hub --extra gpu`
-gpu = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
 dev = [
   "pytest",
@@ -121,33 +116,6 @@ Changelog = "https://tserve.readthedocs.io/en/latest/reference/changelog/"
 # same packages as the extras, so `uv sync --group dev` stays valid
 dev = ["tserve[dev]"]
 docs = ["tserve[docs]"]
-# empty, only exists so the lock can fork CPU vs GPU torch
-cpu-fork = []
-
-[tool.uv]
-# pytorch-cpu also mirrors a few generic wheels at old versions; consider
-# both indexes so those packages still resolve from PyPI.
-index-strategy = "unsafe-best-match"
-# fork the lock: default extras use the CPU index, `--extra gpu` uses PyPI
-conflicts = [
-  [{ extra = "gpu" }, { group = "cpu-fork" }],
-]
-
-[tool.uv.sources]
-# `--extra gpu` takes PyPI torch (CUDA on Linux/Windows, MPS on macOS).
-# Without it, the extra CPU index below supplies the +cpu wheel.
-torch = [
-  { index = "pypi", extra = "gpu" },
-]
-
-[[tool.uv.index]]
-name = "pypi"
-url = "https://pypi.org/simple"
-default = true
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
 
 [tool.hatch.build]
 # repo .gitignore has `*.html`; hatchling would drop the dashboard from

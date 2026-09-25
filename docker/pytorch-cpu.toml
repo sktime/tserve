@@ -1,0 +1,9 @@
+# Used only when the image is built with TSERVE_CPU set.
+# `explicit` keeps every package except torch on PyPI.
+[[index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[sources]
+torch = { index = "pytorch-cpu" }
