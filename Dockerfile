@@ -28,8 +28,8 @@ ARG TSERVE_CPU=""
 # Provide a config file for the CPU index, so torch resolves to the CPU wheel.
 # Set when `TSERVE_CPU` is set; otherwise empty, and sync uses the PyPI wheel.
 ENV CPU_CONFIG="${TSERVE_CPU:+--config-file /pytorch-cpu.toml}"
-# `--extra` flags for every sync: server and TSERVE_EXTRAS when set.
-ENV SYNC_EXTRAS="--extra server${TSERVE_EXTRAS:+ --extra ${TSERVE_EXTRAS}}"
+# Optional `--extra` for every sync. Empty when TSERVE_EXTRAS is unset.
+ENV SYNC_EXTRAS="${TSERVE_EXTRAS:+--extra ${TSERVE_EXTRAS}}"
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
@@ -39,12 +39,14 @@ COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-install-project --no-editable \
         $CPU_CONFIG \
+        --extra server \
         $SYNC_EXTRAS
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-editable \
         $CPU_CONFIG \
+        --extra server \
         $SYNC_EXTRAS
 
 # Runtime image: no uv, no source tree. `--no-editable` baked tserve
