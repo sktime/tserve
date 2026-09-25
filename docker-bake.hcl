@@ -1,6 +1,7 @@
 # TServe images: same Dockerfile, different TSERVE_EXTRAS.
 # Every tag is linux/amd64 + linux/arm64 (Linux, Mac, Windows Docker Desktop).
-# `--extra gpu` is a torch index choice (PyPI / CUDA / MPS), not an arch pin.
+# Empty TSERVE_CPU keeps PyPI torch (CUDA on Linux). CPU tags set TSERVE_CPU
+# so the CPU wheel is installed. There is no gpu extra. :base has no torch.
 #
 # First time on a new machine:
 #   docker run --privileged --rm tonistiigi/binfmt --install all
@@ -55,156 +56,156 @@ target "base" {
 
 target "hub" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "hub" }
+  args     = { TSERVE_EXTRAS = "hub", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:hub"]
 }
 
 target "chronos" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "chronos" }
+  args     = { TSERVE_EXTRAS = "chronos", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:chronos"]
 }
 
 target "kronos" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "kronos" }
+  args     = { TSERVE_EXTRAS = "kronos", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:kronos"]
 }
 
 target "granite" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "granite" }
+  args     = { TSERVE_EXTRAS = "granite", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:granite"]
 }
 
 target "moirai" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "moirai" }
+  args     = { TSERVE_EXTRAS = "moirai", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:moirai"]
 }
 
 target "tirex" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tirex" }
+  args     = { TSERVE_EXTRAS = "tirex", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:tirex"]
 }
 
 target "tirex2" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tirex2" }
+  args     = { TSERVE_EXTRAS = "tirex2", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:tirex2"]
 }
 
 target "toto" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "toto" }
+  args     = { TSERVE_EXTRAS = "toto", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:toto"]
 }
 
 target "mantis" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "mantis" }
+  args     = { TSERVE_EXTRAS = "mantis", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:mantis"]
 }
 
 target "timesfm3" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "timesfm3" }
+  args     = { TSERVE_EXTRAS = "timesfm3", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:timesfm3"]
 }
 
 target "t0" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "t0" }
+  args     = { TSERVE_EXTRAS = "t0", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:t0"]
 }
 
 target "tafsut" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tafsut" }
+  args     = { TSERVE_EXTRAS = "tafsut", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:tafsut"]
 }
 
 target "full" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "full" }
+  args     = { TSERVE_EXTRAS = "full", TSERVE_CPU = "1" }
   tags     = ["${TSERVE_IMAGE}:full"]
 }
 
 target "hub-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "hub gpu" }
+  args     = { TSERVE_EXTRAS = "hub" }
   tags     = ["${TSERVE_IMAGE}:hub-gpu"]
 }
 
 target "chronos-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "chronos gpu" }
+  args     = { TSERVE_EXTRAS = "chronos" }
   tags     = ["${TSERVE_IMAGE}:chronos-gpu"]
 }
 
 target "kronos-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "kronos gpu" }
+  args     = { TSERVE_EXTRAS = "kronos" }
   tags     = ["${TSERVE_IMAGE}:kronos-gpu"]
 }
 
 target "granite-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "granite gpu" }
+  args     = { TSERVE_EXTRAS = "granite" }
   tags     = ["${TSERVE_IMAGE}:granite-gpu"]
 }
 
 target "moirai-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "moirai gpu" }
+  args     = { TSERVE_EXTRAS = "moirai" }
   tags     = ["${TSERVE_IMAGE}:moirai-gpu"]
 }
 
 target "tirex-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tirex gpu" }
+  args     = { TSERVE_EXTRAS = "tirex" }
   tags     = ["${TSERVE_IMAGE}:tirex-gpu"]
 }
 
 target "tirex2-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tirex2 gpu" }
+  args     = { TSERVE_EXTRAS = "tirex2" }
   tags     = ["${TSERVE_IMAGE}:tirex2-gpu"]
 }
 
 target "toto-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "toto gpu" }
+  args     = { TSERVE_EXTRAS = "toto" }
   tags     = ["${TSERVE_IMAGE}:toto-gpu"]
 }
 
 target "mantis-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "mantis gpu" }
+  args     = { TSERVE_EXTRAS = "mantis" }
   tags     = ["${TSERVE_IMAGE}:mantis-gpu"]
 }
 
 target "timesfm3-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "timesfm3 gpu" }
+  args     = { TSERVE_EXTRAS = "timesfm3" }
   tags     = ["${TSERVE_IMAGE}:timesfm3-gpu"]
 }
 
 target "t0-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "t0 gpu" }
+  args     = { TSERVE_EXTRAS = "t0" }
   tags     = ["${TSERVE_IMAGE}:t0-gpu"]
 }
 
 target "tafsut-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "tafsut gpu" }
+  args     = { TSERVE_EXTRAS = "tafsut" }
   tags     = ["${TSERVE_IMAGE}:tafsut-gpu"]
 }
 
 target "full-gpu" {
   inherits = ["_common"]
-  args     = { TSERVE_EXTRAS = "full gpu" }
+  args     = { TSERVE_EXTRAS = "full" }
   tags     = ["${TSERVE_IMAGE}:full-gpu"]
 }
