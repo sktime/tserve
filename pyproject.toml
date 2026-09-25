@@ -91,8 +91,6 @@ full = [
 ]
 # for pip (alternate for `uv sync --all-extras`)
 all-extras = ["tserve[client,server,full]"]
-# pair with any extra above: `uv sync --extra hub --extra gpu`
-gpu = ["torch"]
 # also extras so `pip install -e ".[dev]"` / `".[docs]"` work (no uv, no PEP 735)
 dev = [
   "pytest",
