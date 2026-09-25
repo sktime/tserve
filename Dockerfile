@@ -17,8 +17,8 @@ ENV UV_LINK_MODE=copy \
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# `server` and `sktime` are always in, so the process can load naive. Heavier extras
-# come from the build arg, one word each, e.g.
+# `server` is always in, and it pulls `sktime`, so the process can load naive. Heavier
+# extras come from the build arg, one word each, e.g.
 #   docker build --build-arg TSERVE_EXTRAS=hub .
 ARG TSERVE_EXTRAS=""
 # Empty keeps PyPI torch (CUDA on Linux). Any value makes both syncs resolve the
@@ -28,8 +28,8 @@ ARG TSERVE_CPU=""
 # Provide a config file for the CPU index, so torch resolves to the CPU wheel.
 # Set when `TSERVE_CPU` is set; otherwise empty, and sync uses the PyPI wheel.
 ENV CPU_CONFIG="${TSERVE_CPU:+--config-file /pytorch-cpu.toml}"
-# `--extra` flags for every sync: server, sktime, and TSERVE_EXTRAS when set.
-ENV SYNC_EXTRAS="--extra server --extra sktime${TSERVE_EXTRAS:+ --extra ${TSERVE_EXTRAS}}"
+# `--extra` flags for every sync: server and TSERVE_EXTRAS when set.
+ENV SYNC_EXTRAS="--extra server${TSERVE_EXTRAS:+ --extra ${TSERVE_EXTRAS}}"
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
