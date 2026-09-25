@@ -28,6 +28,7 @@ ARG TSERVE_CPU=""
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
 # `--frozen` / `--locked`. printf repeats `--extra` once per remaining word.
+COPY docker/pytorch-cpu.toml /pytorch-cpu.toml
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-install-project --no-editable \
