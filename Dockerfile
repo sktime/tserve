@@ -25,6 +25,10 @@ ARG TSERVE_EXTRAS=""
 # CPU wheel, e.g. docker build --build-arg TSERVE_CPU=1 .
 ARG TSERVE_CPU=""
 
+# Provide a config file for the CPU index, so torch resolves to the CPU wheel.
+# Set when `TSERVE_CPU` is set; otherwise empty, and sync uses the PyPI wheel.
+ENV CPU_CONFIG="${TSERVE_CPU:+--config-file /pytorch-cpu.toml}"
+
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
 # `--frozen` / `--locked`. printf repeats `--extra` once per remaining word.
@@ -32,11 +36,13 @@ COPY docker/pytorch-cpu.toml /pytorch-cpu.toml
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-install-project --no-editable \
+        $CPU_CONFIG \
         $(printf -- '--extra %s ' server sktime $TSERVE_EXTRAS)
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev --no-editable \
+        $CPU_CONFIG \
         $(printf -- '--extra %s ' server sktime $TSERVE_EXTRAS)
 
 # Runtime image: no uv, no source tree. `--no-editable` baked tserve
