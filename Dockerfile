@@ -23,7 +23,7 @@ ARG TSERVE_CPU=""
 RUN --mount=type=cache,target=/root/.cache/uv \
     if [ -n "$TSERVE_CPU" ]; then \
          uv venv \
-         && uv pip install torch --index-url https://download.pytorch.org/whl/cpu; \
+         && uv pip install torch --torch-backend cpu; \
        fi
 
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
