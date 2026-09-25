@@ -32,8 +32,7 @@ ENV CPU_CONFIG="${TSERVE_CPU:+--config-file /pytorch-cpu.toml}"
 ENV SYNC_EXTRAS="${TSERVE_EXTRAS:+--extra ${TSERVE_EXTRAS}}"
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
-# then do not rebuild this layer. uv.lock is not tracked, so this is not
-# `--frozen` / `--locked`.
+# then do not rebuild this layer.
 COPY docker/pytorch-cpu.toml /pytorch-cpu.toml
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -45,6 +44,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         --extra server \
         $SYNC_EXTRAS
 
+# Install tserve now that the source tree is present. Third-party deps stay in
+# the layer above, so a source edit rebuilds only this step.
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync \
