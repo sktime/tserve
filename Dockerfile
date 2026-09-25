@@ -17,19 +17,13 @@ ENV UV_LINK_MODE=copy \
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Empty keeps PyPI torch (CUDA on Linux). Any value installs the CPU wheel
-# into its own layer, e.g. docker build --build-arg TSERVE_CPU=1 .
-ARG TSERVE_CPU=""
-RUN --mount=type=cache,target=/root/.cache/uv \
-    if [ -n "$TSERVE_CPU" ]; then \
-         uv venv \
-         && uv pip install torch --torch-backend cpu; \
-       fi
-
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
 # come from the build arg, one word each, e.g.
 #   docker build --build-arg TSERVE_EXTRAS=hub .
 ARG TSERVE_EXTRAS=""
+# Empty keeps PyPI torch (CUDA on Linux). Any value makes both syncs resolve the
+# CPU wheel, e.g. docker build --build-arg TSERVE_CPU=1 .
+ARG TSERVE_CPU=""
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
 # then do not rebuild this layer. uv.lock is not tracked, so this is not
