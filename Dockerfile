@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
 # `server` and `sktime` are always in, so the process can load naive. Heavier extras
 # come from the build arg, one word each, e.g.
 #   docker build --build-arg TSERVE_EXTRAS=hub .
-#   docker build --build-arg TSERVE_EXTRAS="chronos gpu" .
 ARG TSERVE_EXTRAS=""
 
 # Resolve and install third-party deps from pyproject.toml only. Source changes
