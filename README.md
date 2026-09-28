@@ -122,9 +122,9 @@ Multivariate series, covariates, and quantiles differ by family: [Capabilities](
 
 Docker needs no local Python. uv and pip need Python 3.12 or newer. Install the extra, or pull the tag, for the family in the table above.
 
-- **Docker.** [Pull an image](https://tserve.readthedocs.io/en/latest/server/docker/#pull-an-image), then [run the server](https://tserve.readthedocs.io/en/latest/server/docker/#run-the-server). CPU and GPU are separate tags.
-- **uv or pip.** [UV / Pip](https://tserve.readthedocs.io/en/latest/installation/#uv-pip). A PyPI install takes CUDA torch (MPS on macOS). A CPU wheel: [CPU-only install](https://tserve.readthedocs.io/en/latest/server/pip/#cpu-only-install).
-- **A clone.** [From source](https://tserve.readthedocs.io/en/latest/installation/#from-source). Torch follows the same rule as a PyPI install: CUDA from PyPI (MPS on macOS), or a [CPU wheel](https://tserve.readthedocs.io/en/latest/server/source/#cpu-only-install).
+- **Docker.** [Pull an image](https://tserve.readthedocs.io/en/latest/server/docker/#pull-an-image), then [run the server](https://tserve.readthedocs.io/en/latest/server/docker/#run-the-server). Each family has a CPU tag and a `-gpu` tag.
+- **uv or pip.** [UV / Pip](https://tserve.readthedocs.io/en/latest/installation/#uv-pip). A CPU-only build for your OS on [CPU-only install](https://tserve.readthedocs.io/en/latest/server/pip/#cpu-only-install).
+- **A clone.** [From source](https://tserve.readthedocs.io/en/latest/server/source/). An editable install for development and unreleased changes.
 
 ## Load a model
 
