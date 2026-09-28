@@ -21,13 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
 # extras come from the build arg, one word each, e.g.
 #   docker build --build-arg TSERVE_EXTRAS=hub .
 ARG TSERVE_EXTRAS=""
-# Empty keeps PyPI torch (CUDA on Linux). Any value makes both syncs resolve the
-# CPU wheel, e.g. docker build --build-arg TSERVE_CPU=1 .
+# Empty keeps PyPI torch (CUDA on Linux). Any value appends the CPU index, e.g.
+#   docker build --build-arg TSERVE_CPU=1 .
 ARG TSERVE_CPU=""
 
-# Provide a config file for the CPU index, so torch resolves to the CPU wheel.
-# Set when `TSERVE_CPU` is set; otherwise empty, and sync uses the PyPI wheel.
-ENV CPU_CONFIG="${TSERVE_CPU:+--config-file /pytorch-cpu.toml}"
 # Optional `--extra` for every sync. Empty when TSERVE_EXTRAS is unset.
 ENV SYNC_EXTRAS="${TSERVE_EXTRAS:+--extra ${TSERVE_EXTRAS}}"
 
@@ -36,11 +33,11 @@ ENV SYNC_EXTRAS="${TSERVE_EXTRAS:+--extra ${TSERVE_EXTRAS}}"
 COPY docker/pytorch-cpu.toml /pytorch-cpu.toml
 COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync \
+    if [ -n "$TSERVE_CPU" ]; then cat /pytorch-cpu.toml >> pyproject.toml; fi \
+    && uv sync \
         --no-dev \
         --no-install-project \
         --no-editable \
-        $CPU_CONFIG \
         --extra server \
         $SYNC_EXTRAS
 
@@ -48,10 +45,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # the layer above, so a source edit rebuilds only this step.
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync \
+    if [ -n "$TSERVE_CPU" ]; then cat /pytorch-cpu.toml >> pyproject.toml; fi \
+    && uv sync \
         --no-dev \
         --no-editable \
-        $CPU_CONFIG \
         --extra server \
         $SYNC_EXTRAS
 

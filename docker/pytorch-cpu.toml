@@ -1,9 +1,10 @@
-# Used only when the image is built with TSERVE_CPU set.
+# Appended to pyproject.toml when the image is built with TSERVE_CPU set.
 # `explicit` keeps every package except torch on PyPI.
-[[index]]
+
+[[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-[sources]
-torch = { index = "pytorch-cpu" }
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
