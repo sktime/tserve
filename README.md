@@ -124,7 +124,7 @@ Docker needs no local Python. uv and pip need Python 3.12 or newer. Install the 
 
 - **Docker.** [Pull an image](https://tserve.readthedocs.io/en/latest/server/docker/#pull-an-image), then [run the server](https://tserve.readthedocs.io/en/latest/server/docker/#run-the-server). CPU and GPU are separate tags.
 - **uv or pip.** [UV / Pip](https://tserve.readthedocs.io/en/latest/installation/#uv-pip). A PyPI install takes CUDA torch (MPS on macOS). A CPU wheel: [CPU-only install](https://tserve.readthedocs.io/en/latest/server/pip/#cpu-only-install).
-- **A clone.** [From source](https://tserve.readthedocs.io/en/latest/installation/#from-source). On a clone, uv selects the torch index with the [`gpu` extra](https://tserve.readthedocs.io/en/latest/server/source/#gpu).
+- **A clone.** [From source](https://tserve.readthedocs.io/en/latest/installation/#from-source). Torch follows the same rule as a PyPI install: CUDA from PyPI (MPS on macOS), or a [CPU wheel](https://tserve.readthedocs.io/en/latest/server/source/#cpu-only-install).
 
 ## Load a model
 
