@@ -28,7 +28,7 @@ A bare `tserve` loads `naive` only. Name models to load them too. `GET /models` 
     tserve chronos_bolt ttm_r3
     ```
 
-    This installs CUDA torch (MPS on macOS). A CPU wheel: [CPU-only install](pip.md#cpu-only-install).
+    This installs CUDA torch (MPS on macOS). A CPU build: [CPU-only install](pip.md#cpu-only-install).
 
 Another family is the same command with that row's tag and model. `moirai_2`:
 

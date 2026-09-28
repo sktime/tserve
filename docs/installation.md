@@ -26,7 +26,7 @@ Other model families use different image tags. Choose the model first, then use 
 
 ## UV / Pip
 
-TServe requires Python 3.12 or newer. Install the `server` extra and the extra for the model family you need. The examples below install the `hub` family. A plain install pulls the CUDA build of torch (MPS on macOS); the CPU tabs skip that download on a machine without a GPU.
+TServe requires Python 3.12 or newer. Install the `server` extra and the extra for the model family you need. The examples below install the `hub` family. A CPU build of torch: [CPU-only install](server/pip.md#cpu-only-install).
 
 === "uv"
 
@@ -36,19 +36,9 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
     uv venv
     ```
 
-    Then install TServe:
-
-    === "default"
-
-        ```bash
-        uv pip install "tserve[server,hub]"
-        ```
-
-    === "cpu"
-
-        ```bash
-        uv pip install "tserve[server,hub]" --torch-backend cpu
-        ```
+    ```bash
+    uv pip install "tserve[server,hub]"
+    ```
 
 === "pip"
 
@@ -68,29 +58,15 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
         .venv\Scripts\Activate.ps1
         ```
 
-    Then install TServe:
+    ```bash
+    python -m pip install "tserve[server,hub]"
+    ```
 
-    === "default"
-
-        ```bash
-        python -m pip install "tserve[server,hub]"
-        ```
-
-    === "cpu"
-
-        ```bash
-        python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-        ```
-
-        ```bash
-        python -m pip install "tserve[server,hub]"
-        ```
-
-The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family. pip's CPU index and uv's `--torch-backend` are written out in [CPU-only install](server/pip.md#cpu-only-install).
+The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family.
 
 ## From source
 
-Use a source install when developing TServe or testing unreleased changes. The [From source](server/source.md) guide covers cloning the repository, editable installs, and dependency extras. Torch follows the same rule as a PyPI install: the CUDA wheel (MPS on macOS), or a [CPU wheel](server/source.md#cpu-only-install).
+Use a source install when developing TServe or testing unreleased changes. The [From source](server/source.md) guide covers cloning the repository, editable installs, and dependency extras.
 
 ## Next
 

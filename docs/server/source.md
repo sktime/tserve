@@ -26,26 +26,7 @@ Python >= 3.12, and a clone over HTTPS. [uv](https://docs.astral.sh/uv/) is the 
 
 Replace `hub` in the install above with another extra from the table. uv repeats `--extra` (`uv sync --extra server --extra chronos`). pip takes one list (`".[server,chronos]"`). `full` is the union extra. `all-extras` is a pip convenience for `client,server,full` and is not a Docker tag. Each extra's command and models: [catalog](../models/index.md#start-a-server).
 
-Family extras install CUDA torch from PyPI (MPS on macOS). A CPU wheel: [CPU-only install](#cpu-only-install).
-
-## CPU-only install
-
-Family extras pull `torch`, and the installs above take the CUDA wheel from PyPI (MPS on macOS). On a GPU host that is already what you want.
-
-Without a GPU, that wheel is a large download you will never use. With pip, install torch from the CPU index first, then TServe. If a later install replaces that wheel with CUDA, run the torch line again.
-
-```bash
-pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install -e ".[server,hub]"
-```
-
-uv selects that index with `--torch-backend cpu` on `uv pip install`. `uv sync` resolves torch from PyPI, so the CPU wheel uses the command below.
-
-```bash
-uv pip install -e ".[server,hub]" --torch-backend cpu
-```
-
-Swap `hub` for any other family extra from [Dependencies](#dependencies). A GPU host can also use a `*-gpu` image: [GPU images](docker.md#gpu-images).
+A CPU build of torch: [CPU-only install](pip.md#cpu-only-install).
 
 --8<-- "includes/serve.md"
 
