@@ -1,7 +1,7 @@
 # TServe images: same Dockerfile, different TSERVE_EXTRAS.
 # Every tag is linux/amd64 + linux/arm64 (Linux, Mac, Windows Docker Desktop).
 # Empty TSERVE_CPU keeps PyPI torch (CUDA on Linux). CPU tags set TSERVE_CPU
-# so the CPU wheel is installed. There is no gpu extra. :base has no torch.
+# so torch comes from the CPU index. :base has no torch.
 #
 # First time on a new machine:
 #   docker run --privileged --rm tonistiigi/binfmt --install all
