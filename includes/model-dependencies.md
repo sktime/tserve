@@ -1,8 +1,8 @@
 The extra name is the CPU image tag. GPU tags are `{extra}-gpu`. There is no `:base-gpu`.
 
-`kronos` is built on `base`, so it cannot load Chronos Bolt, TTM, or TimesFM. Every extra that pulls `hf` — `hub`, `chronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, `tafsut`, and `full` — can.
+`kronos` is built on `base`, so it cannot load Chronos Bolt, TTM, or TimesFM. `hub` can, and so can every extra that includes it: `chronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, `tafsut`, and `full`.
 
-`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, and `tafsut`. `client`, `http`, `gpu`, `dev`, `docs`, and `all-extras` are not model families. `gpu` selects the torch index for uv on a clone only. Pip ignores `gpu` and installs CUDA torch from PyPI (MPS on macOS). Moirai pins `gluonts`, `lightning`, and `hydra-core` when `python_version < '3.14'`.
+`full` is `chronos`, `kronos`, `granite`, `moirai`, `tirex`, `tirex2`, `toto`, `mantis`, `timesfm3`, `t0`, and `tafsut`. `client`, `http`, `dev`, `docs`, and `all-extras` are not model families. Moirai pins `gluonts`, `lightning`, and `hydra-core` when `python_version < '3.14'`.
 
 **added** counts checkpoints that extra contributes. `full` is the total, including `naive`.
 

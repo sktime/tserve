@@ -57,7 +57,7 @@ make docs-serve
 
 ## Docker images
 
-`Dockerfile` always installs `--extra server --extra sktime` and adds whatever `TSERVE_EXTRAS` names, which is how one file produces every tag. `docker-bake.hcl` holds the published matrix: one target per tag, plus `cpu` and `gpu` groups, with `TSERVE_IMAGE` defaulting to `sktime/tserve`.
+`Dockerfile` always installs `--extra server` and adds whatever `TSERVE_EXTRAS` names. `TSERVE_CPU` selects the CPU torch index; leaving it empty keeps the PyPI wheel (CUDA on Linux). That is how one file produces every tag. `docker-bake.hcl` holds the published matrix: one target per tag, plus `cpu` and `gpu` groups, with `TSERVE_IMAGE` defaulting to `sktime/tserve`.
 
 ```bash
 TSERVE_IMAGE=sktime/tserve docker buildx bake --push hub

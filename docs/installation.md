@@ -94,7 +94,7 @@ The `server` extra alone supports the `naive` test baseline. Replace `hub` with 
 
 ## From source
 
-Use a source install when developing TServe or testing unreleased changes. It is also the only path where the `gpu` extra selects the torch index, because that choice lives in the repository's uv lockfile. The [From source](server/source.md) guide covers cloning the repository, editable installs, dependency extras, and GPU setup.
+Use a source install when developing TServe or testing unreleased changes. The [From source](server/source.md) guide covers cloning the repository, editable installs, and dependency extras. Torch follows the same rule as a PyPI install: the CUDA wheel (MPS on macOS), or a [CPU wheel](server/source.md#cpu-only-install).
 
 ## Next
 

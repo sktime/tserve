@@ -113,16 +113,22 @@ cd tserve
 
 ### One image with `docker build`
 
-The [Dockerfile](https://github.com/sktime/tserve/blob/main/Dockerfile) always installs `--extra server --extra sktime`; `TSERVE_EXTRAS` adds the heavier ones:
+The [Dockerfile](https://github.com/sktime/tserve/blob/main/Dockerfile) always installs `--extra server`. `TSERVE_EXTRAS` adds the heavier ones, one word each. Leave `TSERVE_CPU` empty for the PyPI torch wheel (CUDA on Linux). Any value installs torch from the CPU index, which is what the published CPU tags do:
 
 ```bash
-docker build --build-arg TSERVE_EXTRAS=hub -t tserve:hub .
+docker build --build-arg TSERVE_EXTRAS=hub --build-arg TSERVE_CPU=1 -t tserve:hub .
+```
+
+A GPU image is the same build with `TSERVE_CPU` unset:
+
+```bash
+docker build --build-arg TSERVE_EXTRAS=chronos -t tserve:chronos-gpu .
 ```
 
 Several extras go in one quoted argument:
 
 ```bash
-docker build --build-arg TSERVE_EXTRAS="chronos gpu" -t tserve:chronos-gpu .
+docker build --build-arg TSERVE_EXTRAS="chronos moirai" --build-arg TSERVE_CPU=1 -t tserve:custom .
 ```
 
 This builds for the architecture of the machine you are on and leaves the image in the local store, which is all you need to run it locally:
