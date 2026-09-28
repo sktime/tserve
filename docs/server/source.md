@@ -32,14 +32,20 @@ Family extras install CUDA torch from PyPI (MPS on macOS). A CPU wheel: [CPU-onl
 
 Family extras pull `torch`, and the installs above take the CUDA wheel from PyPI (MPS on macOS). On a GPU host that is already what you want.
 
-Without a GPU, that wheel is a large download you will never use. Install torch from the CPU index first, then TServe. `uv sync` resolves torch from PyPI, so the CPU order uses `uv pip install` or pip. If a later install replaces that wheel with CUDA, run the torch line again.
+Without a GPU, that wheel is a large download you will never use. With pip, install torch from the CPU index first, then TServe. If a later install replaces that wheel with CUDA, run the torch line again.
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[server,hub]"
 ```
 
-The same order works with `uv pip install`. Swap `hub` for any other family extra from [Dependencies](#dependencies). A GPU host can also use a `*-gpu` image: [GPU images](docker.md#gpu-images).
+uv selects that index with `--torch-backend cpu` on `uv pip install`. `uv sync` resolves torch from PyPI, so the CPU wheel uses the command below.
+
+```bash
+uv pip install -e ".[server,hub]" --torch-backend cpu
+```
+
+Swap `hub` for any other family extra from [Dependencies](#dependencies). A GPU host can also use a `*-gpu` image: [GPU images](docker.md#gpu-images).
 
 --8<-- "includes/serve.md"
 

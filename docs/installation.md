@@ -38,20 +38,16 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
 
     Then install TServe:
 
-    === "GPU (default)"
+    === "default"
 
         ```bash
         uv pip install "tserve[server,hub]"
         ```
 
-    === "CPU only"
+    === "cpu"
 
         ```bash
-        uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-        ```
-
-        ```bash
-        uv pip install "tserve[server,hub]"
+        uv pip install "tserve[server,hub]" --torch-backend cpu
         ```
 
 === "pip"
@@ -74,13 +70,13 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
 
     Then install TServe:
 
-    === "GPU (default)"
+    === "default"
 
         ```bash
         python -m pip install "tserve[server,hub]"
         ```
 
-    === "CPU only"
+    === "cpu"
 
         ```bash
         python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -90,7 +86,7 @@ TServe requires Python 3.12 or newer. Install the `server` extra and the extra f
         python -m pip install "tserve[server,hub]"
         ```
 
-The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family. The same CPU-first order is documented as [CPU-only install](server/pip.md#cpu-only-install).
+The `server` extra alone supports the `naive` test baseline. Replace `hub` with another [family extra](models/index.md#dependencies), or use `full` for every family. pip's CPU index and uv's `--torch-backend` are written out in [CPU-only install](server/pip.md#cpu-only-install).
 
 ## From source
 
