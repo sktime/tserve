@@ -77,10 +77,31 @@ def test_bootstrap_loads_craft():
 def test_bootstrap_rejects_duplicate():
     with (
         patch("tserve.runtime.bootstrap.resolve_model", return_value=_info()),
-        patch("tserve.runtime.bootstrap.create_executor", return_value=_executor()),
+        patch("tserve.runtime.bootstrap.create_executor") as create_executor,
         pytest.raises(ValueError, match="duplicate model id 'naive' in model"),
     ):
         bootstrap(["naive", "naive"])
+    create_executor.assert_not_called()
+
+
+def test_bootstrap_validates_before_loading():
+    executor = _executor()
+    with (
+        patch(
+            "tserve.runtime.bootstrap.resolve_model",
+            side_effect=[_info(), ValueError("unknown model 'missing'")],
+        ) as resolve_model,
+        patch(
+            "tserve.runtime.bootstrap.create_executor", return_value=executor
+        ) as create_executor,
+        pytest.raises(ValueError, match="unknown model 'missing'"),
+    ):
+        bootstrap(["naive", "missing"])
+
+    assert resolve_model.call_count == 2
+    create_executor.assert_not_called()
+    executor.load.assert_not_called()
+    executor.warmup.assert_not_called()
 
 
 def test_loaded_models():
