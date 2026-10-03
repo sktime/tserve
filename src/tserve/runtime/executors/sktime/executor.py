@@ -203,8 +203,8 @@ class SktimeExecutor(Executor):
 
         ``quantiles`` against a forecaster whose
         ``capability:pred_int`` tag is false is rejected before
-        ``predict_quantiles`` is called, so that case carries no
-        estimator message at all.
+        fitting or prediction, so that case carries no estimator message
+        at all.
 
         Parameters
         ----------
@@ -231,6 +231,15 @@ class SktimeExecutor(Executor):
         """
         # 1. Parse Request
         y, X, X_future, fh, quantiles = from_request(request)
+        if quantiles and not self._forecaster.get_tag("capability:pred_int"):
+            raise RuntimeError(
+                f"Model {request.model!r} cannot return quantile predictions, "
+                f"so the requested quantiles {quantiles} are unavailable.\n\n"
+                "Drop `quantiles` from the request to get point forecasts "
+                "only, or load a model that supports them. The catalog marks "
+                "quantile support for every family: "
+                "https://tserve.readthedocs.io/en/latest/models/"
+            )
         pred = None
         pred_quantiles = None
 
@@ -249,16 +258,7 @@ class SktimeExecutor(Executor):
             ) from error
 
         # 3. Get Quantile Forecasts
-        if quantiles and not self._forecaster.get_tag("capability:pred_int"):
-            raise RuntimeError(
-                f"Model {request.model!r} cannot return quantile predictions, "
-                f"so the requested quantiles {quantiles} are unavailable.\n\n"
-                "Drop `quantiles` from the request to get point forecasts "
-                "only, or load a model that supports them. The catalog marks "
-                "quantile support for every family: "
-                "https://tserve.readthedocs.io/en/latest/models/"
-            )
-        elif quantiles:
+        if quantiles:
             try:
                 pred_quantiles = self._forecaster.predict_quantiles(
                     alpha=quantiles, X=X_future, fh=fh
