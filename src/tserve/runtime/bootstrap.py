@@ -89,11 +89,10 @@ class Runtime:
 def bootstrap(model: list[str | Path | tuple[str, Any]]) -> Runtime:
     """Resolve, construct, load, warmup, and register each selected model.
 
-    For every item: ``resolve_model`` → ``create_executor(info.executor)``
-    → ``load`` → ``warmup`` → ``stats.register``. Tuple items pass the
-    second element (craft spec or object) to ``load``; strings and
-    paths pass the item itself. Duplicate ``ModelInfo.id`` values raise
-    before a second load.
+    Resolve and check all items before creating any executor. Then, for
+    every item: ``create_executor(info.executor)`` → ``load`` → ``warmup``
+    → ``stats.register``. Tuple items pass the second element (craft spec
+    or object) to ``load``; strings and paths pass the item itself.
 
     Parameters
     ----------
@@ -132,6 +131,15 @@ def bootstrap(model: list[str | Path | tuple[str, Any]]) -> Runtime:
     tserve.scheduling.scheduler.Scheduler
         Forecast dispatch is not implemented in this package.
     """
+    resolved: list[tuple[ModelInfo, Any]] = []
+    seen: set[str] = set()
+    for item in model:
+        info = resolve_model(item)
+        if info.id in seen:
+            raise ValueError(f"duplicate model id {info.id!r} in model")
+        seen.add(info.id)
+        resolved.append((info, item[1] if isinstance(item, tuple) else item))
+
     stats = Stats()
     executors: dict[str, Executor] = {}
     models: dict[str, ModelInfo] = {}
@@ -145,13 +153,7 @@ def bootstrap(model: list[str | Path | tuple[str, Any]]) -> Runtime:
             f"{paint('is always loaded as a baseline', '2')}"
         )
 
-    for position, item in enumerate(model, start=1):
-        info = resolve_model(item)
-        item = item[1] if isinstance(item, tuple) else item
-
-        if info.id in models:
-            raise ValueError(f"duplicate model id {info.id!r} in model")
-
+    for position, (info, item) in enumerate(resolved, start=1):
         label = f"{info.id} via {info.executor}"
         dots = paint("." * max(3, 40 - len(label)), "2")
         prefix = (
