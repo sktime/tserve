@@ -158,6 +158,36 @@ def test_predict_request_keeps_optional_time_and_target_unconverted():
             r"past columns must have the same number of rows",
             id="past_unequal_column_lengths",
         ),
+        pytest.param(
+            {"quantiles": []},
+            "quantiles cannot be empty",
+            id="quantiles_empty",
+        ),
+        pytest.param(
+            {"quantiles": [-0.5, 0.9]},
+            r"quantiles must be in the open interval \(0, 1\), got -0.5",
+            id="quantiles_negative",
+        ),
+        pytest.param(
+            {"quantiles": [0.0]},
+            r"quantiles must be in the open interval \(0, 1\), got 0.0",
+            id="quantiles_zero",
+        ),
+        pytest.param(
+            {"quantiles": [1.0]},
+            r"quantiles must be in the open interval \(0, 1\), got 1.0",
+            id="quantiles_one",
+        ),
+        pytest.param(
+            {"quantiles": [1.5]},
+            r"quantiles must be in the open interval \(0, 1\), got 1.5",
+            id="quantiles_above_one",
+        ),
+        pytest.param(
+            {"quantiles": [0.5, 0.5]},
+            "quantiles must be unique, but found duplicates",
+            id="quantiles_duplicate",
+        ),
     ],
 )
 def test_predict_request_rejects(kwargs, match):

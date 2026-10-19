@@ -197,3 +197,31 @@ def _require_columns(
         raise ValueError(
             f"{frame_name} is missing columns: {missing} (available: {available})"
         )
+
+
+def _check_quantiles(quantiles: list[float] | None) -> None:
+    """Validate that quantiles is None or a non-empty list of unique floats in (0, 1).
+
+    Parameters
+    ----------
+    quantiles : list of float or None
+        Requested quantiles.
+
+    Raises
+    ------
+    ValueError
+        If ``quantiles`` is empty, contains values outside the open
+        interval (0, 1), or contains duplicate values.
+    """
+    if quantiles is None:
+        return
+
+    if not quantiles:
+        raise ValueError("quantiles cannot be empty; provide values in (0, 1) or None")
+
+    for q in quantiles:
+        if not (0 < q < 1):
+            raise ValueError(f"quantiles must be in the open interval (0, 1), got {q}")
+
+    if len(set(quantiles)) < len(quantiles):
+        raise ValueError("quantiles must be unique, but found duplicates")
