@@ -238,3 +238,9 @@ TServe rejects requests when:
 - target inference leaves no target columns.
 
 Panel and hierarchical inputs are not supported. Send one time series table per request. See [Errors](../reference/errors.md) for HTTP statuses and Python exceptions.
+
+## Missing values in the target
+
+TServe does not define one null-handling rule for every model. How a model treats missing values in the target comes from the sktime estimator behind it. Some estimators reject nulls, and others skip or fill them. To check a model, look up its `capability:missing_values` tag on the [sktime models page](https://www.sktime.net/models).
+
+For example, `naive` accepts a null in the middle of the target and forecasts from the remaining values, while `chronos_bolt` returns HTTP 400 for the same input. Send complete target values if you want the same behaviour across models.
