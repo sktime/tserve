@@ -71,6 +71,46 @@ def _check_frame(value: Any, *, name: str) -> None:
     raise ValueError(f"{name} must be {_TABLE_SHAPE}, got {type(value).__name__}")
 
 
+def _check_static_rows(value: Any, *, name: str = "static") -> None:
+    """Require a static table to have exactly one row.
+
+    Static features are broadcast over every time step, so a table with
+    more than one row would silently drop every row after the first. Call
+    this after ``_check_frame``, which guarantees a supported shape.
+
+    Parameters
+    ----------
+    value : any
+        Candidate static frame or ``None``.
+    name : str
+        Field name used in error messages.
+
+    Raises
+    ------
+    ValueError
+        If ``value`` has a number of rows other than one.
+    """
+    if value is None:
+        return
+
+    if isinstance(value, dict) and "columns" in value and "data" in value:
+        rows = len(value["data"])
+    elif isinstance(value, dict):
+        rows = len(next(iter(value.values())))
+    elif is_pyarrow_table(value):
+        rows = value.num_rows
+    else:
+        rows = len(value)
+
+    if rows != 1:
+        raise ValueError(
+            f"{name} must have exactly one row, got {rows}. Static features are "
+            "held constant over time, so give each column exactly one value, "
+            'for example {"store": ["urban"]} or '
+            '{"columns": ["store"], "data": [["urban"]]}.'
+        )
+
+
 def _check_frame_dict(value: dict[Any, Any], *, name: str) -> None:
     """Validate a dict-shaped table as either row-oriented or column-oriented.
 

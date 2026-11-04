@@ -30,7 +30,12 @@ from typing import Any, Literal, Self
 import narwhals as nw
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from tserve.types._checks import _check_frame, _check_quantiles, _require_columns
+from tserve.types._checks import (
+    _check_frame,
+    _check_quantiles,
+    _check_static_rows,
+    _require_columns,
+)
 from tserve.types._examples import (
     HEALTH_OK,
     MODELS_RESULT,
@@ -116,6 +121,7 @@ class PredictRequest(BaseModel):
         _check_frame(self.past, name="past")
         _check_frame(self.future, name="future")
         _check_frame(self.static, name="static")
+        _check_static_rows(self.static)
         return self
 
     @model_validator(mode="after")
@@ -270,6 +276,28 @@ class CoercedPredictRequest(BaseModel):
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
 
+        return self
+
+    @model_validator(mode="after")
+    def _validate_static(self) -> Self:
+        """Require static to have exactly one row.
+
+        Returns
+        -------
+        CoercedPredictRequest
+            ``self`` after the row count check.
+
+        Raises
+        ------
+        ValueError
+            If ``static`` is present and does not have exactly one row.
+        """
+        if self.static is not None and len(self.static) != 1:
+            raise ValueError(
+                f"static must have exactly one row, got {len(self.static)}. "
+                "Static features are held constant over time, so give each "
+                'column exactly one value, for example {"store": ["urban"]}.'
+            )
         return self
 
 
