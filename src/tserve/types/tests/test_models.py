@@ -263,3 +263,39 @@ def test_coerced_request_rejects(kwargs, match):
 def test_coerced_response_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _coerced_response(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "quantiles",
+    [
+        [],
+        [-0.5],
+        [0.0],
+        [1.0],
+        [1.5],
+        [0.5, 0.5],
+        [float("nan")],
+        [float("inf")],
+        [float("-inf")],
+    ],
+    ids=[
+        "empty",
+        "negative",
+        "zero",
+        "one",
+        "above_one",
+        "duplicate",
+        "nan",
+        "inf",
+        "negative_inf",
+    ],
+)
+def test_coerced_request_rejects_invalid_quantiles(quantiles):
+    with pytest.raises(ValidationError, match="quantiles"):
+        _coerced_request(quantiles=quantiles)
+
+
+@pytest.mark.parametrize("factory", [_request, _coerced_request])
+@pytest.mark.parametrize("quantiles", [None, [0.5], [0.1, 0.5, 0.9], [0.9, 0.1]])
+def test_predict_requests_preserve_valid_quantiles(factory, quantiles):
+    assert factory(quantiles=quantiles).quantiles == quantiles
