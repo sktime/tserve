@@ -221,15 +221,16 @@ class CoercedPredictRequest(BaseModel):
     static : narwhals.DataFrame or None
         Static features, or ``None``.
     quantiles : list of float or None
-        Alphas forwarded to executors that support quantile forecasts.
+        Unique alphas in (0, 1), forwarded to executors that support
+        quantile forecasts. If provided, the list must not be empty.
 
     Raises
     ------
     ValidationError
-        If required columns are missing or field types fail (including
-        non-narwhals ``past``). Inner validators raise
-        ``ValueError``, which Pydantic wraps. Messages list missing vs
-        available columns.
+        If quantiles are invalid, required columns are missing, or field types
+        fail (including non-narwhals ``past``). Inner validators raise
+        ``ValueError``, which Pydantic wraps. Column errors list missing
+        vs available columns.
 
     See Also
     --------
@@ -252,24 +253,25 @@ class CoercedPredictRequest(BaseModel):
 
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
-        """Require time and target columns.
+        """Require time and target columns and valid quantiles.
 
         Returns
         -------
         CoercedPredictRequest
-            ``self`` after column checks.
+            ``self`` after column and quantile checks.
 
         Raises
         ------
         ValueError
             If ``past`` (or ``future`` when present) is missing
-            required columns.
+            required columns, or quantiles are empty, outside (0, 1), or duplicated.
         """
         _require_columns(self.past, [self.time, *self.target], frame_name="past")
 
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
 
+        _check_quantiles(self.quantiles)
         return self
 
 
