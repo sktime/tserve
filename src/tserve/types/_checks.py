@@ -199,6 +199,50 @@ def _require_columns(
         )
 
 
+def _check_target_columns(target: list[str], time: str) -> None:
+    """Reject a target that names the time column or repeats a column.
+
+    Runs on ``CoercedPredictRequest``, where ``time`` and ``target`` are
+    both resolved. ``_require_columns`` only checks that the names
+    exist, so without this a repeated target reaches
+    ``past.loc[:, target]`` as a two-column selection and a time-valued
+    target selects a column the frame no longer has, each failing
+    inside pandas with a message that never mentions ``target``.
+
+    Column inference cannot produce either shape: it takes the past
+    columns other than ``time`` and those of ``future``, which are
+    unique and exclude ``time`` by construction.
+
+    Parameters
+    ----------
+    target : list of str
+        Resolved target column names.
+    time : str
+        Resolved time-index column name.
+
+    Raises
+    ------
+    ValueError
+        If ``time`` appears in ``target``, or if ``target`` repeats a
+        column.
+    """
+    if time in target:
+        raise ValueError(
+            f"target includes the time column {time!r}.\n\ntime is the index "
+            "of the series, not a value to forecast. Drop it from target, "
+            f"e.g. target={[name for name in target if name != time] or ['sales']}, "
+            "or omit target to have it inferred."
+        )
+
+    repeated = list(dict.fromkeys(name for name in target if target.count(name) > 1))
+    if repeated:
+        raise ValueError(
+            f"target repeats column(s) {repeated}.\n\nEach target column is "
+            "forecast once, so name it once, e.g. "
+            f"target={list(dict.fromkeys(target))}."
+        )
+
+
 def _check_quantiles(quantiles: list[float] | None) -> None:
     """Validate that quantiles is None or a non-empty list of unique floats in (0, 1).
 

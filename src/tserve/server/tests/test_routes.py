@@ -178,6 +178,35 @@ def test_predict_errors_use_generic_http_exception(exc):
     assert detail["request_id"]
 
 
+@pytest.mark.parametrize(
+    ("target", "expected"),
+    [
+        pytest.param(
+            ["sales", "sales"],
+            "target repeats column(s) ['sales']",
+            id="duplicate",
+        ),
+        pytest.param(
+            ["timestamp", "sales"],
+            "target includes the time column 'timestamp'",
+            id="includes_time",
+        ),
+    ],
+)
+def test_predict_rejects_malformed_target_before_predict(target, expected):
+    # These used to reach pandas inside the executor and come back as
+    # "'DataFrame' object has no attribute 'dtype'" / "not in index".
+    runtime = _runtime()
+
+    result = _client(runtime).post("/predict", json=_payload(target=target))
+
+    assert result.status_code == 400
+    detail = result.json()["detail"]
+    assert detail["code"] == "request_failed"
+    assert expected in detail["error"]
+    runtime.scheduler.run.assert_not_called()
+
+
 def test_predict_get():
     result = _client(_runtime()).get("/predict")
 

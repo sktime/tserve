@@ -238,11 +238,56 @@ def test_predict_response_rejects(kwargs, match):
             "List should have at least 1 item",
             id="target_empty",
         ),
+        pytest.param(
+            {"target": ["sales", "sales"]},
+            r"target repeats column\(s\) \['sales'\]",
+            id="target_duplicate",
+        ),
+        pytest.param(
+            {
+                "past": _df(timestamp=["2024-01-01"], sales=[120], promo=[1]),
+                "target": ["sales", "promo", "sales", "promo"],
+            },
+            r"target repeats column\(s\) \['sales', 'promo'\]",
+            id="target_duplicate_several",
+        ),
+        pytest.param(
+            {"target": ["timestamp", "sales"]},
+            "target includes the time column 'timestamp'",
+            id="target_includes_time",
+        ),
+        pytest.param(
+            {"target": ["timestamp"]},
+            "target includes the time column 'timestamp'",
+            id="target_only_time",
+        ),
     ],
 )
 def test_coerced_request_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _coerced_request(**kwargs)
+
+
+def test_coerced_request_target_errors_name_what_to_send_instead():
+    """The messages have to point at ``target``; pandas' own never did."""
+    with pytest.raises(ValidationError, match=r"target=\['sales'\]") as duplicate:
+        _coerced_request(target=["sales", "sales"])
+
+    assert "forecast once" in str(duplicate.value)
+
+    with pytest.raises(ValidationError, match=r"target=\['sales'\]") as time_column:
+        _coerced_request(target=["timestamp", "sales"])
+
+    assert "omit target to have it inferred" in str(time_column.value)
+
+
+def test_coerced_request_keeps_distinct_target_columns():
+    request = _coerced_request(
+        past=_df(timestamp=["2024-01-01"], sales=[120], promo=[1]),
+        target=["sales", "promo"],
+    )
+
+    assert request.target == ["sales", "promo"]
 
 
 @pytest.mark.parametrize(

@@ -152,7 +152,7 @@ TServe then uses:
 1. the first `past` column as `time`;
 2. every other `past` column as a target, except columns also present in `future`, which become exogenous features instead.
 
-Specify `target` explicitly when a table contains columns that should not be forecast.
+Specify `target` explicitly when a table contains columns that should not be forecast. An explicit `target` names each column once and never names the time column, which is the index of the series rather than a value to forecast; either shape is rejected.
 
 ## Prediction horizon and model
 
