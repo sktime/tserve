@@ -7,7 +7,7 @@ TServe defines no exception types of its own. The server answers with HTTP statu
 | status | when |
 | --- | --- |
 | **422** | the body does not match [`PredictRequest`][tserve.types.models.PredictRequest]: `past` or `fh` missing, `fh` not `> 0`, a table that is neither table shape, columns of unequal length, a row narrower than `columns` |
-| **400** | the body was accepted but the request failed: the `model` is not loaded, `past` or `future` lacks the selected columns, target inference left nothing to forecast, or the estimator itself raised |
+| **400** | the body was accepted but the request failed: the `model` is not loaded, `past` or `future` lacks the selected columns, `target` repeats a column or names the time column, target inference left nothing to forecast, or the estimator itself raised |
 | **405** | wrong method, such as `GET /predict` (the body says to use `POST /predict`) |
 
 The split is where the failure happens. **422** is FastAPI rejecting the JSON body before the handler runs, so the body is the usual FastAPI list of field errors. **400** is the handler wrapping everything after that:

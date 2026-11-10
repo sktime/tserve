@@ -30,7 +30,12 @@ from typing import Any, Literal, Self
 import narwhals as nw
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from tserve.types._checks import _check_frame, _check_quantiles, _require_columns
+from tserve.types._checks import (
+    _check_frame,
+    _check_quantiles,
+    _check_target_columns,
+    _require_columns,
+)
 from tserve.types._examples import (
     HEALTH_OK,
     MODELS_RESULT,
@@ -203,6 +208,8 @@ class CoercedPredictRequest(BaseModel):
 
     * ``past`` must contain ``time`` and every ``target`` column.
     * If ``future`` is set, it must contain ``time``.
+    * ``target`` must not contain ``time``, and must not repeat a
+      column.
 
     Attributes
     ----------
@@ -226,10 +233,10 @@ class CoercedPredictRequest(BaseModel):
     Raises
     ------
     ValidationError
-        If required columns are missing or field types fail (including
-        non-narwhals ``past``). Inner validators raise
-        ``ValueError``, which Pydantic wraps. Messages list missing vs
-        available columns.
+        If required columns are missing, ``target`` names ``time`` or
+        repeats a column, or field types fail (including non-narwhals
+        ``past``). Inner validators raise ``ValueError``, which
+        Pydantic wraps. Messages list missing vs available columns.
 
     See Also
     --------
@@ -252,7 +259,7 @@ class CoercedPredictRequest(BaseModel):
 
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
-        """Require time and target columns.
+        """Require time and target columns, and a well-formed target.
 
         Returns
         -------
@@ -263,12 +270,15 @@ class CoercedPredictRequest(BaseModel):
         ------
         ValueError
             If ``past`` (or ``future`` when present) is missing
-            required columns.
+            required columns, or if ``target`` names ``time`` or
+            repeats a column.
         """
         _require_columns(self.past, [self.time, *self.target], frame_name="past")
 
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
+
+        _check_target_columns(self.target, self.time)
 
         return self
 
