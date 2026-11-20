@@ -98,14 +98,6 @@ def test_predict_request_keeps_optional_time_and_target_unconverted():
     assert request.target == "sales"
 
 
-def test_single_row_static_is_accepted():
-    request = _request(static={"store": ["A"]})
-    coerced = _coerced_request(static=_df(store=["A"]))
-
-    assert request.static == {"store": ["A"]}
-    assert len(coerced.static) == 1
-
-
 @pytest.mark.parametrize(
     ("kwargs", "match"),
     [
@@ -165,16 +157,6 @@ def test_single_row_static_is_accepted():
             {"past": {"timestamp": ["2024-01-01", "2024-01-02"], "sales": [120]}},
             r"past columns must have the same number of rows",
             id="past_unequal_column_lengths",
-        ),
-        pytest.param(
-            {"static": {"store": ["A", "B"]}},
-            "static must have exactly one row, got 2",
-            id="static_multi_row_column_dict",
-        ),
-        pytest.param(
-            {"static": {"columns": ["store"], "data": [["A"], ["B"]]}},
-            "static must have exactly one row, got 2",
-            id="static_multi_row_matrix",
         ),
         pytest.param(
             {"quantiles": []},
@@ -255,6 +237,11 @@ def test_predict_response_rejects(kwargs, match):
             {"static": _df(store=["A", "B"])},
             "static must have exactly one row, got 2",
             id="static_multi_row",
+        ),
+        pytest.param(
+            {"static": _df(store=[])},
+            "static must have exactly one row, got 0",
+            id="static_empty",
         ),
         pytest.param(
             {"target": []},

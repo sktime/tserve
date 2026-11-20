@@ -30,12 +30,7 @@ from typing import Any, Literal, Self
 import narwhals as nw
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from tserve.types._checks import (
-    _check_frame,
-    _check_quantiles,
-    _check_static_rows,
-    _require_columns,
-)
+from tserve.types._checks import _check_frame, _check_quantiles, _require_columns
 from tserve.types._examples import (
     HEALTH_OK,
     MODELS_RESULT,
@@ -121,7 +116,6 @@ class PredictRequest(BaseModel):
         _check_frame(self.past, name="past")
         _check_frame(self.future, name="future")
         _check_frame(self.static, name="static")
-        _check_static_rows(self.static)
         return self
 
     @model_validator(mode="after")
