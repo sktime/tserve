@@ -253,24 +253,41 @@ class CoercedPredictRequest(BaseModel):
 
     @model_validator(mode="after")
     def _check_frame_columns(self) -> Self:
-        """Require time and target columns and valid quantiles.
+        """Require time and target columns.
 
         Returns
         -------
         CoercedPredictRequest
-            ``self`` after column and quantile checks.
+            ``self`` after column checks.
 
         Raises
         ------
         ValueError
             If ``past`` (or ``future`` when present) is missing
-            required columns, or quantiles are empty, outside (0, 1), or duplicated.
+            required columns.
         """
         _require_columns(self.past, [self.time, *self.target], frame_name="past")
 
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
 
+        return self
+
+    @model_validator(mode="after")
+    def _validate_quantiles(self) -> Self:
+        """Reject quantiles that are invalid.
+
+        Returns
+        -------
+        CoercedPredictRequest
+            ``self`` after ``quantiles`` passes ``_check_quantiles``.
+
+        Raises
+        ------
+        ValueError
+            If ``quantiles`` is empty, contains values outside (0, 1),
+            or contains duplicates.
+        """
         _check_quantiles(self.quantiles)
         return self
 
