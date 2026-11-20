@@ -272,6 +272,28 @@ class CoercedPredictRequest(BaseModel):
 
         return self
 
+    @model_validator(mode="after")
+    def _validate_static(self) -> Self:
+        """Require static to have exactly one row.
+
+        Returns
+        -------
+        CoercedPredictRequest
+            ``self`` after the row count check.
+
+        Raises
+        ------
+        ValueError
+            If ``static`` is present and does not have exactly one row.
+        """
+        if self.static is not None and len(self.static) != 1:
+            raise ValueError(
+                f"static must have exactly one row, got {len(self.static)}. "
+                "Static features are held constant over time, so give each "
+                'column exactly one value, for example {"store": ["urban"]}.'
+            )
+        return self
+
 
 class CoercedPredictResponse(BaseModel):
     """Internal predict output: narwhals prediction tables.
