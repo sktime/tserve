@@ -234,9 +234,34 @@ def test_predict_response_rejects(kwargs, match):
             id="future_missing_time_column",
         ),
         pytest.param(
+            {"static": _df(store=["A", "B"])},
+            "static must have exactly one row, got 2",
+            id="static_multi_row",
+        ),
+        pytest.param(
+            {"static": _df(store=[])},
+            "static must have exactly one row, got 0",
+            id="static_empty",
+        ),
+        pytest.param(
             {"target": []},
             "List should have at least 1 item",
             id="target_empty",
+        ),
+        pytest.param(
+            {"target": ["sales", "sales"]},
+            r"target repeats column\(s\) \['sales'\]",
+            id="target_duplicate",
+        ),
+        pytest.param(
+            {"target": ["timestamp", "sales"]},
+            "target includes the time column 'timestamp'",
+            id="target_includes_time",
+        ),
+        pytest.param(
+            {"target": ["timestamp"]},
+            "target includes the time column 'timestamp'",
+            id="target_only_time",
         ),
         pytest.param(
             {"quantiles": []},
@@ -288,6 +313,15 @@ def test_predict_response_rejects(kwargs, match):
 def test_coerced_request_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _coerced_request(**kwargs)
+
+
+def test_coerced_request_keeps_distinct_target_columns():
+    request = _coerced_request(
+        past=_df(timestamp=["2024-01-01"], sales=[120], promo=[1]),
+        target=["sales", "promo"],
+    )
+
+    assert request.target == ["sales", "promo"]
 
 
 @pytest.mark.parametrize(

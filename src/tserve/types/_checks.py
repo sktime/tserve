@@ -18,6 +18,7 @@ tserve.types.converters._to_narwhals
     Converts a frame that has already passed these checks.
 """
 
+from collections import Counter
 from typing import Any
 
 import narwhals as nw
@@ -196,6 +197,36 @@ def _require_columns(
         available = list(frame.columns)
         raise ValueError(
             f"{frame_name} is missing columns: {missing} (available: {available})"
+        )
+
+
+def _check_target_columns(target: list[str], time: str) -> None:
+    """Reject a target that names the time column or repeats a column.
+
+    Parameters
+    ----------
+    target : list of str
+        Resolved target column names.
+    time : str
+        Resolved time-index column name.
+
+    Raises
+    ------
+    ValueError
+        If ``time`` appears in ``target``, or if ``target`` repeats a
+        column.
+    """
+    if time in target:
+        raise ValueError(
+            f"target includes the time column {time!r}. Drop it from target, "
+            "or omit target to have it inferred."
+        )
+
+    repeated = [name for name, count in Counter(target).items() if count > 1]
+    if repeated:
+        raise ValueError(
+            f"target repeats column(s) {repeated}. Name each column once, "
+            f"e.g. target={list(dict.fromkeys(target))}."
         )
 
 
