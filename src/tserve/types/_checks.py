@@ -18,6 +18,7 @@ tserve.types.converters._to_narwhals
     Converts a frame that has already passed these checks.
 """
 
+from collections import Counter
 from typing import Any
 
 import narwhals as nw
@@ -202,17 +203,6 @@ def _require_columns(
 def _check_target_columns(target: list[str], time: str) -> None:
     """Reject a target that names the time column or repeats a column.
 
-    Runs on ``CoercedPredictRequest``, where ``time`` and ``target`` are
-    both resolved. ``_require_columns`` only checks that the names
-    exist, so without this a repeated target reaches
-    ``past.loc[:, target]`` as a two-column selection and a time-valued
-    target selects a column the frame no longer has, each failing
-    inside pandas with a message that never mentions ``target``.
-
-    Column inference cannot produce either shape: it takes the past
-    columns other than ``time`` and those of ``future``, which are
-    unique and exclude ``time`` by construction.
-
     Parameters
     ----------
     target : list of str
@@ -228,18 +218,15 @@ def _check_target_columns(target: list[str], time: str) -> None:
     """
     if time in target:
         raise ValueError(
-            f"target includes the time column {time!r}.\n\ntime is the index "
-            "of the series, not a value to forecast. Drop it from target, "
-            f"e.g. target={[name for name in target if name != time] or ['sales']}, "
+            f"target includes the time column {time!r}. Drop it from target, "
             "or omit target to have it inferred."
         )
 
-    repeated = list(dict.fromkeys(name for name in target if target.count(name) > 1))
+    repeated = [name for name, count in Counter(target).items() if count > 1]
     if repeated:
         raise ValueError(
-            f"target repeats column(s) {repeated}.\n\nEach target column is "
-            "forecast once, so name it once, e.g. "
-            f"target={list(dict.fromkeys(target))}."
+            f"target repeats column(s) {repeated}. Name each column once, "
+            f"e.g. target={list(dict.fromkeys(target))}."
         )
 
 
