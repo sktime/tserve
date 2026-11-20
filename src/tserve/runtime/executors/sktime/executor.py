@@ -16,6 +16,7 @@ tserve.types.models.CoercedPredictRequest
     Field semantics for ``predict``.
 """
 
+import threading
 from typing import Any
 
 import pandas as pd
@@ -78,12 +79,21 @@ class SktimeExecutor(Executor):
         Listing row set by ``load``, or ``None`` before load.
     _forecaster : any or None
         sktime forecaster set by ``load``, or ``None`` before load.
+    _lock : threading.Lock
+        Held across ``fit``, ``predict``, and ``predict_quantiles`` in
+        ``predict``. sktime forecasters are stateful: ``fit`` stores the
+        series and cutoff on the instance, and ``predict`` reads them.
+        The server runs ``POST /predict`` in a thread pool, so without
+        the lock concurrent requests to one model id interleave and a
+        caller can receive the forecast fitted on another caller's
+        ``past``.
     """
 
     def __init__(self) -> None:
         """Set ``_info`` and ``_forecaster`` to ``None``. See the class docstring."""
         self._info: ModelInfo | None = None
         self._forecaster: Any = None
+        self._lock = threading.Lock()
 
     def load(self, info: ModelInfo, model: Any) -> None:
         """Materialize a sktime forecaster from ``info.source``.
@@ -206,6 +216,11 @@ class SktimeExecutor(Executor):
         fitting or prediction, so that case carries no estimator message
         at all.
 
+        ``fit`` through ``predict_quantiles`` runs under ``_lock``, so
+        concurrent requests to the same model are served one at a time
+        and each response is computed from its own ``past``. Parsing the
+        request happens before the lock is taken.
+
         Parameters
         ----------
         request : CoercedPredictRequest
@@ -243,35 +258,39 @@ class SktimeExecutor(Executor):
         pred = None
         pred_quantiles = None
 
-        # 2. Get Point Forecast
-        try:
-            self._forecaster.fit(y=y, X=X, fh=fh)
-            pred = self._forecaster.predict(X=X_future, fh=fh)
-        except Exception as error:
-            raise RuntimeError(
-                f"Model {request.model!r} failed to forecast {request.fh} "
-                f"step(s) ahead from the {len(y)} row(s) in past.\n\nOriginal "
-                f"error: {error}\n\nCheck the request against what this model "
-                "supports. The catalog records the context, horizon, and "
-                "capabilities of every model: "
-                "https://tserve.readthedocs.io/en/latest/models/"
-            ) from error
-
-        # 3. Get Quantile Forecasts
-        if quantiles:
+        # fit stores y and the cutoff on the shared forecaster, and both
+        # predict calls read them, so hold the lock until the last read.
+        with self._lock:
+            # 2. Get Point Forecast
             try:
-                pred_quantiles = self._forecaster.predict_quantiles(
-                    alpha=quantiles, X=X_future, fh=fh
-                )
+                self._forecaster.fit(y=y, X=X, fh=fh)
+                pred = self._forecaster.predict(X=X_future, fh=fh)
             except Exception as error:
                 raise RuntimeError(
-                    f"Model {request.model!r} returned its point forecast but "
-                    f"failed on the requested quantiles {quantiles}.\n\n"
-                    f"Original error: {error}\n\nDrop `quantiles` to keep just "
-                    "the point forecast, or check what this model supports. "
-                    "The catalog records the quantile support of every model: "
+                    f"Model {request.model!r} failed to forecast {request.fh} "
+                    f"step(s) ahead from the {len(y)} row(s) in past.\n\nOriginal "
+                    f"error: {error}\n\nCheck the request against what this model "
+                    "supports. The catalog records the context, horizon, and "
+                    "capabilities of every model: "
                     "https://tserve.readthedocs.io/en/latest/models/"
                 ) from error
+
+            # 3. Get Quantile Forecasts
+            if quantiles:
+                try:
+                    pred_quantiles = self._forecaster.predict_quantiles(
+                        alpha=quantiles, X=X_future, fh=fh
+                    )
+                except Exception as error:
+                    raise RuntimeError(
+                        f"Model {request.model!r} returned its point forecast but "
+                        f"failed on the requested quantiles {quantiles}.\n\n"
+                        f"Original error: {error}\n\nDrop `quantiles` to keep "
+                        "just the point forecast, or check what this model "
+                        "supports. The catalog records the quantile support of "
+                        "every model: "
+                        "https://tserve.readthedocs.io/en/latest/models/"
+                    ) from error
 
         # 4. Create Response
         response: CoercedPredictResponse = to_response(

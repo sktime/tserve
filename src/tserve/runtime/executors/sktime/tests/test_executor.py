@@ -1,3 +1,6 @@
+import time
+from concurrent.futures import ThreadPoolExecutor
+
 import narwhals as nw
 import pytest
 from sktime.forecasting.naive import NaiveForecaster
@@ -95,3 +98,36 @@ def test_predict():
     assert isinstance(response, CoercedPredictResponse)
     assert isinstance(response.predictions, nw.DataFrame)
     assert response.model == "naive"
+
+
+class _SlowNaive(NaiveForecaster):
+    """``NaiveForecaster`` whose fit takes as long as a foundation model's."""
+
+    def _fit(self, y, X=None, fh=None):
+        fitted = super()._fit(y, X=X, fh=fh)
+        time.sleep(0.01)
+        return fitted
+
+
+def test_predict_concurrent_requests_get_their_own_forecast():
+    executor = SktimeExecutor()
+    executor.load(
+        ModelInfo(id="slow", executor="sktime", source="object"), _SlowNaive()
+    )
+
+    def forecast(level):
+        n_rows = 10 + level
+        request = _request(
+            past=_df(t=list(range(n_rows)), y=[float(level)] * n_rows),
+            time="t",
+            target=["y"],
+            model="slow",
+        )
+        return executor.predict(request).predictions.to_dict(as_series=False)
+
+    levels = range(32)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(forecast, levels))
+
+    for level, result in zip(levels, results, strict=True):
+        assert result == {"t": [10 + level], "y": [float(level)]}
