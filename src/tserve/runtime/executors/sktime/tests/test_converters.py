@@ -103,11 +103,6 @@ def test_from_request_rejects_unusable_time_index(past, match):
         from_request(_request(past=past))
 
 
-def test_from_request_rejects_empty_static():
-    with pytest.raises(ValueError, match="no rows"):
-        from_request(_request(static=_df(store=[])))
-
-
 @pytest.mark.parametrize(
     ("kwargs", "match"),
     [

@@ -234,6 +234,16 @@ def test_predict_response_rejects(kwargs, match):
             id="future_missing_time_column",
         ),
         pytest.param(
+            {"static": _df(store=["A", "B"])},
+            "static must have exactly one row, got 2",
+            id="static_multi_row",
+        ),
+        pytest.param(
+            {"static": _df(store=[])},
+            "static must have exactly one row, got 0",
+            id="static_empty",
+        ),
+        pytest.param(
             {"target": []},
             "List should have at least 1 item",
             id="target_empty",
