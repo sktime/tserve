@@ -263,6 +263,51 @@ def test_predict_response_rejects(kwargs, match):
             "target includes the time column 'timestamp'",
             id="target_only_time",
         ),
+        pytest.param(
+            {"quantiles": []},
+            "quantiles cannot be empty",
+            id="quantiles_empty",
+        ),
+        pytest.param(
+            {"quantiles": [-0.5]},
+            r"quantiles must be in the open interval \(0, 1\), got -0.5",
+            id="quantiles_negative",
+        ),
+        pytest.param(
+            {"quantiles": [0.0]},
+            r"quantiles must be in the open interval \(0, 1\), got 0.0",
+            id="quantiles_zero",
+        ),
+        pytest.param(
+            {"quantiles": [1.0]},
+            r"quantiles must be in the open interval \(0, 1\), got 1.0",
+            id="quantiles_one",
+        ),
+        pytest.param(
+            {"quantiles": [1.5]},
+            r"quantiles must be in the open interval \(0, 1\), got 1.5",
+            id="quantiles_above_one",
+        ),
+        pytest.param(
+            {"quantiles": [float("nan")]},
+            r"quantiles must be in the open interval \(0, 1\), got nan",
+            id="quantiles_nan",
+        ),
+        pytest.param(
+            {"quantiles": [float("inf")]},
+            r"quantiles must be in the open interval \(0, 1\), got inf",
+            id="quantiles_inf",
+        ),
+        pytest.param(
+            {"quantiles": [float("-inf")]},
+            r"quantiles must be in the open interval \(0, 1\), got -inf",
+            id="quantiles_negative_inf",
+        ),
+        pytest.param(
+            {"quantiles": [0.5, 0.5]},
+            "quantiles must be unique, but found duplicates",
+            id="quantiles_duplicate",
+        ),
     ],
 )
 def test_coerced_request_rejects(kwargs, match):
@@ -297,3 +342,9 @@ def test_coerced_request_keeps_distinct_target_columns():
 def test_coerced_response_rejects(kwargs, match):
     with pytest.raises(ValidationError, match=match):
         _coerced_response(**kwargs)
+
+
+@pytest.mark.parametrize("factory", [_request, _coerced_request])
+@pytest.mark.parametrize("quantiles", [None, [0.5], [0.1, 0.5, 0.9], [0.9, 0.1]])
+def test_predict_requests_preserve_valid_quantiles(factory, quantiles):
+    assert factory(quantiles=quantiles).quantiles == quantiles

@@ -227,15 +227,16 @@ class CoercedPredictRequest(BaseModel):
     static : narwhals.DataFrame or None
         Static features, or ``None``.
     quantiles : list of float or None
-        Alphas forwarded to executors that support quantile forecasts.
+        Unique alphas in (0, 1), forwarded to executors that support
+        quantile forecasts. If provided, the list must not be empty.
 
     Raises
     ------
     ValidationError
-        If required columns are missing or field types fail (including
-        non-narwhals ``past``). Inner validators raise
-        ``ValueError``, which Pydantic wraps. Messages list missing vs
-        available columns.
+        If quantiles are invalid, required columns are missing, or field types
+        fail (including non-narwhals ``past``). Inner validators raise
+        ``ValueError``, which Pydantic wraps. Column errors list missing
+        vs available columns.
 
     See Also
     --------
@@ -300,6 +301,24 @@ class CoercedPredictRequest(BaseModel):
                 "Static features are held constant over time, so give each "
                 'column exactly one value, for example {"store": ["urban"]}.'
             )
+        return self
+
+    @model_validator(mode="after")
+    def _validate_quantiles(self) -> Self:
+        """Reject quantiles that are invalid.
+
+        Returns
+        -------
+        CoercedPredictRequest
+            ``self`` after ``quantiles`` passes ``_check_quantiles``.
+
+        Raises
+        ------
+        ValueError
+            If ``quantiles`` is empty, contains values outside (0, 1),
+            or contains duplicates.
+        """
+        _check_quantiles(self.quantiles)
         return self
 
 

@@ -183,3 +183,42 @@ def test_predict_get():
 
     assert result.status_code == 405
     assert "POST /predict" in result.json()["detail"]
+
+
+def _post_quantiles(client, path, quantiles):
+    if path == "/predict":
+        return client.post(path, json=_payload(quantiles=quantiles))
+
+    metadata, files = encode_request(coerce_request(_request()))
+    # Mutate the wire metadata so PredictRequest cannot validate it first.
+    metadata["quantiles"] = quantiles
+    return client.post(
+        path,
+        data={"metadata": json.dumps(metadata)},
+        files={"past": ("past", files["past"], "application/vnd.apache.arrow.stream")},
+    )
+
+
+@pytest.mark.parametrize(
+    ("path", "status"), [("/predict", 422), ("/predict/bytes", 400)]
+)
+@pytest.mark.parametrize("quantiles", [[], [-0.5], [0.0], [1.0], [1.5], [0.5, 0.5]])
+def test_predict_rejects_invalid_quantiles_before_scheduling(path, status, quantiles):
+    runtime = _runtime()
+    result = _post_quantiles(_client(runtime), path, quantiles)
+
+    assert result.status_code == status
+    assert "quantiles" in result.text
+    runtime.scheduler.run.assert_not_called()
+
+
+@pytest.mark.parametrize("path", ["/predict", "/predict/bytes"])
+@pytest.mark.parametrize("quantiles", [None, [0.5], [0.1, 0.5, 0.9], [0.9, 0.1]])
+def test_predict_forwards_valid_quantiles(path, quantiles):
+    runtime = _runtime()
+    result = _post_quantiles(_client(runtime), path, quantiles)
+
+    assert result.status_code == 200
+    runtime.scheduler.run.assert_called_once()
+    request = runtime.scheduler.run.call_args.args[0]
+    assert request.quantiles == quantiles
