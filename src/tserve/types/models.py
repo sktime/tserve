@@ -30,7 +30,12 @@ from typing import Any, Literal, Self
 import narwhals as nw
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from tserve.types._checks import _check_frame, _check_quantiles, _require_columns
+from tserve.types._checks import (
+    _check_frame,
+    _check_quantiles,
+    _check_target_columns,
+    _require_columns,
+)
 from tserve.types._examples import (
     HEALTH_OK,
     MODELS_RESULT,
@@ -203,6 +208,7 @@ class CoercedPredictRequest(BaseModel):
 
     * ``past`` must contain ``time`` and every ``target`` column.
     * If ``future`` is set, it must contain ``time``.
+    * ``target`` must not contain ``time`` or repeat a column.
 
     Attributes
     ----------
@@ -269,6 +275,8 @@ class CoercedPredictRequest(BaseModel):
 
         if self.future is not None:
             _require_columns(self.future, [self.time], frame_name="future")
+
+        _check_target_columns(self.target, self.time)
 
         return self
 
