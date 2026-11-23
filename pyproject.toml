@@ -42,6 +42,9 @@ sktime = [
   "sktime>=1.2.0",
   "skpro",
 ]
+pytorch-forecasting = [
+  "pytorch-forecasting",
+]
 # ChronosForecaster/TinyTimeMixerForecaster/TimesFM2Forecaster. Also shared stack for the families below.
 hub = [
   "tserve[sktime]",
@@ -192,6 +195,7 @@ allowed-unresolved-imports = [
   "uvicorn.**",
   "pandas.**",
   "sktime.**",
+  "pytorch_forecasting.**",
 ]
 
 [tool.codespell]
