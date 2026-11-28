@@ -65,4 +65,12 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
+
+# Models load before the port is bound, so a 200 from /health means every
+# requested model is warm. The slim image has no curl, so use the venv's Python.
+# The start period covers first-start weight downloads; a check that passes ends
+# it early, so a warm start is marked healthy within one interval.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10m --retries=3 \
+    CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+
 ENTRYPOINT ["tserve", "--host", "0.0.0.0", "--port", "8000"]

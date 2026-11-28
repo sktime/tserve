@@ -28,6 +28,50 @@ docker run --rm -p 9000:8000 sktime/tserve:hub chronos_bolt
 
 The container logs `http://0.0.0.0:8000`; from the host, open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (or `9000` in the example above). `docker run` without `--rm` keeps the stopped container around, which is worth it when you want `docker logs` after a crash.
 
+## Health check
+
+Every image has a `HEALTHCHECK` that calls `GET /health` inside the container every 30 seconds. TServe loads and warms every requested model before it opens the port, so the container turns `healthy` only once all of them are ready. Until then it shows `health: starting`:
+
+```bash
+docker ps --format "table {{.Names}}\t{{.Status}}"
+docker inspect --format "{{.State.Health.Status}}" <container>
+```
+
+A first start can spend minutes downloading weights, so failed checks don't count for the first 10 minutes. A start that finishes sooner turns `healthy` at the next check. For a large cold start, such as several models on `:full`, raise the grace period with `--health-start-period=30m` on `docker run`.
+
+The check calls port 8000 inside the container. Change the host port with `-p` as [above](#run-the-server) instead of passing `--port`, or the check will fail.
+
+Compose can wait for the server before starting a service that calls it:
+
+```yaml
+services:
+  tserve:
+    image: sktime/tserve:hub
+    command: ["chronos_bolt"]
+    ports: ["8000:8000"]
+  app:
+    image: my-app
+    depends_on:
+      tserve:
+        condition: service_healthy
+```
+
+Kubernetes ignores the image `HEALTHCHECK`, so declare probes on the container. A `startupProbe` covers the download, and the other probes take over once it passes:
+
+```yaml
+startupProbe:
+  httpGet: {path: /health, port: 8000}
+  periodSeconds: 10
+  failureThreshold: 60   # up to 10 minutes to load
+readinessProbe:
+  httpGet: {path: /health, port: 8000}
+  periodSeconds: 10
+livenessProbe:
+  httpGet: {path: /health, port: 8000}
+  periodSeconds: 30
+  timeoutSeconds: 5
+```
+
 ## Choose which models to load
 
 Models must belong to the families baked into the tag. `chronos_bolt` and `ttm_r3` load on `:hub` or `:full`. `chronos_2` loads on `:chronos` or `:full`. An unknown model fails immediately with the known models listed; a model whose family is missing from the image fails when that model loads.
